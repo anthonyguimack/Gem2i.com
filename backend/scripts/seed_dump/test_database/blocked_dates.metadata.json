@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"93bfa974cf6c4729b69c6cdaa4dfd789","collectionName":"blocked_dates","type":"collection"}

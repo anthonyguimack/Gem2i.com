@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"c2c9de4f5b7d4898bba4c47a09f2ef68","collectionName":"aurex_section_configs","type":"collection"}

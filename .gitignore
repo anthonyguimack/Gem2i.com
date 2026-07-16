@@ -1,0 +1,72 @@
+# IDE and editors
+.idea/
+.vscode/
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+.yarn/*
+
+# Testing
+/coverage
+
+# Production builds
+/build
+dist/
+*.tsbuildinfo
+
+# Environment and credential files
+.env
+.env.*
+*.env
+credentials.json
+*credentials.json*
+*token.json*
+*.pem
+*.key
+.credentials
+
+# Logs and debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dump.rdb
+
+# System files
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+.ipynb_checkpoints/
+
+# Deployment stamps (per-machine)
+.last-deploy-gem2i
+
+# Archive files and large assets
+**/*.zip
+**/*.tar.gz
+**/*.tar
+**/*.tgz
+*.pack
+
+# Build caches
+.cache/
+
+# Local agent/tool config (regenerate per machine: npx skills experimental_install + npx impeccable install)
+.claude/
+.agents/
+.codex/
+.impeccable/
+.screenshots/
+CLAUDE.backup.md
+
+# Local-only client artifacts (credentials, raw client docs, DB dumps — NEVER commit or deploy)
+reference/local-only/
+__bases_de_datos/
+
+# Word/Office lock files
+~$*

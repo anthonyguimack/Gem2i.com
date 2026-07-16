@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"5bbf75f23702459abe207f9a0bf5b040","collectionName":"enrollment_applications","type":"collection"}

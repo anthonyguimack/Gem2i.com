@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"3056719b82fd43259ab7ab530e40ae1e","collectionName":"ebank_activities","type":"collection"}

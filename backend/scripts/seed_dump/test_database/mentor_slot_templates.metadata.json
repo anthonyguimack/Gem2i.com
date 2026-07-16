@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"e37448741d39452a9c0bdb0030ceacad","collectionName":"mentor_slot_templates","type":"collection"}

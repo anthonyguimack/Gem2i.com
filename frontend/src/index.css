@@ -1,0 +1,616 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 215 28% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 17%;
+    --primary: 215 28% 17%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 28% 17%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 174 84% 30%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 174 84% 30%;
+    --chart-1: 174 84% 30%;
+    --chart-2: 215 28% 17%;
+    --chart-3: 215 16% 47%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.25rem;
+    --legacy-navy: #1a2332;
+    --legacy-teal: #0D9488;
+    --legacy-slate: #64748B;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Manrope', sans-serif;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer base {
+  [data-debug-wrapper="true"] {
+    display: contents !important;
+  }
+}
+
+/* Leaflet fix */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   GLOBAL TYPOGRAPHY POLICY — PERMANENT BASE RULES (ALL THEMES + LANDING)
+   ─────────────────────────────────────────────────────────────────────────
+   These rules are THE canonical word-wrapping policy for the entire public
+   website — Aurex One-page theme, Modern / Classic / Default legacy themes,
+   AND the standalone Landing Page. They apply at the :root / html / body
+   level so every element — existing today AND future components — inherits
+   them by default. Do NOT remove or weaken these rules; any new component
+   or future project/feature in this system MUST inherit them.
+
+   Why: prior iterations saw hyphenated words like "membership-based" breaking
+   at the dash, and non-hyphenated words like "opportunities" / "alignment" /
+   "literacy" splitting mid-character near container edges. Root causes:
+     1. CSS auto-hyphenation (`hyphens: auto`) from Tailwind prose / UA defaults.
+     2. The deprecated `word-break: break-word` value.
+     3. Rich-text content saved with `&nbsp;` between every word (Quill editor),
+        which the browser treats as a single unbreakable token.
+
+   Policy enforced (CSS layer):
+     - `word-break: normal`       → never split inside a word.
+     - `overflow-wrap: break-word`→ only wrap at whitespace; break long
+                                     unbreakable tokens (URLs, hashes) at
+                                     the container edge only if needed.
+     - `hyphens: none`            → turn off browser auto-hyphenation.
+
+   Companion JS layer (`/app/frontend/src/lib/richText.js → normalizeRichText`)
+   strips `&nbsp;` / U+00A0 from every rich-text payload before rendering.
+   Landing page has an additional `nbHyphens()` helper that also promotes
+   regular hyphens to non-breaking hyphens (U+2011) for extra safety.
+
+   Specificity: the per-element block uses `:where()` (specificity 0,0,0) so
+   that admin-facing pages can still opt-in to Tailwind's `break-all` utility
+   for long URLs/QR codes without fighting cascade.
+   ─────────────────────────────────────────────────────────────────────── */
+
+html,
+body,
+#root {
+  word-break: normal;
+  overflow-wrap: break-word;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+:where(p, h1, h2, h3, h4, h5, h6, li, blockquote, span, strong, em,
+       figcaption, summary, td, th, article, aside, section, main, footer,
+       header, dt, dd, small, a, label, div) {
+  word-break: normal;
+  overflow-wrap: break-word;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Rich text content styling */
+.rich-text-content {
+  /* Never break words mid-character. Only break at whitespace boundaries;
+     fall back to `anywhere` ONLY if a token (URL/code) would overflow.
+     NOTE: `word-break: break-word` is deprecated and causes mid-char splits. */
+  word-break: normal;
+  overflow-wrap: break-word;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+/* Cascade the same rules to every descendant so Tailwind utility classes
+   or user agent defaults don't reintroduce mid-word breaks. */
+.rich-text-content *,
+.rich-text-content p,
+.rich-text-content span,
+.rich-text-content li,
+.rich-text-content ul,
+.rich-text-content ol,
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content h3,
+.rich-text-content h4,
+.rich-text-content h5,
+.rich-text-content h6,
+.rich-text-content blockquote {
+  word-break: normal;
+  overflow-wrap: break-word;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+.rich-text-content img,
+.rich-text-content iframe,
+.rich-text-content video,
+.rich-text-content pre {
+  max-width: 100%;
+  height: auto;
+}
+.rich-text-content pre {
+  white-space: pre-wrap;
+}
+
+/* Restore typographic flow inside admin-authored HTML (Tailwind preflight
+   strips default margins on block elements, which would otherwise flatten
+   paragraphs/lists/headings in places like the About description). */
+.rich-text-content p { margin: 0 0 .75em 0; line-height: 1.65; }
+.rich-text-content p:last-child { margin-bottom: 0; }
+.rich-text-content h1 { font-size: 1.875rem; font-weight: 700; margin: 1em 0 .5em; line-height: 1.25; }
+.rich-text-content h2 { font-size: 1.5rem;   font-weight: 700; margin: 1em 0 .5em; line-height: 1.3; }
+.rich-text-content h3 { font-size: 1.25rem;  font-weight: 600; margin: .8em 0 .4em; }
+.rich-text-content h4 { font-size: 1.1rem;   font-weight: 600; margin: .7em 0 .35em; }
+.rich-text-content ul { list-style: disc outside; margin: .5em 0 .75em 1.25em; padding-left: .25em; }
+.rich-text-content ol { list-style: decimal outside; margin: .5em 0 .75em 1.5em; padding-left: .25em; }
+.rich-text-content li { margin: .2em 0; }
+.rich-text-content blockquote { border-left: 3px solid currentColor; padding-left: 1em; margin: .75em 0; opacity: .85; font-style: italic; }
+.rich-text-content a { text-decoration: underline; text-underline-offset: 2px; }
+.rich-text-content strong, .rich-text-content b { font-weight: 700; }
+.rich-text-content em, .rich-text-content i { font-style: italic; }
+.rich-text-content u { text-decoration: underline; }
+.rich-text-content code { background: rgba(0,0,0,.06); padding: .1em .3em; border-radius: .2em; font-size: .9em; }
+.rich-text-content hr { border: 0; border-top: 1px solid currentColor; opacity: .2; margin: 1.25em 0; }
+.rich-text-content table {
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+.rich-text-content h1 {
+  @apply text-3xl font-bold mb-5 mt-8;
+  font-family: 'Playfair Display', serif;
+  /* Inherit so dark theme renders white and light theme renders dark. Pages
+     that need a specific heading color set it on a parent. */
+  color: inherit;
+}
+.rich-text-content h2 {
+  @apply text-2xl font-semibold mb-4 mt-8;
+  font-family: 'Playfair Display', serif;
+}
+.rich-text-content h3 {
+  @apply text-xl font-medium mb-3 mt-6;
+  font-family: 'Playfair Display', serif;
+}
+.rich-text-content p {
+  @apply mb-4 leading-relaxed;
+  /* Inherit color from the containing block so dark-themed sections (Our
+     Process on #1F2937, Audience on dark bg, hero descriptions, etc.) render
+     with their configured muted color class (text-gray-300/400) instead of
+     being hard-pinned to slate-600. */
+  color: inherit;
+}
+.rich-text-content ul {
+  @apply list-disc pl-6 mb-4 space-y-2;
+  color: inherit;
+}
+.rich-text-content ol {
+  @apply list-decimal pl-6 mb-4 space-y-2;
+  color: inherit;
+}
+.rich-text-content ul ul,
+.rich-text-content ol ol,
+.rich-text-content ul ol,
+.rich-text-content ol ul {
+  @apply mt-2 mb-0;
+}
+.rich-text-content blockquote {
+  @apply border-l-4 border-teal-500 pl-4 italic my-4;
+  color: inherit;
+  opacity: .85;
+}
+
+/* On dark surfaces (My Account area) the default slate-600/500 colors become
+   unreadable. Let rich-text inherit the parent text color so member-area
+   descriptions use the theme's own text-primary/secondary. */
+[data-testid="myaccount-layout"] .rich-text-content,
+[data-testid="myaccount-layout"] .rich-text-content p,
+[data-testid="myaccount-layout"] .rich-text-content ul,
+[data-testid="myaccount-layout"] .rich-text-content ol,
+[data-testid="myaccount-layout"] .rich-text-content li,
+[data-testid="myaccount-layout"] .rich-text-content blockquote,
+[data-testid="myaccount-layout"] .rich-text-content h1,
+[data-testid="myaccount-layout"] .rich-text-content h2,
+[data-testid="myaccount-layout"] .rich-text-content h3,
+[data-testid="myaccount-layout"] .rich-text-content h4,
+[data-testid="myaccount-layout"] .rich-text-content h5,
+[data-testid="myaccount-layout"] .rich-text-content h6 {
+  color: inherit;
+}
+
+/* Quill alignment classes */
+.rich-text-content .ql-align-center,
+.ql-editor .ql-align-center { text-align: center; }
+.rich-text-content .ql-align-right,
+.ql-editor .ql-align-right { text-align: right; }
+.rich-text-content .ql-align-justify,
+.ql-editor .ql-align-justify { text-align: justify; }
+.rich-text-content .ql-align-left,
+.ql-editor .ql-align-left { text-align: left; }
+
+/* Custom map marker cluster styling */
+.marker-cluster-small {
+  background-color: rgba(13, 148, 136, 0.25);
+}
+.marker-cluster-small div {
+  background-color: rgba(13, 148, 136, 0.7);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
+.marker-cluster-medium {
+  background-color: rgba(26, 35, 50, 0.25);
+}
+.marker-cluster-medium div {
+  background-color: rgba(26, 35, 50, 0.7);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+}
+.marker-cluster-large {
+  background-color: rgba(26, 35, 50, 0.35);
+}
+.marker-cluster-large div {
+  background-color: rgba(26, 35, 50, 0.85);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Bio modal rich text content (dark background) */
+.bio-rich-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: none;
+}
+.bio-rich-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  color: white;
+}
+.bio-rich-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  color: white;
+}
+.bio-rich-content h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  color: white;
+}
+.bio-rich-content p {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+.bio-rich-content strong, .bio-rich-content b {
+  font-weight: 700;
+  color: white;
+}
+.bio-rich-content em, .bio-rich-content i {
+  font-style: italic;
+}
+.bio-rich-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.bio-rich-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.bio-rich-content li {
+  margin-bottom: 0.25rem;
+}
+.bio-rich-content blockquote {
+  border-left: 3px solid #c9a84c;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #9ca3af;
+  margin: 0.5rem 0;
+}
+.bio-rich-content a {
+  color: #c9a84c;
+  text-decoration: underline;
+}
+
+/* Quill editor overrides */
+.ql-container {
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 1rem !important;
+  min-height: 200px;
+}
+.ql-toolbar {
+  border-radius: 0.25rem 0.25rem 0 0 !important;
+  border-color: hsl(214, 32%, 91%) !important;
+}
+.ql-container {
+  border-radius: 0 0 0.25rem 0.25rem !important;
+  border-color: hsl(214, 32%, 91%) !important;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animation classes */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* === MY ACCOUNT — Dynamic Color Overrides === */
+/* Accent backgrounds */
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\] { background-color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\]\/5 { background-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 5%, transparent) !important; }
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\]\/10 { background-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 10%, transparent) !important; }
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\]\/20 { background-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 20%, transparent) !important; }
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\]\/30 { background-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 30%, transparent) !important; }
+/* Accent text */
+[data-testid="myaccount-layout"] .text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="myaccount-layout"] .text-\[\#c9a84c\]\/40 { color: color-mix(in srgb, var(--ma-accent, #c9a84c) 40%, transparent) !important; }
+[data-testid="myaccount-layout"] .text-\[\#c9a84c\]\/50 { color: color-mix(in srgb, var(--ma-accent, #c9a84c) 50%, transparent) !important; }
+/* Accent borders */
+[data-testid="myaccount-layout"] .border-\[\#c9a84c\] { border-color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="myaccount-layout"] .border-\[\#c9a84c\]\/20 { border-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 20%, transparent) !important; }
+[data-testid="myaccount-layout"] .border-\[\#c9a84c\]\/30 { border-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 30%, transparent) !important; }
+/* Focus states */
+[data-testid="myaccount-layout"] .focus\:border-\[\#c9a84c\]:focus { border-color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="myaccount-layout"] input:focus, [data-testid="myaccount-layout"] select:focus { border-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 50%, transparent) !important; }
+/* Card/input backgrounds */
+[data-testid="myaccount-layout"] .bg-\[\#13161e\] { background-color: var(--ma-card-bg, #13161e) !important; }
+[data-testid="myaccount-layout"] .bg-\[\#0d0f14\] { background-color: var(--ma-input-bg, #0d0f14) !important; }
+[data-testid="myaccount-layout"] .border-\[\#2a2d35\] { border-color: var(--ma-input-border, rgba(255,255,255,0.1)) !important; }
+/* Checkbox accent */
+[data-testid="myaccount-layout"] input[type="checkbox"] { accent-color: var(--ma-accent, #c9a84c); }
+/* Button color overrides for My Account */
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\] { background-color: var(--ma-button-bg, #c9a84c) !important; }
+[data-testid="myaccount-layout"] .bg-\[\#c9a84c\].text-\[\#0d0f14\] { color: var(--ma-button-text, #0d0f14) !important; }
+[data-testid="myaccount-layout"] .text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="myaccount-layout"] .border-\[\#c9a84c\]\/30 { border-color: var(--ma-avatar-border, rgba(201,168,76,0.3)) !important; }
+[data-testid="myaccount-layout"] .hover\:bg-\[\#d4b85d\]:hover,
+[data-testid="myaccount-layout"] .hover\:bg-\[\#d4b85c\]:hover { background-color: var(--ma-button-bg, #c9a84c) !important; opacity: 0.85; }
+[data-testid="myaccount-layout"] .hover\:bg-\[\#c9a84c\]\/10:hover { background-color: color-mix(in srgb, var(--ma-accent, #c9a84c) 10%, transparent) !important; }
+[data-testid="myaccount-layout"] .hover\:text-\[\#c9a84c\]:hover { color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="myaccount-layout"] .hover\:border-\[\#c9a84c\]\/30:hover { border-color: var(--ma-avatar-border, rgba(201,168,76,0.3)) !important; }
+[data-testid="myaccount-layout"] a.text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }
+/* Login page (outside layout) */
+[data-testid="member-login-page"] .bg-\[\#c9a84c\] { background-color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="member-login-page"] .text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="member-login-page"] .bg-\[\#13161e\] { background-color: var(--ma-card-bg, #13161e) !important; }
+[data-testid="member-login-page"] .bg-\[\#0d0f14\] { background-color: var(--ma-input-bg, #0d0f14) !important; }
+/* Registration */
+[data-testid="member-register-page"] .bg-\[\#c9a84c\] { background-color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="member-register-page"] .text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }
+[data-testid="member-register-page"] .bg-\[\#13161e\] { background-color: var(--ma-card-bg, #13161e) !important; }
+[data-testid="member-register-page"] .bg-\[\#0d0f14\] { background-color: var(--ma-input-bg, #0d0f14) !important; }
+
+/* === ADMIN/CMS — Dynamic Color Overrides === */
+/* Button backgrounds → use button-bg variable */
+[data-testid="admin-layout"] .bg-\[\#0D9488\] { background-color: var(--ad-button-bg, #0D9488) !important; }
+[data-testid="admin-layout"] .bg-\[\#0D9488\]\/5 { background-color: color-mix(in srgb, var(--ad-accent, #0D9488) 5%, transparent) !important; }
+[data-testid="admin-layout"] .bg-\[\#0D9488\]\/10 { background-color: color-mix(in srgb, var(--ad-accent, #0D9488) 10%, transparent) !important; }
+[data-testid="admin-layout"] .bg-\[\#0D9488\]\/80,
+[data-testid="admin-layout"] .hover\:bg-\[\#0D9488\]\/80:hover { background-color: color-mix(in srgb, var(--ad-button-bg, #0D9488) 80%, transparent) !important; }
+[data-testid="admin-layout"] .bg-\[\#0D9488\]\/90 { background-color: color-mix(in srgb, var(--ad-button-bg, #0D9488) 90%, transparent) !important; }
+/* Button text color → use button-text variable */
+[data-testid="admin-layout"] .bg-\[\#0D9488\].text-white { color: var(--ad-button-text, #ffffff) !important; }
+/* Accent text */
+[data-testid="admin-layout"] .text-\[\#0D9488\] { color: var(--ad-accent, #0D9488) !important; }
+/* Accent borders */
+[data-testid="admin-layout"] .border-\[\#0D9488\] { border-color: var(--ad-accent, #0D9488) !important; }
+/* Focus accent */
+[data-testid="admin-layout"] .focus\:border-\[\#0D9488\]:focus { border-color: var(--ad-accent, #0D9488) !important; }
+[data-testid="admin-layout"] .focus\:ring-\[\#0D9488\]:focus { --tw-ring-color: var(--ad-accent, #0D9488) !important; }
+/* Headings */
+[data-testid="admin-layout"] .text-\[\#1a2332\] { color: var(--ad-heading, #1a2332) !important; }
+/* Page backgrounds */
+[data-testid="admin-layout"] .bg-\[\#1a2332\] { background-color: var(--ad-heading, #1a2332) !important; }
+/* Checkbox accent */
+[data-testid="admin-layout"] input[type="checkbox"] { accent-color: var(--ad-accent, #0D9488); }
+/* Switch component accent */
+[data-testid="admin-layout"] [role="switch"][data-state="checked"] { background-color: var(--ad-accent, #0D9488) !important; }
+/* Hover text accent */
+[data-testid="admin-layout"] .hover\:text-\[\#0D9488\]:hover { color: var(--ad-accent, #0D9488) !important; }
+/* Badge colors */
+[data-testid="admin-layout"] .bg-teal-50 { background-color: color-mix(in srgb, var(--ad-accent, #0D9488) 10%, white) !important; }
+[data-testid="admin-layout"] .text-teal-700 { color: var(--ad-accent, #0D9488) !important; }
+
+/* === DIALOG/MODAL — Admin button overrides (portals render outside admin-layout) === */
+[role="dialog"] .bg-\[\#0D9488\] { background-color: var(--ad-button-bg, #0D9488) !important; }
+[role="dialog"] .bg-\[\#0D9488\].text-white { color: var(--ad-button-text, #ffffff) !important; }
+[role="dialog"] .text-\[\#0D9488\] { color: var(--ad-accent, #0D9488) !important; }
+[role="dialog"] .hover\:text-\[\#0D9488\]:hover { color: var(--ad-accent, #0D9488) !important; }
+[role="dialog"] .bg-\[\#0D9488\]\/10 { background-color: color-mix(in srgb, var(--ad-accent, #0D9488) 10%, transparent) !important; }
+
+
+/* === Rich Text Content — Prevent horizontal overflow === */
+.rich-text-content {
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  max-width: 100%;
+}
+.rich-text-content img {
+  max-width: 100%;
+  height: auto;
+}
+.rich-text-content table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+.rich-text-content pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.rich-text-content p {
+  margin-bottom: 0.75em;
+}
+.rich-text-content p:last-child {
+  margin-bottom: 0;
+}
+.rich-text-content br {
+  content: "";
+  display: block;
+  margin-top: 0.5em;
+}
+
+/* === MY ACCOUNT — Enforce CSS variable borders on all form inputs === */
+/* Ensures every <input>, <select>, <textarea> inside the member area respects
+   --ma-input-border regardless of per-component Tailwind classes like
+   border-white/10, border-white/5, etc. Excludes checkboxes/radios/file inputs
+   which use accent-color instead of border. */
+[data-testid="myaccount-layout"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+[data-testid="myaccount-layout"] select,
+[data-testid="myaccount-layout"] textarea,
+[data-testid="member-login-page"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+[data-testid="member-login-page"] select,
+[data-testid="member-login-page"] textarea,
+[data-testid="member-register-page"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+[data-testid="member-register-page"] select,
+[data-testid="member-register-page"] textarea {
+  border-color: var(--ma-input-border, rgba(255, 255, 255, 0.1)) !important;
+}
+
+/* === Adaptive color-scheme for native form controls ===
+   Browsers use `color-scheme` to tint native chrome on input[type=date|time|...],
+   select option lists, scrollbars, etc. The `--ma-color-scheme` / `--ad-color-scheme`
+   / `--me-color-scheme` CSS variables are computed in JS (see lib/themeColors.js)
+   by reading the luminance of each scope's card/form background — so they
+   automatically flip between `dark` and `light` whenever the admin changes the
+   theme in the CMS. Native icons therefore always contrast the configured bg.
+*/
+[data-testid="myaccount-layout"],
+[data-testid="member-login-page"],
+[data-testid="member-register-page"] {
+  color-scheme: var(--ma-color-scheme, dark);
+}
+
+[data-testid="admin-layout"] {
+  color-scheme: var(--ad-color-scheme, light);
+}
+
+[data-testid="membership-enrollment"] {
+  color-scheme: var(--me-color-scheme, light);
+}
+
+/* Radix dialogs portal to document.body outside their trigger scope. Infer the
+   current scope via `:has()` on body so dialog chrome (native selects, date
+   pickers) matches the originating area instead of defaulting to dark. */
+body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] {
+  color-scheme: var(--ad-color-scheme, light);
+}
+body:has([data-testid="myaccount-layout"]) [role="dialog"][data-state="open"],
+body:has([data-testid="member-login-page"]) [role="dialog"][data-state="open"],
+body:has([data-testid="member-register-page"]) [role="dialog"][data-state="open"] {
+  color-scheme: var(--ma-color-scheme, dark);
+}
+body:has([data-testid="membership-enrollment"]) [role="dialog"][data-state="open"] {
+  color-scheme: var(--me-color-scheme, light);
+}
+
+/* Firefox: picker arrow uses inherited text color, make sure date/time inputs
+   within dark containers render their value text in the theme's primary color. */
+[data-testid="myaccount-layout"] input[type="date"],
+[data-testid="myaccount-layout"] input[type="time"],
+[data-testid="myaccount-layout"] input[type="datetime-local"],
+[data-testid="member-login-page"] input[type="date"],
+[data-testid="member-login-page"] input[type="time"],
+[data-testid="member-register-page"] input[type="date"],
+[data-testid="member-register-page"] input[type="time"],
+[role="dialog"][data-state="open"] input[type="date"],
+[role="dialog"][data-state="open"] input[type="time"],
+[role="dialog"][data-state="open"] input[type="datetime-local"] {
+  color: var(--ma-text-primary, #ffffff);
+}
+
+/* === Rich Text Editor — Dark theme inside member-area modals === */
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-toolbar,
+[role="dialog"] .ma-quill-dark .ql-toolbar {
+  background-color: var(--ma-input-bg, #0d0f14) !important;
+  border-color: var(--ma-input-border, rgba(255, 255, 255, 0.1)) !important;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-container,
+[role="dialog"] .ma-quill-dark .ql-container {
+  background-color: var(--ma-input-bg, #0d0f14) !important;
+  border-color: var(--ma-input-border, rgba(255, 255, 255, 0.1)) !important;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-editor,
+[role="dialog"] .ma-quill-dark .ql-editor {
+  color: var(--ma-text-primary, #ffffff) !important;
+  min-height: 120px;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-snow .ql-stroke,
+[role="dialog"] .ma-quill-dark .ql-snow .ql-stroke {
+  stroke: var(--ma-text-secondary, #9ca3af) !important;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-snow .ql-fill,
+[role="dialog"] .ma-quill-dark .ql-snow .ql-fill {
+  fill: var(--ma-text-secondary, #9ca3af) !important;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-snow .ql-picker-label,
+[role="dialog"] .ma-quill-dark .ql-snow .ql-picker-label {
+  color: var(--ma-text-secondary, #9ca3af) !important;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-snow .ql-picker-options,
+[role="dialog"] .ma-quill-dark .ql-snow .ql-picker-options {
+  background-color: var(--ma-card-bg, #13161e) !important;
+  border-color: var(--ma-input-border, rgba(255, 255, 255, 0.1)) !important;
+}
+[data-testid="myaccount-layout"] .ma-quill-dark .ql-editor.ql-blank::before,
+[role="dialog"] .ma-quill-dark .ql-editor.ql-blank::before {
+  color: var(--ma-text-muted, #6b7280) !important;
+  font-style: normal;
+}
+
