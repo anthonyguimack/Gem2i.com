@@ -2,13 +2,13 @@
 
 > Never print secrets in chat. Real values live only in the box `.env` / `gem_config` (Mongo) / a password manager — NEVER committed.
 
-## Created at stand-up (Phase 0, 2026-07-15)
-| Account | Login | Where the secret lives | Status |
+## Accounts (2026-07-15)
+| Account | Login | Password location | Status |
 |---|---|---|---|
-| Product admin | `admin@gem2i.com` | box `.env` → `/opt/beta.gem2i.com/backend/.env` (`ADMIN_PASSWORD`, random bootstrap; change after first login) | ✅ seeded |
+| Product admin (CMS `/admin` + My Account) | **`carlos.m.artiles@gmail.com`** | Anthony's standard admin password — password manager. Stored on the box ONLY as a bcrypt hash in `members` (never plaintext; `.env` holds just `ADMIN_EMAIL`). | ✅ set + login-verified (200) |
 | Test member | — | — | pending (seed after CMS rebrand) |
 
-Retrieve the admin password on the box: `ssh ... "grep ADMIN_PASSWORD /opt/beta.gem2i.com/backend/.env"`. Never printed in chat or committed.
+Set via `scripts`-style one-shot updater 2026-07-15 (creds piped over stdin, never in shell history). The old auto-generated `admin@gem2i.com` was the same doc and no longer works. Never print the password in chat or commit it.
 
 ## Legacy source (read-only, for ETL only)
 - Legacy members carry **plaintext** passwords in the MySQL dump (`gem2ica_production`). Handled per D2 (bcrypt at ETL). Never surface these.
