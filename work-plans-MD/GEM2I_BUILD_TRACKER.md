@@ -2,7 +2,7 @@
 
 > **CLAIMED BY:** Anthony (2026-07-15)
 > **STATUS:** ✅ **STAGES 0–6 DONE — beta.gem2i.com LIVE + pushed to GitHub** (health 200, isolated CMS core, orphans cleaned, collaborator workflow wired, `origin/main` = b924715). Ready to begin GEM2I_MIGRATION_PLAN **Phase 1**. Small open items: CMS rebrand, requirements trim, collaborator key on the box.
-> **LAST SYNC:** 2026-07-15 (session 1 — bootstrap → clean → fork → strip → stand-up → housekeeping → GitHub, all live)
+> **LAST SYNC:** 2026-07-15 (session 1 — bootstrap → clean → fork → strip → stand-up → housekeeping → GitHub → admin login set to carlos.m.artiles@gmail.com. All live + pushed. Next dev: START → GEM2I_MIGRATION_PLAN Phase 1.)
 
 The product spec is `GEM2I_MIGRATION_PLAN.md` (unchanged, still authoritative for features/schema/API/phases). This tracker records the **isolated-instance build** on box 34.198.159.54.
 

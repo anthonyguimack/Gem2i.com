@@ -35,7 +35,7 @@ Isolated product **gem2i** created at `C:\2026\Acapitalgroup.com_Emergent_Claude
 - `scripts/gem2i_nginx.conf` + `scripts/box_standup.sh` written; code tar'd + uploaded to `/opt/beta.gem2i.com`.
 - **Stand-up green:** venv + pip; **backend import smoke test PASSED** (strip validated); frontend `yarn build` clean (198s); systemd `gem2i-backend` active (:8050); nginx vhost; LE cert (exp 2026-10-13). **`https://beta.gem2i.com/api/health` → 200** `{"status":"ok","product":"gem2i"}`; http→https 301; SPA root 200; seed ran (generic "Legacy" brand — rebrand via CMS).
 - **git init + first commit** `a54c75a` (494 files) = restore point.
-- Admin bootstrap: `admin@gem2i.com`, random password in the box `.env` (`/opt/beta.gem2i.com/backend/.env`) — see test_credentials.
+- Admin login: **`carlos.m.artiles@gmail.com`** (Anthony's standard admin) — set 2026-07-15, login-verified 200; password is bcrypt-hash-only in the DB, `.env` holds just `ADMIN_EMAIL`. Old auto-generated `admin@gem2i.com` retired. See test_credentials.
 
 **✅ HOUSEKEEPING DONE (this session, commit b924715, pushed):**
 1. **Orphan-file cleanup** — deleted all now-unimported brand frontend pages/components/libs (grep-verified no dangling imports; KEPT `pbPersonality`+`socialCatalog` which Navbar/Footer/admin still import) + brand backend scripts. **Box re-synced + rebuilt green (105s), health 200** → cleanup proven safe.
