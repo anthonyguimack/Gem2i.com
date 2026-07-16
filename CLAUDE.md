@@ -90,10 +90,12 @@ React 19 + TailwindCSS + Shadcn/UI + @dnd-kit · FastAPI + Motor + Pydantic · M
 
 ---
 
-## GITHUB
+## GITHUB & TEAM
 
-- Repo: **(to be created)** — its own GitHub repo, independent of AUX-1.0. Branch `main` = source of truth.
+- Repo: **https://github.com/anthonyguimack/Gem2i.com** (remote `origin`) — its own GitHub repo, independent of AUX-1.0. Branch **`main`** = single source of truth (fast-forward pushes).
 - Never embed a token in a URL or commit; credentials only in Git Credential Manager / a password manager.
+- **Two-developer workflow** (same culture as the AUX brands): Anthony + a collaborator both clone this repo, run commands, and deploy. `origin/main` is the sync channel. Full protocol + what each dev needs (repo, skills reinstall, SSH key) → `work-plans-MD/TEAM_COLLABORATION.md`. START and FINISH bundle the git sync so neither ever works on a stale version.
+- **Collaborator deploy access:** the deploy/provision scripts resolve the SSH key as `Gem2i-...pem` → `$env:GEM2I_SSH_KEY` → `~/.ssh/id_ed25519`, so the collaborator uses their own authorized key or points `GEM2I_SSH_KEY` at a copy of the `.pem`.
 
 ---
 
