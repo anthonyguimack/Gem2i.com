@@ -37,14 +37,18 @@ Isolated product **gem2i** created at `C:\2026\Acapitalgroup.com_Emergent_Claude
 - **git init + first commit** `a54c75a` (494 files) = restore point.
 - Admin bootstrap: `admin@gem2i.com`, random password in the box `.env` (`/opt/beta.gem2i.com/backend/.env`) — see test_credentials.
 
-**REMAINING housekeeping (non-blocking):**
-1. **Orphan-file cleanup** — delete the now-unimported brand page/component/lib files on disk (already excluded from the bundle; git a54c75a is the restore point) + rebuild to confirm. Safe follow-up.
-2. **GitHub repo** — create the isolated remote + `git push` (needs Anthony's account / gh auth).
-3. **provision_gem2i_box.ps1** — has PS 5.1 parse errors in `-Clean`/`-Standup`; the server work was driven by the standalone `scripts/box_*.sh` instead. Refactor the .ps1 into a thin `.sh` wrapper.
-4. Rebrand via CMS (brand_name/tagline/theme) + seed a test member.
-5. `requirements.txt` trim (kept full for boot).
+**✅ HOUSEKEEPING DONE (this session, commit b924715, pushed):**
+1. **Orphan-file cleanup** — deleted all now-unimported brand frontend pages/components/libs (grep-verified no dangling imports; KEPT `pbPersonality`+`socialCatalog` which Navbar/Footer/admin still import) + brand backend scripts. **Box re-synced + rebuilt green (105s), health 200** → cleanup proven safe.
+2. **provision_gem2i_box.ps1** refactored → thin wrapper over `scripts/box_{inventory,clean,standup}.sh` (parse-clean now; the earlier inline-heredoc version was the PS 5.1 bug). NEW `scripts/box_inventory.sh`.
+3. **GitHub:** remote `origin` = https://github.com/anthonyguimack/Gem2i.com ; `git push -u origin main` landed (local == origin/main == b924715). `.last-deploy-gem2i` stamp set = HEAD so ongoing `deploy_beta_gem2i.ps1` runs incrementally.
+4. **Collaborator workflow** wired: `work-plans-MD/TEAM_COLLABORATION.md` + CLAUDE.md GitHub/team section (START/FINISH git-sync, claim headers, SSH-key fallback `GEM2I_SSH_KEY`/`~/.ssh/id_ed25519` so the collaborator deploys with their own key). Same culture as the AUX brands.
 
-**THEN:** GEM2I_MIGRATION_PLAN Phase 1 (Gem2iLayout + homepage + content pages).
+**STILL OPEN (small, for the phases):**
+- CMS rebrand (brand_name/tagline/theme → gem2i) + seed a test member.
+- `requirements.txt` trim (kept full for boot).
+- Collaborator's public key added to the box `authorized_keys` (Anthony, one-time) OR they set `GEM2I_SSH_KEY`.
+
+**READY: GEM2I_MIGRATION_PLAN Phase 1** (Gem2iLayout + homepage + content pages).
 
 **Box:** 34.198.159.54 (clone of beta-carlos). **DB:** gem2i_cms. **Prefix:** gem_*. **Legacy source data** for the eventual ETL already backed up at `C:\2026\Acapitalgroup.com\gem2i.com\__bases_de_datos\` — no new backup needed.
 
