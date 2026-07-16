@@ -30,12 +30,21 @@ Isolated product **gem2i** created at `C:\2026\Acapitalgroup.com_Emergent_Claude
 - **Statically verified:** grep confirms NO kept file imports any deleted module. (Runtime import test happens on the box at standup — no local venv.)
 - ⚠ `requirements.txt` kept AS-IS for the first standup (extra installed deps don't break boot; trim later).
 
-**NOT done yet:**
-1. **Frontend strip** — App.js (767 lines, ~60 imports) → keep CMS-core + gem2i surfaces; delete brand pages (Companies, News, Opportunities, FeaturedProjects, aurex/PB sections, bundles/calendar/mentor components, InvitedByBanner) + prune pages/admin (63 files). Then `yarn build` clean (iterate).
-2. `scripts/gem2i_nginx.conf` + `scripts/box_standup.sh`.
-3. Stand up → beta.gem2i.com health 200, CMS shell renders.
-4. Seed admin + test member → test_credentials.
-5. git init + GitHub repo + first push.
+**✅ FRONTEND STRIP + STAND-UP DONE — beta.gem2i.com is LIVE.**
+- `App.js` rewritten to the CMS-core route graph (dropped all brand routes/lazy-imports: News/Companies/Opportunities/FeaturedProjects/MapType/personality mini-sites + ~20 brand admin managers + non-core My Account pages + MMS via-capture/InvitedByBanner). `HomePage.js` replaced with a minimal Phase-0 placeholder (real gem2i theme = Phase 1). Brand code is now excluded from the built bundle (unimported → tree-shaken).
+- `scripts/gem2i_nginx.conf` + `scripts/box_standup.sh` written; code tar'd + uploaded to `/opt/beta.gem2i.com`.
+- **Stand-up green:** venv + pip; **backend import smoke test PASSED** (strip validated); frontend `yarn build` clean (198s); systemd `gem2i-backend` active (:8050); nginx vhost; LE cert (exp 2026-10-13). **`https://beta.gem2i.com/api/health` → 200** `{"status":"ok","product":"gem2i"}`; http→https 301; SPA root 200; seed ran (generic "Legacy" brand — rebrand via CMS).
+- **git init + first commit** `a54c75a` (494 files) = restore point.
+- Admin bootstrap: `admin@gem2i.com`, random password in the box `.env` (`/opt/beta.gem2i.com/backend/.env`) — see test_credentials.
+
+**REMAINING housekeeping (non-blocking):**
+1. **Orphan-file cleanup** — delete the now-unimported brand page/component/lib files on disk (already excluded from the bundle; git a54c75a is the restore point) + rebuild to confirm. Safe follow-up.
+2. **GitHub repo** — create the isolated remote + `git push` (needs Anthony's account / gh auth).
+3. **provision_gem2i_box.ps1** — has PS 5.1 parse errors in `-Clean`/`-Standup`; the server work was driven by the standalone `scripts/box_*.sh` instead. Refactor the .ps1 into a thin `.sh` wrapper.
+4. Rebrand via CMS (brand_name/tagline/theme) + seed a test member.
+5. `requirements.txt` trim (kept full for boot).
+
+**THEN:** GEM2I_MIGRATION_PLAN Phase 1 (Gem2iLayout + homepage + content pages).
 
 **Box:** 34.198.159.54 (clone of beta-carlos). **DB:** gem2i_cms. **Prefix:** gem_*. **Legacy source data** for the eventual ETL already backed up at `C:\2026\Acapitalgroup.com\gem2i.com\__bases_de_datos\` — no new backup needed.
 

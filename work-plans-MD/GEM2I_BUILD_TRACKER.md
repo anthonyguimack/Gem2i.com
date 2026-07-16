@@ -1,8 +1,8 @@
 # GEM2I_BUILD_TRACKER.md — live build tracker
 
 > **CLAIMED BY:** Anthony (2026-07-15)
-> **STATUS:** Session 1 = local bootstrap DONE. Awaiting Anthony's **GO** to run the server steps (inventory → clean → fork → stand up).
-> **LAST SYNC:** 2026-07-15
+> **STATUS:** ✅ **STAGES 0–5 DONE — beta.gem2i.com is LIVE** (health 200, isolated CMS core, git a54c75a). Remaining = housekeeping (orphan-file cleanup, GitHub remote+push, provision.ps1 refactor, CMS rebrand) → then GEM2I_MIGRATION_PLAN Phase 1.
+> **LAST SYNC:** 2026-07-15 (session 1 — bootstrap → clean → fork → strip → stand-up, all live)
 
 The product spec is `GEM2I_MIGRATION_PLAN.md` (unchanged, still authoritative for features/schema/API/phases). This tracker records the **isolated-instance build** on box 34.198.159.54.
 
