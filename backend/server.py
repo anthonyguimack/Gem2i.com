@@ -33,6 +33,7 @@ from routes.hero_ab import router as hero_ab_router
 from routes.roles import router as roles_router, seed_system_roles
 from routes.email_templates import router as email_templates_router
 from routes.captcha import router as captcha_router
+from routes.gem_content import router as gem_content_router, seed_gem_content
 
 api_router.include_router(auth_router)
 api_router.include_router(public_router)
@@ -45,6 +46,7 @@ api_router.include_router(hero_ab_router)
 api_router.include_router(roles_router)
 api_router.include_router(email_templates_router)
 api_router.include_router(captcha_router)
+api_router.include_router(gem_content_router)
 
 
 @api_router.get("/health")
@@ -59,6 +61,7 @@ from seed import seed_data
 async def startup():
     await seed_data()
     await seed_system_roles()
+    await seed_gem_content()
     from utils.email_render import ensure_templates_seeded
     await ensure_templates_seeded()
     try:

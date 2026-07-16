@@ -36,6 +36,8 @@ export const publicAPI = {
   getMyAccountNav: () => api.get('/public/myaccount-nav'),
   getBlockedDates: () => api.get('/public/blocked-dates'),
   getCaptchaConfig: () => api.get('/public/captcha-config'),
+  // gem2i product content (homepage/static-section copy from gem_config)
+  getGemContent: () => api.get('/public/gem/gem-content'),
 };
 
 export const searchAPI = {

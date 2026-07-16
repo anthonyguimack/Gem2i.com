@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-07-15 (session 2, second dev machine) — PHASE 1 SHIPPED: gem2i theme LIVE on beta
+
+**GEM2I_MIGRATION_PLAN Phase 1 (public shell + homepage + content pages) built, deployed, verified.**
+
+**Backend:**
+- NEW `backend/routes/gem_content.py` — `GET /api/public/gem/gem-content` + admin GET/PUT `/api/admin/gem/gem-content`. Content lives in `gem_config {key:'content'}` (never `settings`); full legacy homepage copy (intro/featured/services/methodology/media/clients/contact_info) embedded as EN+ES defaults, seeded at startup (`seed_gem_content()` in server.py startup). Only the `content` key is public — other gem_config keys stay server-side.
+
+**Rebrand (ran on box):** NEW `scripts/gem2i_phase1_seed.py` (idempotent; run as `backend/venv/bin/python scripts/gem2i_phase1_seed.py` from /opt/beta.gem2i.com):
+- settings → brand_name GEM2i, EN/ES tagline, `active_theme:'gem2i'`, `theme_colors.website` dark palette **from the live legacy site: page #04080C, accent #3287B7, Poppins**, footer copy, EN+ES languages, contact_settings copy, Facebook social link (purges non-gem2i demo links).
+- nav_pages ($setOnInsert only) → legacy nav graph: Home/About/Events/Festivals/Artists/Venues/Travels/Services/Partners + footer Privacy/Terms + Media/Works. **Legacy-parity gating:** About/Travels/Services/Partners/Privacy/Terms login_required; listings public. Events/Festivals/Artists/Venues are placeholder CMS pages until Phase-2 real routes take over those URLs.
+
+**Frontend (theme `gem2i` — registered in THEMES, branch points wired):**
+- `components/gem2i/`: **Gem2iHeader** (fixed, transparent-over-hero → solid+blur on scroll; slide-in right side menu = legacy signature; listens for `gem2i:open-contact` window event), **Gem2iContactPanel** (+fixed right-edge vertical Contact tab; submits via contactAPI → /api/contact), **Gem2iFooter** (blurb + HQ/phone/email from gem-content, CMS sitemap, socials, copyright), **Gem2iCookieNotice** (localStorage `gem2i_cookies_accepted`).
+- `pages/gem2i/Gem2iHome.js`: hero (CMS slides via getHeroSlides('home'); branded static fallback until slides exist), intro, 3 featured blurbs, services banner (opens contact panel), 8-service numbered grid, 3-step methodology, festivals/conferences/media sections render only when data arrives (Phase 2), clients. All copy via useT() EN/ES.
+- Branches: Navbar.js → Gem2iNavbar (reuses shared useNavData), Footer.js → Gem2iFooterWrapper, HomePage.js → theme==='gem2i' ? Gem2iHome : placeholder, HeroSection isModernLike += gem2i. Poppins added to public/index.html.
+- Theme-var fixes benefiting all themes: DynamicPage + App.js login-gate/404 screens now use `--color-page-bg`/`--color-body-text` (were hardcoded light). **LoginModal: Google-login button removed** (plan OUT: no third-party login).
+- `publicAPI.getGemContent()` added to lib/api.js.
+
+**Deploy script fix:** `deploy_beta_gem2i.ps1` Get-ChangedFiles now expands untracked DIRECTORIES (`git status` collapses them to `dir/`; scp can't upload a dir) — first attempt failed on that and auto-rolled back cleanly; rerun deployed green in 1m58s.
+
+**Verified live:** health 200 · settings show GEM2i/gem2i · computed vars on page exactly #04080C/#3287B7/Poppins · zero console errors · /events public placeholder renders · /about correctly shows Login Required · **contact e2e PASSED** — test doc in `gem2i_cms.contacts` (email phase1-test@gem2i.com, marked safe to delete).
+
+**Notes:**
+- This machine's `~/.ssh/id_ed25519` is already authorized on the box → collaborator-key open item RESOLVED (deploy + scp used it).
+- SMTP not configured → contact admin-notification email doesn't send yet (capture in CMS works). Operator sets SMTP in CMS when ready.
+- Hero slides + real About/Travels/Privacy/Terms page copy await the legacy ETL (legacy dump lives on the other machine at `C:\2026\Acapitalgroup.com\gem2i.com\__bases_de_datos\`).
+- Design skills on this machine: only `impeccable` installed (emil-design-eng + design-taste-frontend missing → `npx skills experimental_install` + restart before deep polish).
+- Footer sitemap ordering slightly off (pre-existing /terms & /privacy docs kept their original `order`) — cosmetic, fix via CMS Pages.
+
+**NEXT: Phase 2 — catalogs** (ETL artists/venues/festivals/conferences/events + listings/filters/details + admin CRUD). ETL needs the legacy MySQL dump (other machine).
+
 ## 2026-07-15 (session 1, Anthony's machine) — PROJECT BOOTSTRAP (local prep only; nothing deployed)
 
 Isolated product **gem2i** created at `C:\2026\Acapitalgroup.com_Emergent_Claude\Gem2i.com`. Architecture ruled by Anthony: **fork AUX-1.0 → strip to CMS core** (own repo/box/DB, keep methodology + stack + culture, keep none of the brands).

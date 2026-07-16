@@ -12,12 +12,21 @@ import SearchBar from '../SearchBar';
 import { isAurexFamily } from '../../lib/themeColors';
 import { resolveActivePersonality, scopePagesForPersonality, miniSiteLinks as buildMiniSiteLinks, getPersonalityVisibility, meetsVisibility } from '../../lib/pbPersonality';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
+import Gem2iHeader from '../gem2i/Gem2iHeader';
 
 export default function Navbar() {
   const theme = useTheme();
+  if (theme === 'gem2i') return <Gem2iNavbar />;
   if (theme === 'modern' || isAurexFamily(theme)) return <ModernNavbar />;
   if (theme === 'classic') return <ClassicNavbar />;
   return <DefaultNavbar />;
+}
+
+// gem2i dark entertainment header — markup lives in components/gem2i/, the
+// shared nav data/gating hook stays here so all themes behave identically.
+function Gem2iNavbar() {
+  const nav = useNavData();
+  return <Gem2iHeader nav={nav} />;
 }
 
 function useNavData() {

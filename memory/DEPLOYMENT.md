@@ -29,6 +29,9 @@
 5. `git init` + GitHub repo + first push.
 
 ## Known issues / lessons (inherited)
+- **Untracked new directories:** `git status --porcelain` collapses them to `dir/`; the deploy script now expands these to individual files (fixed 2026-07-15 session 2 — scp can't upload a directory).
+- **Collaborator SSH:** the second dev machine's `~/.ssh/id_ed25519` is authorized on the box; the script's key fallback chain picks it up automatically (verified in the Phase-1 deploy).
+- **One-shot DB scripts** (e.g. `scripts/gem2i_phase1_seed.py`) are EXCLUDED from the smart deploy (`^scripts/`) — scp them manually to `/opt/beta.gem2i.com/scripts/` and run with `backend/venv/bin/python`.
 - **PS 5.1 + native stderr:** don't redirect a native exe's stderr; the deploy scripts already merge pip/yarn stderr server-side.
 - **Never inline nginx config in a PowerShell double-quoted heredoc** (`$host` expands) — write via scp from `scripts/gem2i_nginx.conf`.
 - **Moving a Python venv dir breaks its shebangs** (203/EXEC) — recreate the venv or sed the shebangs.

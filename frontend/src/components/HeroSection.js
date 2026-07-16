@@ -84,7 +84,7 @@ export default function HeroSection({ data, slides }) {
 
   const effectStyle = (effect, startDelay) => heroEffectStyle(effect, startDelay, speed);
 
-  const isModernLike = theme === 'modern' || theme === 'aurex' || theme === 'personalbrand';
+  const isModernLike = theme === 'modern' || theme === 'aurex' || theme === 'personalbrand' || theme === 'gem2i';
   const heroClasses = isModernLike
     ? 'relative min-h-[750px] md:min-h-[800px] flex items-center overflow-hidden'
     : theme === 'classic'

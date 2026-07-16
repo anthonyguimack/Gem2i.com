@@ -307,6 +307,11 @@ export const THEMES = [
     description: 'Monochromatic one-page template — clean whites/grays/darks, per-section background & font picker, and global drag-drop ordering.',
   },
   {
+    id: 'gem2i',
+    name: 'GEM2i',
+    description: 'Dark entertainment theme — near-black surfaces, electric-blue accent, big imagery, side menu + contact panels. The gem2i.com brand look.',
+  },
+  {
     id: 'personalbrand',
     name: 'Personal Brand Pro',
     description: 'Warm, personal one-page template for independent professionals — credit analysts, AI innovators, real-estate experts. Cream/sand/terracotta defaults, serif-led typography, same section library as One-page Pro.',

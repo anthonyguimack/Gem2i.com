@@ -1,8 +1,8 @@
 # GEM2I_BUILD_TRACKER.md — live build tracker
 
-> **CLAIMED BY:** Anthony (2026-07-15)
-> **STATUS:** ✅ **STAGES 0–6 DONE — beta.gem2i.com LIVE + pushed to GitHub** (health 200, isolated CMS core, orphans cleaned, collaborator workflow wired, `origin/main` = b924715). Ready to begin GEM2I_MIGRATION_PLAN **Phase 1**. Small open items: CMS rebrand, requirements trim, collaborator key on the box.
-> **LAST SYNC:** 2026-07-15 (session 1 — bootstrap → clean → fork → strip → stand-up → housekeeping → GitHub → admin login set to carlos.m.artiles@gmail.com. All live + pushed. Next dev: START → GEM2I_MIGRATION_PLAN Phase 1.)
+> **CLAIMED BY:** (unclaimed — session 2 finished)
+> **STATUS:** ✅ **PHASE 1 SHIPPED — gem2i theme LIVE on beta.gem2i.com** (dark entertainment shell: Gem2iHeader/side menu/contact panel/footer/cookies, real CMS-driven homepage EN/ES, legacy nav graph + gating, gem-content backend, CMS rebranded #04080C/#3287B7/Poppins; contact e2e verified into `contacts`). Remaining open: requirements trim, SMTP config, hero slides + gated-page copy via legacy ETL. Next: **Phase 2 — catalogs** (needs the legacy MySQL dump — on Anthony's machine).
+> **LAST SYNC:** 2026-07-15 (session 2, second dev machine — Phase 1 built + deployed + verified; deploy script untracked-dir fix; collaborator key confirmed working. See memory/PROGRESS.md session-2 entry.)
 
 The product spec is `GEM2I_MIGRATION_PLAN.md` (unchanged, still authoritative for features/schema/API/phases). This tracker records the **isolated-instance build** on box 34.198.159.54.
 

@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { publicAPI } from '../lib/api';
+import { useTheme } from '../App';
+import Gem2iHome from './gem2i/Gem2iHome';
 
-// gem2i Phase-0 placeholder homepage. The real public theme (Gem2iLayout +
-// event/festival/artist/venue catalogs) is built in Phase 1 per
-// GEM2I_MIGRATION_PLAN. Until then this renders the brand identity from CMS
-// settings so the site is presentable and the CMS at /admin is reachable.
+// gem2i homepage: the real dark-entertainment home (Phase 1) when the gem2i
+// theme is active; otherwise the Phase-0 placeholder (kept as the fallback
+// for any other theme selected in CMS Settings).
 export default function HomePage() {
+  const theme = useTheme();
+  if (theme === 'gem2i') return <Gem2iHome />;
+  return <PlaceholderHome />;
+}
+
+function PlaceholderHome() {
   const [s, setS] = useState({});
   useEffect(() => {
     publicAPI.getSettings().then(r => setS(r.data || {})).catch(() => {});

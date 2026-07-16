@@ -7,6 +7,7 @@ import { BACKEND_URL } from '../../lib/config';
 import { useT } from '../../lib/i18n';
 import { resolveActivePersonality, scopePagesForPersonality } from '../../lib/pbPersonality';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
+import Gem2iFooter from '../gem2i/Gem2iFooter';
 
 // Categories exclusive to the Personal Brand mini-sites — hidden from other themes.
 const PB_CATS = new Set(['business', 'lifestyle', 'personal']);
@@ -220,9 +221,16 @@ function PersonalBrandFooter() {
   );
 }
 
+function Gem2iFooterWrapper() {
+  const { settings, socialLinks, footerPages, isExternal, isAdmin } = useFooterData();
+  if (isAdmin) return null;
+  return <Gem2iFooter settings={settings} socialLinks={socialLinks} footerPages={footerPages} isExternal={isExternal} />;
+}
+
 export default function Footer() {
   const settings = useSettings();
   const theme = settings.active_theme || 'default';
+  if (theme === 'gem2i') return <Gem2iFooterWrapper />;
   if (theme === 'modern') return <ModernFooter />;
   if (theme === 'classic') return <ClassicFooter />;
   if (theme === 'personalbrand') return <PersonalBrandFooter />;

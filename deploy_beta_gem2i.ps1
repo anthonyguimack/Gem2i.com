@@ -119,6 +119,17 @@ function Get-ChangedFiles {
             if (-not $delete.Contains($oldFile)) { $delete.Add($oldFile) }
         }
         if ($xy -match 'D') { if (-not $delete.Contains($file)) { $delete.Add($file) } }
+        elseif ($file.EndsWith('/')) {
+            # git status collapses untracked directories into "dir/" — expand to
+            # individual files (scp can't upload a directory without -r).
+            $dirFull = Join-Path $LOCAL ($file -replace '/', '\')
+            if (Test-Path $dirFull) {
+                Get-ChildItem $dirFull -Recurse -File | ForEach-Object {
+                    $rel = $_.FullName.Substring($LOCAL.Length + 1) -replace '\\', '/'
+                    if (-not $upload.Contains($rel)) { $upload.Add($rel) }
+                }
+            }
+        }
         else { if (-not $upload.Contains($file)) { $upload.Add($file) } }
     }
     return @{

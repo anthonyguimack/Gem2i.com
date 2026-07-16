@@ -57,10 +57,10 @@ export default function DynamicPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-[#0D9488] border-t-transparent rounded-full"></div></div>;
 
   if (!page) return (
-    <div className="min-h-screen flex items-center justify-center" data-testid="page-not-found">
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-page-bg, #ffffff)' }} data-testid="page-not-found">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-[#1a2332] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>404</h1>
-        <p className="text-slate-500">Page not found</p>
+        <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--color-heading, #1a2332)' }}>404</h1>
+        <p style={{ color: 'var(--color-body-text, #64748b)' }}>Page not found</p>
       </div>
     </div>
   );
@@ -80,18 +80,19 @@ export default function DynamicPage() {
       return <LayoutRenderer page={page} hasHero={heroSlides.length > 0} />;
     }
 
-    // Default: render content HTML
+    // Default: render content HTML (colors come from the active theme's
+    // website vars so dark themes like gem2i render legibly).
     return (
       <div className={`max-w-4xl mx-auto px-6 md:px-12 py-16 ${!heroSlides.length ? 'pt-24 md:pt-28' : ''}`} style={{ overflowX: 'hidden', wordBreak: 'normal', overflowWrap: 'break-word', hyphens: 'none' }}>
         <h1 className="text-3xl font-bold mb-6" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--color-heading, #1a2332)' }} data-testid="page-title">{page.title}</h1>
-        {page.summary && <p className="text-slate-500 mb-6">{page.summary}</p>}
-        {page.content && <div className="rich-text-content" style={{ overflowX: 'hidden', maxWidth: '100%' }} dangerouslySetInnerHTML={{ __html: page.content }} />}
+        {page.summary && <p className="mb-6" style={{ color: 'var(--color-body-text, #64748b)' }}>{page.summary}</p>}
+        {page.content && <div className="rich-text-content" style={{ overflowX: 'hidden', maxWidth: '100%', color: 'var(--color-body-text, #334155)' }} dangerouslySetInnerHTML={{ __html: page.content }} />}
       </div>
     );
   };
 
   return (
-    <div data-testid="dynamic-page">
+    <div data-testid="dynamic-page" style={{ backgroundColor: 'var(--color-page-bg, #ffffff)', minHeight: '60vh' }}>
       {heroSlides.length > 0 && <HeroSection slides={heroSlides} />}
       {renderLayout()}
     </div>

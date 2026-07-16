@@ -268,10 +268,10 @@ function PageProtectedRoute({ children }) {
       const pageId = pageData.id;
       if (allowedPages.length > 0 && !allowedPages.includes(pageId)) {
         return (
-          <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-page-bg, #f8fafc)' }}>
             <div className="text-center max-w-md mx-auto px-6">
               <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-heading, #1a2332)' }}>Access Restricted</h2>
-              <p className="text-slate-500 text-sm mb-6">Your membership type does not include access to this page.</p>
+              <p className="text-sm mb-6" style={{ color: 'var(--color-body-text, #64748b)' }}>Your membership type does not include access to this page.</p>
             </div>
           </div>
         );
@@ -281,10 +281,10 @@ function PageProtectedRoute({ children }) {
     if (!user && !member) {
       return (
         <>
-          <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-page-bg, #f8fafc)' }}>
             <div className="text-center max-w-md mx-auto px-6">
               <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-heading, #1a2332)' }}>Login Required</h2>
-              <p className="text-slate-500 text-sm mb-6">You need to be logged in to access this page.</p>
+              <p className="text-sm mb-6" style={{ color: 'var(--color-body-text, #64748b)' }}>You need to be logged in to access this page.</p>
               <button onClick={() => setShowLogin(true)} className="px-6 py-2.5 rounded-sm text-sm font-medium" style={{ backgroundColor: 'var(--color-button-bg, #1a2332)', color: 'var(--color-button-text, #fff)' }} data-testid="page-login-btn">
                 Login to Continue
               </button>
