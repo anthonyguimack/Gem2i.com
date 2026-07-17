@@ -71,6 +71,9 @@ export const gemAPI = {
   checkout: (eventId, tier, quantity) => api.post('/member/gem/checkout', { event_id: eventId, tier, quantity, origin_url: window.location.origin }),
   checkoutStatus: (sessionId) => api.get(`/member/gem/checkout-status/${sessionId}`),
   myTickets: (eventId) => api.get(`/member/gem/my-tickets/${eventId}`),
+  // Phase-3 B7 formal-name confirmation gate (routes/gem_passes.py)
+  formalName: () => api.get('/member/gem/formal-name'),
+  confirmFormalName: (name) => api.post('/member/gem/formal-name', { formal_name: name }),
 };
 
 // gem2i catalog admin CRUD (routes/gem_catalogs.py — soft delete, slug uniqueness

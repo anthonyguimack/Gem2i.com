@@ -4,6 +4,7 @@ import { gemAPI } from '../../lib/api';
 import { useMember } from '../../lib/memberAuth';
 import { useT } from '../../lib/i18n';
 import { gemImg } from './GemCatalogBits';
+import GemFormalNameDialog from './GemFormalNameDialog';
 
 /** Guest-list widget for the event detail page (plan A8, Phase 4).
  *  States: logged-out prompt → eligible join (benefit info, additional-guest
@@ -17,6 +18,8 @@ export default function GemGuestListWidget({ event }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [additional, setAdditional] = useState(0);
+  const [formalOpen, setFormalOpen] = useState(false);
+  const retryRef = React.useRef(null); // action to retry after formal-name confirmation (B7)
 
   const isGuestList = event?.type === 'guest_list';
   const isPast = (event?.event_date || '') < new Date().toISOString().slice(0, 10);
@@ -40,6 +43,9 @@ export default function GemGuestListWidget({ event }) {
       </p>
       {children}
       {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
+      <GemFormalNameDialog open={formalOpen}
+        onClose={() => { setFormalOpen(false); retryRef.current = null; }}
+        onConfirmed={() => { setFormalOpen(false); const fn = retryRef.current; retryRef.current = null; if (fn) fn(); else load(); }} />
     </div>
   );
 
@@ -81,6 +87,11 @@ export default function GemGuestListWidget({ event }) {
     catch (e) {
       const detail = e.response?.data?.detail;
       if (detail === 'guest_list_full') { load(); }
+      else if (detail === 'formal_name_confirmation_required') {
+        // B7 gate — confirm the legal name, then retry the same action
+        retryRef.current = () => run(fn);
+        setFormalOpen(true);
+      }
       else setError(typeof detail === 'string' ? detail : tt({ en: 'Something went wrong. Try again.', es: 'Algo salió mal. Inténtalo de nuevo.' }));
     }
     setBusy(false);

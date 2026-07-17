@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-07-17 (session 5, Anthony's machine) — PHASE 3 SHIPPED: member merge (D2) + gating + B7 formal-name gate LIVE
+
+**The full legacy membership is migrated and the auth surface is legacy-parity.** Phase 3 per plan §7 done end-to-end.
+
+**Member-merge ETL (D2 silent bcrypt — plaintext never persisted anywhere):**
+- NEW `scripts/gem2i_etl_members.py` (Stage 1, local vs the restored `gem2i_etl_src` MariaDB): members + members_membership + member_type → `gem_member_types.jsonl` + `gem_members.jsonl`. **bcrypt happens in Stage 1 in memory** — 1214/1737 passwords hashed; 523 no-password rows (FB-only logins, FB login dropped) get `password_hash:null` → forgot-password recovery. 1 legacy row skipped (no email). estado '1'→active (the only value the legacy login accepted), '0'/'2'→deactivated. `formal_name_id_confirmation:'ok'` → `formal_name_confirmed:true` (21 members).
+- NEW `scripts/gem2i_load_members.py` (Stage 2, on box, idempotent): member_types $setOnInsert (5 types, det ids) · NEW members inserted with sequential membership_number + `GEM-n` membership_id · already-migrated → profile refresh only (password_hash/status/roles NEVER re-written, so forgot-password resets survive re-runs) · pre-existing-by-email (the admin, legacy_id 2) → tagged + supplemented, auth+profile untouched · sponsor chains resolved legacy→member_id (1736) · **gem_config ecommissions levels set to the real legacy [30,20,15,10,5,2]** (was [0×6]) · indexes (legacy_id unique sparse, email).
+- **Loaded:** members 1737 total (1736 inserted + admin merge) · 527 active legacy · member_types 5 · re-ran `gem2i_load_catalogs.py` → **gem_follows.member_id resolved 221/225** (4 reference never-migrated rows — stay hidden, partial index).
+- Fixed live: `settings.aux_prefix` AUX→**GEM**; all 1736 migrated membership_ids rewritten `GEM-n`.
+
+**Backend:**
+- `models/database.py` `verify_password` hardened: empty/None/invalid hash → False (migrated no-password members fail auth cleanly, not 500).
+- `member_login`: case-insensitive email fallback (legacy MySQL matched any casing; migrated emails stored lowercase) · `member_logins.source` now **'gem2i'** (was 'main').
+- **B7 formal-name gate** in `gem_passes.py`: `require_formal_name()` → 403 `formal_name_confirmation_required` enforced on guest-list join AND `gem_tickets` checkout · NEW `GET/POST /member/gem/formal-name` (member confirms/corrects legal name; sets confirmed flag) · `my-event-status` now returns `formal_name {name, confirmed}`.
+
+**Frontend:** NEW `components/gem2i/GemFormalNameDialog.js` (legacy #confirmation_formal_name modal rebuilt; EN/ES, prefills current name) wired **error-driven** into GemGuestListWidget + GemTicketWidget: on the 403 the dialog opens, and on confirm the original action retries automatically. `gemAPI.formalName()/confirmFormalName()`.
+
+**Verify:** py_compile clean · `yarn build` GREEN (only the pre-existing exhaustive-deps warnings) · **Deploy GREEN (4m28s, health 200).** Verified live: null-hash active member login → 401 (not 500) · deactivated member → 401 · formal-name unauth → 401 · ecommissions [30,20,15,10,5,2] on box.
+
+**Phase-3 remaining (needs humans):** a real migrated member logging in with their original password (nobody should type legacy plaintext but a volunteer/owner can) · forgot-password e2e needs SMTP configured in CMS. Login-modal/gating map were already legacy-parity from Phase 1.
+
 ## 2026-07-17 (session 4 continued #2, Carlos's machine) — PHASE 5 CORE BUILT + DEPLOYED: e-ticketing + Stripe + economics
 
 **Ticket purchase path (plan B1/B2/B3) built end-to-end.** Stripe per D3 (CMS-managed key via `get_stripe_api_key`); the legacy disabled-IPN hole is closed **by construction**.

@@ -7,6 +7,7 @@
 |---|---|---|---|
 | Product admin (CMS `/admin` + My Account) | **`carlos.m.artiles@gmail.com`** | Anthony's standard admin password — password manager. Stored on the box ONLY as a bcrypt hash in `members` (never plaintext; `.env` holds just `ADMIN_EMAIL`). | ✅ set + login-verified (200) |
 | Test member | — | — | pending (seed after CMS rebrand) |
+| Legacy members (1736, migrated 2026-07-17 session 5) | their legacy email (any casing) | their ORIGINAL legacy password (bcrypt-hashed at ETL, D2 — plaintext never stored) | ✅ active=527 can log in; estado 0/2 → deactivated (403-parity); 523 no-password rows → forgot-password only |
 
 Set via `scripts`-style one-shot updater 2026-07-15 (creds piped over stdin, never in shell history). The old auto-generated `admin@gem2i.com` was the same doc and no longer works. Never print the password in chat or commit it.
 

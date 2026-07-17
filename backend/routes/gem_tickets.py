@@ -223,6 +223,9 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
     if not (1 <= quantity <= MAX_QTY):
         raise HTTPException(status_code=422, detail=f"Quantity must be 1-{MAX_QTY}")
 
+    from routes.gem_passes import require_formal_name
+    require_formal_name(member)  # B7 — legacy gate before any ticket transaction
+
     ev = await _public_event_or_404(event_id)
     if ev.get("type") != "eticket":
         raise HTTPException(status_code=422, detail="This event does not sell e-tickets")

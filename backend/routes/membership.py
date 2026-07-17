@@ -70,7 +70,11 @@ async def member_login(request: Request, response: Response):
     body = await request.json()
     username = body.get("username", "").strip()
     password = body.get("password", "")
-    member = await db.members.find_one({"$or": [{"username": username}, {"email": username}]}, {"_id": 0})
+    # Migrated legacy emails are stored lowercased; legacy MySQL matched them
+    # case-insensitively, so accept any casing the member types (D2 parity).
+    member = await db.members.find_one(
+        {"$or": [{"username": username}, {"email": username},
+                 {"username": username.lower()}, {"email": username.lower()}]}, {"_id": 0})
     if not member or not verify_password(password, member.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     # My Account gate — admins always pass; everyone else must hold role_member.
@@ -89,7 +93,7 @@ async def member_login(request: Request, response: Response):
     await db.members.update_one({"member_id": member["member_id"]}, {"$set": {"last_login": now_iso}})
     await db.member_logins.insert_one({"member_id": member["member_id"],
                                        "membership_number": member.get("membership_number"),
-                                       "source": "main", "logged_at": now_iso})
+                                       "source": "gem2i", "logged_at": now_iso})
     # MMS usage hook (Phase 3): daily-login points/streaks — the event_key
     # makes one login event per member per UTC day, however often they log in.
     from utils.mms_events import emit_soon

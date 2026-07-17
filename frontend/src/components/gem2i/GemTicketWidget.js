@@ -4,6 +4,7 @@ import { gemAPI } from '../../lib/api';
 import { useMember } from '../../lib/memberAuth';
 import { useT } from '../../lib/i18n';
 import { gemImg } from './GemCatalogBits';
+import GemFormalNameDialog from './GemFormalNameDialog';
 
 /** E-ticket purchase widget (plan B1, Phase 5) for eticket events.
  *  Tier prices are public (legacy parity); buying is member-gated. Checkout
@@ -17,6 +18,8 @@ export default function GemTicketWidget({ event }) {
   const [qty, setQty] = useState({});         // tier -> quantity
   const [busyTier, setBusyTier] = useState(null);
   const [error, setError] = useState('');
+  const [formalOpen, setFormalOpen] = useState(false);
+  const [formalRetryTier, setFormalRetryTier] = useState(null); // retry buy after B7 confirmation
 
   const isEticket = event?.type === 'eticket';
   const isPast = (event?.event_date || '') < new Date().toISOString().slice(0, 10);
@@ -47,6 +50,13 @@ export default function GemTicketWidget({ event }) {
       window.location.assign(r.data.url); // → Stripe Checkout
     } catch (e) {
       const detail = e.response?.data?.detail;
+      if (detail === 'formal_name_confirmation_required') {
+        // B7 gate — confirm the legal name, then retry the purchase
+        setFormalRetryTier(tierKey);
+        setFormalOpen(true);
+        setBusyTier(null);
+        return;
+      }
       setError(detail === 'tier_sold_out'
         ? tt({ en: 'That tier just sold out.', es: 'Ese nivel se acaba de agotar.' })
         : (typeof detail === 'string' ? detail : tt({ en: 'Checkout failed. Try again.', es: 'El pago falló. Inténtalo de nuevo.' })));
@@ -132,6 +142,9 @@ export default function GemTicketWidget({ event }) {
         {tt({ en: 'Secure payment via Stripe. Tickets arrive by email and appear here after payment.',
               es: 'Pago seguro con Stripe. Los tickets llegan por email y aparecen aquí tras el pago.' })}
       </p>
+      <GemFormalNameDialog open={formalOpen}
+        onClose={() => { setFormalOpen(false); setFormalRetryTier(null); }}
+        onConfirmed={() => { setFormalOpen(false); const t = formalRetryTier; setFormalRetryTier(null); if (t) buy(t); }} />
     </div>
   );
 }

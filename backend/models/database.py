@@ -42,7 +42,14 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+    # hashed may be empty/None for migrated legacy members that never had a
+    # password (FB-only logins, D2) — those must fail auth cleanly, not 500.
+    if not password or not hashed:
+        return False
+    try:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+    except ValueError:
+        return False
 
 def create_jwt_token(user_id: str, email: str, role: str = "member") -> str:
     payload = {"user_id": user_id, "email": email, "role": role,

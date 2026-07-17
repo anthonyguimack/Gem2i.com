@@ -99,6 +99,14 @@ async def _my_pass(event_id: str, member_id: str):
          "status": {"$ne": "canceled"}}, {"_id": 0})
 
 
+def require_formal_name(member: dict):
+    """B7 gate (legacy parity): before any guest-list join or ticket purchase the
+    member must have confirmed their legal name (formal_name_id_confirmation
+    'ok' in the legacy DB). The SPA opens the confirmation dialog on this 403."""
+    if not member.get("formal_name_confirmed"):
+        raise HTTPException(status_code=403, detail="formal_name_confirmation_required")
+
+
 def _member_display(member: dict) -> tuple[str, str]:
     name = (member.get("name")
             or f"{member.get('first_name', '')} {member.get('last_name', '')}".strip()
@@ -139,6 +147,29 @@ async def _send_pass_email(to_email: str, to_name: str, ev: dict, tx: dict):
 
 
 # ================================================================ MEMBER
+@router.get("/member/gem/formal-name")
+async def get_formal_name(member: dict = Depends(get_current_member)):
+    return {"formal_name": member.get("formal_name_id") or "",
+            "confirmed": bool(member.get("formal_name_confirmed"))}
+
+
+@router.post("/member/gem/formal-name")
+async def confirm_formal_name(request: Request, member: dict = Depends(get_current_member)):
+    """B7: the member confirms (or corrects) their legal name as per their I.D.
+    Legacy: the #confirmation_formal_name modal on event-info.php; the rebuilt
+    site lets the member set the name directly instead of bouncing to the
+    retired My Account flow."""
+    body = await request.json()
+    name = " ".join((body.get("formal_name") or "").split())
+    if not (3 <= len(name) <= 100):
+        raise HTTPException(status_code=422, detail="Please enter your full legal name")
+    await db.members.update_one(
+        {"member_id": member["member_id"]},
+        {"$set": {"formal_name_id": name, "formal_name_confirmed": True,
+                  "formal_name_confirmed_at": _now_iso()}})
+    return {"formal_name": name, "confirmed": True}
+
+
 @router.get("/member/gem/my-event-status/{event_id}")
 async def my_event_status(event_id: str, member: dict = Depends(get_current_member)):
     ev = await _public_event_or_404(event_id)
@@ -147,6 +178,8 @@ async def my_event_status(event_id: str, member: dict = Depends(get_current_memb
         "following": bool(await db.gem_follows.find_one(
             {"member_id": member_id, "kind": "event", "target_id": event_id}, {"_id": 1})),
         "pass": None, "waiting": False, "guest_list": None, "benefit": None, "eligible": False,
+        "formal_name": {"name": member.get("formal_name_id") or "",
+                        "confirmed": bool(member.get("formal_name_confirmed"))},
     }
     gl = ev.get("guest_list") or {}
     if ev.get("type") == "guest_list" and gl.get("stock"):
@@ -184,6 +217,7 @@ async def join_guest_list(request: Request, background: BackgroundTasks,
     benefit, eligible = _benefit_for(gl, member)
     if not eligible:
         raise HTTPException(status_code=403, detail="Your membership type is not eligible for this guest list")
+    require_formal_name(member)  # B7 — legacy gate before joining any guest list
 
     if additional:
         ranges = [int(r) for r in (gl.get("ranges") or []) if str(r).isdigit()]
