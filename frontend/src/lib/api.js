@@ -40,6 +40,27 @@ export const publicAPI = {
   getGemContent: () => api.get('/public/gem/gem-content'),
 };
 
+// gem2i Phase-2 catalogs (routes/gem_catalogs.py). Member calls carry the
+// shared bearer token via the interceptor — identity always from JWT.
+export const gemAPI = {
+  artists: (params) => api.get('/public/gem/artists', { params }),
+  artistDetail: (slug) => api.get(`/public/gem/artists/${slug}`),
+  venues: (params) => api.get('/public/gem/venues', { params }),
+  venueDetail: (slug) => api.get(`/public/gem/venues/${slug}`),
+  festivals: (params) => api.get('/public/gem/festivals', { params }),
+  festivalDetail: (slug) => api.get(`/public/gem/festivals/${slug}`),
+  conferences: (params) => api.get('/public/gem/conferences', { params }),
+  conferenceDetail: (slug) => api.get(`/public/gem/conferences/${slug}`),
+  events: (params) => api.get('/public/gem/events', { params }),
+  eventDetail: (slug) => api.get(`/public/gem/events/${slug}`),
+  clients: () => api.get('/public/gem/clients'),
+  genres: () => api.get('/public/gem/genres'),
+  continents: () => api.get('/public/gem/continents'),
+  artistNames: (q, roster) => api.get('/public/gem/artist-names', { params: { q, roster } }),
+  follow: (kind, targetId, flag) => api.post('/member/gem/follow', { kind, target_id: targetId, flag }),
+  myFollows: (kind) => api.get('/member/gem/my-follows', { params: kind ? { kind } : {} }),
+};
+
 export const searchAPI = {
   search: (q) => api.get(`/search?q=${encodeURIComponent(q)}`),
 };

@@ -11,6 +11,7 @@ Reuse: `members`, `contacts`, `settings`, `hero_slides`, geo. New (see GEM2I_MIG
 
 ## API (FastAPI — `backend/routes/gem_*.py`)
 Public catalogs `/api/public/gem/*`, member actions `/api/member/gem/*` (JWT identity only), payments webhook (Stripe-verified), admin CRUD `/api/admin/gem/*`, `GET /api/health`. Full list: plan §5.
+**Built (P1-P2):** `gem_content.py` (gem_config `content` doc, EN/ES homepage copy) · `gem_catalogs.py` (7 catalogs: public listings/details w/ visibility rules [active; events also !private+show_portal+365-day past cap], genres/continents/artist-names autocompletes, member follow, admin CRUD w/ soft delete). Catalog docs carry `legacy_id` (ETL upsert key; unique-indexed) + deterministic uuid5 `id` + unique `slug`. Legacy images at `backend/uploads/gem2i/legacy/<legacy-folder>/` served via `/api/uploads`; `image_urls` resolved server-side (folder map in `reference/GEM2I_LEGACY_SCHEMA_PHASE2.md`). ETL: `scripts/gem2i_etl_catalogs.py` (dump→JSONL, local) + `scripts/gem2i_load_catalogs.py` (JSONL→Mongo, on box; idempotent).
 
 ## Frontend (theme `gem2i`, dark entertainment)
 `components/gem2i/` layout + widgets; `pages/gem2i/` catalogs & details; `pages/admin/Gem*Manager`. Public theme driven by the `website` color group (`--color-*`). Full list: plan §6.

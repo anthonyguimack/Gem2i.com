@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play } from 'lucide-react';
 import HeroSection from '../../components/HeroSection';
-import { publicAPI } from '../../lib/api';
+import { publicAPI, gemAPI } from '../../lib/api';
+import { gemImg } from '../../components/gem2i/GemCatalogBits';
 import { useSettings } from '../../App';
 import { useT } from '../../lib/i18n';
 
@@ -19,10 +20,20 @@ export default function Gem2iHome() {
   const tt = useT();
   const [content, setContent] = useState(null);
   const [heroSlides, setHeroSlides] = useState([]);
+  const [festivals, setFestivals] = useState([]);
+  const [conferences, setConferences] = useState([]);
+  const [clientLogos, setClientLogos] = useState([]);
 
   useEffect(() => {
     publicAPI.getGemContent().then(r => setContent(r.data || {})).catch(() => setContent({}));
     publicAPI.getHeroSlides('home').then(r => setHeroSlides(r.data || [])).catch(() => {});
+    // Phase-2 catalogs light up the legacy homepage carousels.
+    gemAPI.festivals({ limit: 12 }).then(r => setFestivals(r.data?.items || [])).catch(() => {});
+    gemAPI.conferences({ limit: 12 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
+    gemAPI.clients().then(r => setClientLogos((r.data?.items || []).map(cl => ({
+      name: cl.title, url: cl.url, image: cl.image_urls?.on?.startsWith('/api')
+        ? `${process.env.REACT_APP_BACKEND_URL || ''}${cl.image_urls.on}` : cl.image_urls?.on,
+    })))).catch(() => {});
   }, []);
 
   if (!content) {
@@ -131,9 +142,19 @@ export default function Gem2iHome() {
         </section>
       )}
 
-      {/* FESTIVALS / CONFERENCES — carousels light up with Phase-2 catalog data */}
-      <LogoCarousel section={c.festivals} testid="gem2i-festivals" />
-      <LogoCarousel section={c.conferences} testid="gem2i-conferences" />
+      {/* FESTIVALS / CONFERENCES — live Phase-2 catalog data (CMS items win if entered) */}
+      <LogoCarousel
+        section={withCatalogItems(c.festivals, festivals, f => ({
+          title: f.title, url: `/festivals/${f.slug}`, date: f.range_dates || f.event_date,
+          image: gemImg(f.image_urls?.flyer) || gemImg(f.image_urls?.logo),
+        }))}
+        testid="gem2i-festivals" />
+      <LogoCarousel
+        section={withCatalogItems(c.conferences, conferences, cf => ({
+          title: cf.title, url: `/conferences/${cf.slug}`, date: cf.range_dates || cf.event_date,
+          image: gemImg(cf.image_urls?.logo) || gemImg(cf.image_urls?.flyer),
+        }))}
+        testid="gem2i-conferences" />
 
       {/* MEDIA */}
       {c.media && Array.isArray(c.media.videos) && c.media.videos.length > 0 && (
@@ -168,9 +189,9 @@ export default function Gem2iHome() {
           <p className="mt-6 max-w-3xl text-sm md:text-[15px] leading-[1.85]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
             {tt(c.clients.text)}
           </p>
-          {Array.isArray(c.clients.logos) && c.clients.logos.length > 0 && (
+          {(c.clients.logos?.length > 0 ? c.clients.logos : clientLogos).length > 0 && (
             <div className="mt-10 flex flex-wrap items-center gap-x-12 gap-y-8">
-              {c.clients.logos.map((l, i) => (
+              {(c.clients.logos?.length > 0 ? c.clients.logos : clientLogos).map((l, i) => (
                 l.url
                   ? <a key={i} href={l.url} target="_blank" rel="noreferrer" className="opacity-70 hover:opacity-100 transition-opacity"><img src={l.image} alt={l.name || 'client'} className="h-10 w-auto object-contain" /></a>
                   : <img key={i} src={l.image} alt={l.name || 'client'} className="h-10 w-auto object-contain opacity-70" />
@@ -181,6 +202,14 @@ export default function Gem2iHome() {
       )}
     </div>
   );
+}
+
+/** Merge CMS-entered carousel items with live catalog docs: operator-entered
+ *  CMS items win; otherwise the catalog feed maps into the same item shape. */
+function withCatalogItems(section, docs, toItem) {
+  if (!section) return null;
+  if (Array.isArray(section.items) && section.items.length > 0) return section;
+  return { ...section, items: (docs || []).map(toItem) };
 }
 
 /** Legacy gem2i stacked section heading — small kicker over big title. */

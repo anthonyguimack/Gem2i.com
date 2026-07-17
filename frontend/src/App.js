@@ -74,6 +74,15 @@ const MemberResetPassword = lazy(() => import('./pages/myaccount/MemberResetPass
 const MyAccountLayout = lazy(() => import('./pages/myaccount/MyAccountLayout'));
 const MembershipProfile = lazy(() => import('./pages/myaccount/MembershipProfile'));
 const MySponsor = lazy(() => import('./pages/myaccount/MySponsor'));
+// gem2i Phase-2 catalogs — theme-gated routes; lazy so other themes never load them.
+const Gem2iArtists = lazy(() => import('./pages/gem2i/Gem2iArtists'));
+const Gem2iArtistDetail = lazy(() => import('./pages/gem2i/Gem2iArtistDetail'));
+const Gem2iVenues = lazy(() => import('./pages/gem2i/Gem2iVenues'));
+const Gem2iVenueDetail = lazy(() => import('./pages/gem2i/Gem2iVenueDetail'));
+const Gem2iFestivals = lazy(() => import('./pages/gem2i/Gem2iFestivals'));
+const Gem2iFestivalDetail = lazy(() => import('./pages/gem2i/Gem2iFestivalDetail'));
+const Gem2iEvents = lazy(() => import('./pages/gem2i/Gem2iEvents'));
+const Gem2iEventDetail = lazy(() => import('./pages/gem2i/Gem2iEventDetail'));
 
 import { injectThemeColors } from './lib/themeColors';
 import { LanguageProvider } from './lib/i18n';
@@ -429,6 +438,19 @@ function AppRouter() {
             <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              {/* gem2i catalogs take over these URLs when the theme is active;
+                  other themes fall through to the CMS placeholder pages. */}
+              {settings.active_theme === 'gem2i' && <>
+                <Route path="/artists" element={<Gem2iArtists />} />
+                <Route path="/artists/:slug" element={<Gem2iArtistDetail />} />
+                <Route path="/venues" element={<Gem2iVenues />} />
+                <Route path="/venues/:slug" element={<Gem2iVenueDetail />} />
+                <Route path="/festivals" element={<Gem2iFestivals />} />
+                <Route path="/festivals/:slug" element={<Gem2iFestivalDetail kind="festival" />} />
+                <Route path="/conferences/:slug" element={<Gem2iFestivalDetail kind="conference" />} />
+                <Route path="/events" element={<Gem2iEvents />} />
+                <Route path="/events/:slug" element={<Gem2iEventDetail />} />
+              </>}
               <Route path="/reading-list" element={<ReadingListPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/map/:slug" element={<MapDetailPage />} />

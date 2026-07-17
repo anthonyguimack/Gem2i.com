@@ -50,6 +50,14 @@ export default function Gem2iHeader({ nav }) {
     return () => window.removeEventListener('gem2i:open-contact', open);
   }, []);
 
+  // Catalog pages open the login modal for gated interactions (follow, and
+  // later guest-list/ticket actions) via the same window-event pattern.
+  useEffect(() => {
+    const open = () => setLoginOpen(true);
+    window.addEventListener('gem2i:open-login', open);
+    return () => window.removeEventListener('gem2i:open-login', open);
+  }, []);
+
   // Pages without a hero need a solid header + a spacer so content doesn't
   // slide under the fixed bar (same detection as ModernNavbar).
   useEffect(() => {

@@ -1,8 +1,8 @@
 # GEM2I_BUILD_TRACKER.md — live build tracker
 
-> **CLAIMED BY:** (unclaimed — session 2 finished)
-> **STATUS:** ✅ **PHASE 1 SHIPPED — gem2i theme LIVE on beta.gem2i.com** (dark entertainment shell: Gem2iHeader/side menu/contact panel/footer/cookies, real CMS-driven homepage EN/ES, legacy nav graph + gating, gem-content backend, CMS rebranded #04080C/#3287B7/Poppins; contact e2e verified into `contacts`). Remaining open: requirements trim, SMTP config, hero slides + gated-page copy via legacy ETL. Next: **Phase 2 — catalogs** (needs the legacy MySQL dump — on Anthony's machine).
-> **LAST SYNC:** 2026-07-15 (session 2, second dev machine — Phase 1 built + deployed + verified; deploy script untracked-dir fix; collaborator key confirmed working. See memory/PROGRESS.md session-2 entry.)
+> **CLAIMED BY:** (unclaimed — session 3 finished)
+> **STATUS:** ✅ **PHASE 2 CORE SHIPPED — catalogs LIVE on beta.gem2i.com** (legacy ETL loaded: 601 artists / 901 venues / 422 festivals / 32 conferences / 2132 events / 15 clients / 225 follows into gem2i_cms; 1.83 GB legacy images on the box; `routes/gem_catalogs.py` public+member+admin API; public catalog pages with roster tabs/filters/details + follow gating; homepage carousels live). **Phase-2 exit still open:** admin manager UIs (API CRUD ready), card/list toggle + event country autocomplete, junk-venue cleanup. Then: **Phase 3 — membership merge** (legacy members → members; resolves the 225 pending follows).
+> **LAST SYNC:** 2026-07-17 (session 3, Anthony's machine — ETL + assets + API + UI built, deployed, verified. See memory/PROGRESS.md session-3 entry.)
 
 The product spec is `GEM2I_MIGRATION_PLAN.md` (unchanged, still authoritative for features/schema/API/phases). This tracker records the **isolated-instance build** on box 34.198.159.54.
 

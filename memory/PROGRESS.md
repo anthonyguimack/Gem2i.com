@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-07-17 (session 3, Anthony's machine) — PHASE 2 CORE SHIPPED: catalogs LIVE on beta
+
+**ETL + assets + catalog API + public catalog UI built, deployed, verified end-to-end.** Remaining for Phase-2 exit: admin manager UIs (API CRUD done), minor filter parity, data-quality sweep.
+
+**ETL (two-stage, idempotent — scripts/):**
+- `gem2i_etl_catalogs.py` (Stage 1, ran locally): parses the legacy MySQL dump (`gem2ica_production.sql` in `__bases_de_datos/`; custom INSERT-tuple parser, no MySQL server needed) → normalized JSONL in `reference/local-only/etl_out/` (gitignored). Deterministic uuid5 ids from legacy pks; slug de-dup; genre split; socials pruned; date strings ISO.
+- `gem2i_load_catalogs.py` (Stage 2, ran on box with backend venv): upserts by `legacy_id` (follows by composite `id`), ensures indexes (unique slug + legacy_id; events `(type,status,event_date)`), `--dry-run` supported. Re-run safe.
+- **Loaded into gem2i_cms:** gem_artists 601 (511 active) · gem_venues 901 (327) · gem_venue_types 32 · gem_festivals 422 (188) · gem_conferences 32 (28) · gem_clients 15 · gem_events 2132 · gem_follows 225 (1 legacy dup row collapsed by deterministic id — correct). Follows keep `member_id:null` until the Phase-3 member merge; loader auto-resolves on re-run after it.
+- Mapping doc: `reference/GEM2I_LEGACY_SCHEMA_PHASE2.md` (tables→collections, image folder map, visibility rules verified against real data).
+
+**Assets:** 1.83 GB legacy images pulled **box-to-box** (legacy Plesk box 18.208.85.155 `/var/www/vhosts/gem2i.com/httpdocs/` — the same Gem2i pem opens it; temp key staged on the box for the pull and DELETED after) → `/opt/beta.gem2i.com/backend/uploads/gem2i/legacy/{djs_images,venues_view,venues_logos,images_festivals,images_conferences,images_clients_home,events_images,events_logo}` (chmod D755/F644). Served via the existing `/api/uploads` StaticFiles mount. Subdir map verified in legacy PHP: festivals `images|photo|logos|genericimage`, conferences `images|logos`, djs `.|big|detail`.
+
+**Backend:** NEW `routes/gem_catalogs.py` (registered in server.py):
+- Public: `/public/gem/{artists,venues,festivals,conferences,events}[/{slug}]` + `clients`, `genres`, `continents`, `artist-names`. Visibility = status active; events also `private:false` + `show_portal:true`; past events capped 365 days (D7). Roster filter sorts by that roster's rank. Details resolve venue + lineup docs; `image_urls` built server-side from the legacy folder map.
+- Member (JWT-only identity): `POST /member/gem/follow` {kind,target_id,flag}, `GET /member/gem/my-follows`.
+- Admin CRUD: GET/POST `/admin/gem/{catalog}` + PUT/DELETE `/{id}` for all 7 catalogs; **soft delete** (status='deleted') so ETL provenance survives; slug uniqueness enforced.
+
+**Frontend (theme-gated routes in App.js — only when `active_theme==='gem2i'`; lazy chunks):**
+- `components/gem2i/GemCatalogBits.js`: gemImg (BACKEND prefix), CatalogHero, FilterPills, CatalogSearch, Paginator, SkeletonGrid, EmptyState, CardImage (broken-img fallback), TypeBadge (eticket/guest_list/info), FollowButton (logged-out click → `gem2i:open-login` window event → header LoginModal), SocialLinks, ArtistCard (rank badge).
+- Pages `pages/gem2i/`: **Gem2iArtists** (roster tabs GEM/DJ Mag/Residents/All + continent pills + genre select + search), **Gem2iArtistDetail** (badges GEM/DJMAG/RESIDENT ranks, bio richtext, socials, follow; exports NotFoundShell), **Gem2iVenues** (continent tabs + search, logo wall), **Gem2iVenueDetail** (view img, address/capacity, upcoming events grid), **Gem2iFestivals** (+ conferences horizontal strip), **Gem2iFestivalDetail** (shared for festivals AND conferences via `kind` prop; lineup grid), **Gem2iEvents** (current/past scope + search + date filter), **Gem2iEventDetail** (flyer, venue link, follow + external Tickets link, DJ line-up). `gemAPI` added to lib/api.js.
+- Gem2iHome: festivals/conferences carousels + client logos now light up from live catalog data (CMS-entered items still win if present — `withCatalogItems`).
+
+**Deploy:** `deploy_beta_gem2i.ps1 -y` green (4m41s, 27 files, backup taken, health 200). **Verified live:** GEM roster ranked correctly (Maceo Plex #1/Carl Cox #2/Richie Hawtin #3) · /artists /venues render with real data · /artists/carl-cox full detail (3 rank badges, bio, follow) · images serve 200 · conferences endpoint (ADE first) · zero console errors.
+
+**Notes / open for Phase-2 exit:**
+- **Admin manager UIs missing** (exit test needs an admin round-trip per catalog) — API CRUD is ready, build CMS screens next session.
+- Card/list toggle + country/state autocompletes on events (minor legacy parity).
+- Junk legacy venues sort first on /venues ("anidados2", "lawevas" — active+order 0 in legacy); deactivate via admin once managers exist.
+- Legacy events data is almost all past (only 2 "current" rows, dated 2030 — legacy test rows); real current events arrive via admin entry.
+
 ## 2026-07-15 (session 2, second dev machine) — PHASE 1 SHIPPED: gem2i theme LIVE on beta
 
 **GEM2I_MIGRATION_PLAN Phase 1 (public shell + homepage + content pages) built, deployed, verified.**
