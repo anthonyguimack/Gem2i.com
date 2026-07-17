@@ -2,6 +2,57 @@
 
 ---
 
+## 2026-07-17 (session 4 continued #2, Carlos's machine) — PHASE 5 CORE BUILT + DEPLOYED: e-ticketing + Stripe + economics
+
+**Ticket purchase path (plan B1/B2/B3) built end-to-end.** Stripe per D3 (CMS-managed key via `get_stripe_api_key`); the legacy disabled-IPN hole is closed **by construction**.
+
+**Backend — NEW `routes/gem_tickets.py`** (registered in server.py; `seed_gem_ecommissions()` at startup):
+- Public: `GET /public/gem/events/{id}/tier-availability` (configured tiers = price>0 AND stock>0; remaining per tier) · `POST /public/gem/payment-webhook`.
+- Member: `POST /member/gem/checkout` {event_id,tier,quantity≤10,origin_url} → Stripe Checkout session (success `/tickets/success?session_id=…`, cancel back to the event) + pending tx w/ insert-then-verify oversell rollback · `GET checkout-status/{session_id}` (success-page poll; completes when Stripe says paid — works even before the operator wires the webhook in Stripe) · `GET my-tickets/{event_id}`.
+- **Webhook trust model (D3/§8 exit test "forged webhook rejected"):** ① optional Stripe signature check when `gem_config {key:'payments'}.webhook_secret` set; ② payload treated as a HINT only — completion state comes from retrieving the session FROM Stripe server-to-server (fake session id → 404/retrieve fail; unpaid → ignored); ③ Stripe amount_total must equal tx.total or 400.
+- **Per-tier stock arithmetic-on-read**: completed always counts; pending counts only for 60 min (PENDING_HOLD_MINUTES) so abandoned checkouts auto-release.
+- **Economics (B3):** on completion tx gets {cost, profit, commissions[6]} from tier cost + `gem_config {key:'ecommissions'} levels` (seeded [0×6]; real legacy percentages arrive w/ ETL/operator). Sponsor-chain payout resolution = report-time, post member-merge.
+- Completion idempotent (`_complete_ticket` guarded update — one QR/email even if webhook+poll race). QR + email reuse the Phase-4 plumbing; NEW `gem_ticket` email template (auto-seeds).
+- The 6 tiers = legacy set: admission/eprice/vip/gold/ultra/platinium (`tiers.{key} = {label,price,cost,stock}` on the event; `payment.currency` per event, default usd).
+
+**Frontend:**
+- NEW `components/gem2i/GemTicketWidget.js` on event detail (type=eticket, non-past): public tier list w/ price+remaining, qty select (≤6, capped by availability), Buy → Stripe redirect (logged-out → login modal), shows my purchased tickets w/ QR, sold-out states, EN/ES.
+- NEW `pages/gem2i/Gem2iTicketSuccess.js` at `/tickets/success` (theme-gated route): polls verified checkout-status (10×2s) → QR ticket / still-processing / failed states.
+- **Events manager tiers sub-editor** (`tiers` field, shown when type=eticket): 6 rows × label/price/cost/stock + payment currency select (USD/EUR/GBP). Transactions manager rows now show qty × tier = total for tickets.
+- `gemAPI`: tierAvailability/checkout/checkoutStatus/myTickets.
+
+**Verify:** `py_compile` clean; `yarn build` GREEN (57s, only the 4 pre-existing warnings).
+
+**Deploy:** GREEN (3m6s, 16 files, health 200, gem2i-backend active). **Verified live post-restart:** tier-availability serves (empty tiers for a non-eticket event — correct) · forged webhook POST → 503 payments-not-configured, nothing completed (once the Stripe key is set the path is retrieve-verify → forged ids fail) · checkout unauth → 401 · `gem_config ecommissions` seeded [0×6] · `gem_ticket` template seeded (enabled).
+
+**Phase-5 remaining:** share→referral points (B5) + purchase reward-points writes (points config editor = Phase 6); e2e sandbox purchase test (needs Stripe test key in CMS Settings + test member + admin login — humans); operator wiring: Stripe webhook endpoint → `https://beta.gem2i.com/api/public/gem/payment-webhook` (+ optional `webhook_secret` into gem_config `payments`).
+
+## 2026-07-17 (session 4 continued, Carlos's machine) — PHASE 4 CORE BUILT + DEPLOYED: guest list + waiting list + QR passes
+
+**Full guest-list engine (plan A8) built end-to-end — backend + member widget + admin.** No dependency on the Phase-3 member merge (identity = JWT; benefits keyed by CMS `member_types.id`).
+
+**Backend — NEW `routes/gem_passes.py`** (registered in server.py; indexes ensured at startup via `ensure_pass_indexes()`):
+- Member: `GET my-event-status/{event_id}` (one call feeds the widget: pass/waiting/eligible/benefit/availability/following) · `POST guest-list` {event_id, additional_guests} · `DELETE guest-list/{event_id}` (cancel, stock frees arithmetically) · `POST/DELETE waiting-list` (join only when actually full; unique index).
+- **Stock = arithmetic-on-read** (aggregate 1+guest_additional over non-canceled `gem_transactions` kind guest_pass). **Issue = insert-then-verify**: insert pass → re-count → if oversold in the race window delete own row → 409 `guest_list_full`.
+- Eligibility: if `event.guest_list.benefits[]` non-empty, member's `member_type_id` must be listed (legacy per-type gating); empty benefits = everyone. Additional guests validated against `additional_enabled` + `ranges`. Time-window fields (open/free/additional_until) carried + displayed, not door-enforced (check-in = future phase).
+- **QR e-pass**: python `qrcode` (already in requirements w/ Pillow) → PNG at `uploads/gem2i/passes/{code}.png` (served by /api/uploads; no FTP). Payload `GEM2I-PASS:{code}`.
+- **Pass email**: NEW template `gem_guest_pass` in `models/email_templates.py` (auto-seeds at startup; QR inline via URL) sent via `render_and_send` as a BackgroundTask — best-effort, silent while SMTP unconfigured.
+- Admin: `GET /admin/gem/transactions` (search member/email/qr-code, filter status/kind/event, event titles resolved per page) · `PUT .../{id}` manual completed/canceled/pending · `GET /admin/gem/waiting-list/{event_id}` (member names resolved). NEW section **gem_transactions** in cms_sections.py.
+
+**Frontend:**
+- NEW `components/gem2i/GemGuestListWidget.js` on the event detail page (renders only for type=guest_list, non-past): logged-out → login prompt (gem2i:open-login) · eligible → availability + free-until + additional-guest select + join · pass → QR image + code + cancel · full → waiting-list join/leave · not eligible message. EN/ES throughout.
+- `gemAPI` + `gemAdminAPI` extended (myEventStatus/join/cancel/waiting; transactions/updateTransaction/waitingList).
+- NEW `pages/admin/GemTransactionsManager.js` at `/admin/gem-transactions` (sidebar "Transactions & Passes", Ticket icon): search/filters, cancel/reinstate, QR preview dialog, per-event waiting-list dialog.
+- **Events manager guest-list sub-editor** (GemCatalogManager `guestList` field, shown when type=guest_list): stock, additional_enabled + allowed counts, benefits rows per member type (selects fed from adminAPI.getMemberTypes; open/free/additional-until datetime-locals, title/desc).
+
+**Verify:** `py_compile` clean (gem_passes, server, email_templates, cms_sections); `yarn build` GREEN (64s, only the 4 pre-existing exhaustive-deps warnings; Dropbox build-dir EPERM hit again — same fix, delete `frontend/build` first).
+
+**Deploy:** GREEN (3m3s, 13 files, health 200, gem2i-backend active). **Verified live post-restart:** member `my-event-status` and admin `transactions` both 401 unauthenticated (gates intact) · `gem_guest_pass` email template seeded (enabled:true) · indexes created: gem_waiting_list unique `(event_id,member_id)`, gem_transactions `(event_id,kind,status)` + `(member_id)`.
+
+**E2E test plan (after deploy — needs humans for login):** admin creates a guest-list test event (stock 2-3, a benefit row or none) → test member joins (QR appears; email if SMTP set) → second join fills it → waiting list → cancel frees spot → admin sees rows in Transactions & Passes. **Test member still unseeded** (needs a password — Anthony/user sets it, house rule: no credentials via Claude).
+
+**Phase 4 remaining:** the e2e above; waiting-list → auto-promotion notification is Tier C (deferred by plan).
+
 ## 2026-07-17 (session 4, Carlos's machine) — Phase-2 exit: ADMIN MANAGER UIs built + DEPLOYED
 
 **Admin CRUD screens for all 6 catalogs** (Events/Artists/Venues/Festivals/Conferences/Clients) — the missing Phase-2 exit item. API CRUD already existed; this session added the CMS UI + permissions plumbing.
@@ -18,7 +69,14 @@
 
 **Deploy:** `deploy_beta_gem2i.ps1 -y` GREEN (3m29s, 30 files — this machine's stamp was pre-session-3 so it re-uploaded those too, harmless; backup taken; build on box 79s; gem2i-backend active; health 200). **Verified live:** `/api/health` OK · `/api/public/gem/artists?roster=gem` returns ranked data (visibility rules intact after the `_img`/`ids` edits) · `/api/admin/gem/venues` unauthenticated → 401 (gate intact). Admin-UI round-trip in the browser (create→public→edit→delete per catalog) still pending — needs an admin login, next session or Anthony.
 
-**Remaining Phase-2 exit after this:** admin round-trip live test per catalog (needs deploy), card/list toggle + event country/state autocompletes (minor parity), junk-venue deactivation via the new Venues manager.
+**Continuation (same session, after the deploy above):**
+- **Events page parity DONE (local, awaiting deploy):** card/list view toggle (persisted `gem2i_events_view` in localStorage; list rows = thumb/title/date/venue/country/TypeBadge) + country filter `<select>` fed by NEW `GET /api/public/gem/venue-countries` (distinct active-venue countries; events resolve country via venue — legacy behavior). `gemAPI.venueCountries()` added. `yarn build` green (no new warnings), `py_compile` OK.
+- **Junk venues DEACTIVATED live** (data-side via SSH mongosh, no deploy needed): `anidados2` + `lawevas` → status inactive (both had country:null/order:0 — legacy test rows). Verified gone from public /venues.
+- SSH note (this machine): the `.pem` path in CLAUDE.md doesn't exist here; ssh falls back to this machine's authorized `~/.ssh/id_ed25519` — works for ssh/scp/deploy.
+
+- **Second deploy GREEN** (2m53s, 7 files, health 200). Verified live: `/api/public/gem/venue-countries` returns the sorted country list · country-filtered events queries work (totals: past=0 for ALL countries — every legacy past event is outside the 365-day D7 window, expected; current=2 = the 2030-dated legacy test rows) · junk venues return 0 public hits.
+
+**Remaining Phase-2 exit after this:** admin round-trip live test per catalog (needs an admin login in the browser — Anthony/operator).
 
 ## 2026-07-17 (session 3, Anthony's machine) — PHASE 2 CORE SHIPPED: catalogs LIVE on beta
 

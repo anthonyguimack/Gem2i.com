@@ -57,6 +57,7 @@ CMS_SECTIONS = [
     {"key": "gem_festivals",   "label": "Festivals",    "group": "gem2i", "frontend_path": "/admin/gem-festivals",   "url_prefix": ["/api/admin/gem/festivals"]},
     {"key": "gem_conferences", "label": "Conferences",  "group": "gem2i", "frontend_path": "/admin/gem-conferences", "url_prefix": ["/api/admin/gem/conferences"]},
     {"key": "gem_clients",     "label": "Clients",      "group": "gem2i", "frontend_path": "/admin/gem-clients",     "url_prefix": ["/api/admin/gem/clients"]},
+    {"key": "gem_transactions", "label": "Transactions & Passes", "group": "gem2i", "frontend_path": "/admin/gem-transactions", "url_prefix": ["/api/admin/gem/transactions", "/api/admin/gem/waiting-list"]},
     {"key": "gem_content",     "label": "Site Content", "group": "gem2i", "frontend_path": "/admin",                 "url_prefix": ["/api/admin/gem/gem-content"]},
 
     # Landing Page

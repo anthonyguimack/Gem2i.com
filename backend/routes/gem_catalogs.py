@@ -334,6 +334,14 @@ async def public_artist_names(q: str = "", roster: str = None):
     return {"items": [d["name"] async for d in cursor]}
 
 
+@router.get("/public/gem/venue-countries")
+async def public_venue_countries():
+    """Country filter options for the events page (legacy parity: the search
+    autocompleted countries; events resolve country via their venue)."""
+    items = await db.gem_venues.distinct("country", {"status": "active", "country": {"$nin": [None, ""]}})
+    return {"items": sorted(items)}
+
+
 @router.get("/public/gem/continents")
 async def public_continents():
     """Continent tabs — union across the public catalogs, in legacy display order."""

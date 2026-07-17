@@ -56,9 +56,21 @@ export const gemAPI = {
   clients: () => api.get('/public/gem/clients'),
   genres: () => api.get('/public/gem/genres'),
   continents: () => api.get('/public/gem/continents'),
+  venueCountries: () => api.get('/public/gem/venue-countries'),
   artistNames: (q, roster) => api.get('/public/gem/artist-names', { params: { q, roster } }),
   follow: (kind, targetId, flag) => api.post('/member/gem/follow', { kind, target_id: targetId, flag }),
   myFollows: (kind) => api.get('/member/gem/my-follows', { params: kind ? { kind } : {} }),
+  // Phase-4 guest list / waiting list / QR passes (routes/gem_passes.py)
+  myEventStatus: (eventId) => api.get(`/member/gem/my-event-status/${eventId}`),
+  joinGuestList: (eventId, additionalGuests = 0) => api.post('/member/gem/guest-list', { event_id: eventId, additional_guests: additionalGuests }),
+  cancelGuestPass: (eventId) => api.delete(`/member/gem/guest-list/${eventId}`),
+  joinWaitingList: (eventId) => api.post('/member/gem/waiting-list', { event_id: eventId }),
+  leaveWaitingList: (eventId) => api.delete(`/member/gem/waiting-list/${eventId}`),
+  // Phase-5 e-ticketing (routes/gem_tickets.py — Stripe checkout, verified webhook)
+  tierAvailability: (eventId) => api.get(`/public/gem/events/${eventId}/tier-availability`),
+  checkout: (eventId, tier, quantity) => api.post('/member/gem/checkout', { event_id: eventId, tier, quantity, origin_url: window.location.origin }),
+  checkoutStatus: (sessionId) => api.get(`/member/gem/checkout-status/${sessionId}`),
+  myTickets: (eventId) => api.get(`/member/gem/my-tickets/${eventId}`),
 };
 
 // gem2i catalog admin CRUD (routes/gem_catalogs.py — soft delete, slug uniqueness
@@ -68,6 +80,10 @@ export const gemAdminAPI = {
   create: (catalog, data) => api.post(`/admin/gem/${catalog}`, data),
   update: (catalog, id, data) => api.put(`/admin/gem/${catalog}/${id}`, data),
   remove: (catalog, id) => api.delete(`/admin/gem/${catalog}/${id}`),
+  // Phase-4 transactions & waiting list (routes/gem_passes.py)
+  transactions: (params) => api.get('/admin/gem/transactions', { params }),
+  updateTransaction: (id, data) => api.put(`/admin/gem/transactions/${id}`, data),
+  waitingList: (eventId) => api.get(`/admin/gem/waiting-list/${eventId}`),
 };
 
 export const searchAPI = {

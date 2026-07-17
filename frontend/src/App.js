@@ -67,6 +67,7 @@ const MyAccountNavManager = lazy(() => import('./pages/admin/MyAccountNavManager
 const RolesManager = lazy(() => import('./pages/admin/RolesManager'));
 const CmsWelcome = lazy(() => import('./pages/admin/CmsWelcome'));
 const GemCatalogManager = lazy(() => import('./pages/admin/GemCatalogManager'));
+const GemTransactionsManager = lazy(() => import('./pages/admin/GemTransactionsManager'));
 // Membership / My Account (core only)
 const MemberLogin = lazy(() => import('./pages/myaccount/MemberLogin'));
 const MemberRegister = lazy(() => import('./pages/myaccount/MemberRegister'));
@@ -84,6 +85,7 @@ const Gem2iFestivals = lazy(() => import('./pages/gem2i/Gem2iFestivals'));
 const Gem2iFestivalDetail = lazy(() => import('./pages/gem2i/Gem2iFestivalDetail'));
 const Gem2iEvents = lazy(() => import('./pages/gem2i/Gem2iEvents'));
 const Gem2iEventDetail = lazy(() => import('./pages/gem2i/Gem2iEventDetail'));
+const Gem2iTicketSuccess = lazy(() => import('./pages/gem2i/Gem2iTicketSuccess'));
 
 import { injectThemeColors } from './lib/themeColors';
 import { LanguageProvider } from './lib/i18n';
@@ -217,6 +219,7 @@ const ADMIN_ROUTES = [
   { path: 'gem-festivals',                   section: 'gem_festivals',                    el: <GemCatalogManager catalog="festivals" /> },
   { path: 'gem-conferences',                 section: 'gem_conferences',                  el: <GemCatalogManager catalog="conferences" /> },
   { path: 'gem-clients',                     section: 'gem_clients',                      el: <GemCatalogManager catalog="clients" /> },
+  { path: 'gem-transactions',                section: 'gem_transactions',                 el: <GemTransactionsManager /> },
   { path: 'users',                           adminOnly: true,                             el: <UsersManager /> },
   { path: 'members',                         section: 'members',                          el: <MembersManager /> },
   { path: 'members/:memberId/signatures',    section: 'members',                          el: <MemberSignatures /> },
@@ -457,6 +460,7 @@ function AppRouter() {
                 <Route path="/conferences/:slug" element={<Gem2iFestivalDetail kind="conference" />} />
                 <Route path="/events" element={<Gem2iEvents />} />
                 <Route path="/events/:slug" element={<Gem2iEventDetail />} />
+                <Route path="/tickets/success" element={<Gem2iTicketSuccess />} />
               </>}
               <Route path="/reading-list" element={<ReadingListPage />} />
               <Route path="/gallery" element={<GalleryPage />} />

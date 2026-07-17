@@ -35,6 +35,8 @@ from routes.email_templates import router as email_templates_router
 from routes.captcha import router as captcha_router
 from routes.gem_content import router as gem_content_router, seed_gem_content
 from routes.gem_catalogs import router as gem_catalogs_router
+from routes.gem_passes import router as gem_passes_router, ensure_pass_indexes
+from routes.gem_tickets import router as gem_tickets_router, seed_gem_ecommissions
 
 api_router.include_router(auth_router)
 api_router.include_router(public_router)
@@ -49,6 +51,8 @@ api_router.include_router(email_templates_router)
 api_router.include_router(captcha_router)
 api_router.include_router(gem_content_router)
 api_router.include_router(gem_catalogs_router)
+api_router.include_router(gem_passes_router)
+api_router.include_router(gem_tickets_router)
 
 
 @api_router.get("/health")
@@ -64,6 +68,8 @@ async def startup():
     await seed_data()
     await seed_system_roles()
     await seed_gem_content()
+    await ensure_pass_indexes()
+    await seed_gem_ecommissions()
     from utils.email_render import ensure_templates_seeded
     await ensure_templates_seeded()
     try:

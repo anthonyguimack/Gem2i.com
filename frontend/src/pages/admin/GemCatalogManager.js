@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { gemAdminAPI } from '../../lib/api';
+import { adminAPI, gemAdminAPI } from '../../lib/api';
 import { toast } from 'sonner';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -189,6 +189,11 @@ const CONFIGS = {
       { key: 'external_ticket_system', label: 'External ticket system URL', type: 'text' },
       { key: 'private', label: 'Private event (hidden from public)', type: 'switch', half: true },
       { key: 'show_portal', label: 'Show on the GEM2i portal', type: 'switch', half: true },
+      { key: 'guest_list', label: 'Guest list', type: 'guestList' },
+      { key: 'tiers', label: 'Ticket tiers', type: 'tiers' },
+      { key: 'payment.currency', label: 'Payment currency', type: 'select', half: true, options: [
+        { value: 'usd', label: 'USD' }, { value: 'eur', label: 'EUR' }, { value: 'gbp', label: 'GBP' },
+      ] },
     ],
     socials: SOCIAL_KEYS,
     imageKeys: [{ key: 'flyer', label: 'Flyer' }, { key: 'logo', label: 'Logo' }],
@@ -282,6 +287,132 @@ function ImageSlot({ label, filename, url, onChange }) {
       )}
       <Input value={isUpload ? '' : (filename || '')} placeholder="legacy filename (advanced)"
         onChange={(e) => onChange(e.target.value)} className="text-xs h-7" />
+    </div>
+  );
+}
+
+/** Ticket-tier sub-editor for events (Phase 5): the 6 legacy tiers, each with
+ *  label / price / internal cost / stock. A tier sells when price>0 AND stock>0. */
+const TIER_ROWS = [
+  ['admission', 'G. Admission'], ['eprice', 'ePrice'], ['vip', 'VIP'],
+  ['gold', 'Gold'], ['ultra', 'Ultra'], ['platinium', 'Platinium'],
+];
+function TiersEditor({ value, onChange }) {
+  const tiers = value || {};
+  const setTier = (key, patch) => onChange({ ...tiers, [key]: { ...(tiers[key] || {}), ...patch } });
+  const num = (v) => (v === '' ? null : Number(v));
+  return (
+    <div className="border border-slate-200 rounded-sm p-3 mt-1">
+      <div className="grid grid-cols-12 gap-2 text-[11px] text-slate-400 font-medium mb-1 px-1">
+        <span className="col-span-3">Tier</span><span className="col-span-3">Label</span>
+        <span className="col-span-2">Price</span><span className="col-span-2">Cost (internal)</span>
+        <span className="col-span-2">Stock</span>
+      </div>
+      {TIER_ROWS.map(([key, defLabel]) => {
+        const t = tiers[key] || {};
+        const active = (t.price || 0) > 0 && (t.stock || 0) > 0;
+        return (
+          <div key={key} className="grid grid-cols-12 gap-2 items-center py-1">
+            <span className={`col-span-3 text-xs ${active ? 'text-[#0D9488] font-semibold' : 'text-slate-500'}`}>{defLabel}</span>
+            <Input className="col-span-3 h-8 text-xs" value={t.label || ''} placeholder={defLabel}
+              onChange={(e) => setTier(key, { label: e.target.value })} />
+            <Input className="col-span-2 h-8 text-xs" type="number" min="0" step="0.01" value={t.price ?? ''} placeholder="0"
+              onChange={(e) => setTier(key, { price: num(e.target.value) })} />
+            <Input className="col-span-2 h-8 text-xs" type="number" min="0" step="0.01" value={t.cost ?? ''} placeholder="0"
+              onChange={(e) => setTier(key, { cost: num(e.target.value) })} />
+            <Input className="col-span-2 h-8 text-xs" type="number" min="0" value={t.stock ?? ''} placeholder="0"
+              onChange={(e) => setTier(key, { stock: num(e.target.value) })} />
+          </div>
+        );
+      })}
+      <p className="text-[11px] text-slate-400 mt-2">A tier is on sale when price &gt; 0 and stock &gt; 0. Profit &amp; 6-level e-commissions are computed at purchase.</p>
+    </div>
+  );
+}
+
+/** Guest-list sub-editor for events (Phase 4): stock, additional-guest ranges,
+ *  per-member-type benefits. Only meaningful when the event type is guest_list. */
+function GuestListEditor({ value, onChange }) {
+  const gl = value || {};
+  const [memberTypes, setMemberTypes] = useState([]);
+  useEffect(() => {
+    adminAPI.getMemberTypes()
+      .then((r) => setMemberTypes((r.data || []).map((t) => ({ id: t.id, name: t.name || t.id }))))
+      .catch(() => {});
+  }, []);
+
+  const set = (patch) => onChange({ ...gl, ...patch });
+  const benefits = gl.benefits || [];
+  const setBenefit = (idx, patch) => set({ benefits: benefits.map((b, i) => (i === idx ? { ...b, ...patch } : b)) });
+
+  const dt = (v, cb) => (
+    <Input type="datetime-local" value={(v || '').slice(0, 16)} onChange={(e) => cb(e.target.value)} className="mt-1 text-xs h-8" />
+  );
+
+  return (
+    <div className="border border-slate-200 rounded-sm p-3 mt-1 space-y-3">
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs text-slate-500">Stock (people)</Label>
+          <Input type="number" min="0" value={gl.stock ?? ''} className="mt-1"
+            onChange={(e) => set({ stock: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) })} />
+        </div>
+        <div>
+          <Label className="text-xs text-slate-500">Additional guests</Label>
+          <div className="flex items-center h-9 mt-1">
+            <Switch checked={!!gl.additional_enabled} onCheckedChange={(v) => set({ additional_enabled: v })} />
+          </div>
+        </div>
+        <div>
+          <Label className="text-xs text-slate-500">Allowed counts (e.g. 1, 2, 5)</Label>
+          <Input value={(gl.ranges || []).join(', ')} className="mt-1" disabled={!gl.additional_enabled}
+            onChange={(e) => set({ ranges: e.target.value.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n) && n > 0) })} />
+        </div>
+      </div>
+
+      <div>
+        <p className="text-xs font-medium text-slate-500 mb-2">Benefits per member type <span className="text-slate-300">(empty = every member is eligible)</span></p>
+        <div className="space-y-2">
+          {benefits.map((b, idx) => (
+            <div key={idx} className="border border-slate-100 rounded-sm p-2 grid grid-cols-12 gap-2 items-end">
+              <div className="col-span-3">
+                <Label className="text-[11px] text-slate-400">Member type</Label>
+                <select value={b.member_type_id || ''} onChange={(e) => setBenefit(idx, { member_type_id: e.target.value })}
+                  className="w-full h-8 px-1.5 bg-white border border-slate-200 rounded-sm text-xs mt-1">
+                  <option value="">—</option>
+                  {memberTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
+              <div className="col-span-3">
+                <Label className="text-[11px] text-slate-400">Open until</Label>
+                {dt(b.open_until, (v) => setBenefit(idx, { open_until: v }))}
+              </div>
+              <div className="col-span-3">
+                <Label className="text-[11px] text-slate-400">Free until</Label>
+                {dt(b.free_until, (v) => setBenefit(idx, { free_until: v }))}
+              </div>
+              <div className="col-span-2">
+                <Label className="text-[11px] text-slate-400">Additional until</Label>
+                {dt(b.additional_until, (v) => setBenefit(idx, { additional_until: v }))}
+              </div>
+              <button type="button" onClick={() => set({ benefits: benefits.filter((_, i) => i !== idx) })}
+                className="col-span-1 h-8 flex items-center justify-center text-slate-400 hover:text-red-500">
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <div className="col-span-6">
+                <Label className="text-[11px] text-slate-400">Benefit title (shown to members)</Label>
+                <Input value={b.additional_title || ''} onChange={(e) => setBenefit(idx, { additional_title: e.target.value })} className="mt-1 text-xs h-8" />
+              </div>
+              <div className="col-span-6">
+                <Label className="text-[11px] text-slate-400">Benefit description</Label>
+                <Input value={b.additional_desc || ''} onChange={(e) => setBenefit(idx, { additional_desc: e.target.value })} className="mt-1 text-xs h-8" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={() => set({ benefits: [...benefits, { member_type_id: '' }] })}
+          className="mt-2 text-xs text-[#0D9488] font-medium flex items-center gap-1"><Plus className="w-3 h-3" /> Add benefit row</button>
+      </div>
     </div>
   );
 }
@@ -441,6 +572,12 @@ export default function GemCatalogManager({ catalog }) {
       case 'gallery':
         return editing.mode === 'gallery' ? <div className="mt-1"><GalleryEditor value={val} onChange={set} /></div>
           : <p className="text-xs text-slate-400 mt-1">Set click behavior to "Photo gallery" to edit photos.</p>;
+      case 'guestList':
+        return editing.type === 'guest_list' ? <GuestListEditor value={val} onChange={set} />
+          : <p className="text-xs text-slate-400 mt-1">Set the event type to "Guest List" to configure it.</p>;
+      case 'tiers':
+        return editing.type === 'eticket' ? <TiersEditor value={val} onChange={set} />
+          : <p className="text-xs text-slate-400 mt-1">Set the event type to "E-Ticket" to configure tiers.</p>;
       default:
         return null;
     }

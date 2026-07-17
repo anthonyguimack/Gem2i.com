@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Image, Info, Package, FileText, BookOpen, Map, Images, Briefcase,
   MessageSquare, Mail, CreditCard, Settings, LogOut, ChevronLeft, Menu, X, FileStack, Users,
   BarChart3, Globe, Layers, UserCheck, Shield, ClipboardCheck, Database, Rocket, MapPin,
-  CalendarDays, Lock, Music, Tent, Presentation, Handshake
+  CalendarDays, Lock, Music, Tent, Presentation, Handshake, Ticket
 } from 'lucide-react';
 
 /* Each interactive entry carries the section key it maps to in the CMS Section
@@ -36,6 +36,7 @@ const sidebarItems = [
   { label: 'Festivals', icon: Tent, href: '/admin/gem-festivals', group: 'gem2i', section: 'gem_festivals' },
   { label: 'Conferences', icon: Presentation, href: '/admin/gem-conferences', group: 'gem2i', section: 'gem_conferences' },
   { label: 'Clients', icon: Handshake, href: '/admin/gem-clients', group: 'gem2i', section: 'gem_clients' },
+  { label: 'Transactions & Passes', icon: Ticket, href: '/admin/gem-transactions', group: 'gem2i', section: 'gem_transactions' },
   { type: 'divider', label: 'Landing Page', group: 'landing' },
   { label: 'Hero', icon: Rocket, href: '/admin/landing-hero', group: 'landing', section: 'landing_hero' },
   { label: 'Content', icon: Layers, href: '/admin/landing-content', group: 'landing', section: 'landing_content' },

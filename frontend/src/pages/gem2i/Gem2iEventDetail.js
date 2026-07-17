@@ -7,6 +7,8 @@ import { normalizeRichText } from '../../lib/richText';
 import {
   gemImg, CardImage, FollowButton, SocialLinks, SkeletonGrid, TypeBadge, ArtistCard,
 } from '../../components/gem2i/GemCatalogBits';
+import GemGuestListWidget from '../../components/gem2i/GemGuestListWidget';
+import GemTicketWidget from '../../components/gem2i/GemTicketWidget';
 import { NotFoundShell } from './Gem2iArtistDetail';
 
 const GEM_FONT = "'Poppins', sans-serif";
@@ -89,6 +91,9 @@ export default function Gem2iEventDetail() {
                 </a>
               )}
             </div>
+
+            <GemGuestListWidget event={event} />
+            <GemTicketWidget event={event} />
 
             {event.description && (
               <div className="mt-10 max-w-none text-[15px] leading-[1.9]"

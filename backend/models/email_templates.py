@@ -22,6 +22,91 @@ Adding a new template:
 
 EMAIL_TEMPLATES: list[dict] = [
     {
+        "key": "gem_guest_pass",
+        "name": "GEM2i — Guest List E-Pass",
+        "description": "Sent when a member joins an event's guest list (QR e-pass attached inline).",
+        "variables": {
+            "name": "Recipient first name",
+            "event_title": "Event title",
+            "event_date": "Event date (YYYY-MM-DD)",
+            "pass_code": "Pass code encoded in the QR",
+            "additional_guests": "Number of additional guests on this pass",
+            "qr_image_url": "Absolute URL of the QR PNG",
+            "event_url": "Public event page URL",
+            "platform_name": "Brand name from CMS Settings",
+        },
+        "default_subject": "Your guest-list e-pass — {{event_title}}",
+        "default_body": (
+            "<h2 style=\"margin:0 0 16px;\">You're on the list!</h2>"
+            "<p>Hello {{name}},</p>"
+            "<p>Your guest-list e-pass for <strong>{{event_title}}</strong> "
+            "({{event_date}}) is confirmed. Additional guests: {{additional_guests}}.</p>"
+            "<p style=\"margin:24px 0;text-align:center;\">"
+            "<img src=\"{{qr_image_url}}\" alt=\"QR pass\" width=\"220\" "
+            "style=\"display:inline-block;\" /></p>"
+            "<p style=\"text-align:center;font-size:13px;color:#6b7280;\">"
+            "Pass code: {{pass_code}}</p>"
+            "<p style=\"margin:32px 0;text-align:center;\">"
+            "<a href=\"{{event_url}}\" class=\"btn\">View event</a></p>"
+            "<p style=\"font-size:13px;color:#6b7280;\">Show this QR at the door. "
+            "You can cancel your pass any time from the event page.</p>"
+        ),
+        "sample_values": {
+            "name": "Alex",
+            "event_title": "GEM2i Showcase Night",
+            "event_date": "2026-08-01",
+            "pass_code": "a1b2c3d4e5f6",
+            "additional_guests": "2",
+            "qr_image_url": "https://example.com/api/uploads/gem2i/passes/a1b2c3d4e5f6.png",
+            "event_url": "https://example.com/events/gem2i-showcase-night",
+            "platform_name": "GEM2i",
+        },
+    },
+    {
+        "key": "gem_ticket",
+        "name": "GEM2i — E-Ticket Purchase",
+        "description": "Sent when a ticket purchase completes (QR ticket inline).",
+        "variables": {
+            "name": "Recipient first name",
+            "event_title": "Event title",
+            "event_date": "Event date (YYYY-MM-DD)",
+            "tier_label": "Purchased tier (e.g. VIP)",
+            "quantity": "Number of tickets on this QR",
+            "total": "Amount paid incl. currency",
+            "ticket_code": "Ticket code encoded in the QR",
+            "qr_image_url": "Absolute URL of the QR PNG",
+            "event_url": "Public event page URL",
+            "platform_name": "Brand name from CMS Settings",
+        },
+        "default_subject": "Your e-tickets — {{event_title}}",
+        "default_body": (
+            "<h2 style=\"margin:0 0 16px;\">Payment confirmed!</h2>"
+            "<p>Hello {{name}},</p>"
+            "<p>Your purchase for <strong>{{event_title}}</strong> ({{event_date}}) "
+            "is confirmed: {{quantity}} × {{tier_label}} — {{total}}.</p>"
+            "<p style=\"margin:24px 0;text-align:center;\">"
+            "<img src=\"{{qr_image_url}}\" alt=\"QR ticket\" width=\"220\" "
+            "style=\"display:inline-block;\" /></p>"
+            "<p style=\"text-align:center;font-size:13px;color:#6b7280;\">"
+            "Ticket code: {{ticket_code}} · valid for {{quantity}} guest(s)</p>"
+            "<p style=\"margin:32px 0;text-align:center;\">"
+            "<a href=\"{{event_url}}\" class=\"btn\">View event</a></p>"
+            "<p style=\"font-size:13px;color:#6b7280;\">Show this QR at the door.</p>"
+        ),
+        "sample_values": {
+            "name": "Alex",
+            "event_title": "GEM2i Showcase Night",
+            "event_date": "2026-08-01",
+            "tier_label": "VIP",
+            "quantity": "2",
+            "total": "150.00 USD",
+            "ticket_code": "f6e5d4c3b2a1",
+            "qr_image_url": "https://example.com/api/uploads/gem2i/passes/f6e5d4c3b2a1.png",
+            "event_url": "https://example.com/events/gem2i-showcase-night",
+            "platform_name": "GEM2i",
+        },
+    },
+    {
         "key": "password_reset",
         "name": "Password Reset",
         "description": "Sent when a member uses 'Forgot password?' on the login page.",
