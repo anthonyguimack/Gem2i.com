@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-07-17 (session 5 continued, Anthony's machine) — PHASE 4/5 HISTORICAL-DATA ETL LOADED (data-only, no deploy)
+
+**All legacy per-event commerce config + the full transaction/points history are now in Mongo.** New two-stage ETL: `scripts/gem2i_etl_history.py` (local) + `scripts/gem2i_load_history.py` (box, idempotent).
+
+- **gem_events sub-docs (1704 events updated by legacy_id; $set only the ETL'd keys so admin edits to other fields survive):** `tiers` (93 events with real config; price = last non-zero step of the dated `events_prices` man-ladder, woman fallback; cost/stock from `events_cost`; full non-zero ladders preserved under `legacy_prices`) · `guest_list` (109 events: stock, additional_enabled+ranges [1-5], benefits[] per member type with our det member_types ids — 0 dangling refs — free/additional_until + title/desc, open_until from guest_list_close) · `points` (purchase/invite_share/guest_list_self + full legacy sub-docs) · `payment.currency` from events_payment_accounts→currency (PEN/EUR/USD/ARS; legacy PayPal account kept as legacy_account) · `transaction_fee`.
+- **gem_transactions archive: 240** legacy rows (139 guest_pass / 101 ticket, 78 canceled via guest_list_status/epass_status, 180 member-resolved; tier from type_ticket label; economics {profit, commissions[6]} verbatim; qr code string, sponsor/invited_by/referral, name+email snapshots; tagged `legacy:true` — the live Stripe path never writes that flag). Idempotent on legacy_id (unique sparse index).
+- **gem_points_history: 6457** rows (6088 member-resolved) + the 16-action catalog → `gem_config {key:'points_actions'}`. Indexes (id unique, member_id+created_at).
+- `events_members_waiting_list` is empty in the dump — nothing to port.
+- **Verified on box:** sample eticket event (legacy 51, EUR, admission 60/cost 22.5/stock 100) · sample guest-list benefits resolve to real member_types · non-legacy tx count 0 (live path untouched) · health 200, admin gate 401.
+- Historical passes count into arithmetic-on-read stock for THEIR (past) events only — correct; past events don't sell.
+
+**Now migrated end-to-end:** catalogs (P2) + members (P3) + commerce config & history (P4/5 data). Remaining ETL: none. Remaining product work: B5 share→referral points + purchase points writes (Phase 6), e2e human tests, admin polish.
+
 ## 2026-07-17 (session 5, Anthony's machine) — PHASE 3 SHIPPED: member merge (D2) + gating + B7 formal-name gate LIVE
 
 **The full legacy membership is migrated and the auth surface is legacy-parity.** Phase 3 per plan §7 done end-to-end.
