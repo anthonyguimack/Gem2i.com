@@ -3,9 +3,10 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { useSettings } from '../../App';
 import {
-  LayoutDashboard, Image, Info, Package, FileText, BookOpen, Map, Images, Briefcase, 
-  MessageSquare, Mail, Inbox, CreditCard, Settings, LogOut, ChevronLeft, Menu, X, FileStack, Users,
-  BarChart3, Globe, Layers, UserCheck, Shield, ClipboardCheck, Database, Rocket, MapPin, ScrollText, CalendarDays, DollarSign, Ticket, Sparkles, Lock, Bot, Trophy, Building2, FolderTree, Boxes, Lightbulb
+  LayoutDashboard, Image, Info, Package, FileText, BookOpen, Map, Images, Briefcase,
+  MessageSquare, Mail, CreditCard, Settings, LogOut, ChevronLeft, Menu, X, FileStack, Users,
+  BarChart3, Globe, Layers, UserCheck, Shield, ClipboardCheck, Database, Rocket, MapPin,
+  CalendarDays, Lock, Music, Tent, Presentation, Handshake
 } from 'lucide-react';
 
 /* Each interactive entry carries the section key it maps to in the CMS Section
@@ -26,28 +27,20 @@ const sidebarItems = [
   { label: 'Gallery', icon: Images, href: '/admin/gallery', section: 'gallery' },
   { label: 'Gallery Albums', icon: Images, href: '/admin/gallery-albums', section: 'gallery_albums' },
   { label: 'Portfolio', icon: Briefcase, href: '/admin/portfolio', section: 'portfolio' },
-  { label: 'Companies', icon: Building2, href: '/admin/companies', section: 'companies' },
-  { label: 'Sectors', icon: FolderTree, href: '/admin/company-sectors', section: 'company_sectors' },
-  { label: 'Industries', icon: Boxes, href: '/admin/company-industries', section: 'company_industries' },
-  { label: 'Opportunities', icon: Lightbulb, href: '/admin/opportunities', section: 'opportunities' },
-  { label: 'Opportunity Types', icon: Boxes, href: '/admin/opportunity-types', section: 'opportunity_types' },
   { label: 'Testimonials', icon: MessageSquare, href: '/admin/testimonials', section: 'testimonials' },
   { label: 'Pages', icon: FileStack, href: '/admin/pages', section: 'pages' },
+  { type: 'divider', label: 'GEM2i Catalogs', group: 'gem2i' },
+  { label: 'Events', icon: CalendarDays, href: '/admin/gem-events', group: 'gem2i', section: 'gem_events' },
+  { label: 'Artists', icon: Music, href: '/admin/gem-artists', group: 'gem2i', section: 'gem_artists' },
+  { label: 'Venues', icon: MapPin, href: '/admin/gem-venues', group: 'gem2i', section: 'gem_venues' },
+  { label: 'Festivals', icon: Tent, href: '/admin/gem-festivals', group: 'gem2i', section: 'gem_festivals' },
+  { label: 'Conferences', icon: Presentation, href: '/admin/gem-conferences', group: 'gem2i', section: 'gem_conferences' },
+  { label: 'Clients', icon: Handshake, href: '/admin/gem-clients', group: 'gem2i', section: 'gem_clients' },
   { type: 'divider', label: 'Landing Page', group: 'landing' },
   { label: 'Hero', icon: Rocket, href: '/admin/landing-hero', group: 'landing', section: 'landing_hero' },
   { label: 'Content', icon: Layers, href: '/admin/landing-content', group: 'landing', section: 'landing_content' },
   { label: 'Subscribers', icon: UserCheck, href: '/admin/landing-subscribers', group: 'landing', section: 'landing_subscribers' },
   { label: 'Contacts', icon: Mail, href: '/admin/landing-contacts', group: 'landing', section: 'landing_contacts' },
-  { type: 'divider', label: 'Membership Enrollment', group: 'enrollment' },
-  { label: 'Content', icon: ClipboardCheck, href: '/admin/enrollment-fields', group: 'enrollment', section: 'enrollment_fields' },
-  { type: 'divider', label: 'Calendar', group: 'calendar' },
-  { label: 'Global Events', icon: CalendarDays, href: '/admin/calendar/global', group: 'calendar', section: 'calendar_global' },
-  { label: 'Mentorship Schedule', icon: CalendarDays, href: '/admin/calendar/mentorship', group: 'calendar', section: 'calendar_mentorship' },
-  { label: 'Mentor Slot Templates', icon: CalendarDays, href: '/admin/calendar/mentor-slot-templates', group: 'calendar', section: 'calendar_mentor_slot_templates' },
-  { label: 'Blocked Dates', icon: CalendarDays, href: '/admin/calendar/blocked-dates', group: 'calendar', section: 'calendar_blocked_dates' },
-  { label: 'Session Bundles', icon: CalendarDays, href: '/admin/calendar/bundles', group: 'calendar', section: 'calendar_bundles' },
-  { label: 'Discount Coupons', icon: Ticket, href: '/admin/calendar/coupons', group: 'calendar', section: 'calendar_coupons' },
-  { label: 'Payouts', icon: DollarSign, href: '/admin/payouts', group: 'calendar', section: 'payouts' },
   { type: 'divider', label: 'My Account', group: 'myaccount' },
   { label: 'Quick Links', icon: Globe, href: '/admin/quick-links', group: 'myaccount', section: 'quick_links' },
   { label: 'My Account Navigation', icon: Menu, href: '/admin/myaccount-nav', group: 'myaccount', section: 'myaccount_nav' },
@@ -56,26 +49,18 @@ const sidebarItems = [
   { label: 'Member Levels', icon: Shield, href: '/admin/member-levels', section: 'member_levels' },
   { label: 'Member Types', icon: Users, href: '/admin/member-types', section: 'member_types' },
   { label: 'Membership Settings', icon: ClipboardCheck, href: '/admin/membership-settings', section: 'membership_settings' },
-  { label: 'Points & Rewards', icon: Trophy, href: '/admin/rewards', section: 'rewards' },
   { type: 'divider', label: 'Security', group: 'security', admin_only: true },
   { label: 'Roles & Permissions', icon: Lock, href: '/admin/roles', section: 'roles_permissions', admin_only: true },
-  { type: 'divider', label: 'Automation', group: 'automation', admin_only: true, flag: 'pro_manager_enabled' },
-  /* Pro Management is carlos-only: hidden unless settings.pro_manager_enabled
-     (set only in carlosartiles_cms) — never surfaces on the other brands. */
-  { label: 'Prompt Management', icon: Bot, href: '/admin/pros', admin_only: true, flag: 'pro_manager_enabled' },
   { type: 'divider', label: 'System', group: 'system' },
   { label: 'Contacts', icon: Mail, href: '/admin/contacts', section: 'contacts' },
   { label: 'Contact Section', icon: MessageSquare, href: '/admin/contact-settings', section: 'contact_settings' },
   { label: 'Purchases', icon: CreditCard, href: '/admin/purchases', section: 'purchases' },
   { label: 'Page Builder', icon: Layers, href: '/admin/section-order', section: 'section_order' },
-  { label: 'Section Manager', icon: Sparkles, href: '/admin/aurex-sections', section: 'aurex_sections' },
   { label: 'SEO', icon: Globe, href: '/admin/seo', section: 'seo' },
   { label: 'Countries, States, Cities', icon: MapPin, href: '/admin/geo', section: 'geo' },
-  { label: 'Documentation', icon: ScrollText, href: '/admin/documentation', section: ['doc_flow_diagram','doc_technical','doc_operator_manual','doc_user_guide','doc_testing_manual','doc_aws_install','doc_feature_audit'] },
   { label: 'Backup', icon: Database, href: '/admin/backup', section: 'backup' },
   { label: 'Settings', icon: Settings, href: '/admin/settings', section: 'settings' },
   { label: 'Email Management', icon: Mail, href: '/admin/email-management', section: 'email_management' },
-  { label: 'Mail', icon: Inbox, href: '/admin/mail', section: 'mail' },
 ];
 
 export default function AdminLayout() {

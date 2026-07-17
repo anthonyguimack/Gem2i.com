@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-07-17 (session 4, Carlos's machine) — Phase-2 exit: ADMIN MANAGER UIs built + DEPLOYED
+
+**Admin CRUD screens for all 6 catalogs** (Events/Artists/Venues/Festivals/Conferences/Clients) — the missing Phase-2 exit item. API CRUD already existed; this session added the CMS UI + permissions plumbing.
+
+- **NEW `frontend/src/pages/admin/GemCatalogManager.js`** — one config-driven manager mounted per catalog (`/admin/gem-{events,artists,venues,festivals,conferences,clients}`): server-side search/status-filter/pagination (25/pg), thumbnail rows, soft-delete + restore (deleted rows show a RotateCcw restore), edit dialog generated from a per-catalog field schema. Special widgets: RefPicker (searchable single/multi picker → venue on events, artist line-up on events/festivals; resolves ids→names via new `ids` param), venue-type select (fed from `venue-types` catalog), roster rank inputs (1–100 clamped), CSV genres, socials grid, GalleryEditor (clients mode=gallery), ImageSlot per image key (legacy-filename input + CMS ImageUpload; clients use flat image_on/image_off).
+- **`lib/api.js`:** new `gemAdminAPI` (list/create/update/remove).
+- **Backend `gem_catalogs.py`:** `admin_list` gains `ids` (comma-separated id lookup for pickers); `_img` passes through values starting with `/` so CMS-uploaded `/api/uploads/...` paths work alongside legacy filenames.
+- **`models/cms_sections.py`:** new **gem2i group** — sections `gem_events/gem_artists/gem_venues(+venue-types)/gem_festivals/gem_conferences/gem_clients/gem_content` now grantable to operators (required: `require_admin` fails CLOSED on unmapped `/api/admin/*` paths for non-admins). **Pruned dead sections** left from the strip (companies/sectors/industries, opportunities+types, enrollment, calendar×7, rewards, aurex_sections, mail, doc_*×7 + empty groups).
+- **AdminLayout sidebar:** new "GEM2i Catalogs" group (CalendarDays/Music/MapPin/Tent/Presentation/Handshake icons); **pruned dead links** whose routes/back-ends were stripped (Companies, Sectors, Industries, Opportunities×2, Enrollment, Calendar group×7, Points & Rewards, Prompt Management, Section Manager, Documentation, Mail) — these 404'd for admins since session 1.
+- Events manager scope = catalog subset (title/type/date/venue/lineup/desc/socials/flags/images). Tiers/benefits/points/payment sub-editors = Phase 4/5 per plan.
+- Known minor: operators granted only gem sections can't use the image uploader (`/api/admin/upload` maps to the `settings` section) — admins unaffected; revisit if a catalogs-only operator role is created.
+
+**Verify:** `py_compile` clean on both backend files; local `yarn build` GREEN (75s; only pre-existing exhaustive-deps warnings, none in new files). One gotcha hit: first build failed EPERM deleting `frontend/build/static` (Dropbox sync lock) — fix = `Remove-Item -Recurse -Force frontend\build`, rebuild.
+
+**Deploy:** `deploy_beta_gem2i.ps1 -y` GREEN (3m29s, 30 files — this machine's stamp was pre-session-3 so it re-uploaded those too, harmless; backup taken; build on box 79s; gem2i-backend active; health 200). **Verified live:** `/api/health` OK · `/api/public/gem/artists?roster=gem` returns ranked data (visibility rules intact after the `_img`/`ids` edits) · `/api/admin/gem/venues` unauthenticated → 401 (gate intact). Admin-UI round-trip in the browser (create→public→edit→delete per catalog) still pending — needs an admin login, next session or Anthony.
+
+**Remaining Phase-2 exit after this:** admin round-trip live test per catalog (needs deploy), card/list toggle + event country/state autocompletes (minor parity), junk-venue deactivation via the new Venues manager.
+
 ## 2026-07-17 (session 3, Anthony's machine) — PHASE 2 CORE SHIPPED: catalogs LIVE on beta
 
 **ETL + assets + catalog API + public catalog UI built, deployed, verified end-to-end.** Remaining for Phase-2 exit: admin manager UIs (API CRUD done), minor filter parity, data-quality sweep.

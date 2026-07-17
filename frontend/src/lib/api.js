@@ -61,6 +61,15 @@ export const gemAPI = {
   myFollows: (kind) => api.get('/member/gem/my-follows', { params: kind ? { kind } : {} }),
 };
 
+// gem2i catalog admin CRUD (routes/gem_catalogs.py — soft delete, slug uniqueness
+// server-side). catalog ∈ artists|venues|venue-types|festivals|conferences|clients|events.
+export const gemAdminAPI = {
+  list: (catalog, params) => api.get(`/admin/gem/${catalog}`, { params }),
+  create: (catalog, data) => api.post(`/admin/gem/${catalog}`, data),
+  update: (catalog, id, data) => api.put(`/admin/gem/${catalog}/${id}`, data),
+  remove: (catalog, id) => api.delete(`/admin/gem/${catalog}/${id}`),
+};
+
 export const searchAPI = {
   search: (q) => api.get(`/search?q=${encodeURIComponent(q)}`),
 };

@@ -65,7 +65,11 @@ def _past_cutoff() -> str:
 
 
 def _img(folder: str, filename):
-    return f"{LEGACY_UPLOADS}/{folder}/{filename}" if filename else None
+    if not filename:
+        return None
+    if isinstance(filename, str) and filename.startswith("/"):
+        return filename  # CMS-uploaded path (/api/uploads/...) — not a legacy filename
+    return f"{LEGACY_UPLOADS}/{folder}/{filename}"
 
 
 def _artist_images(doc):
@@ -379,12 +383,14 @@ def _coll_or_404(catalog: str) -> str:
 
 
 @router.get("/admin/gem/{catalog}")
-async def admin_list(catalog: str, q: str = None, status: str = None,
+async def admin_list(catalog: str, q: str = None, status: str = None, ids: str = None,
                      page: int = 1, limit: int = 50, user: dict = Depends(require_admin)):
     coll = _coll_or_404(catalog)
     query = {}
     if status:
         query["status"] = status
+    if ids:  # comma-separated id lookup — resolves picker selections to names
+        query["id"] = {"$in": [i for i in ids.split(",") if i]}
     if q:
         rx = {"$regex": re.escape(q), "$options": "i"}
         query["$or"] = [{"name": rx}, {"title": rx}, {"slug": rx}]

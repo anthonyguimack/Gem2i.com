@@ -66,6 +66,7 @@ const QuickLinksManager = lazy(() => import('./pages/admin/QuickLinksManager'));
 const MyAccountNavManager = lazy(() => import('./pages/admin/MyAccountNavManager'));
 const RolesManager = lazy(() => import('./pages/admin/RolesManager'));
 const CmsWelcome = lazy(() => import('./pages/admin/CmsWelcome'));
+const GemCatalogManager = lazy(() => import('./pages/admin/GemCatalogManager'));
 // Membership / My Account (core only)
 const MemberLogin = lazy(() => import('./pages/myaccount/MemberLogin'));
 const MemberRegister = lazy(() => import('./pages/myaccount/MemberRegister'));
@@ -210,6 +211,12 @@ const ADMIN_ROUTES = [
   { path: 'settings',                        section: 'settings',                         el: <SettingsManager /> },
   { path: 'email-management',                section: 'email_management',                 el: <EmailManagement /> },
   { path: 'pages',                           section: 'pages',                            el: <PagesManager /> },
+  { path: 'gem-events',                      section: 'gem_events',                       el: <GemCatalogManager catalog="events" /> },
+  { path: 'gem-artists',                     section: 'gem_artists',                      el: <GemCatalogManager catalog="artists" /> },
+  { path: 'gem-venues',                      section: 'gem_venues',                       el: <GemCatalogManager catalog="venues" /> },
+  { path: 'gem-festivals',                   section: 'gem_festivals',                    el: <GemCatalogManager catalog="festivals" /> },
+  { path: 'gem-conferences',                 section: 'gem_conferences',                  el: <GemCatalogManager catalog="conferences" /> },
+  { path: 'gem-clients',                     section: 'gem_clients',                      el: <GemCatalogManager catalog="clients" /> },
   { path: 'users',                           adminOnly: true,                             el: <UsersManager /> },
   { path: 'members',                         section: 'members',                          el: <MembersManager /> },
   { path: 'members/:memberId/signatures',    section: 'members',                          el: <MemberSignatures /> },

@@ -14,7 +14,7 @@ Public catalogs `/api/public/gem/*`, member actions `/api/member/gem/*` (JWT ide
 **Built (P1-P2):** `gem_content.py` (gem_config `content` doc, EN/ES homepage copy) · `gem_catalogs.py` (7 catalogs: public listings/details w/ visibility rules [active; events also !private+show_portal+365-day past cap], genres/continents/artist-names autocompletes, member follow, admin CRUD w/ soft delete). Catalog docs carry `legacy_id` (ETL upsert key; unique-indexed) + deterministic uuid5 `id` + unique `slug`. Legacy images at `backend/uploads/gem2i/legacy/<legacy-folder>/` served via `/api/uploads`; `image_urls` resolved server-side (folder map in `reference/GEM2I_LEGACY_SCHEMA_PHASE2.md`). ETL: `scripts/gem2i_etl_catalogs.py` (dump→JSONL, local) + `scripts/gem2i_load_catalogs.py` (JSONL→Mongo, on box; idempotent).
 
 ## Frontend (theme `gem2i`, dark entertainment)
-`components/gem2i/` layout + widgets; `pages/gem2i/` catalogs & details; `pages/admin/Gem*Manager`. Public theme driven by the `website` color group (`--color-*`). Full list: plan §6.
+`components/gem2i/` layout + widgets; `pages/gem2i/` catalogs & details. Admin: `pages/admin/GemCatalogManager.js` — ONE config-driven CRUD screen mounted at `/admin/gem-{events,artists,venues,festivals,conferences,clients}` (client via `gemAdminAPI` in lib/api.js). CMS permissions: `gem_*` section keys in `backend/models/cms_sections.py` group `gem2i` (register new admin gem pages there FIRST — unmapped `/api/admin/*` paths are admin-only/fail-closed for operators). Public theme driven by the `website` color group (`--color-*`). Full list: plan §6.
 
 ## Ports across the estate (context — gem2i is on its OWN box)
 carlos 8003 · journal 8010 · pms 8020 · lms 8030 · mms 8040 · **gem2i 8050**.

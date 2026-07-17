@@ -1,8 +1,8 @@
 # GEM2I_BUILD_TRACKER.md — live build tracker
 
-> **CLAIMED BY:** (unclaimed — session 3 finished)
-> **STATUS:** ✅ **PHASE 2 CORE SHIPPED — catalogs LIVE on beta.gem2i.com** (legacy ETL loaded: 601 artists / 901 venues / 422 festivals / 32 conferences / 2132 events / 15 clients / 225 follows into gem2i_cms; 1.83 GB legacy images on the box; `routes/gem_catalogs.py` public+member+admin API; public catalog pages with roster tabs/filters/details + follow gating; homepage carousels live). **Phase-2 exit still open:** admin manager UIs (API CRUD ready), card/list toggle + event country autocomplete, junk-venue cleanup. Then: **Phase 3 — membership merge** (legacy members → members; resolves the 225 pending follows).
-> **LAST SYNC:** 2026-07-17 (session 3, Anthony's machine — ETL + assets + API + UI built, deployed, verified. See memory/PROGRESS.md session-3 entry.)
+> **CLAIMED BY:** (unclaimed — session 4 finished)
+> **STATUS:** ✅ Phase 2 core LIVE (session 3). ✅ **Session 4: admin manager UIs BUILT + DEPLOYED to beta** (3m29s green, health 200, admin gate 401-verified) — config-driven `GemCatalogManager` for all 6 catalogs at `/admin/gem-*`, sidebar "GEM2i Catalogs" group, `gem_*` CMS sections registered (operator-grantable), dead post-strip sidebar/section entries pruned, `ids` picker lookup + uploaded-image passthrough in the API. **Still open for Phase-2 exit:** logged-in admin round-trip per catalog (create→public→edit→delete), card/list toggle + event country autocomplete, junk-venue deactivation (now doable via the Venues manager). Then: **Phase 3 — membership merge** (legacy members → members; resolves the 225 pending follows).
+> **LAST SYNC:** 2026-07-17 (session 4, Carlos's machine — admin managers built, deployed, API-verified live. See memory/PROGRESS.md session-4 entry.)
 
 The product spec is `GEM2I_MIGRATION_PLAN.md` (unchanged, still authoritative for features/schema/API/phases). This tracker records the **isolated-instance build** on box 34.198.159.54.
 
