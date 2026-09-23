@@ -471,6 +471,27 @@ Método: árbol de Carlos @8a0d4dd extraído a una carpeta temporal y comparado 
 | 18 | Personalidades | Saltado (D8) | Mini-sitios del tema Personal Brand |
 
 Verificación local 1.A: `py_compile` OK en los 7 .py tocados · `yarn build` verde (solo los 4 avisos previos). ⚠ No hay venv local con FastAPI → la prueba de import real la hace el deploy en la caja (con auto-rollback).
+**Deploy 1.A (+ lote 21/22): GREEN 4m10s** — verificado: `/api/health` 200 · `/` 200 · `/festivals` 200 (render real en navegador, sin errores de consola salvo los 401 esperados sin sesión) · `/my-account/invite-code` y `/my-account/my-community` 200 (sin sesión redirigen al login, correcto) · gates de API 401 · log del backend sin errores tras el reinicio.
+
+### Sector 1.B — Membresía, comunidad y My Account ✅ (código listo; deploy al cierre)
+| # | Módulo | Resultado | Detalle |
+|---|---|---|---|
+| 19 | Registro / login de miembro | Saltado (no aporta) | Todo el diff de Carlos es la variante "My Account 2.0" (Velzon) de cada página (→ #26) |
+| 20 | Enrollment wizard | **Hecho** | **Bug real arreglado**: `/membership-enrollment` existía en Gem2i pero su backend se borró en el strip → la página fallaba. Portado `routes/enrollment.py` (+ seed de campos al arrancar), `EnrollmentFieldsManager` + `SortableFieldRow` + `lib/fieldIcons`, ruta admin, menú "Membership Enrollment → Content", sección CMS `enrollment_fields`, y pre-relleno del código desde `?code=`. `enrollmentAPI` ya existía idéntico. Colecciones `enrollment_fields/_content/_applications` (núcleo, sin `gem_`, ver D-GEM-2026-04) |
+| 21 | Invite Code + QR | **Hecho** (lote 1) | ver §3.5 |
+| 22 | My Community | **Hecho** (lote 1) | ver §3.5 |
+| 23 | My Sponsor | **Hecho** | Respeta los campos ocultos (#24) + imagen por defecto de sponsor |
+| 24 | Perfil + biografía | **Hecho** | Visibilidad de campos por plataforma: interruptores en CMS → Membership Settings (`hidden_fields`, guardado en backend) aplicados en Membership Profile (vista y edición) y My Sponsor. Saltado: aro animado del avatar y rayas animadas de la barra (rediseño/movimiento decorativo), `adjust` (#46) |
+| 25 | My Account layout | **Hecho (parcial)** | Sin parpadeo al refrescar: el layout espera a tener settings/niveles/menú/campos ocultos antes de pintar · `Suspense` propio (antes una página lazy desmontaba todo el layout oscuro) · resalte deslizante del menú (transform/opacity, respeta reduced-motion y táctil) · avatar por defecto. Saltado: Reports, enlace a My Account 2.0, mentoría, reglas de nivel/tipo (gobernanza #29) |
+| 26 | My Account 2.0 (Velzon) | **PENDIENTE (H7)** | Decisión de diseño, no técnica |
+| 27 | Prefijo de membresía dinámico | **Hecho** | `utils/membership_prefix.py` + al cambiar `aux_prefix` en Settings se realinean solos todos los `membership_id` e invite codes |
+| 28 | Prefijo de referido | Saltado (no aporta) | `utils/referral.py` solo lo usan News/Morning (no están en Gem2i). El QR de #21 usa el número, no esto |
+| 29 | Gobernanza NIVEL/TIPO/ROL | **PENDIENTE (H8)** | Decisión de modelo de negocio |
+| 30 | Puerta única de productos | **PENDIENTE (H9)** | R14: depende de los productos 57–61 |
+| 31 | Lead capture | **Hecho (adaptado)** | `Gem2iWaitingListModal` (nuevo, estilo gem2i, EN/ES, accesible con Dialog) montado en el header: se abre con cualquier enlace `#waiting-list` o el evento `gem2i:open-waitlist`; alimenta Landing → Subscribers + los emails de #11. Arreglado un fallo del original: exigía captcha aunque estuviera apagado en el CMS (bloqueaba el envío). Acción "Waiting List" del hero CTA ya habilitada. Saltado: `viaCapture`/`InvitedByBanner` (seguimiento `?via` del MMS, no existe en Gem2i) |
+| 47 | Imágenes por defecto (de 1.D) | **Hecho (adelantado)** | Dependencia de #23/#24/#25: `lib/defaultImages.js` + `user.png`/`sponsor.png` (neutros). `mentor.png` no se trajo (lleva "$", mundo de mentoría financiera de Carlos) |
+
+Verificación local 1.B: `py_compile` OK · `yarn build` verde (solo los 4 avisos previos) · detector impeccable limpio en los 5 archivos de UI.
 
 ---
 
@@ -485,4 +506,7 @@ Verificación local 1.A: `py_compile` OK en los 7 .py tocados · `yarn build` ve
 | H3 | #21/#22 | e2e con humanos tras el deploy (generar/enviar código → registrarse; QR `?sponsor=`; árbol de un miembro legacy con red) | Prueba de 10 min con un miembro de prueba |
 | H5 | #2 Miembros | Crear índices únicos `members.membership_number` y `members.membership_id` (cambio en BD). El contador atómico ya evita la carrera; los índices son la red final que activa el reintento | **Comprobado 2026-09-23 (solo lectura): 0 duplicados** de número y de ID; los 1.737 números son `int`; hoy solo existen los índices `_id_`, `legacy_id_1`, `email_1`. Es seguro crearlos: `db.members.createIndex({membership_number:1},{unique:true,name:"uniq_membership_number"})` y lo mismo con `membership_id` / `uniq_membership_id` |
 | H6 | #11 Landing | Poner **Operator Email** en CMS → Settings → Email para recibir los avisos de Waiting List (junto con SMTP, ver H1) | Hacerlo cuando se configure SMTP |
+| H7 | #26 My Account 2.0 (Velzon) | Decidir si Gem2i quiere un segundo diseño de My Account. Es un clon completo (≈30 páginas + tema Velzon claro/oscuro), en Carlos aún "en construcción" y solo para admins; depende además de #36 (mentoría) y #45 (reports) | **No portarlo ahora.** Mejor invertir en que el My Account actual use la paleta gem2i (ver H4). Reevaluar si Carlos lo da por terminado |
+| H8 | #29 Gobernanza NIVEL/TIPO/ROL | Decidir el modelo de acceso de Gem2i: hoy los 1.737 miembros **no tienen nivel** (ven todo) y existen "Level 1–4" heredados del fork. La gobernanza de Carlos cambia qué ve cada miembro (niveles aplicados en servidor, capacidades por tipo, páginas por nivel, nivel/tipo por defecto al registrarse) | Primero definir los niveles de negocio de Gem2i (¿qué ve un miembro normal vs promotor vs VIP?) con Anthony; después portar. Sin esa definición portarlo solo añade código inerte o cambia accesos sin querer |
+| H9 | #30 Puerta única de productos | Depende de los productos hermanos 57–61 (IMS/PMS/LMS/MMS/Journal), que no existen en Gem2i (R14) | Saltar mientras no se decida portar algún producto hermano |
 | H4 | My Account (general) | El tema `my_account` de Theme Colors sigue en los valores por defecto (dorado de Carlos) y el menú lista ítems sin página en Gem2i (ebank, portfolios, "AUX Calendar", mentoría, bundles…) | Ajustar colores en CMS → Theme Colors → My Account y ocultar esos ítems en CMS → My Account Nav |

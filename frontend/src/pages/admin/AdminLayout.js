@@ -43,6 +43,8 @@ const sidebarItems = [
   { label: 'Content', icon: Layers, href: '/admin/landing-content', group: 'landing', section: 'landing_content' },
   { label: 'Subscribers', icon: UserCheck, href: '/admin/landing-subscribers', group: 'landing', section: 'landing_subscribers' },
   { label: 'Contacts', icon: Mail, href: '/admin/landing-contacts', group: 'landing', section: 'landing_contacts' },
+  { type: 'divider', label: 'Membership Enrollment', group: 'enrollment' },
+  { label: 'Content', icon: ClipboardCheck, href: '/admin/enrollment-fields', group: 'enrollment', section: 'enrollment_fields' },
   { type: 'divider', label: 'My Account', group: 'myaccount' },
   { label: 'Quick Links', icon: Globe, href: '/admin/quick-links', group: 'myaccount', section: 'quick_links' },
   { label: 'My Account Navigation', icon: Menu, href: '/admin/myaccount-nav', group: 'myaccount', section: 'myaccount_nav' },

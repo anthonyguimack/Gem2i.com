@@ -37,6 +37,7 @@ from routes.gem_content import router as gem_content_router, seed_gem_content
 from routes.gem_catalogs import router as gem_catalogs_router
 from routes.gem_passes import router as gem_passes_router, ensure_pass_indexes
 from routes.gem_tickets import router as gem_tickets_router, seed_gem_ecommissions
+from routes.enrollment import router as enrollment_router, seed_enrollment_fields
 
 api_router.include_router(auth_router)
 api_router.include_router(public_router)
@@ -53,6 +54,7 @@ api_router.include_router(gem_content_router)
 api_router.include_router(gem_catalogs_router)
 api_router.include_router(gem_passes_router)
 api_router.include_router(gem_tickets_router)
+api_router.include_router(enrollment_router)
 
 
 @api_router.get("/health")
@@ -70,6 +72,7 @@ async def startup():
     await seed_gem_content()
     await ensure_pass_indexes()
     await seed_gem_ecommissions()
+    await seed_enrollment_fields()
     from utils.email_render import ensure_templates_seeded
     await ensure_templates_seeded()
     try:

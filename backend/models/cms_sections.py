@@ -26,6 +26,7 @@ CMS_GROUPS = [
     {"key": "gem2i",         "label": "GEM2i Catalogs"},
     {"key": "landing",       "label": "Landing Page"},
     {"key": "myaccount",     "label": "My Account"},
+    {"key": "enrollment",    "label": "Membership Enrollment"},
     {"key": "membership",    "label": "Membership"},
     {"key": "system",        "label": "System"},
     {"key": "security",      "label": "Security"},
@@ -65,6 +66,9 @@ CMS_SECTIONS = [
     {"key": "landing_content",     "label": "Content (Landing)",      "group": "landing", "frontend_path": "/admin/landing-content",     "url_prefix": ["/api/admin/landing-content"]},
     {"key": "landing_subscribers", "label": "Subscribers (Landing)",  "group": "landing", "frontend_path": "/admin/landing-subscribers", "url_prefix": ["/api/admin/landing-subscribers"]},
     {"key": "landing_contacts",    "label": "Contacts (Landing)",     "group": "landing", "frontend_path": "/admin/landing-contacts",    "url_prefix": ["/api/admin/landing-contacts"]},
+
+    # Enrollment (routes/enrollment.py — fields, applications, step-4 content)
+    {"key": "enrollment_fields",   "label": "Enrollment Content",     "group": "enrollment", "frontend_path": "/admin/enrollment-fields", "url_prefix": ["/api/admin/enrollment"]},
 
     # My Account
     {"key": "quick_links",      "label": "Quick Links",           "group": "myaccount", "frontend_path": "/admin/quick-links",       "url_prefix": ["/api/admin/quick-links"]},

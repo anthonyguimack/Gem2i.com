@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Depends
-from models.database import db, require_admin, hash_password
+from models.database import db, require_admin, hash_password, logger
 from utils.personality import pb_validate, scope_query, stamp
 from datetime import datetime, timezone
 from slugify import slugify
@@ -425,9 +425,25 @@ async def admin_update_settings(request: Request, user: dict = Depends(require_a
             r["active"] = bool(r.get("active", True))
             norm_rows.append(r)
         body["social_links"] = norm_rows
+    # aux_prefix change → realign every stored membership code so existing members'
+    # membership_id + invite codes follow the brand instantly (no manual rename script).
+    _prefix_changed_to = None
+    if "aux_prefix" in body:
+        body["aux_prefix"] = (body.get("aux_prefix") or "").strip()
+        _old = await db.settings.find_one({}, {"_id": 0, "aux_prefix": 1}) or {}
+        if body["aux_prefix"] and body["aux_prefix"] != (_old.get("aux_prefix") or ""):
+            _prefix_changed_to = body["aux_prefix"]
     body["updated_at"] = datetime.now(timezone.utc).isoformat()
     if body:
         await db.settings.update_one({}, {"$set": body}, upsert=True)
+    if _prefix_changed_to:
+        from utils.membership_prefix import realign_membership_prefix
+        try:
+            res = await realign_membership_prefix(db, _prefix_changed_to)
+            logger.info(f"aux_prefix -> '{_prefix_changed_to}': realigned "
+                        f"{res['members']} members, {res['invite_codes']} invite codes")
+        except Exception as e:
+            logger.error(f"aux_prefix realign failed: {e}")
     return await admin_get_settings(user=user)
 
 

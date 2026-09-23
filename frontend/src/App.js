@@ -53,6 +53,7 @@ const MemberLogins = lazy(() => import('./pages/admin/MemberLogins'));
 const MemberLevelsManager = lazy(() => import('./pages/admin/MemberLevelsManager'));
 const MemberTypesManager = lazy(() => import('./pages/admin/MemberTypesManager'));
 const MembershipSettingsManager = lazy(() => import('./pages/admin/MembershipSettingsManager'));
+const EnrollmentFieldsManager = lazy(() => import('./pages/admin/EnrollmentFieldsManager'));
 const BackupManager = lazy(() => import('./pages/admin/BackupManager'));
 const ContactSettingsManager = lazy(() => import('./pages/admin/ContactSettingsManager'));
 const LandingContentManager = lazy(() => import('./pages/admin/LandingContentManager'));
@@ -229,6 +230,7 @@ const ADMIN_ROUTES = [
   { path: 'members/:memberId/logins',        section: 'members',                          el: <MemberLogins /> },
   { path: 'member-levels',                   section: 'member_levels',                    el: <MemberLevelsManager /> },
   { path: 'member-types',                    section: 'member_types',                     el: <MemberTypesManager /> },
+  { path: 'enrollment-fields',               section: 'enrollment_fields',                el: <EnrollmentFieldsManager /> },
   { path: 'membership-settings',             section: 'membership_settings',              el: <MembershipSettingsManager /> },
   { path: 'analytics',                       section: 'analytics',                        el: <AnalyticsDashboard /> },
   { path: 'seo',                             section: 'seo',                              el: <SeoManager /> },

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useMember } from '../../lib/memberAuth';
 import { memberAPI, publicAPI, geoAPI } from '../../lib/api';
+import { DEFAULT_AVATAR } from '../../lib/defaultImages';
 import { toast } from 'sonner';
 import { User, Save, Loader2, Edit3, Lock, Eye, ListChecks, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
@@ -66,10 +67,13 @@ export default function MembershipProfile() {
   const [pwLoading, setPwLoading] = useState(false);
   const [viewBioOpen, setViewBioOpen] = useState(false);
   const [stepsOpen, setStepsOpen] = useState(false);
-  // Membership settings (mandatory fields)
+  // Membership settings: mandatory fields fetched here; hidden fields come from the
+  // layout via context, resolved BEFORE this page paints, so hidden fields never flash.
   const [mandatoryFields, setMandatoryFields] = useState([]);
   const [ebankData, setEbankData] = useState({});
   const ctx = useOutletContext() || {};
+  const hiddenFields = ctx.hiddenFields || [];
+  const isHidden = (k) => hiddenFields.includes(k);
   const title = ctx.sectionLabel ? ctx.sectionLabel('membership-profile', 'Membership Profile') : 'Membership Profile';
 
   const fetchActivities = () => {
@@ -208,7 +212,7 @@ export default function MembershipProfile() {
   const getSocialUrl = (platform) => memberSocials.find(l => l.platform === platform)?.url || '';
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
 
-  const defaultAvatar = settings.membership_default_avatar || '';
+  const defaultAvatar = settings.membership_default_avatar || DEFAULT_AVATAR;
   const tabs = [
     { id: 'general', label: 'General Info' },
     { id: 'social', label: 'Social Links' },
@@ -321,15 +325,17 @@ export default function MembershipProfile() {
                       <p className="text-[10px] text-gray-500 mt-1">Changing your email will also update your login username.</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div><Label className="text-xs text-gray-400">Phone</Label><Input value={form.phone} onChange={set('phone')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>
+                      {!isHidden('phone') && <div><Label className="text-xs text-gray-400">Phone</Label><Input value={form.phone} onChange={set('phone')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>}
+                      {!isHidden('gender') && (
                       <div><Label className="text-xs text-gray-400">Gender</Label>
                         <select value={form.gender} onChange={set('gender')} className={selectCls} style={{ colorScheme: 'dark' }}>
                           <option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option>
                         </select>
                       </div>
+                      )}
                     </div>
-                    <div><Label className="text-xs text-gray-400">Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={set('date_of_birth')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" style={{ colorScheme: 'dark' }} /></div>
-                    <div><Label className="text-xs text-gray-400">Address</Label><Input value={form.address} onChange={set('address')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>
+                    {!isHidden('date_of_birth') && <div><Label className="text-xs text-gray-400">Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={set('date_of_birth')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" style={{ colorScheme: 'dark' }} /></div>}
+                    {!isHidden('address') && <div><Label className="text-xs text-gray-400">Address</Label><Input value={form.address} onChange={set('address')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <Label className="text-xs text-gray-400">Country</Label>
@@ -353,32 +359,34 @@ export default function MembershipProfile() {
                         </select>
                       </div>
                     </div>
-                    <div><Label className="text-xs text-gray-400">ZIP Code</Label><Input value={form.zip_code} onChange={set('zip_code')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>
-                    <div><Label className="text-xs text-gray-400">ID# (Passport or DNI or etc.)</Label><Input value={form.passport_id || ''} onChange={set('passport_id')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" data-testid="profile-passport-input" /></div>
+                    {!isHidden('zip_code') && <div><Label className="text-xs text-gray-400">ZIP Code</Label><Input value={form.zip_code} onChange={set('zip_code')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>}
+                    {!isHidden('passport_id') && <div><Label className="text-xs text-gray-400">ID# (Passport or DNI or etc.)</Label><Input value={form.passport_id || ''} onChange={set('passport_id')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" data-testid="profile-passport-input" /></div>}
+                    {!isHidden('avatar') && (
                     <div>
                       <Label className="text-xs text-gray-400">Avatar</Label>
                       <div className="mt-1">
                         <MemberImageUpload value={form.avatar} onChange={v => setForm(p => ({...p, avatar: v}))} />
                       </div>
                     </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {[
-                      { label: 'Name', value: `${member?.first_name || ''} ${member?.last_name || ''}`.trim() },
-                      { label: 'Membership Number', value: member?.membership_id || '-' },
-                      { label: 'Email', value: member?.email || '-' },
-                      { label: 'Phone', value: member?.phone || '-' },
-                      { label: 'Gender', value: member?.gender || '-' },
-                      { label: 'Date of Birth', value: fmtDate(member?.date_of_birth) },
-                      { label: 'Address', value: member?.address || '-' },
-                      { label: 'Country', value: member?.country || '-' },
-                      { label: 'State', value: member?.state || '-' },
-                      { label: 'City', value: member?.city || '-' },
-                      { label: 'ZIP Code', value: member?.zip_code || '-' },
-                      { label: 'ID# (Passport or DNI or etc.)', value: member?.passport_id || '-' },
-                      { label: 'Google Account', value: member?.google_account || '-' },
-                    ].map(f => (
+                      { key: 'name', label: 'Name', value: `${member?.first_name || ''} ${member?.last_name || ''}`.trim() },
+                      { key: 'membership_id', label: 'Membership Number', value: member?.membership_id || '-' },
+                      { key: 'email', label: 'Email', value: member?.email || '-' },
+                      { key: 'phone', label: 'Phone', value: member?.phone || '-' },
+                      { key: 'gender', label: 'Gender', value: member?.gender || '-' },
+                      { key: 'date_of_birth', label: 'Date of Birth', value: fmtDate(member?.date_of_birth) },
+                      { key: 'address', label: 'Address', value: member?.address || '-' },
+                      { key: 'country', label: 'Country', value: member?.country || '-' },
+                      { key: 'state', label: 'State', value: member?.state || '-' },
+                      { key: 'city', label: 'City', value: member?.city || '-' },
+                      { key: 'zip_code', label: 'ZIP Code', value: member?.zip_code || '-' },
+                      { key: 'passport_id', label: 'ID# (Passport or DNI or etc.)', value: member?.passport_id || '-' },
+                      { key: 'google_account', label: 'Google Account', value: member?.google_account || '-' },
+                    ].filter(f => !isHidden(f.key)).map(f => (
                       <div key={f.label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                         <span className="text-xs text-gray-500 w-48 flex-shrink-0">{f.label}</span>
                         <span className="text-sm text-white">{f.value || '-'}</span>

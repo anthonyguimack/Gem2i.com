@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { memberAPI, publicAPI } from '../../lib/api';
+import { DEFAULT_SPONSOR } from '../../lib/defaultImages';
 import { User, Facebook, Twitter, Instagram, Linkedin, Globe } from 'lucide-react';
 
 const socialIcons = { facebook: Facebook, twitter: Twitter, instagram: Instagram, linkedin: Linkedin, website: Globe };
@@ -9,6 +10,9 @@ export default function MySponsor() {
   const [sponsor, setSponsor] = useState(null);
   const [settings, setSettings] = useState({});
   const ctx = useOutletContext() || {};
+  // Platform-wide field visibility (Membership Settings) from the layout via context —
+  // resolved before paint, so hidden fields never flash on the sponsor card.
+  const hiddenFields = ctx.hiddenFields || [];
   const title = ctx.sectionLabel ? ctx.sectionLabel('my-sponsor', 'My Sponsor') : 'My Sponsor';
 
   useEffect(() => {
@@ -16,21 +20,21 @@ export default function MySponsor() {
     publicAPI.getSettings().then(r => setSettings(r.data)).catch(() => {});
   }, []);
 
-  const defaultAvatar = settings.membership_default_avatar || '';
+  const defaultAvatar = DEFAULT_SPONSOR;
   const s = sponsor || {};
 
   const fields = [
     { label: 'Legal Name (as I.D.)', value: `${s.first_name || ''} ${s.last_name || ''}`.trim() },
     { label: 'Name', value: `${s.first_name || ''} ${s.last_name || ''}`.trim() },
     { label: 'Membership Number', value: s.membership_id || '-' },
-    { label: 'Email', value: s.email || '-' },
-    { label: 'Address', value: s.address || '-' },
-    { label: 'Country / State', value: [s.country, s.state].filter(Boolean).join(' / ') || '-' },
-    { label: 'ZIP Code', value: s.zip_code || '-' },
-    { label: 'Phone Number', value: s.phone || '-' },
-    { label: 'Google Account', value: s.google_account || '-' },
-    { label: 'Date of Birth', value: s.date_of_birth || '-' },
-  ];
+    { key: 'email', label: 'Email', value: s.email || '-' },
+    { key: 'address', label: 'Address', value: s.address || '-' },
+    { key: 'country', label: 'Country / State', value: [s.country, s.state].filter(Boolean).join(' / ') || '-' },
+    { key: 'zip_code', label: 'ZIP Code', value: s.zip_code || '-' },
+    { key: 'phone', label: 'Phone Number', value: s.phone || '-' },
+    { key: 'google_account', label: 'Google Account', value: s.google_account || '-' },
+    { key: 'date_of_birth', label: 'Date of Birth', value: s.date_of_birth || '-' },
+  ].filter(f => !f.key || !hiddenFields.includes(f.key));
 
   return (
     <div data-testid="my-sponsor-page">

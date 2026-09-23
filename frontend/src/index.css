@@ -420,6 +420,28 @@ html {
 [data-testid="myaccount-layout"] .hover\:text-\[\#c9a84c\]:hover { color: var(--ma-accent, #c9a84c) !important; }
 [data-testid="myaccount-layout"] .hover\:border-\[\#c9a84c\]\/30:hover { border-color: var(--ma-avatar-border, rgba(201,168,76,0.3)) !important; }
 [data-testid="myaccount-layout"] a.text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }
+/* My Account sidebar hover: one highlight that slides between items
+   (MyAccountLayout). The component sets the colour from --ma-sidebar-hover-bg;
+   only transform and opacity transition. */
+[data-testid="myaccount-layout"] .ma-nav-hl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  opacity: 0;
+  transform: translateY(0);
+  pointer-events: none;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms linear;
+}
+/* Touch screens have no real hover: a tap would leave the highlight stuck. */
+@media (hover: none) {
+  [data-testid="myaccount-layout"] .ma-nav-hl { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-testid="myaccount-layout"] .ma-nav-hl { transition: opacity 160ms linear; }
+}
+
 /* Login page (outside layout) */
 [data-testid="member-login-page"] .bg-\[\#c9a84c\] { background-color: var(--ma-accent, #c9a84c) !important; }
 [data-testid="member-login-page"] .text-\[\#c9a84c\] { color: var(--ma-accent, #c9a84c) !important; }

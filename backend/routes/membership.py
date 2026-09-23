@@ -1166,7 +1166,9 @@ async def get_membership_settings(user: dict = Depends(require_admin)):
 @router.put("/admin/membership-settings")
 async def update_membership_settings(request: Request, user: dict = Depends(require_admin)):
     body = await request.json()
-    update = {"mandatory_fields": body.get("mandatory_fields", []), "updated_at": datetime.now(timezone.utc).isoformat()}
+    update = {"mandatory_fields": body.get("mandatory_fields", []),
+              "hidden_fields": body.get("hidden_fields", []),
+              "updated_at": datetime.now(timezone.utc).isoformat()}
     await db.membership_settings.update_one({}, {"$set": update}, upsert=True)
     return await db.membership_settings.find_one({}, {"_id": 0})
 

@@ -6,6 +6,7 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import { useT } from '../../lib/i18n';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iContactPanel, { Gem2iContactTab } from './Gem2iContactPanel';
+import Gem2iWaitingListModal from './Gem2iWaitingListModal';
 
 const GEM_FONT = "'Poppins', sans-serif";
 
@@ -206,6 +207,7 @@ export default function Gem2iHeader({ nav }) {
       <Gem2iContactTab onOpen={() => setContactOpen(true)} />
       <Gem2iContactPanel open={contactOpen} onClose={() => setContactOpen(false)} />
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <Gem2iWaitingListModal />
     </>
   );
 }

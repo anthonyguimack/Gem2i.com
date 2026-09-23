@@ -81,6 +81,16 @@ export default function MembershipEnrollment() {
     geoAPI.getCountries().then(r => setCountries(r.data || [])).catch(() => {});
     // Pre-fill signature date
     setFormData(p => ({ ...p, signature_date: new Date().toISOString().split('T')[0] }));
+    // Pre-fill the invite code from ?code= (invitation links), like /my-account/register.
+    try {
+      const urlCode = new URLSearchParams(window.location.search).get('code');
+      if (urlCode) {
+        setFormData(p => ({ ...p, invite_code: urlCode }));
+        enrollmentAPI.validateCode(urlCode)
+          .then(() => setCodeValid(true))
+          .catch(() => setCodeValid(false));
+      }
+    } catch { /* no-op */ }
   }, []);
 
   // Cascade geo

@@ -290,7 +290,7 @@ export default function HeroSlideForm() {
       {/* Links and Navigation */}
       <div className={sectionCls}>
         <h2 className={sectionTitle}>Links and Navigation</h2>
-        <p className="text-xs text-slate-500 mb-4">Up to 3 CTA buttons, rendered as an inline row. Each button has an <strong>Action</strong>: <em>Url / Link</em> uses the URL field + Window Open; <em>Login Required</em> has its behavior built in (no URL needed).</p>
+        <p className="text-xs text-slate-500 mb-4">Up to 3 CTA buttons, rendered as an inline row. Each button has an <strong>Action</strong>: <em>Url / Link</em> uses the URL field + Window Open; <em>Login Required</em> and <em>Waiting List</em> have their behavior built in (no URL needed).</p>
         {[1, 2, 3].map(n => {
           const suf = n === 1 ? '' : `_${n}`;
           const textKey = `button${suf}_text`;
@@ -312,8 +312,7 @@ export default function HeroSlideForm() {
                 <div>
                   <Label className="text-xs text-slate-500">Action</Label>
                   <select value={curAction} onChange={set(actionKey)} className={`mt-1 ${selectCls}`} data-testid={`slide-btn${suf}-action`}>
-                    {/* 'waitlist' needs the Waiting List modal (lead capture), not in gem2i yet. */}
-                    {CTA_ACTIONS.filter(a => a !== 'waitlist' || curAction === 'waitlist').map(a => <option key={a} value={a}>{CTA_ACTION_LABELS[a]}</option>)}
+                    {CTA_ACTIONS.map(a => <option key={a} value={a}>{CTA_ACTION_LABELS[a]}</option>)}
                   </select>
                 </div>
                 {isUrlAction ? (
@@ -333,7 +332,7 @@ export default function HeroSlideForm() {
                 ) : (
                   <div className="md:col-span-2 flex items-center">
                     <p className="text-xs text-slate-500 italic md:mt-5" data-testid={`slide-btn${suf}-action-help`}>
-                      {curAction === 'login' ? 'Not logged in → opens the login modal. Logged in → goes to My Account.' : 'Waiting List form (not available in GEM2i yet).'}
+                      {curAction === 'login' ? 'Not logged in → opens the login modal. Logged in → goes to My Account.' : 'Opens the Waiting List form. Automatically hidden for logged-in members.'}
                     </p>
                   </div>
                 )}

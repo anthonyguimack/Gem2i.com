@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMember } from '../../lib/memberAuth';
 import { publicAPI, memberAPI, authAPI } from '../../lib/api';
 import { BACKEND_URL } from '../../lib/config';
+import { DEFAULT_AVATAR } from '../../lib/defaultImages';
 import {
   User, Key, Users, Briefcase, LogOut, Menu, X, ChevronRight, Home, Award, UserCheck, Loader2, Wallet, ExternalLink, Bell, CalendarDays, BookOpen, Rss, BarChart3, Package, Mail, Trophy
 } from 'lucide-react';
@@ -50,24 +51,31 @@ export default function MyAccountLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sideOpen, setSideOpen] = useState(false);
+  // Fetched collections start as `null` = "not loaded yet", so the chrome waits for
+  // the real data before painting (no logo swap / nav re-filter flash on refresh).
   const [settings, setSettings] = useState({});
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [levelPerms, setLevelPerms] = useState(null);
-  const [quickLinks, setQuickLinks] = useState([]);
+  const [quickLinks, setQuickLinks] = useState(null);
   const [qlPerms, setQlPerms] = useState(null);
   const [navOrderState, setNavOrderState] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [ssoLoadingId, setSsoLoadingId] = useState(null);
-  const [mailboxes, setMailboxes] = useState([]);   // member's own mailbox(es), if any
+  const [mailboxes, setMailboxes] = useState(null);   // member's own mailbox(es), if any (null = not loaded)
+  // Admin-configured field visibility (Membership Settings), resolved before the Outlet
+  // paints so profile pages never flash a hidden field.
+  const [hiddenFields, setHiddenFields] = useState(null);
 
   const fetchUnread = useCallback(() => {
     memberAPI.getUnreadCount().then(r => setUnreadCount(r.data?.count || 0)).catch(() => {});
   }, []);
 
   useEffect(() => {
-    publicAPI.getSettings().then(r => setSettings(r.data)).catch(() => {});
-    publicAPI.getMyAccountLinks().then(r => setQuickLinks(r.data || [])).catch(() => {});
+    publicAPI.getSettings().then(r => setSettings(r.data)).catch(() => {}).finally(() => setSettingsLoaded(true));
+    publicAPI.getMyAccountLinks().then(r => setQuickLinks(r.data || [])).catch(() => setQuickLinks([]));
+    memberAPI.getMembershipSettings().then(r => setHiddenFields(r.data?.hidden_fields || [])).catch(() => setHiddenFields([]));
     publicAPI.getMyAccountNav().then(r => setNavOrderState({ items: r.data || [] })).catch(() => setNavOrderState({ items: [] }));
     memberAPI.listMailboxes().then(r => setMailboxes(r.data || [])).catch(() => setMailboxes([]));
     fetchUnread();
@@ -175,7 +183,7 @@ export default function MyAccountLayout() {
   };
 
   const tt = useT();
-  const brandName = tt(settings.brand_name) || 'Legacy';
+  const brandName = tt(settings.brand_name) || '';
   const navItems = levelPerms !== null ? ALL_NAV_ITEMS.filter(item => {
     if (item.mentorOnly && !isMentor) return false;
     // Global-visibility override from CMS "My Account Navigation" (if present)
@@ -209,6 +217,50 @@ export default function MyAccountLayout() {
   // CSS variable shortcuts
   const v = (name, fallback) => `var(--ma-${name}, ${fallback})`;
 
+  // Sidebar hover: one highlight that slides between items. Moved by mutating the
+  // style through a ref (not state) so mouse events don't re-render; only transform
+  // and opacity animate.
+  const hlRef = useRef(null);
+  const hlOn = useRef(false);
+  const moveHighlight = (el) => {
+    const hl = hlRef.current;
+    if (!hl || !el) return;
+    const y = el.offsetTop;
+    const h = el.offsetHeight;
+    if (!hlOn.current) {
+      // First entry: place it without animating so it fades in under the cursor.
+      const prev = hl.style.transition;
+      hl.style.transition = 'none';
+      hl.style.height = `${h}px`;
+      hl.style.transform = `translateY(${y}px)`;
+      void hl.offsetHeight;
+      hl.style.transition = prev;
+    } else {
+      hl.style.height = `${h}px`;
+      hl.style.transform = `translateY(${y}px)`;
+    }
+    hl.style.opacity = '1';
+    hlOn.current = true;
+  };
+  const hideHighlight = () => {
+    if (hlRef.current) hlRef.current.style.opacity = '0';
+    hlOn.current = false;
+  };
+
+  // Hold the whole chrome until its data is in, then paint once: painting on the
+  // empty defaults made My Account flash on refresh.
+  const chromeReady = settingsLoaded && levelPerms !== null && navOrderState !== null
+    && hiddenFields !== null && quickLinks !== null && mailboxes !== null;
+  if (!chromeReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ background: v('page-bg', '#0d0f14'), fontFamily: "'DM Sans', sans-serif" }}
+        data-testid="myaccount-layout-loading">
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: v('accent', '#c9a84c') }} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex" style={{ background: v('page-bg', '#0d0f14'), fontFamily: "'DM Sans', sans-serif" }} data-testid="myaccount-layout">
       {/* Sidebar */}
@@ -235,8 +287,7 @@ export default function MyAccountLayout() {
           {member && (
             <div className="mt-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: v('avatar-bg', 'rgba(201,168,76,0.1)'), border: `1px solid ${v('avatar-border', 'rgba(201,168,76,0.4)')}` }}>
-                {member.avatar ? <img src={member.avatar} alt="" className="w-full h-full rounded-full object-cover" /> :
-                  <span className="font-bold text-sm" style={{ color: v('accent', '#c9a84c') }}>{(member.first_name?.[0] || '').toUpperCase()}</span>}
+                <img src={member.avatar || settings.membership_default_avatar || DEFAULT_AVATAR} alt="" className="w-full h-full rounded-full object-cover" />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate" style={{ color: v('text-primary', '#ffffff') }}>{member.first_name} {member.last_name}</p>
@@ -245,7 +296,11 @@ export default function MyAccountLayout() {
             </div>
           )}
         </div>
-        <nav className="flex-1 py-4 overflow-y-auto">
+        <nav className="flex-1 py-4 overflow-y-auto relative"
+          onMouseLeave={hideHighlight}
+          onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) hideHighlight(); }}>
+          <div ref={hlRef} aria-hidden="true" className="ma-nav-hl"
+            style={{ backgroundColor: v('sidebar-hover-bg', 'rgba(255,255,255,0.05)') }} />
           {permissionsLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-5 h-5 animate-spin" style={{ color: v('accent', '#c9a84c') }} />
@@ -255,7 +310,7 @@ export default function MyAccountLayout() {
               const active = location.pathname === item.href || location.pathname.startsWith(item.href + '/') || (item.id === 'global-calendar' && location.pathname.startsWith('/my-account/event/'));
               return (
                 <Link key={item.href} to={item.href} onClick={() => setSideOpen(false)}
-                  className="flex items-center gap-3 px-5 py-2.5 text-sm transition-colors"
+                  className="relative flex items-center gap-3 px-5 py-2.5 text-sm transition-colors"
                   style={active ? {
                     color: v('sidebar-active-text', '#c9a84c'),
                     backgroundColor: v('sidebar-active-bg', 'rgba(201,168,76,0.1)'),
@@ -263,8 +318,10 @@ export default function MyAccountLayout() {
                   } : {
                     color: v('sidebar-text', '#9ca3af'),
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.color = v('text-primary', '#ffffff'); }}
+                  onMouseEnter={e => { moveHighlight(e.currentTarget); if (!active) e.currentTarget.style.color = v('text-primary', '#ffffff'); }}
+                  onFocus={e => { moveHighlight(e.currentTarget); if (!active) e.currentTarget.style.color = v('text-primary', '#ffffff'); }}
                   onMouseLeave={e => { if (!active) e.currentTarget.style.color = v('sidebar-text', '#9ca3af'); }}
+                  onBlur={e => { if (!active) e.currentTarget.style.color = v('sidebar-text', '#9ca3af'); }}
                   data-testid={`myaccount-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                   <item.icon className="w-4 h-4 flex-shrink-0" />
                   <span>{item._cmsLabel ? item.label : (item.dynamicLabel ? `${settings.aux_prefix || 'AUX'} Calendar` : item.label)}</span>
@@ -299,7 +356,8 @@ export default function MyAccountLayout() {
               // Filter by level permissions: admin sees all, others see only permitted links.
               // pms/lms/mms_role_required links bypass level perms — the backend
               // already filtered them by platform role, so receiving one means show it.
-              const visibleLinks = qlPerms === null ? quickLinks : quickLinks.filter(ql => ql.pms_role_required || ql.lms_role_required || ql.mms_role_required || qlPerms.includes(ql.id));
+              const links = quickLinks || [];
+              const visibleLinks = qlPerms === null ? links : links.filter(ql => ql.pms_role_required || ql.lms_role_required || ql.mms_role_required || qlPerms.includes(ql.id));
               if (visibleLinks.length === 0) return null;
               return (
               <nav className="flex items-center gap-0 ml-auto overflow-x-auto" data-testid="quick-links-bar">
@@ -414,23 +472,33 @@ export default function MyAccountLayout() {
           </div>
         </header>
         <main className="flex-1 p-4 lg:p-8 min-w-0 overflow-x-hidden">
-          {isRouteAllowed === false || isRouteAllowed === null ? (
+          {isRouteAllowed === false || isRouteAllowed === null || hiddenFields === null ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-6 h-6 animate-spin" style={{ color: v('accent', '#c9a84c') }} />
             </div>
           ) : (
-            <Outlet context={{
-              navItems: navOrderState?.items || [],
-              sectionLabel: (id, fallback) => {
-                const stored = navOrderState?.items?.find(n => n.id === id)?.label;
-                const def = ALL_NAV_ITEMS.find(i => i.id === id);
-                // Dynamic label (AUX prefix) applies only when admin hasn't renamed the item
-                if (def?.dynamicLabel && (!stored || stored === def.label)) {
-                  return `${settings.aux_prefix || 'AUX'} Calendar`;
-                }
-                return stored || fallback;
-              },
-            }} />
+            // Own Suspense boundary around the lazy pages: otherwise a page chunk suspends
+            // up to the app-level full-screen fallback and unmounts this whole layout.
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-6 h-6 animate-spin" style={{ color: v('accent', '#c9a84c') }} />
+              </div>
+            }>
+              <Outlet context={{
+                navItems: navOrderState?.items || [],
+                hiddenFields,
+                isFieldHidden: (k) => hiddenFields.includes(k),
+                sectionLabel: (id, fallback) => {
+                  const stored = navOrderState?.items?.find(n => n.id === id)?.label;
+                  const def = ALL_NAV_ITEMS.find(i => i.id === id);
+                  // Dynamic label (AUX prefix) applies only when admin hasn't renamed the item
+                  if (def?.dynamicLabel && (!stored || stored === def.label)) {
+                    return `${settings.aux_prefix || 'AUX'} Calendar`;
+                  }
+                  return stored || fallback;
+                },
+              }} />
+            </Suspense>
           )}
         </main>
       </div>

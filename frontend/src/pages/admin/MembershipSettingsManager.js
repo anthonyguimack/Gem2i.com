@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { adminAPI } from '../../lib/api';
 import { toast } from 'sonner';
-import { Save, Loader2, Settings, User, Wallet } from 'lucide-react';
+import { Save, Loader2, Settings, User, Wallet, Eye, EyeOff } from 'lucide-react';
+import { Switch } from '../../components/ui/switch';
 
 const PROFILE_FIELDS = [
   { key: 'first_name', label: 'First Name' },
@@ -43,12 +44,13 @@ const EBANK_FIELDS = [
 
 export default function MembershipSettingsManager() {
   const [mandatoryFields, setMandatoryFields] = useState([]);
+  const [hiddenFields, setHiddenFields] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     adminAPI.getMembershipSettings()
-      .then(r => setMandatoryFields(r.data?.mandatory_fields || []))
+      .then(r => { setMandatoryFields(r.data?.mandatory_fields || []); setHiddenFields(r.data?.hidden_fields || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -72,7 +74,7 @@ export default function MembershipSettingsManager() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await adminAPI.updateMembershipSettings({ mandatory_fields: mandatoryFields });
+      await adminAPI.updateMembershipSettings({ mandatory_fields: mandatoryFields, hidden_fields: hiddenFields });
       toast.success('Membership settings saved!');
     } catch { toast.error('Error saving settings'); }
     finally { setSaving(false); }
@@ -130,6 +132,35 @@ export default function MembershipSettingsManager() {
       <div className="space-y-5">
         {renderGroup('Profile Fields', <User className="w-4 h-4 text-[#0D9488]" />, PROFILE_FIELDS)}
         {renderGroup('Ebank Fields', <Wallet className="w-4 h-4 text-[#0D9488]" />, EBANK_FIELDS)}
+
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 bg-slate-50 border-b border-slate-200">
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4 text-[#0D9488]" />
+              <h3 className="text-sm font-semibold text-slate-700">Profile Field Visibility</h3>
+              <span className="text-xs text-slate-400 ml-1">({PROFILE_FIELDS.filter(f => !hiddenFields.includes(f.key)).length}/{PROFILE_FIELDS.length} shown)</span>
+            </div>
+          </div>
+          <p className="px-5 pt-3 text-xs text-slate-500">Toggle a field off (eye closed) to hide it from the member's Membership Profile — both the view and the edit form.</p>
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {PROFILE_FIELDS.map(f => {
+              const shown = !hiddenFields.includes(f.key);
+              return (
+                <div key={f.key} className="flex items-center justify-between gap-3 p-2.5 rounded-md hover:bg-slate-50 transition-colors" data-testid={`visibility-field-${f.key}`}>
+                  <span className={`text-sm ${shown ? 'text-slate-600' : 'text-slate-400'}`}>{f.label}</span>
+                  <div className="flex items-center gap-2">
+                    {shown ? <Eye className="w-4 h-4 text-[#0D9488]" /> : <EyeOff className="w-4 h-4 text-slate-300" />}
+                    <Switch
+                      checked={shown}
+                      onCheckedChange={() => setHiddenFields(prev => prev.includes(f.key) ? prev.filter(x => x !== f.key) : [...prev, f.key])}
+                      data-testid={`visibility-toggle-${f.key}`}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
