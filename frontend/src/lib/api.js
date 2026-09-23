@@ -361,6 +361,9 @@ export const adminAPI = {
   generateMemberQR: (id, data) => api.post(`/admin/members/${id}/generate-qr`, data),
   // Member Levels
   getLevels: () => api.get('/admin/member-levels'),
+  getLevelEnforcement: () => api.get('/admin/member-levels-enforcement'),
+  getProductCatalog: () => api.get('/admin/member-levels-products'),
+  getSitePageCatalog: () => api.get('/admin/member-levels-site-pages'),
   createLevel: (data) => api.post('/admin/member-levels', data),
   updateLevel: (id, data) => api.put(`/admin/member-levels/${id}`, data),
   deleteLevel: (id) => api.delete(`/admin/member-levels/${id}`),
@@ -534,6 +537,7 @@ export const memberAPI = {
   getCompanies: (industryId) => api.get(`/member/companies${industryId ? `?industry_id=${industryId}` : ''}`),
   getMembersList: () => api.get('/member/members-list'),
   getMyLevel: () => api.get('/member/my-level'),
+  getSiteAccess: () => api.get('/member/site-access'),
   changePassword: (data) => api.put('/member/change-password', data),
   getMembershipSettings: () => api.get('/public/membership-settings'),
   getProfileActivities: () => api.get('/member/profile-activities'),

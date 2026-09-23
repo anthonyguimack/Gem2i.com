@@ -47,6 +47,7 @@ async def insert_member_with_retry(new_member, retries=5):
     by re-allocating membership_number/membership_id. Mutates `new_member` in place
     so callers read the final number/id off the dict; returns the stored number."""
     from pymongo.errors import DuplicateKeyError
+    await apply_member_defaults(new_member)
     for attempt in range(retries):
         try:
             await db.members.insert_one(new_member)
@@ -58,6 +59,32 @@ async def insert_member_with_retry(new_member, retries=5):
             n = await get_next_membership_number()
             new_member["membership_number"] = n
             new_member["membership_id"] = await format_membership_id(n)
+
+async def get_default_level_id():
+    """Lowest-order member level (Nivel 0) — the baseline every new active member starts on."""
+    lowest = await db.member_levels.find_one({}, {"_id": 0, "id": 1}, sort=[("order", 1)])
+    return lowest["id"] if lowest else None
+
+async def get_default_member_type_id():
+    """Default member type: the one named 'Simple' (case/whitespace-insensitive). Returns ''
+    when the brand has no such type (gem2i keeps its legacy types), leaving the member untyped."""
+    mt = await db.member_types.find_one(
+        {"name": {"$regex": r"^\s*simple\s*$", "$options": "i"}}, {"_id": 0, "id": 1})
+    return mt["id"] if mt else ""
+
+async def apply_member_defaults(new_member: dict):
+    """Baseline for every registration path (self-register, admin create, OAuth, enrollment):
+    account active + lowest level + default type, only where not given explicitly.
+    pre_registered leads are skipped (they get it when upgraded)."""
+    status = new_member.get("account_status") or "active"
+    if status == "pre_registered":
+        return
+    if not new_member.get("account_status"):
+        new_member["account_status"] = "active"
+    if not new_member.get("level_id"):
+        new_member["level_id"] = await get_default_level_id()
+    if not new_member.get("member_type_id"):
+        new_member["member_type_id"] = await get_default_member_type_id()
 
 async def record_login_event(member: dict, source: str = "gem2i"):
     """Record one My Account login: `last_login` + a `member_logins` row. Shared by
@@ -99,6 +126,13 @@ async def get_current_member(request: Request) -> dict:
             mroles = member.get("cms_roles") or []
             if "role_member" not in mroles:
                 raise HTTPException(status_code=403, detail="My Account access has been revoked")
+        # Membership LEVELS are enforced on the server too, not only in the browser menu.
+        # Single choke point: every My Account API depends on this function. Inert unless
+        # settings.level_enforcement_mode is shadow/enforce AND membership_v2_enabled is on.
+        from utils.level_access import check as _level_check
+        if not await _level_check(db, member, request.url.path):
+            raise HTTPException(status_code=403,
+                                detail="This section is not included in your membership level.")
         return member
     except pyjwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
@@ -144,11 +178,9 @@ async def member_me(member: dict = Depends(get_current_member)):
             result["_member_type"] = {
                 "name": mt.get("name", ""),
                 "allowed_pages": mt.get("allowed_pages", []),
-                "permissions": {k: mt.get(k, False) for k in (
-                    "corporate", "is_mentor", "portfolio_development", "application_reviewer",
-                    "opportunities_development", "opportunities_reviewer", "project_development",
-                    "project_reviewer", "project_management", "content_operator",
-                )}
+                # Real capabilities of the type (governance): is_mentor / is_author / is_mastermind.
+                "permissions": {k: bool(mt.get(k)) for k in
+                                ("is_mentor", "is_author", "is_mastermind")}
             }
     return result
 
@@ -265,6 +297,11 @@ async def upgrade_pre_registered(existing: dict, *, password_hash: str,
     if not existing.get("sponsor_id") and sponsor_id:
         upd["sponsor_id"] = sponsor_id
         upd["sponsor_membership_number"] = sponsor_membership_number
+    # A lead becoming a full active member gets the same baseline as a direct signup.
+    if not (existing.get("level_id") or upd.get("level_id")):
+        upd["level_id"] = await get_default_level_id()
+    if not (existing.get("member_type_id") or upd.get("member_type_id")):
+        upd["member_type_id"] = await get_default_member_type_id()
     await db.members.update_one({"member_id": existing["member_id"]}, {"$set": upd})
     return await db.members.find_one({"member_id": existing["member_id"]}, {"_id": 0})
 
@@ -1100,14 +1137,56 @@ async def admin_delete_city(city_id: str, user: dict = Depends(require_admin)):
 async def admin_list_levels(user: dict = Depends(require_admin)):
     return await db.member_levels.find({}, {"_id": 0}).sort("order", 1).to_list(100)
 
+@router.get("/admin/member-levels-enforcement")
+async def admin_level_enforcement_report(user: dict = Depends(require_admin)):
+    """Shadow-mode report: what WOULD have been denied if levels were enforced."""
+    from utils.level_access import MYACCOUNT_SECTIONS, LEVEL_EXEMPT
+    settings = await db.settings.find_one({}, {"_id": 0, "level_enforcement_mode": 1,
+                                               "membership_v2_enabled": 1}) or {}
+    rows = await db.level_enforcement_log.find({}, {"_id": 0}).sort("last_seen", -1).to_list(500)
+    by_section: dict = {}
+    for r in rows:
+        s = by_section.setdefault(r["section"], {"section": r["section"], "members": set(), "hits": 0})
+        s["members"].add(r.get("membership_number"))
+        s["hits"] += r.get("hits", 0)
+    return {
+        "mode": (settings.get("level_enforcement_mode") or "off"),
+        "membership_v2_enabled": bool(settings.get("membership_v2_enabled")),
+        "sections_registered": [k for k, _ in MYACCOUNT_SECTIONS],
+        "sections_exempt": sorted(LEVEL_EXEMPT),
+        "summary": sorted(
+            ({"section": v["section"], "distinct_members": len(v["members"]), "hits": v["hits"]}
+             for v in by_section.values()),
+            key=lambda x: -x["hits"]),
+        "rows": rows,
+    }
+
+
+@router.get("/admin/member-levels-products")
+async def admin_product_catalog(user: dict = Depends(require_admin)):
+    """Product catalog for the level editor (route under `member-levels` so the CMS
+    permission section that covers it is `member_levels`)."""
+    from utils.product_access import PRODUCT_CATALOG
+    return {"products": PRODUCT_CATALOG}
+
+@router.get("/admin/member-levels-site-pages")
+async def admin_site_page_catalog(user: dict = Depends(require_admin)):
+    """Gateable site-page catalog for the level editor (same `member_levels` section)."""
+    from utils.site_pages import SITE_PAGE_CATALOG
+    return {"site_pages": SITE_PAGE_CATALOG}
+
 @router.post("/admin/member-levels")
 async def admin_create_level(request: Request, user: dict = Depends(require_admin)):
     body = await request.json()
+    from utils.product_access import PRODUCT_KEYS
+    from utils.site_pages import SITE_PAGE_KEYS
     level = {
         "id": str(uuid.uuid4()),
         "name": body.get("name", ""),
         "permissions": body.get("permissions", []),
         "quick_link_permissions": body.get("quick_link_permissions", []),
+        "products": [p for p in (body.get("products") or []) if p in PRODUCT_KEYS],
+        "site_pages": [p for p in (body.get("site_pages") or []) if p in SITE_PAGE_KEYS],
         "order": body.get("order", 0),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -1118,6 +1197,12 @@ async def admin_create_level(request: Request, user: dict = Depends(require_admi
 async def admin_update_level(level_id: str, request: Request, user: dict = Depends(require_admin)):
     body = await request.json()
     body.pop("_id", None)
+    if "products" in body:
+        from utils.product_access import PRODUCT_KEYS
+        body["products"] = [p for p in (body.get("products") or []) if p in PRODUCT_KEYS]
+    if "site_pages" in body:
+        from utils.site_pages import SITE_PAGE_KEYS
+        body["site_pages"] = [p for p in (body.get("site_pages") or []) if p in SITE_PAGE_KEYS]
     body["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.member_levels.update_one({"id": level_id}, {"$set": body})
     return await db.member_levels.find_one({"id": level_id}, {"_id": 0})
@@ -1134,6 +1219,13 @@ async def get_my_level(member: dict = Depends(get_current_member)):
         return None
     level = await db.member_levels.find_one({"id": level_id}, {"_id": 0})
     return level
+
+
+@router.get("/member/site-access")
+async def get_my_site_access(member: dict = Depends(get_current_member)):
+    """Which gateable site pages this member may view: {enabled, gated, allowed}."""
+    from utils.site_pages import member_page_access
+    return await member_page_access(db, member)
 
 
 # ---- Change Password ----
@@ -1356,6 +1448,17 @@ async def get_myaccount_links(request: Request):
                 member = None
         return member
 
+    from utils.product_access import membership_v2_enabled, products_for_member, link_product_key
+    if await membership_v2_enabled(db):
+        # Governance by LEVEL: a product link is served only when the member's level grants
+        # it; a link with no product (Home, Backend, ...) is always served.
+        if any(link_product_key(l) for l in links):
+            unlocked = await products_for_member(db, await _member())
+            links = [l for l in links
+                     if (link_product_key(l) or "") in unlocked or not link_product_key(l)]
+        return links
+
+    # Legacy behaviour (flag off).
     if any(l.get("pms_role_required") for l in links):
         from utils.pms_roles import pms_role_for
         if pms_role_for(await _member()) is None:

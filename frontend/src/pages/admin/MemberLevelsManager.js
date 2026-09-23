@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { Plus, Edit2, Trash2, Loader2, Shield, Link2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, Shield, Link2, Lock } from 'lucide-react';
 
 const SIDEBAR_SECTIONS = [
   { id: 'membership-profile', label: 'Membership Profile' },
@@ -20,6 +20,7 @@ const SIDEBAR_SECTIONS = [
   { id: 'bundles', label: 'Session Bundles' },
   { id: 'my-bookings', label: 'My Reservations' },
   { id: 'calendar-sync', label: 'Calendar Sync' },
+  { id: 'points', label: 'Points & Rewards' },
 ];
 
 export default function MemberLevelsManager() {
@@ -29,9 +30,12 @@ export default function MemberLevelsManager() {
   const [loading, setLoading] = useState(false);
   const [quickLinks, setQuickLinks] = useState([]);
   const [navLabels, setNavLabels] = useState({}); // {id -> CMS-renamed label}
+  // Catálogo de páginas del sitio gateables por nivel (Companies/Opportunities…).
+  const [sitePages, setSitePages] = useState([]);
 
   const load = () => {
     adminAPI.getLevels().then(r => setLevels(r.data)).catch(console.error);
+    adminAPI.getSitePageCatalog().then(r => setSitePages(r.data?.site_pages || [])).catch(() => {});
     adminAPI.getMyAccountLinks().then(r => setQuickLinks(r.data || [])).catch(() => {});
     adminAPI.getMyAccountNav().then(r => {
       const map = {};
@@ -67,6 +71,16 @@ export default function MemberLevelsManager() {
       if (idx >= 0) perms.splice(idx, 1);
       else perms.push(perm);
       return { ...prev, permissions: perms };
+    });
+  };
+
+  const toggleSitePage = (key) => {
+    setEditing(prev => {
+      const list = [...(prev.site_pages || [])];
+      const idx = list.indexOf(key);
+      if (idx >= 0) list.splice(idx, 1);
+      else list.push(key);
+      return { ...prev, site_pages: list };
     });
   };
 
@@ -113,6 +127,14 @@ export default function MemberLevelsManager() {
                   })}
                 </div>
               )}
+              {(level.site_pages || []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {(level.site_pages || []).map(key => {
+                    const sp = sitePages.find(s => s.key === key);
+                    return <span key={key} className="text-xs bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded flex items-center gap-1"><Lock className="w-3 h-3" />{sp?.label || key}</span>;
+                  })}
+                </div>
+              )}
             </div>
             <div className="flex gap-1">
               <button onClick={() => { setEditing({...level}); setOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0D9488]"><Edit2 className="w-4 h-4" /></button>
@@ -141,9 +163,33 @@ export default function MemberLevelsManager() {
                   ))}
                 </div>
               </div>
+              {sitePages.length > 0 && (
+                <div>
+                  <Label className="text-xs mb-1 block">Site pages unlocked by this level</Label>
+                  <p className="text-xs text-slate-400 mb-3">
+                    A page becomes members-restricted the moment ANY level lists it here. Levels
+                    that don't list it lose access; a page no level lists stays open to all members.
+                    Admins always see every page.
+                  </p>
+                  <div className="space-y-2">
+                    {sitePages.map(p => (
+                      <label key={p.key} className="flex items-center gap-2 p-2 rounded hover:bg-slate-50 cursor-pointer" data-testid={`site-page-${p.key}`}>
+                        <input type="checkbox" checked={(editing.site_pages || []).includes(p.key)} onChange={() => toggleSitePage(p.key)} className="accent-[#0891b2] w-4 h-4" />
+                        <span className="text-sm text-slate-700">{p.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
               {quickLinks.length > 0 && (
                 <div>
-                  <Label className="text-xs mb-3 block">Permissions (My Account — Quick Links)</Label>
+                  <Label className="text-xs mb-1 block">Permissions (My Account — Quick Links)</Label>
+                  <p className="text-xs text-slate-400 mb-3">
+                    Check the links this level can see in My Account. A product link (KMS, LMS,
+                    News…) grants access to that product — the SSO signs the member in. This is the
+                    single control: define each link once in “My Account Quick Links”, then enable
+                    it per level here.
+                  </p>
                   <div className="space-y-2">
                     {quickLinks.map(ql => (
                       <label key={ql.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-50 cursor-pointer" data-testid={`ql-perm-${ql.id}`}>

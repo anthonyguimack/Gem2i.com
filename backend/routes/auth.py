@@ -85,11 +85,9 @@ async def auth_me(request: Request):
             result["_member_type"] = {
                 "name": mt.get("name", ""),
                 "allowed_pages": mt.get("allowed_pages", []),
-                "permissions": {k: mt.get(k, False) for k in (
-                    "corporate", "is_mentor", "portfolio_development", "application_reviewer",
-                    "opportunities_development", "opportunities_reviewer", "project_development",
-                    "project_reviewer", "project_management", "content_operator",
-                )}
+                # Real capabilities of the type (governance): is_mentor / is_author / is_mastermind.
+                "permissions": {k: bool(mt.get(k)) for k in
+                                ("is_mentor", "is_author", "is_mastermind")}
             }
     return result
 

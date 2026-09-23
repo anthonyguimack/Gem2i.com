@@ -24,9 +24,9 @@ const ALL_NAV_ITEMS = [
   { id: 'bundles', label: 'Session Bundles', icon: Package, href: '/my-account/bundles' },
   { id: 'my-bookings', label: 'My Reservations', icon: BookOpen, href: '/my-account/my-bookings' },
   { id: 'calendar-sync', label: 'Calendar Sync', icon: Rss, href: '/my-account/calendar-sync' },
-  // alwaysAllowed: platform-wide gamification — visible to every member regardless
-  // of level perms (levels predate this id); CMS nav-visibility override still wins.
-  { id: 'points', label: 'Points & Rewards', icon: Trophy, href: '/my-account/points', alwaysAllowed: true },
+  // Points is level-gated like every other section: it shows only when the member's
+  // level lists 'points' in CMS → Member Levels. Admins always see it.
+  { id: 'points', label: 'Points & Rewards', icon: Trophy, href: '/my-account/points' },
 ];
 
 const ROUTE_TO_PERM = {
@@ -140,9 +140,9 @@ export default function MyAccountLayout() {
       const navOverride = navOrderState?.items?.find(n => n.id === requiredPerm);
       if (navOverride && navOverride.visible === false) return false;
       const navDef = ALL_NAV_ITEMS.find(i => i.id === requiredPerm);
-      if (!navDef?.alwaysAllowed && !levelPerms.includes(requiredPerm)) return false;
-      // Mentor-only sections (earnings, my calendar) additionally require mentor flag
-      if (navDef?.mentorOnly && !isMentor) return false;
+      // Mentor-only sections are governed by the Mentor TYPE, not by the level.
+      if (navDef?.mentorOnly) { if (!isMentor) return false; }
+      else if (!navDef?.alwaysAllowed && !levelPerms.includes(requiredPerm)) return false;
     }
     return true;
   })();
@@ -185,10 +185,11 @@ export default function MyAccountLayout() {
   const tt = useT();
   const brandName = tt(settings.brand_name) || '';
   const navItems = levelPerms !== null ? ALL_NAV_ITEMS.filter(item => {
-    if (item.mentorOnly && !isMentor) return false;
     // Global-visibility override from CMS "My Account Navigation" (if present)
     const navOverride = navOrderState?.items?.find(n => n.id === item.id);
     if (navOverride && navOverride.visible === false) return false;
+    // Mentor sections: governed by the Mentor TYPE, not by the level.
+    if (item.mentorOnly) return isMentor;
     return item.alwaysAllowed || levelPerms.includes(item.id);
   }) : [];
   // Apply CMS-managed ordering if available, else keep source order.
