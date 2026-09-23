@@ -2,6 +2,22 @@
 
 ---
 
+## 2026-09-23 (session 6, Carlos's machine) — PORT FROM CARLOS: plan executed 1.A → 1.H, all DEPLOYED
+
+**`work-plans-MD/PORT_FROM_CARLOS_PLAN.md` run end-to-end** from Carlos AUX-1.0 @ `8a0d4dd` (read-only). 70 modules: **19 done · 31 waiting on a human · 14 skipped · 6 identical.** Per-module log in plan §8; human items H1–H17 in "PENDIENTES PARA HUMANO". Method: Carlos tree extracted to a temp dir + file-by-file compare (324 same / 73 diff / 443 Carlos-only); every diff read and split into generic hunks (ported) vs hunks bound to KMS/MMS/governance/brand themes (left out).
+
+**Shipped (5 deploys, all GREEN, verified /api/health, /, /festivals, new pages, 401 gates, backend log clean):**
+- Lote 1 (#21/#22): Invite Code + QR and My Community pages re-added (backend already existed); gem2i `--ma-*` colours, EN/ES, loading/error/empty states; **privacy option (b)**: downline modal hides email/phone/DOB/gender/ZIP.
+- 1.A core: `is_admin()` (bootstrap `role:"admin"` OR CMS role `role_admin`) in all backend gates + `lib/isAdmin.js`; **atomic `membership_number` counter** (`counters` doc) + `insert_member_with_retry`; **login history now recorded on `/auth/login`** (My Account's real login path — it was only in the unused `/member/login`, so no member logins were being recorded); MembersManager uses `settings.aux_prefix` (showed `AUX-n` sponsors); role-label reconciler; hero CTA actions (`lib/ctaActions`, Login → `gem2i:open-login` event); Waiting List operator/subscriber emails + Operator Notifications settings; Captcha `theme` prop.
+- 1.B membership: **`routes/enrollment.py` restored** (the public `/membership-enrollment` page had no backend since the strip) + EnrollmentFieldsManager; profile field visibility (`hidden_fields`); My Account layout paints once data is ready + own Suspense + sliding highlight; `utils/membership_prefix.py` (prefix change realigns IDs); **`Gem2iWaitingListModal`** (gem2i-styled, opens on `#waiting-list` links / `gem2i:open-waitlist`; only demands captcha when enabled); default member/sponsor images.
+- ⚠ **R12 incident, fixed same session:** Carlos' enrollment seed (finance questionnaire + "ACGMP Privacy Policy") surfaced publicly. `DEFAULT_FIELDS` rewritten to 19 neutral fields; the 50 rows my deploy had seeded minutes earlier were exported to `/opt/_port_backups/enrollment_fields_carlos_seed_20260923.json` and deleted; neutral set re-seeded.
+- 1.D: ImageAdjust (crop/stretch/original) via opt-in `adjust` on 13 CMS upload sites; neutral enrollment step labels.
+- 1.C/1.E/1.F/1.G/1.H: no code — all points/mentoring/KMS/News/Mail/sister products/brand themes need human decisions (they contradict D-GEM-2026-02 / D8, need credentials/infra, or clash with gem2i's points ledger R2).
+
+**Read-only box facts gathered:** `settings.site_url` unset (QR 400 until set — H1) · 0 duplicate membership numbers/IDs, no unique index yet (H5) · no member has `level_id` (all see every My Account item) · `myaccount_nav` still lists Carlos-only items (H4).
+
+**Commits:** d314981 (lote 1) · a4aff07 (1.A) · 7f5fad3 (1.B) · cff91d1 (enrollment R12 fix) · 509101c (1.D) + FINISH.
+
 ## 2026-07-17 (session 5 continued, Anthony's machine) — PHASE 4/5 HISTORICAL-DATA ETL LOADED (data-only, no deploy)
 
 **All legacy per-event commerce config + the full transaction/points history are now in Mongo.** New two-stage ETL: `scripts/gem2i_etl_history.py` (local) + `scripts/gem2i_load_history.py` (box, idempotent).

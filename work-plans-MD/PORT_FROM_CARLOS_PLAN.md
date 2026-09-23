@@ -2,14 +2,25 @@
 
 ```
 CLAIMED BY : Carlos M. Artiles
-STATUS     : LOTE 1 = #21 Invite Code + QR y #22 My Community — PORTADO EN LOCAL (commit, sin
-             push ni deploy). Aprobado 2026-09-23 con privacidad opción (b). Copia §3.2 @8a0d4dd ✔ ·
-             fusión App.js ✔ · adaptación --ma-* + EN/ES + estados carga/error/vacío ✔ · build ✔.
-             Siguiente paso exacto: DEPLOY → poner Site URL en CMS → activar can_create_qr a quien
-             toque → e2e §3.3/§3.4 (checklist ítem 24).
+STATUS     : ✅ PLAN RECORRIDO COMPLETO 1.A → 1.H (2026-09-23). 70 módulos: 19 hechos · 31 esperando
+             humano · 14 saltados · 6 idénticos. Todo lo hecho está DESPLEGADO en beta.gem2i.com y
+             verificado (4 deploys GREEN + 1 de corrección). Detalle por módulo en §8; decisiones y
+             config pendientes en "PENDIENTES PARA HUMANO" (H1–H17).
+             Siguiente paso exacto: Anthony/Carlos revisan H1–H17; lo inmediato es config de CMS
+             (H1 Site URL + SMTP, H6 Operator Email, H11 paleta Enrollment, H4 paleta My Account)
+             y la prueba e2e H3.
 LAST SYNC  : 2026-09-23 · Carlos HEAD 8a0d4dd (= origin/main; vs 6d47d6f solo stamps+memory,
              sin código → §2.3 sigue válida) · Gem2i HEAD 0e1357e (= origin/main)
 ```
+
+### Resultado final (2026-09-23)
+
+| Estado | Módulos (nº §1) | Motivo resumido |
+|---|---|---|
+| ✅ **Hecho** (19) | 1 Auth · 2 Miembros · 3 Roles · 4 Admin por rol · 6 Hero CTA · 11 Landing/Waiting List · 13 Email templates · 14 Captcha · 15 Settings · 20 Enrollment · 21 Invite Code · 22 My Community · 23 My Sponsor · 24 Perfil (campos ocultables) · 25 My Account layout · 27 Prefijo dinámico · 31 Lead capture · 46 ImageAdjust · 47 Imágenes por defecto | Portado solo lo genérico; 1–3, 13, 15 y 25 parciales (lo atado a KMS/MMS/gobernanza/temas quedó fuera). **Bugs reales de Gem2i arreglados de paso:** logins de miembros no se registraban (1); números de membresía podían duplicarse (2); `/membership-enrollment` sin backend (20); sponsor mostrado como "AUX-n" (2) |
+| ⏳ **Esperando humano** (31) | 26 · 29 · 30 · 32–38 · 40–42 · 44 · 45 · 48–52 · 54 · 55 · 57–61 · 62 · 63 · 66 · 69 | Contradicen decisiones registradas (strip D-GEM-2026-02, marca D8), necesitan credenciales/subdominios/infra, chocan con el libro de puntos de Gem2i (R2) o dependen de módulos no migrados (R14). Ver H7–H17 |
+| ⏭ **Saltado** (14) | 5 · 7 · 8 · 9 · 10 · 16 · 18 · 19 · 28 · 39 · 43 · 64 · 68 · 70 | No aportan a Gem2i: el diff de Carlos es de sus temas (PB/Aurex/PCP), de My Account 2.0, del KMS, o de cosas que Gem2i no muestra |
+| = **Idéntico** (6) | 12 · 17 · 53 · 56 · 65 · 67 | Ya igual en ambos repos |
 
 > **Plan portable.** Todas las rutas están escritas **relativas a la raíz de cada repo**:
 > - `<CARLOS>` = raíz del repo **AUX-1.0-aurexnetwork-complete** (proyecto madre)
@@ -37,21 +48,21 @@ LAST SYNC  : 2026-09-23 · Carlos HEAD 8a0d4dd (= origin/main; vs 6d47d6f solo s
 
 | Sel. | Módulo | Descripción | Ubicación en Carlos | En Gem2i |
 |---|---|---|---|---|
-| [ ] | Auth / Admin login | Login JWT del CMS, Google OAuth, usuarios admin | `backend/routes/auth.py`, `backend/models/database.py`, `frontend/src/pages/admin/AdminLoginPage.js`, `UsersManager.js`, `lib/auth.js` | Sí (modificado: `verify_password` endurecido, login case-insensitive) |
-| [ ] | Miembros (CRUD admin) | Gestión de miembros, niveles, tipos, logins, firmas | `backend/routes/membership.py`, `admin_tools.py`; `pages/admin/MembersManager.js`, `MemberLevelsManager.js`, `MemberTypesManager.js`, `MemberLogins.js`, `MemberSignatures.js` | Sí (versión 15-jul) |
-| [ ] | Roles & permisos CMS | Roles del sistema (`role_admin`, `role_author`…) + permisos por sección | `backend/routes/roles.py`, `backend/models/cms_sections.py`, `pages/admin/RolesManager.js`, `Forbidden.js` | Sí (Gem2i modificó `cms_sections.py`) |
-| [ ] | Admin por rol (`is_admin`) | Un 2º admin se crea asignando el rol Administrator (sin tocar DB) | `backend/models/database.py::is_admin`, `backend/utils/product_access.py` | **No** (Gem2i solo acepta `role=="admin"`) |
+| [x] | Auth / Admin login | Login JWT del CMS, Google OAuth, usuarios admin | `backend/routes/auth.py`, `backend/models/database.py`, `frontend/src/pages/admin/AdminLoginPage.js`, `UsersManager.js`, `lib/auth.js` | Sí (modificado: `verify_password` endurecido, login case-insensitive) |
+| [x] | Miembros (CRUD admin) | Gestión de miembros, niveles, tipos, logins, firmas | `backend/routes/membership.py`, `admin_tools.py`; `pages/admin/MembersManager.js`, `MemberLevelsManager.js`, `MemberTypesManager.js`, `MemberLogins.js`, `MemberSignatures.js` | Sí (versión 15-jul) |
+| [x] | Roles & permisos CMS | Roles del sistema (`role_admin`, `role_author`…) + permisos por sección | `backend/routes/roles.py`, `backend/models/cms_sections.py`, `pages/admin/RolesManager.js`, `Forbidden.js` | Sí (Gem2i modificó `cms_sections.py`) |
+| [x] | Admin por rol (`is_admin`) | Un 2º admin se crea asignando el rol Administrator (sin tocar DB) | `backend/models/database.py::is_admin`, `backend/utils/product_access.py` | **No** (Gem2i solo acepta `role=="admin"`) |
 | [ ] | Hero canvas + A/B | Slides del hero con coordenadas 700×300, editor visual, test A/B | `routes/hero_ab.py`; `components/HeroSection.js`, `HeroCanvasEditor.js`; `pages/admin/HeroManager.js`, `HeroSlideForm.js`, `HeroAbAnalytics.js`; `lib/heroCoords.js` | Sí (HeroSection muy modificado por Gem2i) |
-| [ ] | Hero CTA por Acción | CTA del hero con acción Url/Login/Waitlist | `frontend/src/lib/ctaActions.js`, `HeroSlideForm.js` | **No** |
+| [x] | Hero CTA por Acción | CTA del hero con acción Url/Login/Waitlist | `frontend/src/lib/ctaActions.js`, `HeroSlideForm.js` | **No** |
 | [ ] | Page Builder / páginas dinámicas | Páginas con bloques y layouts | `components/admin/PageBuilder.js`, `BlockConfigModal.js`, `components/layouts/*`, `pages/DynamicPage.js`, `pages/admin/PagesManager.js`, `lib/layoutDefinitions.js` | Sí |
 | [ ] | Section Order | Orden y visibilidad de secciones del home | `pages/admin/SectionOrderManager.js` | Sí |
 | [ ] | Contenidos básicos | About, Services, Testimonials, Portfolio, Gallery, Blog, Books | `routes/admin_content.py`, `routes/public.py`; `pages/admin/{About,Services,Testimonials,Portfolio,Gallery,GalleryAlbums,Blog,Books}Manager.js` | Sí (versión 15-jul) |
 | [ ] | Geo + Mapas | Países/estados/ciudades + páginas de mapa | `populate_geo.py`, `pages/admin/GeoManager.js`, `MapsManager.js`, `pages/MapDetailPage.js`, `lib/mapConfig.js` | Sí |
-| [ ] | Landing page + suscriptores | Landing con hero propio, contactos y waiting list | `routes/landing.py`; `pages/LandingPage.js`; `pages/admin/Landing*Manager.js` | Sí |
+| [x] | Landing page + suscriptores | Landing con hero propio, contactos y waiting list | `routes/landing.py`; `pages/LandingPage.js`; `pages/admin/Landing*Manager.js` | Sí |
 | [ ] | Contacto | Formulario de contacto + ajustes | `pages/admin/ContactsManager.js`, `ContactSettingsManager.js` | Sí |
-| [ ] | Email templates + SMTP | Plantillas transaccionales editables | `routes/email_templates.py`, `models/email_templates.py`, `utils/email_render.py`, `pages/admin/EmailManagement.js` | Sí (Gem2i modificó `models/email_templates.py`) |
-| [ ] | Captcha | reCAPTCHA en formularios públicos | `routes/captcha.py`, `utils/captcha.py`, `components/CaptchaWidget.js` | Sí |
-| [ ] | SEO / Settings / Backup / Analytics | Ajustes globales, SEO, respaldo de DB, analytics | `pages/admin/SettingsManager.js`, `SeoManager.js`, `BackupManager.js`, `AnalyticsDashboard.js`, `utils/runtime_config.py` | Sí |
+| [x] | Email templates + SMTP | Plantillas transaccionales editables | `routes/email_templates.py`, `models/email_templates.py`, `utils/email_render.py`, `pages/admin/EmailManagement.js` | Sí (Gem2i modificó `models/email_templates.py`) |
+| [x] | Captcha | reCAPTCHA en formularios públicos | `routes/captcha.py`, `utils/captcha.py`, `components/CaptchaWidget.js` | Sí |
+| [x] | SEO / Settings / Backup / Analytics | Ajustes globales, SEO, respaldo de DB, analytics | `pages/admin/SettingsManager.js`, `SeoManager.js`, `BackupManager.js`, `AnalyticsDashboard.js`, `utils/runtime_config.py` | Sí |
 | [ ] | Stripe / Checkout / Compras | Pagos Stripe con llaves en CMS, compras | `routes/payments.py`, `utils/stripe_helpers.py`, `pages/CheckoutSuccess.js`, `pages/admin/PurchasesManager.js` | Sí (lo usa `gem_tickets`) |
 | [ ] | i18n EN/ES | `useT()`, textos localizados | `lib/i18n.js`, `components/LanguageSwitcher.js`, `components/admin/LocalizedField.js` | Sí |
 | [ ] | Personalidades (mini-sitios) | Business/Lifestyle/Personal por ruta + pestañas por personalidad | `utils/personality.py`, `lib/pbPersonality.js`, `components/admin/PersonalityTabs.js` | Sí (parcial) |
@@ -61,18 +72,18 @@ LAST SYNC  : 2026-09-23 · Carlos HEAD 8a0d4dd (= origin/main; vs 6d47d6f solo s
 | Sel. | Módulo | Descripción | Ubicación en Carlos | En Gem2i |
 |---|---|---|---|---|
 | [ ] | Registro / login de miembro | Registro con invite code, login, olvido/reset de contraseña | `pages/myaccount/Member{Register,Login,ForgotPassword,ResetPassword}.js`, `lib/memberAuth.js`, `components/LoginModal.js` | Sí (**muy re-estilizado por Gem2i**) |
-| [ ] | Enrollment wizard | Alta en 4 pasos configurable desde CMS | `backend/routes/enrollment.py`, `pages/MembershipEnrollment.js`, `pages/admin/EnrollmentFieldsManager.js` | Página sí; **`enrollment.py` y su manager NO** |
+| [x] | Enrollment wizard | Alta en 4 pasos configurable desde CMS | `backend/routes/enrollment.py`, `pages/MembershipEnrollment.js`, `pages/admin/EnrollmentFieldsManager.js` | Página sí; **`enrollment.py` y su manager NO** |
 | [x] | Invite Code + QR | Generar códigos únicos, enviar invitación, QR de negocio | `pages/myaccount/InviteCode.js`, `routes/membership.py` | **No** (la página) |
 | [x] | My Community | Árbol de downline, contadores, perfil del miembro | `pages/myaccount/MyCommunity.js`, `components/TreeNode.js` | **No** (la página; `TreeNode` sí) |
-| [ ] | My Sponsor | Datos del patrocinador | `pages/myaccount/MySponsor.js` | Sí |
-| [ ] | Perfil de membresía + biografía | Perfil, campos ocultables (ojo), biografía | `pages/myaccount/MembershipProfile.js`, `UpdateBiography.js` | Sí (versión 15-jul, sin campos ocultables) |
-| [ ] | My Account layout + navegación | Shell de My Account, menú configurable, Quick Links con SSO | `pages/myaccount/MyAccountLayout.js`, `pages/admin/MyAccountNavManager.js`, `QuickLinksManager.js`, `lib/myAccountBase.js`, `lib/myAccountThemes.js`, `lib/ssoNav.js` | Parcial (sin SSO/temas) |
+| [x] | My Sponsor | Datos del patrocinador | `pages/myaccount/MySponsor.js` | Sí |
+| [x] | Perfil de membresía + biografía | Perfil, campos ocultables (ojo), biografía | `pages/myaccount/MembershipProfile.js`, `UpdateBiography.js` | Sí (versión 15-jul, sin campos ocultables) |
+| [x] | My Account layout + navegación | Shell de My Account, menú configurable, Quick Links con SSO | `pages/myaccount/MyAccountLayout.js`, `pages/admin/MyAccountNavManager.js`, `QuickLinksManager.js`, `lib/myAccountBase.js`, `lib/myAccountThemes.js`, `lib/ssoNav.js` | Parcial (sin SSO/temas) |
 | [ ] | My Account 2.0 (Velzon) | Clon de My Account con piel Velzon (admin-only) | `pages/myaccount2/*` (incl. `velzon-theme.css`, `ma2Theme.js`) | **No** |
-| [ ] | Prefijo de membresía dinámico | `settings.aux_prefix` por instancia (`GEM-n`) | `utils/membership_prefix.py`, `scripts/rename_membership_prefix.py` | Parcial (Gem2i ya usa `GEM`, sin el util) |
+| [x] | Prefijo de membresía dinámico | `settings.aux_prefix` por instancia (`GEM-n`) | `utils/membership_prefix.py`, `scripts/rename_membership_prefix.py` | Parcial (Gem2i ya usa `GEM`, sin el util) |
 | [ ] | Prefijo de referido | Sufijo `/<prefix>-<N>` en links compartidos | `backend/utils/referral.py` | **No** |
 | [ ] | Gobernanza NIVEL/TIPO/ROL | Acceso por nivel, capacidades por miembro, páginas por nivel | `utils/level_access.py`, `utils/member_capabilities.py`, `utils/site_pages.py`, `lib/sitePages.js`, `scripts/seed_governance_v2.py` | **No** |
 | [ ] | Puerta única de productos | Acceso a productos por nivel vía Quick Links | `utils/product_access.py` | **No** |
-| [ ] | Lead capture | Modal de suscripción → pre-registro bajo sponsor | `utils/leadcapture.py`, `components/WaitingListModal.js`, `lib/viaCapture.js`, `components/InvitedByBanner.js` | util sí; **componentes no** |
+| [x] | Lead capture | Modal de suscripción → pre-registro bajo sponsor | `utils/leadcapture.py`, `components/WaitingListModal.js`, `lib/viaCapture.js`, `components/InvitedByBanner.js` | util sí; **componentes no** |
 
 ### 1.C Puntos, comercio y mentoría
 
@@ -97,8 +108,8 @@ LAST SYNC  : 2026-09-23 · Carlos HEAD 8a0d4dd (= origin/main; vs 6d47d6f solo s
 | [ ] | Featured Projects / Conferences / Recommended sites | Páginas públicas de listado | `pages/FeaturedProjectsPage.js` (+ rutas en `App.js`) | **No** |
 | [ ] | Documentación (admin) | Manuales en `/admin/documentation` (Onboarding, Skills & Commands, Logos) | `routes/docs.py`, `routes/docs_assets/`, `pages/admin/DocumentationManager.js` | **No** |
 | [ ] | Reports / Analytics dashboard | Reportes admin (overview) | `routes/reports.py`, `components/reports/ReportsDashboard.js`, `components/charts/ActivityChart.js`, `pages/myaccount2/Reports.js` | **No** |
-| [ ] | ImageAdjust (cropper) | Recorte/ajuste de imagen reutilizable | `components/ImageAdjust.js` | **No** |
-| [ ] | Imágenes por defecto | Avatar/sponsor/mentor por defecto | `lib/defaultImages.js`, `frontend/public/defaults/*` | **No** |
+| [x] | ImageAdjust (cropper) | Recorte/ajuste de imagen reutilizable | `components/ImageAdjust.js` | **No** |
+| [x] | Imágenes por defecto | Avatar/sponsor/mentor por defecto | `lib/defaultImages.js`, `frontend/public/defaults/*` | **No** |
 
 ### 1.E Herramientas servidas por el backend CMS (server-rendered)
 
@@ -521,6 +532,55 @@ Sin cambios de código en 1.C.
 | 46 | ImageAdjust (recorte) | **Hecho** | `ImageAdjust` + `ImageUpload`/`MemberImageUpload` con la opción `adjust` (apagada por defecto). Activada en 13 puntos **del CMS**: logos (modo "original" para conservar transparencia), fondo de login y del hero (16:9), avatares (1:1), foto del hero, bloques del Page Builder, portada de mapas. **No** activada en el avatar del miembro (el modal usa el teal del CMS y chocaría con My Account oscuro) |
 | 47 | Imágenes por defecto | **Hecho** (en 1.B) | — |
 
+**Deploy 1.D: GREEN 3m35s** — `/api/health`, `/`, `/festivals`, `/membership-enrollment`, `/admin/settings` = 200; el bundle servido (`main.b718fd3d.js`) ya lleva las etiquetas nuevas del enrollment y no las viejas.
+
+### Sector 1.E — Herramientas server-rendered ⏸ (nada portable sin decisión humana)
+| # | Módulo | Resultado | Motivo |
+|---|---|---|---|
+| 48 | KMS / Insights | **PENDIENTE (H15)** | Quitado a propósito en el strip (D-GEM-2026-02). Blog/biblioteca financiera de Carlos (iiReport, rankings, banners horneados); requiere subdominio, `html5lib`/`tinycss2` y reemplazar el shim `kms_sync` (R5) |
+| 49 | News | **PENDIENTE (H15)** | Strip D-GEM-2026-02; montado en `/auxnews`, prefijos `aux` (R7) |
+| 50 | Morning Brief | **PENDIENTE (H15)** | Strip; depende del KMS (R14) |
+| 51 | Prompt Management | **PENDIENTE (H15)** | Strip; necesita **API key de Claude** (credencial) + `weasyprint` y libs apt en la caja; depende de #48/#50 (R14) |
+| 52 | Mail in-CMS | **PENDIENTE (H15)** | Strip; necesita infraestructura **SES → S3** y DNS de correo (credenciales + DNS) |
+| 53 | Discord webhooks | Idéntico | `utils/discord.py` ya es igual en Gem2i |
+| 54 | Auto-post a X | **PENDIENTE (H15)** | Necesita credenciales OAuth de X y algo que publicar (#49/#50) |
+| 55 | Puente CMS→IMS/MMS | **PENDIENTE (H15)** | Depende de los productos IMS/MMS (1.F, R14); reemplazaría el shim `mms_events` (R5) |
+| 56 | Rate limit | Idéntico | — |
+
+Sin cambios de código en 1.E.
+
+### Sector 1.F — Productos hermanos ⏸ (todo requiere humano)
+| # | Producto | Resultado | Qué haría falta |
+|---|---|---|---|
+| 57 | IMS | **PENDIENTE (H16)** | Subdominio + DNS, puerto nuevo (8050 ya es de gem2i, R9), servicio systemd, vhost, certificado, script de deploy propio con guard de IP (R10), build local por la RAM de 1,9 GiB (R11). Además depende de KMS/Morning (R14) |
+| 58 | PMS | **PENDIENTE (H16)** | Mismo paquete de infraestructura (R9–R11) + reemplazar el shim `pms_roles` (R5) |
+| 59 | LMS | **PENDIENTE (H16)** | Idem + shim `lms_roles` |
+| 60 | MMS | **PENDIENTE (H16)** | Idem + shims `mms_roles`/`mms_events` + **R2** (choca con el libro de puntos de Gem2i) |
+| 61 | Journal | **PENDIENTE (H16)** | Idem (colecciones `jr_`); producto de trading, sin relación con entretenimiento |
+
+Sin cambios de código en 1.F.
+
+### Sector 1.G — Temas y secciones de marca
+| # | Módulo | Resultado | Motivo |
+|---|---|---|---|
+| 62 | Personal Brand Pro | **PENDIENTE (H17)** | Choca con D8 (Gem2i conserva su identidad) y con D-GEM-2026-02 (temas de marca retirados) |
+| 63 | Aurex sections / Private Community Pro | **PENDIENTE (H17)** | Igual que #62 |
+| 64 | Paleta por grupos de color | Saltado (no aporta) | Lo que Carlos añadió a `themeColors.js`/`index.css` son las paletas de My Account 2.0 (#26) y de la familia Aurex; la paleta de Gem2i ya funciona (grupos `website`/`my_account`/`enrollment`…) |
+| 65 | Catálogo de redes sociales | Idéntico | — |
+
+Sin cambios de código en 1.G.
+
+### Sector 1.H — Tooling y operación
+| # | Elemento | Resultado | Motivo |
+|---|---|---|---|
+| 66 | Slash-commands `/new_company`, `/get_logo_company` | **PENDIENTE (H13)** | Solo sirven para Companies (#40) |
+| 67 | Skill `aux-migrate-tech-stack` | Idéntico (ya copiada en la sesión 1) | — |
+| 68 | Scripts de deploy | Saltado (R10) | Gem2i ya tiene `deploy_beta_gem2i.ps1` con guard de IP; copiar los de Carlos apuntaría a sus cajas |
+| 69 | Banco de logos (~122 MB) | **PENDIENTE (H13)** | Solo sirve para Companies (#40) |
+| 70 | Checklist de marca | Saltado (no aporta) | Pasos para lanzar marcas AUX (carlos/aurex/acapital) en su infraestructura; Gem2i tiene su propio `DEPLOYMENT.md` |
+
+Sin cambios de código en 1.G ni 1.H.
+
 ---
 
 ## PENDIENTES PARA HUMANO
@@ -542,4 +602,7 @@ Sin cambios de código en 1.C.
 | H12 | Sector 1.C completo (#32–#38) | Decisión de producto: ¿Gem2i necesita mentoría, sesiones de pago, eBank, carteras de inversión, un calendario aparte? Todos son del mundo financiero/mentoría de Carlos, y los puntos chocan con el libro propio de Gem2i (R2) | **No portar 1.C.** Para puntos: construir la Fase 6 de Gem2i sobre `gem_points_history` (B5 share→referral + puntos por compra de ticket). Revisar #37 solo si se quiere un calendario de miembros distinto de los eventos |
 | H13 | #40 Companies · #41 Opportunities · #42 Model Portfolio · #66 slash-commands · #69 banco de logos | Revertir la decisión del strip (D-GEM-2026-02): son el directorio de inversión de Carlos, sin relación con un portal de entretenimiento | **No portar.** Si algún día Gem2i quiere un directorio (p. ej. de agencias/promotoras), construirlo sobre los catálogos `gem_*` existentes |
 | H14 | #44 Documentación · #45 Reports | Docs: decidir si Gem2i quiere manuales en el CMS (el motor sirve, el contenido de Carlos no). Reports: decidir si se quiere un panel de métricas | Docs: escribir manuales propios de Gem2i cuando el producto esté estable. Reports: construir un informe propio sobre `gem_transactions` + `member_logins` (logins ya se registran desde 1.A) |
+| H15 | Sector 1.E (#48–#52, #54, #55) | Revertir el strip (D-GEM-2026-02) y aportar credenciales/infra: API key de Claude (#51), SES+S3+DNS de correo (#52), OAuth de X (#54), subdominio para KMS (#48) | **No portar.** Son las herramientas editoriales/financieras de Carlos; ninguna está en el plan de Gem2i. Si Gem2i quiere un blog o noticias de eventos, diseñarlo sobre sus catálogos |
+| H16 | Sector 1.F (#57–#61) | Por producto: subdominio + DNS (A → 34.198.159.54), puerto libre (≥8060), systemd, vhost nginx, certificado LE, script de deploy propio, acceso a la caja | **No portar.** Ninguno está en el plan de Gem2i; si se quiere uno (p. ej. LMS para cursos de DJ), abrir un plan específico con Anthony |
+| H17 | Sector 1.G (#62, #63) | Revertir D8 / D-GEM-2026-02 (temas de marca de Carlos/Aurex) | **No portar.** Gem2i mantiene su tema oscuro propio |
 | H4 | My Account (general) | El tema `my_account` de Theme Colors sigue en los valores por defecto (dorado de Carlos) y el menú lista ítems sin página en Gem2i (ebank, portfolios, "AUX Calendar", mentoría, bundles…) | Ajustar colores en CMS → Theme Colors → My Account y ocultar esos ítems en CMS → My Account Nav |
