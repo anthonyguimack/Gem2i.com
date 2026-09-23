@@ -67,11 +67,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="in_dir", default=str(ROOT / "scripts" / "etl_out"))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--overwrite-edited", action="store_true",
+                    help="also refresh profiles edited in the new system (have updated_at)")
     args = ap.parse_args()
     in_dir = Path(args.in_dir)
 
     client = MongoClient(MONGO_URL)
     db = client[DB_NAME]
+
+    # New members start on the lowest membership level, like every registration
+    # path in the app (apply_member_defaults) — a member without a level would
+    # bypass the level gate.
+    lowest = db.member_levels.find_one({}, {"_id": 0, "id": 1}, sort=[("order", 1)])
+    default_level_id = lowest["id"] if lowest else None
 
     types = read_jsonl(in_dir, "gem_member_types")
     members = read_jsonl(in_dir, "gem_members")
@@ -105,10 +113,12 @@ def main():
     inserted = refreshed = supplemented = untouched = 0
     for m in members:
         existing = db.members.find_one({"legacy_id": m["legacy_id"]},
-                                       {"member_id": 1, "registration_source": 1})
+                                       {"member_id": 1, "registration_source": 1, "updated_at": 1})
         by_email = None if existing else db.members.find_one({"email": m["email"]}, {"member_id": 1})
         if existing is not None:
-            if existing.get("registration_source") == "gem2i_legacy":
+            if existing.get("updated_at") and not args.overwrite_edited:
+                untouched += 1  # profile edited in the new system — the member's version wins
+            elif existing.get("registration_source") == "gem2i_legacy":
                 db.members.update_one({"member_id": existing["member_id"]},
                                       {"$set": {k: m[k] for k in PROFILE_FIELDS}})
                 refreshed += 1
@@ -135,6 +145,8 @@ def main():
             doc.setdefault("mentor_id", None)
             doc.setdefault("mentor_membership_number", None)
             doc.setdefault("is_mentor", False)
+            if not doc.get("level_id") and default_level_id:
+                doc["level_id"] = default_level_id
             db.members.insert_one(doc)
             inserted += 1
     print(f"members: inserted {inserted}, refreshed {refreshed}, "

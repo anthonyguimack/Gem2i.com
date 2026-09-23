@@ -50,6 +50,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="in_dir", default=str(ROOT / "scripts" / "etl_out"))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--overwrite-edited", action="store_true",
+                    help="also re-apply sub-docs on events edited in the CMS (have updated_at)")
     args = ap.parse_args()
     in_dir = Path(args.in_dir)
 
@@ -81,17 +83,25 @@ def main():
         return
 
     # --- event sub-docs -----------------------------------------------------
-    updated = missing = 0
+    # An event edited in the CMS carries `updated_at` (the ETL never writes it): its
+    # tiers / guest list / points were set by an operator, so they are left alone.
+    updated = missing = skipped = 0
     for e in ev_hist:
         payload = {k: e[k] for k in SUBDOC_KEYS if k in e}
         if not payload:
             continue
-        res = db.gem_events.update_one({"legacy_id": e["legacy_id"]}, {"$set": payload})
+        query = {"legacy_id": e["legacy_id"]}
+        if not args.overwrite_edited:
+            if db.gem_events.find_one({**query, "updated_at": {"$exists": True}}, {"_id": 1}):
+                skipped += 1
+                continue
+        res = db.gem_events.update_one(query, {"$set": payload})
         if res.matched_count:
             updated += 1
         else:
             missing += 1
-    print(f"gem_events sub-docs applied: {updated} (no matching event: {missing})")
+    print(f"gem_events sub-docs applied: {updated} (skipped, edited in CMS: {skipped}; "
+          f"no matching event: {missing})")
 
     # --- transactions archive ----------------------------------------------
     n = 0

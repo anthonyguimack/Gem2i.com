@@ -50,16 +50,26 @@ def read_jsonl(in_dir: Path, name: str):
         return [json.loads(line) for line in f if line.strip()]
 
 
-def upsert_all(coll, docs, key="legacy_id"):
+def upsert_all(coll, docs, key="legacy_id", overwrite_edited=False):
+    """Insert new docs, refresh untouched ones. A doc carrying `updated_at` was edited
+    in the CMS (the ETL never writes that field): it is skipped unless
+    `overwrite_edited`, so a delta run before cutover never undoes operator work."""
+    written = skipped = 0
     for d in docs:
+        if not overwrite_edited and coll.find_one({key: d[key], "updated_at": {"$exists": True}}, {"_id": 1}):
+            skipped += 1
+            continue
         coll.update_one({key: d[key]}, {"$set": d}, upsert=True)
-    return len(docs)
+        written += 1
+    return written, skipped
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="in_dir", default=str(ROOT / "scripts" / "etl_out"))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--overwrite-edited", action="store_true",
+                    help="also overwrite docs edited in the CMS (have updated_at)")
     args = ap.parse_args()
     in_dir = Path(args.in_dir)
 
@@ -101,8 +111,9 @@ def main():
     for name in COLLECTIONS:
         # gem_follows has no scalar legacy_id (composite source key baked into
         # its deterministic `id`) — upsert those on `id` instead.
-        n = upsert_all(db[name], data[name], key="id" if name == "gem_follows" else "legacy_id")
-        print(f"  {name:18s} {n}")
+        n, skipped = upsert_all(db[name], data[name], key="id" if name == "gem_follows" else "legacy_id",
+                                overwrite_edited=args.overwrite_edited)
+        print(f"  {name:18s} {n} written, {skipped} skipped (edited in CMS)")
 
     # --- indexes ------------------------------------------------------------
     db.gem_artists.create_index([("slug", ASC)], unique=True)

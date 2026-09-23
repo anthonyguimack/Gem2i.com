@@ -38,4 +38,6 @@
 - Build on-box can OOM on small instances — `NODE_OPTIONS=--max_old_space_size=2048` is set.
 - **Local build EPERM (Dropbox lock) that `Remove-Item frontend\build` can't clear:** build outside Dropbox instead — `cmd /c "set BUILD_PATH=<scratch dir>&& yarn build"` from `frontend/`. The local build is only a check; the deploy builds on the box.
 - **Porting code that seeds data (lesson 2026-09-23):** check what a ported `seed_*`/`DEFAULT_*` writes BEFORE deploying — Carlos' enrollment seed put his finance questionnaire + ACG legal text on a public gem2i page (R12). Startup seeders only run on empty collections, so a bad seed persists until the rows are removed.
+- **Cutover to gem2i.com:** follow `work-plans-MD/GEM2I_CUTOVER_RUNBOOK.md`. The frontend API URL is baked at build time (`frontend/.env` on the box: `REACT_APP_BACKEND_URL`) and CORS lives in `backend/.env` (`CORS_ORIGINS`) — both must change with the domain.
+- **Re-running the ETL loaders is delta-safe since 2026-09-23:** docs with `updated_at` (edited in the CMS / by the member) are skipped unless `--overwrite-edited`.
 - No local Python venv with FastAPI on this machine: `py_compile` is the only local backend check; the real import test is the deploy (auto-rollback on failure).
