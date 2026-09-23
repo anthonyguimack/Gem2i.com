@@ -69,7 +69,7 @@ export function Paginator({ page, pages, onPage }) {
   const tt = useT();
   if (pages <= 1) return null;
   return (
-    <nav className="mt-12 flex items-center justify-center gap-4" aria-label="pagination">
+    <nav className="mt-12 flex items-center justify-center gap-4" aria-label={tt({ en: 'Pagination', es: 'Paginación' })}>
       <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}
         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-sm border disabled:opacity-30 transition-colors hover:text-white"
         style={{ borderColor: 'var(--color-card-border, rgba(255,255,255,0.08))', color: 'var(--color-body-text, #9AA6B2)' }}>

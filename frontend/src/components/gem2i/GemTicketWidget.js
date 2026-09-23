@@ -78,7 +78,7 @@ export default function GemTicketWidget({ event }) {
           {myTickets.map(t => (
             <div key={t.id} className="flex items-center gap-4 py-2">
               {t.qr?.image_url && (
-                <img src={gemImg(t.qr.image_url)} alt="QR ticket" width="72" height="72"
+                <img src={gemImg(t.qr.image_url)} alt={tt({ en: 'QR ticket', es: 'Entrada QR' })} width="72" height="72"
                   className="rounded-sm bg-white p-1 shrink-0" />
               )}
               <div className="min-w-0">

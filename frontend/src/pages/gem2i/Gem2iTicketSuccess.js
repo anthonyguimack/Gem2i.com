@@ -57,7 +57,7 @@ export default function Gem2iTicketSuccess() {
               {tx.quantity} × {tx.tier_label} · {Number(tx.total).toFixed(2)} {String(tx.currency).toUpperCase()}
             </p>
             {tx.qr?.image_url && (
-              <img src={gemImg(tx.qr.image_url)} alt="QR ticket" width="200" height="200"
+              <img src={gemImg(tx.qr.image_url)} alt={tt({ en: 'QR ticket', es: 'Entrada QR' })} width="200" height="200"
                 className="mx-auto mt-6 rounded-sm bg-white p-2" data-testid="ticket-qr" />
             )}
             <p className="mt-3 text-xs" style={mutedText}>

@@ -55,7 +55,7 @@ export default function Gem2iContactPanel({ open, onClose }) {
             <Mail className="w-4 h-4" style={{ color: 'var(--color-accent, #3287B7)' }} />
             <h2 className="text-white text-base font-semibold tracking-wide uppercase">{tt(cs.title) || 'Contact Us'}</h2>
           </div>
-          <button onClick={onClose} aria-label="Close" className="p-2 text-white/60 hover:text-white transition-colors" data-testid="gem2i-contact-close">
+          <button onClick={onClose} aria-label={tt({ en: 'Close', es: 'Cerrar' })} className="p-2 text-white/60 hover:text-white transition-colors" data-testid="gem2i-contact-close">
             <X className="w-5 h-5" />
           </button>
         </div>

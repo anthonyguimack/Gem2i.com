@@ -103,7 +103,7 @@ export default function GemGuestListWidget({ event }) {
     return box(
       <div className="flex flex-col sm:flex-row gap-6 items-start">
         {qr.image_url && (
-          <img src={gemImg(qr.image_url)} alt="QR pass" width="140" height="140"
+          <img src={gemImg(qr.image_url)} alt={tt({ en: 'QR pass', es: 'Pase QR' })} width="140" height="140"
             className="rounded-sm bg-white p-2 shrink-0" data-testid="guest-pass-qr" />
         )}
         <div>

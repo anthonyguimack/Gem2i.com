@@ -97,7 +97,7 @@ export default function Gem2iHeader({ nav }) {
               : <span className="text-white text-xl font-bold tracking-[0.18em]" style={{ fontFamily: GEM_FONT }}>{brandName}</span>}
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-7" aria-label="Primary">
+          <nav className="hidden lg:flex items-center gap-7" aria-label={tt({ en: 'Main navigation', es: 'Navegación principal' })}>
             {headerPages.map(page => {
               const { href, isExt, active } = linkFor(page);
               const Comp = isExt ? 'a' : Link;
@@ -159,7 +159,7 @@ export default function Gem2iHeader({ nav }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <nav className="px-6 py-6 space-y-1 overflow-y-auto" aria-label="Side menu">
+        <nav className="px-6 py-6 space-y-1 overflow-y-auto" aria-label={tt({ en: 'Side menu', es: 'Menú lateral' })}>
           {headerPages.map(page => {
             const { href, isExt, active } = linkFor(page);
             const Comp = isExt ? 'a' : Link;

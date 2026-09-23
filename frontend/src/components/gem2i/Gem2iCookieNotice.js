@@ -18,7 +18,7 @@ export default function Gem2iCookieNotice() {
   };
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-[65] px-5 py-4" role="region" aria-label="Cookie notice"
+    <div className="fixed bottom-0 inset-x-0 z-[65] px-5 py-4" role="region" aria-label={tt({ en: 'Cookie notice', es: 'Aviso de cookies' })}
       style={{ backgroundColor: 'var(--color-section-bg, #0A121A)', borderTop: '1px solid var(--color-card-border, rgba(255,255,255,0.08))', fontFamily: GEM_FONT }}
       data-testid="gem2i-cookie-notice">
       <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
