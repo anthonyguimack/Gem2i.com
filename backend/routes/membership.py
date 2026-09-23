@@ -514,32 +514,50 @@ async def get_my_mentor(member: dict = Depends(get_current_member)):
 
 @router.get("/member/my-community")
 async def get_my_community(member: dict = Depends(get_current_member)):
-    async def build_tree(member_id, depth=0):
+    # The whole downline in ONE query ($graphLookup over sponsor_id, backed by the
+    # sponsor_id_1 index), then the tree is assembled in memory. The old per-node
+    # recursion cost one round trip per member (7s for a 1,600-member network).
+    # Same limits as before: 11 levels below the member, at most 500 children each.
+    fields = ("member_id", "membership_id", "membership_number", "first_name", "last_name",
+              "avatar", "email", "phone", "gender", "date_of_birth", "country", "state",
+              "city", "zip_code", "sponsor_id")
+    rows = await db.members.aggregate([
+        {"$match": {"member_id": member["member_id"]}},
+        {"$graphLookup": {"from": "members", "startWith": "$member_id",
+                          "connectFromField": "member_id", "connectToField": "sponsor_id",
+                          "as": "downline", "maxDepth": 10}},
+        {"$project": {"_id": 0, **{f"downline.{f}": 1 for f in fields}}},
+    ]).to_list(1)
+    downline = sorted((rows[0].get("downline", []) if rows else []),
+                      key=lambda c: (c.get("membership_number") or 0))
+    children_of: dict = {}
+    for c in downline:
+        siblings = children_of.setdefault(c.get("sponsor_id"), [])
+        if len(siblings) < 500:
+            siblings.append(c)
+
+    def build_tree(member_id, depth=0):
         if depth > 10:
             return []
-        children = await db.members.find({"sponsor_id": member_id}, {"_id": 0, "password_hash": 0}).to_list(500)
-        result = []
-        for child in children:
-            subtree = await build_tree(child["member_id"], depth + 1)
-            result.append({
-                "member_id": child["member_id"],
-                "membership_id": child["membership_id"],
-                "membership_number": child["membership_number"],
-                "first_name": child["first_name"],
-                "last_name": child["last_name"],
-                "avatar": child.get("avatar", ""),
-                "email": child.get("email", ""),
-                "phone": child.get("phone", ""),
-                "gender": child.get("gender", ""),
-                "date_of_birth": child.get("date_of_birth", ""),
-                "country": child.get("country", ""),
-                "state": child.get("state", ""),
-                "city": child.get("city", ""),
-                "zip_code": child.get("zip_code", ""),
-                "children": subtree
-            })
-        return result
-    tree = await build_tree(member["member_id"])
+        return [{
+            "member_id": c["member_id"],
+            "membership_id": c.get("membership_id", ""),
+            "membership_number": c.get("membership_number"),
+            "first_name": c.get("first_name", ""),
+            "last_name": c.get("last_name", ""),
+            "avatar": c.get("avatar", ""),
+            "email": c.get("email", ""),
+            "phone": c.get("phone", ""),
+            "gender": c.get("gender", ""),
+            "date_of_birth": c.get("date_of_birth", ""),
+            "country": c.get("country", ""),
+            "state": c.get("state", ""),
+            "city": c.get("city", ""),
+            "zip_code": c.get("zip_code", ""),
+            "children": build_tree(c["member_id"], depth + 1),
+        } for c in children_of.get(member_id, [])]
+
+    tree = build_tree(member["member_id"])
     total_invites = await db.invite_codes.count_documents({"owner_member_id": member["member_id"]})
     used_invites = await db.invite_codes.count_documents({"owner_member_id": member["member_id"], "status": "used"})
     return {"tree": tree, "total_invites": total_invites, "used_invites": used_invites}
