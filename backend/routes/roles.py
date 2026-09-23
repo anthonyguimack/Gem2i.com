@@ -117,6 +117,14 @@ async def seed_system_roles():
             doc = {**role, "created_at": datetime.now(timezone.utc).isoformat(),
                    "updated_at": datetime.now(timezone.utc).isoformat()}
             await db.cms_roles.insert_one(doc)
+        elif (existing.get("name") != role["name"]
+              or existing.get("description") != role["description"]):
+            # Reconcile labels only, so a rename in SYSTEM_ROLES reaches the DB;
+            # permissions[], full_access and holders belong to the admin.
+            await db.cms_roles.update_one(
+                {"id": role["id"]},
+                {"$set": {"name": role["name"], "description": role["description"],
+                          "updated_at": datetime.now(timezone.utc).isoformat()}})
     # Back-fill legacy members that never had `cms_roles` set
     await db.members.update_many(
         {"role": "admin", "cms_roles": {"$exists": False}},

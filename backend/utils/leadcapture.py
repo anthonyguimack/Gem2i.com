@@ -177,7 +177,7 @@ async def process_subscribe(request, background_tasks, body: dict, *,
 
     # Resolve sponsor by membership_number: the aux-N in the URL, else the caller's
     # default root (Morning ⇒ AUX-1; News ⇒ none).
-    from routes.membership import get_aux_prefix, get_next_membership_number
+    from routes.membership import get_aux_prefix, get_next_membership_number, insert_member_with_retry
     effective_aux = aux_id if aux_id is not None else default_sponsor_number
     sponsor = None
     if effective_aux is not None:
@@ -210,7 +210,8 @@ async def process_subscribe(request, background_tasks, body: dict, *,
         "created_at": _now(),
         "updated_at": _now(),
     }
-    await db.members.insert_one(new_member)
+    await insert_member_with_retry(new_member)
+    membership_number = new_member["membership_number"]
 
     await db.news_subscriptions.insert_one({
         "member_id": member_id, "membership_number": membership_number,

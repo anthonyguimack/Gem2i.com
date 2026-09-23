@@ -204,8 +204,8 @@ export default function RolesManager() {
                   {groups.map(g => {
                     const gSections = sectionsByGroup[g.key] || [];
                     if (!gSections.length) return null;
-                    const allChecked = gSections.every(s => form.permissions.includes(s.key));
-                    const someChecked = gSections.some(s => form.permissions.includes(s.key));
+                    const allChecked = form.full_access || gSections.every(s => form.permissions.includes(s.key));
+                    const someChecked = form.full_access || gSections.some(s => form.permissions.includes(s.key));
                     return (
                       <div key={g.key} className="p-3">
                         <label className="flex items-center gap-2 mb-2 cursor-pointer">
@@ -215,12 +215,12 @@ export default function RolesManager() {
                             className="w-4 h-4 accent-[#0D9488]"
                             data-testid={`role-group-${g.key}`} />
                           <span className="text-xs font-bold uppercase tracking-[0.1em] text-slate-700">{g.label}</span>
-                          <span className="text-[10px] text-slate-400">{gSections.filter(s => form.permissions.includes(s.key)).length}/{gSections.length}</span>
+                          <span className="text-[10px] text-slate-400">{(form.full_access ? gSections.length : gSections.filter(s => form.permissions.includes(s.key)).length)}/{gSections.length}</span>
                         </label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 pl-6">
                           {gSections.map(s => (
                             <label key={s.key} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                              <input type="checkbox" checked={form.permissions.includes(s.key)}
+                              <input type="checkbox" checked={form.full_access || form.permissions.includes(s.key)}
                                 onChange={e => togglePerm(s.key, e.target.checked)}
                                 className="w-3.5 h-3.5 accent-[#0D9488]"
                                 data-testid={`role-perm-${s.key}`} />

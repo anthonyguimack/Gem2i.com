@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Response, Depends, BackgroundTasks
-from models.database import db, verify_password, create_jwt_token, hash_password, generate_reset_token, get_current_user, get_user_permissions, send_email_smtp, logger
+from models.database import db, verify_password, create_jwt_token, hash_password, generate_reset_token, get_current_user, get_user_permissions, send_email_smtp, logger, is_admin
 from datetime import datetime, timezone, timedelta
 import uuid
 import httpx
@@ -46,21 +46,26 @@ async def login(request: Request, response: Response):
     )
     if not member or not verify_password(password, member.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    if login_type == "admin" and member.get("role") != "admin":
+    if login_type == "admin" and not is_admin(member):
         raise HTTPException(status_code=403, detail="Admin access required")
     # CMS login (operator or admin) — must have at least one CMS permission.
     if login_type == "cms":
-        if member.get("role") != "admin":
+        if not is_admin(member):
             mroles = member.get("cms_roles") or []
             cms_role_ids = [r for r in mroles if r != "role_member"]
             if not cms_role_ids:
                 raise HTTPException(status_code=403, detail="No CMS access assigned to this account")
     # My Account / public login gate — non-admins must hold role_member.
     # Both `/admin/login` (login_type="cms") and bootstrap admin path skip this.
-    elif login_type != "admin" and member.get("role") != "admin":
+    elif login_type != "admin" and not is_admin(member):
         mroles = member.get("cms_roles") or []
         if "role_member" not in mroles:
             raise HTTPException(status_code=403, detail="My Account access has been revoked")
+    # My Account signs in through this endpoint (not /member/login), so the login
+    # history (last_login + member_logins) is recorded here; CMS logins are not.
+    if login_type not in ("cms", "admin"):
+        from routes.membership import record_login_event
+        await record_login_event(member)
     token = create_jwt_token(member["member_id"], member["email"], member.get("role", "member"))
     _set_session_cookie(response, token, await _session_cookie_domain())
     return {"token": token, "user": {k: v for k, v in member.items() if k != "password_hash"}}
@@ -120,12 +125,12 @@ async def exchange_session(request: Request, response: Response):
             "google_account": email,
         }})
     else:
-        from routes.membership import get_next_membership_number, get_aux_prefix
+        from routes.membership import get_next_membership_number, get_aux_prefix, insert_member_with_retry
         membership_number = await get_next_membership_number()
         prefix = await get_aux_prefix()
         membership_id = f"{prefix}-{membership_number}"
         member_id = f"member_{uuid.uuid4().hex[:12]}"
-        await db.members.insert_one({
+        await insert_member_with_retry({
             "member_id": member_id,
             "membership_number": membership_number,
             "membership_id": membership_id,

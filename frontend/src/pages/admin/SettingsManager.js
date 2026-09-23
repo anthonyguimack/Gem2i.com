@@ -849,6 +849,13 @@ export default function SettingsManager() {
               <Label>CC Recipients (comma separated)</Label>
               <Input value={settings.email_cc || ''} onChange={e => setSettings({...settings, email_cc: e.target.value})} className="mt-1" placeholder="monitor1@company.com, monitor2@company.com" data-testid="email-cc-input" />
             </div>
+            <hr className="border-slate-200" />
+            <h3 className="font-semibold" style={{ color: 'var(--ad-heading, #1a2332)' }}>Operator Notifications</h3>
+            <p className="text-xs text-slate-400 -mt-2">Where waiting-list / lead notifications are sent.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Operator Email</Label><Input value={settings.operator_email || ''} onChange={e => setSettings({...settings, operator_email: e.target.value})} className="mt-1" placeholder="operator@company.com" data-testid="operator-email-input" /></div>
+              <div><Label>Operator CC (comma separated)</Label><Input value={settings.operator_cc || ''} onChange={e => setSettings({...settings, operator_cc: e.target.value})} className="mt-1" placeholder="monitor1@company.com, monitor2@company.com" data-testid="operator-cc-input" /></div>
+            </div>
             <div className="flex gap-3 pt-2">
               <button onClick={testConnection} disabled={testingConn} className="flex items-center gap-2 px-4 py-2 border rounded-sm text-sm font-medium hover:bg-slate-50 disabled:opacity-50" style={{ borderColor: 'var(--ad-accent, #0D9488)', color: 'var(--ad-accent, #0D9488)' }} data-testid="test-connection-btn">
                 {testingConn ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wifi className="w-4 h-4" />} Test Connection

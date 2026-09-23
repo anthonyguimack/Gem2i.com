@@ -293,6 +293,57 @@ EMAIL_TEMPLATES: list[dict] = [
             "sent_at": "2026-02-04 14:30 UTC",
         },
     },
+    {
+        "key": "waiting_list_operator",
+        "name": "Waiting List — Operator Notification",
+        "description": "Sent to the operator (Settings → Email/SMTP → Operator Notifications) when someone joins the waiting list.",
+        "variables": {
+            "name": "Subscriber full name",
+            "email": "Subscriber email",
+            "joined_at": "Timestamp the person joined",
+            "platform_name": "Brand name from CMS Settings",
+        },
+        "default_subject": "New waiting-list signup",
+        "default_body": (
+            "<h2 style=\"margin:0 0 16px;\">New waiting-list signup</h2>"
+            "<p>A new person joined the {{platform_name}} waiting list:</p>"
+            "<table style=\"margin:16px 0;border-collapse:collapse;\">"
+            "<tr><td style=\"padding:6px 12px;color:#6b7280;\">Name</td>"
+            "<td style=\"padding:6px 12px;\"><strong>{{name}}</strong></td></tr>"
+            "<tr><td style=\"padding:6px 12px;color:#6b7280;\">Email</td>"
+            "<td style=\"padding:6px 12px;\"><strong>{{email}}</strong></td></tr>"
+            "</table>"
+            "<p style=\"font-size:13px;color:#6b7280;\">{{joined_at}}</p>"
+        ),
+        "sample_values": {
+            "name": "Jamie Doe",
+            "email": "jamie@example.com",
+            "joined_at": "2026-09-02 16:00 EDT",
+            "platform_name": "GEM2i",
+        },
+    },
+    {
+        "key": "waiting_list_subscriber",
+        "name": "Waiting List — Subscriber Confirmation",
+        "description": "Confirmation sent to the person who joins the waiting list.",
+        "variables": {
+            "name": "Subscriber first name",
+            "platform_name": "Brand name from CMS Settings",
+        },
+        "default_subject": "You're on the {{platform_name}} waiting list",
+        "default_body": (
+            "<h2 style=\"margin:0 0 16px;\">You're on the list!</h2>"
+            "<p>Hello {{name}},</p>"
+            "<p>Thanks for your interest in {{platform_name}}. You've been added to our "
+            "waiting list, and we'll be in touch as soon as a spot opens up.</p>"
+            "<p style=\"font-size:13px;color:#6b7280;\">If you didn't request this, you can "
+            "safely ignore this email.</p>"
+        ),
+        "sample_values": {
+            "name": "Alex",
+            "platform_name": "GEM2i",
+        },
+    },
 ]
 
 

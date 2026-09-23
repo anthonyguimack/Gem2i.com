@@ -112,6 +112,15 @@ async def get_current_user(request: Request) -> dict:
             pass
     raise HTTPException(status_code=401, detail="Not authenticated")
 
+
+def is_admin(user: dict) -> bool:
+    """A FULL admin: the bootstrap `role:"admin"` account OR anyone holding the
+    'Administrator' CMS role (`role_admin`), so a second admin is created by
+    assigning that role in CMS -> Roles & Permissions, with no DB edit."""
+    if not user:
+        return False
+    return user.get("role") == "admin" or "role_admin" in (user.get("cms_roles") or [])
+
 async def require_admin(request: Request) -> dict:
     """Permission-aware admin gate.
 
@@ -128,7 +137,7 @@ async def require_admin(request: Request) -> dict:
     """
     from models.cms_sections import get_section_for_path
     user = await get_current_user(request)
-    if user.get("role") == "admin":
+    if is_admin(user):
         return user
     section_key, admin_only = get_section_for_path(request.url.path)
     if admin_only:
@@ -146,7 +155,7 @@ async def require_super_admin(request: Request) -> dict:
     """Strict admin gate — rejects operators regardless of their permissions.
     Use for self-protective endpoints (role CRUD, etc.)."""
     user = await get_current_user(request)
-    if user.get("role") != "admin":
+    if not is_admin(user):
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
 
@@ -157,7 +166,7 @@ async def require_any_cms_access(request: Request) -> dict:
     where per-section enforcement doesn't make sense because the same
     endpoint is called from many operator-permitted screens."""
     user = await get_current_user(request)
-    if user.get("role") == "admin":
+    if is_admin(user):
         return user
     perms = await get_user_permissions(user)
     if not perms:
@@ -171,7 +180,7 @@ async def require_my_account_access(request: Request) -> dict:
     member area.  If an admin revokes `role_member` from a member, that
     member loses My Account access (login and every subsequent request)."""
     user = await get_current_user(request)
-    if user.get("role") == "admin":
+    if is_admin(user):
         return user
     roles = user.get("cms_roles") or []
     if "role_member" not in roles:
@@ -189,7 +198,7 @@ async def get_user_permissions(user: dict) -> set:
     Returns a `set[str]`.
     """
     from models.cms_sections import ALL_SECTION_KEYS, ASSIGNABLE_SECTION_KEYS
-    if user.get("role") == "admin":
+    if is_admin(user):
         return set(ALL_SECTION_KEYS)
     role_ids = user.get("cms_roles") or []
     if not role_ids:

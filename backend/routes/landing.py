@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, BackgroundTasks
 from models.database import db, require_admin
 from datetime import datetime, timezone
+import html
 import uuid
 
 router = APIRouter()
@@ -99,7 +100,7 @@ async def admin_delete_subscriber(item_id: str, user: dict = Depends(require_adm
     return {"message": "Deleted"}
 
 @router.post("/public/landing-subscribe")
-async def public_subscribe(request: Request):
+async def public_subscribe(request: Request, background_tasks: BackgroundTasks):
     body = await request.json()
     from utils.rate_limit import public_form_guard
     await public_form_guard(request, body, key="landing_subscribe")
@@ -109,15 +110,49 @@ async def public_subscribe(request: Request):
     existing = await db.landing_subscribers.find_one({"email": email})
     if existing:
         return {"message": "Already subscribed", "id": existing["id"]}
+    first_name = body.get("first_name", "")
+    last_name = body.get("last_name", "")
     sub = {
         "id": str(uuid.uuid4()),
-        "first_name": body.get("first_name", ""),
-        "last_name": body.get("last_name", ""),
+        "first_name": first_name,
+        "last_name": last_name,
         "email": email,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.landing_subscribers.insert_one(sub)
+    # Runs after the response so a slow or unconfigured SMTP never blocks the signup.
+    background_tasks.add_task(_notify_waiting_list, first_name, last_name, email)
     return {"message": "Subscribed successfully", "id": sub["id"]}
+
+
+def _now_local_str(settings: dict) -> str:
+    tz_name = (settings.get("timezone") or "America/New_York").strip() or "America/New_York"
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(timezone.utc).astimezone(ZoneInfo(tz_name)).strftime("%Y-%m-%d %H:%M %Z")
+    except Exception:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+async def _notify_waiting_list(first_name: str, last_name: str, email: str) -> None:
+    """Both Waiting List emails via Email Management templates (operator-editable):
+    'waiting_list_operator' → settings.operator_email (+ operator_cc), skipped when unset;
+    'waiting_list_subscriber' → the person who signed up. Best-effort; values are
+    HTML-escaped because they are substituted into the email body."""
+    from utils.email_render import render_and_send
+    settings = await db.settings.find_one({}, {"_id": 0}) or {}
+    safe_first = html.escape(first_name or "") or "there"
+    full_name = html.escape(f"{first_name} {last_name}".strip() or "—")
+    to_op = (settings.get("operator_email") or "").strip()
+    if to_op:
+        cc_list = [e.strip() for e in (settings.get("operator_cc") or "").split(",") if e.strip()]
+        await render_and_send("waiting_list_operator", settings, to_op, "Operator",
+                              {"name": full_name, "email": html.escape(email),
+                               "joined_at": _now_local_str(settings)},
+                              cc_list=cc_list)
+    if email:
+        await render_and_send("waiting_list_subscriber", settings, email, safe_first,
+                              {"name": safe_first})
 
 # ─── Landing Page Contacts (Get in Touch) ───
 @router.get("/admin/landing-contacts")

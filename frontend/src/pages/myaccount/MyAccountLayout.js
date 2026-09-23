@@ -7,6 +7,7 @@ import {
   User, Key, Users, Briefcase, LogOut, Menu, X, ChevronRight, Home, Award, UserCheck, Loader2, Wallet, ExternalLink, Bell, CalendarDays, BookOpen, Rss, BarChart3, Package, Mail, Trophy
 } from 'lucide-react';
 import { useT } from '../../lib/i18n';
+import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 
 const ALL_NAV_ITEMS = [
   { id: 'membership-profile', label: 'Membership Profile', icon: User, href: '/my-account/membership-profile' },
@@ -94,7 +95,7 @@ export default function MyAccountLayout() {
 
   useEffect(() => {
     if (member) {
-      if (member.role === 'admin') {
+      if (isFullAdmin(member)) {
         setLevelPerms(ALL_NAV_ITEMS.map(i => i.id));
         setQlPerms(null); // admin sees all
       } else if (member.level_id) {

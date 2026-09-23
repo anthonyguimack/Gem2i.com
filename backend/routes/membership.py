@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, BackgroundTasks
-from models.database import db, verify_password, create_jwt_token, hash_password, send_email_smtp, get_current_user, require_admin, logger, UPLOAD_DIR
+from models.database import db, verify_password, create_jwt_token, hash_password, send_email_smtp, get_current_user, require_admin, logger, UPLOAD_DIR, is_admin
 from utils.kms_sync import sync_member_to_kms, push_password_to_kms, push_status_to_kms
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -23,9 +23,51 @@ def _display_status(member: dict) -> str:
 # ---- Helpers ----
 
 async def get_next_membership_number():
-    """Get the next sequential membership number."""
+    """Atomically allocate the next sequential membership number.
+
+    The old max()+1 read-then-write raced under concurrent signups and could mint
+    duplicate numbers (duplicate membership_id / sponsor codes break QR and the
+    community tree). Uses an atomic counter (`counters` doc `_id="membership_number"`).
+    Self-healing: the counter is raised (never lowered) to the current highest
+    membership_number first, so numbers written by ETL/seeds/admin are never re-used.
+    """
+    from pymongo import ReturnDocument
     last = await db.members.find_one({}, {"membership_number": 1}, sort=[("membership_number", -1)])
-    return (last["membership_number"] + 1) if last else 1
+    current_max = last.get("membership_number") if last else 0
+    if not isinstance(current_max, int):
+        current_max = 0
+    await db.counters.update_one({"_id": "membership_number"}, {"$max": {"seq": current_max}}, upsert=True)
+    doc = await db.counters.find_one_and_update(
+        {"_id": "membership_number"}, {"$inc": {"seq": 1}},
+        upsert=True, return_document=ReturnDocument.AFTER)
+    return doc["seq"]
+
+async def insert_member_with_retry(new_member, retries=5):
+    """Insert a member, retrying on a unique-key collision from a concurrent signup
+    by re-allocating membership_number/membership_id. Mutates `new_member` in place
+    so callers read the final number/id off the dict; returns the stored number."""
+    from pymongo.errors import DuplicateKeyError
+    for attempt in range(retries):
+        try:
+            await db.members.insert_one(new_member)
+            return new_member["membership_number"]
+        except DuplicateKeyError:
+            if attempt == retries - 1:
+                raise
+            new_member.pop("_id", None)
+            n = await get_next_membership_number()
+            new_member["membership_number"] = n
+            new_member["membership_id"] = await format_membership_id(n)
+
+async def record_login_event(member: dict, source: str = "gem2i"):
+    """Record one My Account login: `last_login` + a `member_logins` row. Shared by
+    the login endpoints and registration (which signs the member straight in)."""
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.members.update_one({"member_id": member["member_id"]}, {"$set": {"last_login": now_iso}})
+    await db.member_logins.insert_one({"member_id": member["member_id"],
+                                       "membership_number": member.get("membership_number"),
+                                       "source": source, "logged_at": now_iso})
+    return now_iso
 
 async def get_aux_prefix():
     """Get the AUX prefix from settings."""
@@ -53,7 +95,7 @@ async def get_current_member(request: Request) -> dict:
         member = await db.members.find_one({"member_id": payload["user_id"]}, {"_id": 0})
         if not member:
             raise HTTPException(status_code=401, detail="Member not found")
-        if member.get("role") != "admin":
+        if not is_admin(member):
             mroles = member.get("cms_roles") or []
             if "role_member" not in mroles:
                 raise HTTPException(status_code=403, detail="My Account access has been revoked")
@@ -84,25 +126,11 @@ async def member_login(request: Request, response: Response):
         raise HTTPException(status_code=403, detail="This account has been deactivated")
     # My Account gate — admins always pass; everyone else must hold role_member.
     # An admin removing role_member from a member instantly revokes My Account.
-    if member.get("role") != "admin":
+    if not is_admin(member):
         mroles = member.get("cms_roles") or []
         if "role_member" not in mroles:
             raise HTTPException(status_code=403, detail="My Account access has been revoked")
-    now_iso = datetime.now(timezone.utc).isoformat()
-    # Track login for analytics + the cross-portal login history (member_logins).
-    await db.members.update_one({"member_id": member["member_id"]}, {"$set": {"last_login": now_iso}})
-    await db.member_logins.insert_one({"member_id": member["member_id"],
-                                       "membership_number": member.get("membership_number"),
-                                       "source": "gem2i", "logged_at": now_iso})
-    # MMS usage hook (Phase 3): daily-login points/streaks — the event_key
-    # makes one login event per member per UTC day, however often they log in.
-    from utils.mms_events import emit_soon
-    emit_soon(db, {
-        "type": "login",
-        "membership_number": member.get("membership_number"),
-        "payload": {"source": "main"},
-        "event_key": f"login:{member['member_id']}:{now_iso[:10]}",
-    })
+    await record_login_event(member)
     token = create_jwt_token(member["member_id"], member["email"], "member")
     return {"token": token, "member": {k: v for k, v in member.items() if k != "password_hash"}}
 
@@ -315,6 +343,7 @@ async def register_member(request: Request, background_tasks: BackgroundTasks):
                                "username": upgraded.get("username", email)})
             except Exception as e:
                 logger.warning(f"Failed to send welcome email: {e}")
+        await record_login_event(upgraded)
         return {"message": "Registration successful",
                 "membership_id": upgraded["membership_id"],
                 "username": upgraded.get("username", email),
@@ -369,7 +398,9 @@ async def register_member(request: Request, background_tasks: BackgroundTasks):
         "passport_id": "", "zelle": "",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    await db.members.insert_one(new_member)
+    await insert_member_with_retry(new_member)
+    membership_number = new_member["membership_number"]
+    membership_id = new_member["membership_id"]
     # Sync to KMS — fire-and-forget, does not block the registration response
     _reg_settings = await db.settings.find_one({}, {"_id": 0}) or {}
     background_tasks.add_task(sync_member_to_kms, _reg_settings, new_member, password)
@@ -415,6 +446,7 @@ async def register_member(request: Request, background_tasks: BackgroundTasks):
             )
         except Exception as e:
             logger.warning(f"Failed to send welcome email: {e}")
+    await record_login_event(new_member)
     return {
         "message": "Registration successful",
         "membership_id": membership_id,
@@ -786,7 +818,7 @@ async def admin_create_member(request: Request, background_tasks: BackgroundTask
         "content_operator": body.get("content_operator", False),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    await db.members.insert_one(new_member)
+    await insert_member_with_retry(new_member)
     # Sync to KMS — fire-and-forget
     _adm_settings = await db.settings.find_one({}, {"_id": 0}) or {}
     background_tasks.add_task(sync_member_to_kms, _adm_settings, new_member, password)

@@ -93,6 +93,7 @@ import { injectThemeColors } from './lib/themeColors';
 import { LanguageProvider } from './lib/i18n';
 import { t as i18nT } from './lib/i18n';
 import BackToTop from './components/BackToTop';
+import { isAdmin as isFullAdmin } from './lib/isAdmin';
 
 // Global settings context for colors and theme
 export const SettingsContext = createContext({});
@@ -181,14 +182,14 @@ function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-[var(--color-accent,#0D9488)] border-t-transparent rounded-full"></div></div>;
   if (!user) return <Navigate to="/admin/login" replace />;
-  const hasAnyCmsAccess = user.role === 'admin' || ((user.effective_permissions || []).length > 0);
+  const hasAnyCmsAccess = isFullAdmin(user) || ((user.effective_permissions || []).length > 0);
   if (!hasAnyCmsAccess) return <Navigate to="/admin/login" replace />;
   return children;
 }
 
 function AdminIndexRouter() {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = isFullAdmin(user);
   const perms = user?.effective_permissions || [];
   const canSeeDashboard = isAdmin || perms.includes('dashboard');
   return canSeeDashboard ? <AdminDashboard /> : <CmsWelcome />;
@@ -258,7 +259,7 @@ function renderAdminRoutes() {
 
 function AdminOnlyRoute({ children }) {
   const { user } = useAuth();
-  if (user?.role !== 'admin') return <CmsSectionGuard section="__admin_only__">{children}</CmsSectionGuard>;
+  if (!isFullAdmin(user)) return <CmsSectionGuard section="__admin_only__">{children}</CmsSectionGuard>;
   return children;
 }
 
@@ -283,7 +284,7 @@ function PageProtectedRoute({ children }) {
   if (checking || authLoading || memberLoading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-[var(--color-accent,#0D9488)] border-t-transparent rounded-full"></div></div>;
 
   if (pageData?.login_required) {
-    if (user?.role === 'admin') return children;
+    if (isFullAdmin(user)) return children;
     if (member) {
       const allowedPages = member._member_type?.allowed_pages || [];
       const pageId = pageData.id;
@@ -323,7 +324,7 @@ function MemberRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0d0f14]"><div className="animate-spin w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full" /></div>;
   if (!user) return <Navigate to="/my-account/login" replace />;
-  const allowedAccess = user.role === 'admin' || (user.cms_roles || []).includes('role_member');
+  const allowedAccess = isFullAdmin(user) || (user.cms_roles || []).includes('role_member');
   if (!allowedAccess) return <Navigate to="/my-account/login" replace />;
   return children;
 }

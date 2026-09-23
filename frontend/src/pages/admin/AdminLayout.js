@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { useSettings } from '../../App';
+import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 import {
   LayoutDashboard, Image, Info, Package, FileText, BookOpen, Map, Images, Briefcase,
   MessageSquare, Mail, CreditCard, Settings, LogOut, ChevronLeft, Menu, X, FileStack, Users,
@@ -83,7 +84,7 @@ export default function AdminLayout() {
   // entries whose `section` key is in their effective_permissions.  Dividers
   // are kept only when at least one child survived the filter so operators
   // never see an empty "Landing Page" / "Calendar" group header.
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = isFullAdmin(user);
   const perms = new Set(user?.effective_permissions || []);
   const visibleItems = (() => {
     const result = [];

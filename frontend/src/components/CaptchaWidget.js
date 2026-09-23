@@ -19,7 +19,7 @@ import { publicAPI } from '../lib/api';
  * Forwarded ref exposes `reset()` so a form can clear the widget after
  * a failed submit (Google requires a fresh token on each retry).
  */
-const CaptchaWidget = forwardRef(function CaptchaWidget({ onChange, testId = 'captcha' }, ref) {
+const CaptchaWidget = forwardRef(function CaptchaWidget({ onChange, testId = 'captcha', theme = 'dark' }, ref) {
   const [config, setConfig] = useState(null);
   const recaptchaRef = useRef(null);
 
@@ -55,7 +55,7 @@ const CaptchaWidget = forwardRef(function CaptchaWidget({ onChange, testId = 'ca
         onChange={(token) => onChange?.(token || '')}
         onExpired={() => onChange?.('')}
         onErrored={() => onChange?.('')}
-        theme="dark"
+        theme={theme}
       />
     </div>
   );

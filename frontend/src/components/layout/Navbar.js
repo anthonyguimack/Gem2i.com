@@ -13,6 +13,7 @@ import { isAurexFamily } from '../../lib/themeColors';
 import { resolveActivePersonality, scopePagesForPersonality, miniSiteLinks as buildMiniSiteLinks, getPersonalityVisibility, meetsVisibility } from '../../lib/pbPersonality';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iHeader from '../gem2i/Gem2iHeader';
+import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 
 export default function Navbar() {
   const theme = useTheme();
@@ -104,8 +105,8 @@ function useNavData() {
   //   • `hasMyAccount` controls the "My Account" link — admins always see
   //     it, members must hold the `role_member` CMS role.  If an admin
   //     revokes role_member from a user, this link hides instantly.
-  const hasCmsAccess = !!user && (user.role === 'admin' || (user.effective_permissions || []).length > 0);
-  const hasMyAccount = !!user && (user.role === 'admin' || (user.cms_roles || []).includes('role_member'));
+  const hasCmsAccess = !!user && (isFullAdmin(user) || (user.effective_permissions || []).length > 0);
+  const hasMyAccount = !!user && (isFullAdmin(user) || (user.cms_roles || []).includes('role_member'));
 
   return { user, logout, settings, socialLinks, socialByKey, headerPages, handlePageClick, isExternal, isAdmin, location, loginOpen, setLoginOpen, searchOpen, setSearchOpen, hasCmsAccess, hasMyAccount, isPB, activePersonality, miniSiteLinks };
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { Loader2 } from 'lucide-react';
+import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 
 export default function AdminLoginPage() {
   const { login } = useAuth();
@@ -17,7 +18,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       const result = await login(email, password, 'cms');
-      const hasCmsAccess = result?.role === 'admin' || ((result?.effective_permissions || []).length > 0);
+      const hasCmsAccess = isFullAdmin(result) || ((result?.effective_permissions || []).length > 0);
       if (hasCmsAccess) {
         navigate('/admin');
       } else {

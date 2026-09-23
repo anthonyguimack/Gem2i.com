@@ -4,6 +4,8 @@ import { useTheme } from '../App';
 import { useT } from '../lib/i18n';
 import { normalizeRichText } from '../lib/richText';
 import { toLeftPct, toTopPct, effectStyle as heroEffectStyle, HERO_KEYFRAMES } from '../lib/heroCoords';
+import { useAuth } from '../lib/auth';
+import { resolveCta } from '../lib/ctaActions';
 
 function resolveVideoEmbed(url) {
   if (!url) return null;
@@ -33,19 +35,34 @@ function VideoEmbed({ url, style, className }) {
 // respective button_text fields on the slide.
 function HeroButtonsRow({ slide, size = 'md', dataTestId }) {
   const tt = useT();
+  const { user } = useAuth();
+  const loggedIn = !!user;
+  // Each button declares an Action (button{N}_action) resolved by lib/ctaActions;
+  // legacy slides infer it from a #login / #waiting-list URL.
   const buttons = [
-    { text: slide.button_text,   url: slide.button_url   || slide.button_link, target: slide.window_open === 'new' ? '_blank' : '_self' },
-    { text: slide.button_2_text, url: slide.button_2_url, target: slide.button_2_window_open === 'new' ? '_blank' : '_self' },
-    { text: slide.button_3_text, url: slide.button_3_url, target: slide.button_3_window_open === 'new' ? '_blank' : '_self' },
-  ].filter(b => tt(b.text));
+    { text: slide.button_text,   url: tt(slide.button_url || slide.button_link), target: slide.window_open === 'new' ? '_blank' : '_self',          action: slide.button_action },
+    { text: slide.button_2_text, url: tt(slide.button_2_url), target: slide.button_2_window_open === 'new' ? '_blank' : '_self', action: slide.button_2_action },
+    { text: slide.button_3_text, url: tt(slide.button_3_url), target: slide.button_3_window_open === 'new' ? '_blank' : '_self', action: slide.button_3_action },
+  ]
+    .filter(b => tt(b.text))
+    .map(b => { const r = resolveCta(b, { loggedIn }); return r.visible ? { ...b, href: r.href, target: r.target, action: r.action } : null; })
+    .filter(Boolean);
   if (buttons.length === 0) return null;
   const padding = size === 'sm' ? 'px-6 py-2.5' : 'px-8 py-3';
+  // Gem2i has no global #login interceptor: its login modal opens on the
+  // `gem2i:open-login` window event (Gem2iHeader).
+  const onCtaClick = (b) => (e) => {
+    if (b.action !== 'login') return;
+    e.preventDefault();
+    if (loggedIn) window.location.assign('/my-account');
+    else window.dispatchEvent(new CustomEvent('gem2i:open-login'));
+  };
   return (
     <div className="flex flex-wrap items-center gap-3" data-testid={dataTestId || 'hero-cta-row'}>
       {buttons.map((b, i) => {
         const primary = i === 0;
         return (
-          <a key={i} href={tt(b.url) || '#'} target={b.target} rel="noopener noreferrer"
+          <a key={i} href={b.href || '#'} target={b.target} rel="noopener noreferrer" onClick={onCtaClick(b)}
             className={`inline-flex items-center gap-2 ${padding} rounded-sm font-medium transition-all text-sm hover:opacity-90 ${primary ? 'bg-white' : 'bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#1a2332]'}`}
             style={primary ? { color: 'var(--color-primary, #1a2332)' } : undefined}
             data-testid={`hero-cta-btn-${i}`}

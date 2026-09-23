@@ -12,6 +12,7 @@ import HeroCanvasEditor from '../../components/HeroCanvasEditor';
 import LocalizedField from '../../components/admin/LocalizedField';
 import { adminText } from '../../lib/i18n';
 import { useSettings } from '../../App';
+import { CTA_ACTIONS, CTA_ACTION_LABELS, effectiveAction } from '../../lib/ctaActions';
 
 const effectOptions = ['top', 'right', 'bottom', 'left'];
 import { BACKEND_URL as API_URL } from '../../lib/config';
@@ -289,16 +290,19 @@ export default function HeroSlideForm() {
       {/* Links and Navigation */}
       <div className={sectionCls}>
         <h2 className={sectionTitle}>Links and Navigation</h2>
-        <p className="text-xs text-slate-500 mb-4">Up to 3 CTA buttons — the One-page Pro theme renders them as an inline pill row. Classic themes only use Button 1.</p>
+        <p className="text-xs text-slate-500 mb-4">Up to 3 CTA buttons, rendered as an inline row. Each button has an <strong>Action</strong>: <em>Url / Link</em> uses the URL field + Window Open; <em>Login Required</em> has its behavior built in (no URL needed).</p>
         {[1, 2, 3].map(n => {
           const suf = n === 1 ? '' : `_${n}`;
           const textKey = `button${suf}_text`;
           const urlKey  = `button${suf}_url`;
           const winKey  = n === 1 ? 'window_open' : `button_${n}_window_open`;
+          const actionKey = `button${suf}_action`;
           const variantBKey = `button${suf}_text_variant_b`;
+          const curAction = effectiveAction({ action: form[actionKey], url: form[urlKey] });
+          const isUrlAction = curAction === 'url';
           return (
             <div key={n} className="mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
                 <div>
                   <Label className="text-xs text-slate-500">Button {n} text</Label>
                   <LocalizedField value={form[textKey]} onChange={v => setForm(p => ({...p, [textKey]: v}))} render={({ value, onChange }) => (
@@ -306,16 +310,33 @@ export default function HeroSlideForm() {
                   )} />
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-500">URL</Label>
-                  <Input value={form[urlKey] || ''} onChange={set(urlKey)} className="mt-1" placeholder="https://..." data-testid={`slide-btn${suf}-url`} />
-                </div>
-                <div>
-                  <Label className="text-xs text-slate-500">Window Open</Label>
-                  <select value={form[winKey] || 'same'} onChange={set(winKey)} className={`mt-1 ${selectCls}`} data-testid={`slide-window-open${suf}`}>
-                    <option value="same">Same window</option>
-                    <option value="new">New window</option>
+                  <Label className="text-xs text-slate-500">Action</Label>
+                  <select value={curAction} onChange={set(actionKey)} className={`mt-1 ${selectCls}`} data-testid={`slide-btn${suf}-action`}>
+                    {/* 'waitlist' needs the Waiting List modal (lead capture), not in gem2i yet. */}
+                    {CTA_ACTIONS.filter(a => a !== 'waitlist' || curAction === 'waitlist').map(a => <option key={a} value={a}>{CTA_ACTION_LABELS[a]}</option>)}
                   </select>
                 </div>
+                {isUrlAction ? (
+                  <>
+                    <div>
+                      <Label className="text-xs text-slate-500">URL</Label>
+                      <Input value={form[urlKey] || ''} onChange={set(urlKey)} className="mt-1" placeholder="https://… , /page or #anchor" data-testid={`slide-btn${suf}-url`} />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-slate-500">Window Open</Label>
+                      <select value={form[winKey] || 'same'} onChange={set(winKey)} className={`mt-1 ${selectCls}`} data-testid={`slide-window-open${suf}`}>
+                        <option value="same">Same window</option>
+                        <option value="new">New window</option>
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <div className="md:col-span-2 flex items-center">
+                    <p className="text-xs text-slate-500 italic md:mt-5" data-testid={`slide-btn${suf}-action-help`}>
+                      {curAction === 'login' ? 'Not logged in → opens the login modal. Logged in → goes to My Account.' : 'Waiting List form (not available in GEM2i yet).'}
+                    </p>
+                  </div>
+                )}
               </div>
               {form.ab_testing_enabled && (
                 <div className="mt-2 pl-3 border-l-2 border-amber-300 bg-amber-50/40 rounded-r py-2 pr-3">

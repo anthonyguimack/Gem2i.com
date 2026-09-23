@@ -52,6 +52,8 @@ export default function MembersManager() {
   // CMS Roles inline-edit dialog state
   const [cmsRoles, setCmsRoles] = useState([]);
   const [rolesDialog, setRolesDialog] = useState(null); // { memberId, name, selected: [ids] }
+  // Brand membership-code prefix (settings.aux_prefix) for the ID header + sponsor code.
+  const [auxPrefix, setAuxPrefix] = useState('GEM');
 
   const load = () => {
     adminAPI.getMembers().then(r => setItems(r.data)).catch(console.error);
@@ -60,6 +62,7 @@ export default function MembersManager() {
     adminAPI.getMentors().then(r => setMentors(r.data || [])).catch(console.error);
     geoAPI.getCountries().then(r => setCountries(r.data)).catch(console.error);
     adminAPI.getCmsRoles().then(r => setCmsRoles(r.data || [])).catch(() => {});
+    adminAPI.getSettings().then(r => setAuxPrefix(r.data?.aux_prefix || 'GEM')).catch(() => {});
   };
   useEffect(() => { load(); }, []);
 
@@ -115,12 +118,12 @@ export default function MembersManager() {
         </button>
       </div>
 
-      <DataTableToolbar dt={dt} testId="members" placeholder="Search by name, email, AUX…" />
+      <DataTableToolbar dt={dt} testId="members" placeholder="Search by name, email, ID…" />
 
       <div className="bg-white rounded-sm border border-slate-100 overflow-x-auto">
         <table className="w-full text-sm">
           <thead><tr className="border-b bg-slate-50">
-            <SortableTh dt={dt} field="membership_id">AUX</SortableTh>
+            <SortableTh dt={dt} field="membership_id">ID</SortableTh>
             <SortableTh dt={dt} field="first_name">Name</SortableTh>
             <SortableTh dt={dt} field="email">Email</SortableTh>
             <SortableTh dt={dt} field="is_mentor">Mentor</SortableTh>
@@ -165,7 +168,7 @@ export default function MembersManager() {
                   </td>
                   <td className="p-3 text-slate-500 text-xs">{lvl?.name || '-'}</td>
                   <td className="p-3 text-slate-500 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
-                  <td className="p-3 text-slate-500 text-xs">{item.sponsor_membership_number ? `AUX-${item.sponsor_membership_number}` : '-'}</td>
+                  <td className="p-3 text-slate-500 text-xs">{item.sponsor_membership_number ? `${auxPrefix}-${item.sponsor_membership_number}` : '-'}</td>
                   <td className="p-3 text-right">
                     <button
                       onClick={() => navigate(`/admin/members/${item.member_id}/signatures`)}
@@ -539,8 +542,8 @@ export default function MembersManager() {
                   ['Member Type',   memberTypes.find(t => t.id === infoMember.member_type_id)?.name],
                   ['Member Level',  levels.find(l => l.id === infoMember.level_id)?.name],
                   ['Mentor',        infoMember.is_mentor ? 'Yes' : 'No'],
-                  ['Sponsor',       infoMember.sponsor_membership_number ? `AUX-${infoMember.sponsor_membership_number}` : null],
-                  ['Status',        infoMember.membership_status],
+                  ['Sponsor',       infoMember.sponsor_membership_number ? `${auxPrefix}-${infoMember.sponsor_membership_number}` : null],
+                  ['Status',        memberStatus(infoMember).label],
                   ['Registered',    infoMember.created_at ? new Date(infoMember.created_at).toLocaleDateString() : null],
                 ].map(([k, val]) => (
                   <div key={k}>

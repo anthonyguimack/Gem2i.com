@@ -437,3 +437,52 @@ Además, verificar (no son rutas del plan, pero pueden romper la ejecución):
 | Si el build local falla con **EPERM** (carpeta dentro de Dropbox) → borrar `frontend/build` y reintentar | Gotcha conocido en Carlos s118 |
 
 Nada más depende de la máquina: no hay rutas absolutas en el mapa, y los destinos en la caja (`/opt/…`) son iguales para los dos.
+
+---
+
+## 8. Registro de ejecución por sector (2026-09-23, Carlos M. Artiles + Claude)
+
+Orden de trabajo pedido: 1.A → 1.H, sin parar; deploy + verificación al cerrar cada sector.
+Criterio aplicado a los módulos que Gem2i **ya tiene** (Clase B en §2.3): se porta el cambio de Carlos solo si aporta algo que funcione en Gem2i sin arrastrar módulos no migrados (gobernanza, KMS, Companies, MMS…). Si no aporta o es idéntico → "saltado (idéntico / no aporta)".
+Criterio para módulos que contradicen una **decisión registrada** (`memory/DECISIONS.md`: D-GEM-2026-01/02 aislamiento + strip, D8 marca gem2i intacta) → **no se asume**: va a PENDIENTES PARA HUMANO.
+
+Método: árbol de Carlos @8a0d4dd extraído a una carpeta temporal y comparado archivo a archivo (fin de línea normalizado): **324 idénticos · 73 distintos · 443 solo en Carlos**. Cada diff se leyó entero y se partió en trozos "genéricos" (se portan) vs "atados a módulos no migrados" (se descartan).
+
+### Sector 1.A — Núcleo CMS ✅ (código listo; deploy al cierre)
+| # | Módulo | Resultado | Qué se portó / por qué no |
+|---|---|---|---|
+| 1 | Auth / Admin login | **Hecho (parcial)** | `is_admin()` en los 3 gates de `/auth/login`; **bug real arreglado**: My Account entra por `/auth/login` y el historial de logins (`last_login` + `member_logins`, source `gem2i`) solo se escribía en `/member/login` (sin uso) → Gem2i no registraba logins. Saltado: evento MMS, flags de gobernanza en `/auth/me` |
+| 2 | Miembros (CRUD admin) | **Hecho (parcial)** | **Contador atómico de `membership_number`** + `insert_member_with_retry` (carrera que podía duplicar números/IDs) en registro, alta admin, OAuth y leadcapture · `record_login_event` también al registrarse · MembersManager: prefijo dinámico (`settings.aux_prefix`) — antes mostraba "AUX-n" como sponsor en vez de "GEM-n" · Estado legible en la ficha. Saltado: `apply_member_defaults` (asignaría nivel/tipo por defecto → cambiaría lo que ven los miembros nuevos; es gobernanza #29), invitación desde Comunidad (#31), niveles/productos/páginas (#29/#30), mentoría, MMS, reader tier (KMS) |
+| 3 | Roles & permisos | **Hecho (parcial)** | Sembrador reconcilia nombre/descr. de roles del sistema · RolesManager muestra marcadas las casillas cuando `full_access`. Saltado: "products" por rol (#30) |
+| 4 | Admin por rol (`is_admin`) | **Hecho** | Backend: `is_admin()` en `database.py` (5 gates; `verify_password` endurecido intacto), `auth.py`, `membership.py`. Frontend: `lib/isAdmin.js` + App/AdminLayout/AdminLoginPage/MyAccountLayout/Forbidden/Navbar. Un 2º admin = asignar el rol Administrator en CMS |
+| 5 | Hero canvas + A/B | Saltado (no aporta) | Diff = hero del tema "Private Community Pro" (D8) + prop `adjust` (va con #46) |
+| 6 | Hero CTA por Acción | **Hecho (adaptado)** | `lib/ctaActions.js` + selector "Action" en HeroSlideForm + HeroSection. Adaptación Gem2i: "Login Required" dispara el evento `gem2i:open-login` (Gem2i no tiene interceptor `#login`) o va a `/my-account` si ya hay sesión. "Waiting List" oculto en el selector hasta que exista #31 |
+| 7 | Page Builder | Saltado (no aporta) | Solo prop `adjust` (→ #46) |
+| 8 | Section Order | Saltado (D8) | Solo temas familia Aurex |
+| 9 | Contenidos básicos | Saltado aquí | Books (orden/oculto/detalle) → se evalúa en #39 (1.D); resto = pestañas de personalidad PB, KMS, X OAuth, Model Portfolio |
+| 10 | Geo + Mapas | Saltado (no aporta) | Personalidades PB + `adjust` |
+| 11 | Landing + suscriptores | **Hecho** | Emails de Waiting List (operador + suscriptor) vía Email Management (2 plantillas nuevas) + bloque "Operator Notifications" (operator_email/cc) en Settings → Email |
+| 12 | Contacto | Idéntico | — |
+| 13 | Email templates | **Hecho (parcial)** | Las 2 plantillas de Waiting List. Plantillas de mentoría → con 1.C |
+| 14 | Captcha | **Hecho** | Prop `theme` en CaptchaWidget (compatible: por defecto sigue `dark`) |
+| 15 | SEO/Settings/Backup/Analytics | **Hecho (parcial)** | Operator Notifications (ver #11). Saltado: X, KMS reader pricing, My Account 2.0, mentoring flag; `adjust`/avatar por defecto → #46/#47 |
+| 16 | Stripe / Checkout | Saltado (R4, no aporta) | El único cambio es la suscripción de lectores KMS en el webhook |
+| 17 | i18n | Idéntico | — |
+| 18 | Personalidades | Saltado (D8) | Mini-sitios del tema Personal Brand |
+
+Verificación local 1.A: `py_compile` OK en los 7 .py tocados · `yarn build` verde (solo los 4 avisos previos). ⚠ No hay venv local con FastAPI → la prueba de import real la hace el deploy en la caja (con auto-rollback).
+
+---
+
+## PENDIENTES PARA HUMANO
+
+> Cada ítem: qué hace falta, quién, y la recomendación. Se añaden a medida que avanza la ejecución.
+
+| # | Módulo(s) | Qué necesita | Recomendación |
+|---|---|---|---|
+| H1 | #21 Invite Code | Poner **Site URL** `https://beta.gem2i.com` en CMS → Settings → General (sin eso el QR da 400 y el email de invitación se omite) + configurar **SMTP** | Hacerlo ya; es config de CMS, 1 minuto |
+| H2 | #21 Invite Code | Decidir a qué miembros se activa `can_create_qr` (CMS → Members) | Empezar por el admin y 1–2 promotores para probar |
+| H3 | #21/#22 | e2e con humanos tras el deploy (generar/enviar código → registrarse; QR `?sponsor=`; árbol de un miembro legacy con red) | Prueba de 10 min con un miembro de prueba |
+| H5 | #2 Miembros | Crear índices únicos `members.membership_number` y `members.membership_id` (cambio en BD). El contador atómico ya evita la carrera; los índices son la red final que activa el reintento | **Comprobado 2026-09-23 (solo lectura): 0 duplicados** de número y de ID; los 1.737 números son `int`; hoy solo existen los índices `_id_`, `legacy_id_1`, `email_1`. Es seguro crearlos: `db.members.createIndex({membership_number:1},{unique:true,name:"uniq_membership_number"})` y lo mismo con `membership_id` / `uniq_membership_id` |
+| H6 | #11 Landing | Poner **Operator Email** en CMS → Settings → Email para recibir los avisos de Waiting List (junto con SMTP, ver H1) | Hacerlo cuando se configure SMTP |
+| H4 | My Account (general) | El tema `my_account` de Theme Colors sigue en los valores por defecto (dorado de Carlos) y el menú lista ítems sin página en Gem2i (ebank, portfolios, "AUX Calendar", mentoría, bundles…) | Ajustar colores en CMS → Theme Colors → My Account y ocultar esos ítems en CMS → My Account Nav |

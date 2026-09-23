@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldOff, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
+import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 
 /**
  * CMS Section Guard
@@ -23,7 +24,7 @@ export function CmsSectionGuard({ section, children }) {
   const { user } = useAuth();
   const perms = (user?.effective_permissions) || [];
   const keys = Array.isArray(section) ? section : [section];
-  const allowed = user?.role === 'admin' || keys.some(k => perms.includes(k));
+  const allowed = isFullAdmin(user) || keys.some(k => perms.includes(k));
   if (!allowed) return <Forbidden section={keys[0]} />;
   return children;
 }
