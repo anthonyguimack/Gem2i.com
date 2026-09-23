@@ -9,6 +9,9 @@ The codebase is **forked from the AUX-1.0 CMS core and stripped** of all brand t
 ## D-GEM-2026-03 — Box = wiped clone (2026-07-15, Anthony)
 The box is a snapshot-clone of beta-carlos, chosen to inherit the installed Python/Node/nginx/Mongo/certbot runtimes. Everything brand-specific (app dirs, vhosts, LE certs, custom services, Mongo data) is wiped by `provision_gem2i_box.ps1 -Clean`; runtimes are preserved. Destructive steps are IP-guarded and gated behind `-IUnderstand`, and run only on Anthony's explicit GO.
 
+## D-GEM-2026-04 — Port from Carlos, lote 1: Invite Code + My Community (2026-09-23, Carlos M. Artiles)
+Ported per `work-plans-MD/PORT_FROM_CARLOS_PLAN.md` @ Carlos `8a0d4dd`. **Collection-name exception:** `invite_codes` keeps its core (non-`gem_`) name — it is an inherited CMS-core collection like `members`, and renaming it would touch the registration flow (legacy-login risk R8). **Privacy option (b):** My Community shows only name/ID/photo/country/state/city of downline members; email/phone/DOB/gender/ZIP are not rendered (still present in the API payload — option (c), trimming the endpoint, remains available).
+
 ---
 
 ## Carried from GEM2I_MIGRATION_PLAN §9 (D-2026-58, 2026-07-07) — still in force

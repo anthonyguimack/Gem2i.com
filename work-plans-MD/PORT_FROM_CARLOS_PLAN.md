@@ -1,10 +1,14 @@
 # PORT_FROM_CARLOS_PLAN.md — Portar funcionalidades de Carlos (AUX-1.0) → Gem2i
 
 ```
-CLAIMED BY : (libre) — lo ejecutará el colaborador en su máquina
-STATUS     : BORRADOR PARA REVISIÓN de Anthony. §1 y §2 completos. §3 ESPERA la selección
-             de módulos de Anthony (marcar [x] en §1). §4–§6 = procedimiento listo para usar.
-LAST SYNC  : 2026-09-23 · Carlos HEAD 6d47d6f · Gem2i HEAD 26b7d0e (= origin/main)
+CLAIMED BY : Carlos M. Artiles
+STATUS     : LOTE 1 = #21 Invite Code + QR y #22 My Community — PORTADO EN LOCAL (commit, sin
+             push ni deploy). Aprobado 2026-09-23 con privacidad opción (b). Copia §3.2 @8a0d4dd ✔ ·
+             fusión App.js ✔ · adaptación --ma-* + EN/ES + estados carga/error/vacío ✔ · build ✔.
+             Siguiente paso exacto: DEPLOY → poner Site URL en CMS → activar can_create_qr a quien
+             toque → e2e §3.3/§3.4 (checklist ítem 24).
+LAST SYNC  : 2026-09-23 · Carlos HEAD 8a0d4dd (= origin/main; vs 6d47d6f solo stamps+memory,
+             sin código → §2.3 sigue válida) · Gem2i HEAD 0e1357e (= origin/main)
 ```
 
 > **Plan portable.** Todas las rutas están escritas **relativas a la raíz de cada repo**:
@@ -58,8 +62,8 @@ LAST SYNC  : 2026-09-23 · Carlos HEAD 6d47d6f · Gem2i HEAD 26b7d0e (= origin/m
 |---|---|---|---|---|
 | [ ] | Registro / login de miembro | Registro con invite code, login, olvido/reset de contraseña | `pages/myaccount/Member{Register,Login,ForgotPassword,ResetPassword}.js`, `lib/memberAuth.js`, `components/LoginModal.js` | Sí (**muy re-estilizado por Gem2i**) |
 | [ ] | Enrollment wizard | Alta en 4 pasos configurable desde CMS | `backend/routes/enrollment.py`, `pages/MembershipEnrollment.js`, `pages/admin/EnrollmentFieldsManager.js` | Página sí; **`enrollment.py` y su manager NO** |
-| [ ] | Invite Code + QR | Generar códigos únicos, enviar invitación, QR de negocio | `pages/myaccount/InviteCode.js`, `routes/membership.py` | **No** (la página) |
-| [ ] | My Community | Árbol de downline, contadores, perfil del miembro | `pages/myaccount/MyCommunity.js`, `components/TreeNode.js` | **No** (la página; `TreeNode` sí) |
+| [x] | Invite Code + QR | Generar códigos únicos, enviar invitación, QR de negocio | `pages/myaccount/InviteCode.js`, `routes/membership.py` | **No** (la página) |
+| [x] | My Community | Árbol de downline, contadores, perfil del miembro | `pages/myaccount/MyCommunity.js`, `components/TreeNode.js` | **No** (la página; `TreeNode` sí) |
 | [ ] | My Sponsor | Datos del patrocinador | `pages/myaccount/MySponsor.js` | Sí |
 | [ ] | Perfil de membresía + biografía | Perfil, campos ocultables (ojo), biografía | `pages/myaccount/MembershipProfile.js`, `UpdateBiography.js` | Sí (versión 15-jul, sin campos ocultables) |
 | [ ] | My Account layout + navegación | Shell de My Account, menú configurable, Quick Links con SSO | `pages/myaccount/MyAccountLayout.js`, `pages/admin/MyAccountNavManager.js`, `QuickLinksManager.js`, `lib/myAccountBase.js`, `lib/myAccountThemes.js`, `lib/ssoNav.js` | Parcial (sin SSO/temas) |
@@ -264,6 +268,74 @@ git -C $GEM status --short
 > Probado 2026-09-23 en Windows PowerShell 5.1: archivos de texto y `.jpg` salen idénticos byte a byte.
 > Git Bash: `git -C "$CARLOS" archive --format=tar "$SHA" -- <rutas> | tar -x -f - -C "$GEM"` (en Bash la tubería sí es segura; si tar se queja de `C:`, añadir `--force-local`).
 > ⚠ Solo para archivos **clase E**. Un archivo clase C incluido en `$files` se **sobrescribe** → nunca ponerlos en la lista.
+
+### Hallazgo común del lote 1 (#21 + #22)
+
+Al hacer el strip del 15-jul se borraron **solo las dos páginas y sus rutas**; todo lo demás sobrevivió y ya está en Gem2i:
+- Backend (`routes/membership.py`, ya registrado): `POST /member/invite-codes/generate`, `GET /member/invite-codes`, `POST /member/invite-codes/{id}/send`, `POST /member/generate-qr`, `GET /member/my-community`. Comparados con Carlos @8a0d4dd: generate/list/generate-qr **idénticos**; `send` en Carlos añade un parámetro `destination` que **solo usa My Account 2.0** (la página 1.0 no lo envía) → no hace falta fusionar; `my-community` en Carlos añade 1 campo `account_status` (solo sirve con Lead capture #31) → no hace falta.
+- `lib/api.js`: `memberAPI.generateCodes/listCodes/sendInvite/generateQR/getCommunity` y `publicAPI.getSettings` **ya existen**.
+- `MyAccountLayout.js`: los ítems de menú `invite-code` y `my-community` **ya existen** → hoy apuntan a rutas que no existen en `App.js`.
+- `components/TreeNode.js`, `components/ui/{dialog,input,label}`, `lib/memberAuth.js` ya existen.
+- Registro: `MemberRegister.js` (reescrito por Gem2i) **ya acepta** `?code=` y `?sponsor=`. Plantilla email `invite_code` ya existe. `MembersManager.js` ya tiene el switch `can_create_qr`.
+- `qrcode` ya está en `requirements.txt`.
+
+**Consecuencia:** el lote es solo **2 archivos E + 1 fusión C (`App.js`)** + adaptación visual/i18n. **Cero cambios de backend.**
+
+Estado de la caja (consulta de solo lectura, 2026-09-23): `invite_codes` = 0 docs · miembros con `can_create_qr:true` = 0 · miembros con `sponsor_id` = 1.736 (legacy) · **`settings.site_url` NO definido y `SITE_URL` no está en `.env`**.
+
+Corrección al catálogo: #21 **no** depende de #28 (Prefijo de referido). El QR codifica `…/my-account/register?sponsor=<membership_number>`; `utils/referral.py` solo lo usan `news.py` y `morning.py`.
+
+### 3.3 Invite Code + QR (#21)
+Commit origen fijado: **8a0d4dd**
+| # | Origen (`<CARLOS>/…`) | Destino (`<GEM>/…`) | Tipo | Acción |
+|---|---|---|---|---|
+| 1 | `frontend/src/pages/myaccount/InviteCode.js` (279 líneas) | `frontend/src/pages/myaccount/InviteCode.js` | E | copiar (§3.2) + adaptar (i18n + colores, ver abajo) |
+| 2 | `frontend/src/App.js` | `frontend/src/App.js` | C | fusionar: +`const InviteCode = lazy(() => import('./pages/myaccount/InviteCode'))` + `<Route path="invite-code" element={<InviteCode />} />` dentro del bloque `/my-account` (Gem2i usa rutas anidadas; **no** traer `MA_ROUTES`/`MA_THEME_PAGES` de Carlos) |
+| — | `backend/routes/membership.py` | — | C | **nada** (endpoints ya presentes; `destination` no se usa) |
+| — | `frontend/src/lib/api.js`, `MyAccountLayout.js` | — | C | **nada** (ya presentes) |
+
+Dependencias transitivas: `lib/memberAuth` (A), `lib/api` (C, ya tiene las funciones), `components/ui/{dialog,input,label}` (A), `sonner`, `lucide-react` (ya en `package.json`). **Ninguna nueva.**
+Colecciones Mongo: `invite_codes` (colección del núcleo, heredada, 0 docs) → **se mantiene el nombre** (es núcleo como `members`; renombrarla obligaría a tocar el flujo de registro = zona R8). Campos en `members`: `qr_code`, `qr_url`, `qr_generated_at`, `can_create_qr`. Anotar en DECISIONS como excepción a `gem_*`.
+Checklist §4:
+- 1–4 N/A (backend ya registrado, sin seeds, sin paquetes, sin shims).
+- **5** sí (ruta en `App.js`). 6–8 N/A. **9** verificar que CMS → My Account Nav (`myaccount_links`) muestra el ítem.
+- **10** mantener `invite_codes` (ver arriba). 11 N/A.
+- **12** flag por miembro: `can_create_qr` (0 miembros lo tienen) → decidir a quién se le activa en CMS → Members.
+- 13 N/A. **14** la página trae la fuente `DM Serif Display` y el dorado de Carlos (`#c9a84c`) → quitar.
+- **15** ⚠ **Site URL**: poner `https://beta.gem2i.com` en CMS → Settings → General. Sin eso el QR da 400 y el email de invitación se omite. Además **SMTP no está configurado** → los emails de invitación no salen hasta configurarlo (el código se genera igual).
+- **16** 53 colores hex como fallback `var(--ma-*, #hex)` → variables del tema gem2i + **3 design skills**. **17** la página no usa `useT()` → textos EN/ES.
+- 18–21 N/A. 22 N/A (sin cambios de backend). **23** build local. **24** health + regresión + e2e: generar códigos → enviar → registrarse con `?code=`; activar `can_create_qr` → generar QR → registrarse con `?sponsor=` → comprobar `sponsor_id`.
+Riesgos §5: **R1** (fusión `App.js`), **R12** (fuente/colores de Carlos), **R13** (copiar de 8a0d4dd), R15. R8 indirecto: el registro con código crea miembros nuevos por el `MemberRegister` de Gem2i, que no se toca. R6/R7 **no aplican** (endpoints de miembro; el QR usa `membership_number`, no el prefijo).
+
+### 3.4 My Community (#22)
+Commit origen fijado: **8a0d4dd**
+| # | Origen (`<CARLOS>/…`) | Destino (`<GEM>/…`) | Tipo | Acción |
+|---|---|---|---|---|
+| 1 | `frontend/src/pages/myaccount/MyCommunity.js` (201 líneas) | `frontend/src/pages/myaccount/MyCommunity.js` | E | copiar (§3.2) + adaptar (i18n + colores) |
+| 2 | `frontend/src/App.js` | `frontend/src/App.js` | C | fusionar: +`const MyCommunity = lazy(...)` + `<Route path="my-community" element={<MyCommunity />} />` (misma edición que 3.3 #2) |
+| 3 | `frontend/src/components/TreeNode.js` | — | B | **no reemplazar**: Carlos solo añade el badge "Pre-reg" (`account_status`), que depende de Lead capture #31 |
+| — | `backend/routes/membership.py` | — | C | **nada** (el +1 campo `account_status` es de #31) |
+
+Dependencias transitivas: `lib/memberAuth` (A), `lib/api` (C, ya tiene `getCommunity` y `publicAPI.getSettings`), `components/TreeNode` (ya existe), `components/ui/dialog` (A). **Ninguna nueva.** Dependencia blanda con #21: los contadores "invitaciones totales/usadas" leen `invite_codes` (con #21 en el mismo lote, resuelto).
+Colecciones Mongo: `members` (lectura por `sponsor_id`, recursivo hasta 10 niveles, 500 por nivel), `invite_codes` (conteo). Sin colecciones nuevas.
+Checklist §4:
+- 1–4 N/A. **5** sí (ruta). 6–8 N/A. **9** verificar ítem en My Account Nav.
+- 10–11 N/A. 12 N/A.
+- **13** índice recomendado `members.sponsor_id` (el árbol hace una consulta por nodo; 1.736 miembros con sponsor). Crear con mongosh, no viaja con deploy.
+- **14** `#c9a84c` en el TreeNode/página → tema gem2i. 15 N/A.
+- **16** 16 hex → variables gem2i + design skills. **17** sin `useT()` → EN/ES.
+- 18–22 N/A. **23** build. **24** e2e con un miembro legacy que tenga downline real (los datos ya están: el árbol se llena al instante).
+Riesgos §5: **R1** (`App.js`), **R12** (colores), R13, R15.
+⚠ **Privacidad (decisión de Anthony):** el endpoint devuelve a cada sponsor **email, teléfono, fecha de nacimiento, género y dirección** de toda su red hasta 10 niveles. En Gem2i esto expone datos **reales** de los 1.736 miembros legacy a su línea ascendente desde el primer día. Opciones: (a) paridad con Carlos tal cual; (b) ocultar email/teléfono/fecha en la página; (c) recortar los campos en el endpoint (fusión en `membership.py`, clase C).
+**Decidido 2026-09-23: opción (b).** El modal muestra solo nombre, ID, foto y país/estado/ciudad. Email, teléfono, fecha de nacimiento, género y ZIP ya no se pintan. ⚠ Siguen viajando en la respuesta de `/member/my-community` (visibles en las devtools del navegador); si se quiere cerrar del todo → opción (c) más adelante.
+
+### 3.5 Resultado de la ejecución del lote 1 (2026-09-23)
+- Copiados @8a0d4dd: `InviteCode.js`, `MyCommunity.js`. Fusión `App.js`: +2 lazy imports y +2 `<Route>` bajo `/my-account`. Backend sin cambios.
+- Adaptación: colores → grupo CMS `--ma-*` (Theme Colors → My Account) sin fallbacks de Carlos; fuente DM Serif Display eliminada; textos EN/ES con `useT()`; fechas con `Intl` según idioma; estados de carga/error con reintento/vacío con explicación; labels/aria en tabla, formulario y botones de icono; formulario de envío con validación inline del email.
+- `TreeNode.js` no se tocó (sus clases doradas ya las remapea `index.css` a `--ma-accent` dentro de My Account).
+- Verificación: `yarn build` verde (solo los 4 avisos previos) · detector impeccable limpio.
+- Caja (solo lectura): los 1.737 miembros sin `level_id` → ven todos los ítems; `myaccount_nav` tiene `invite-code` y `my-community` visibles. El título sale de la etiqueta CMS de My Account Nav (hoy en inglés, "Invite Code"/"My Community") → traducirla en CMS si se quiere ES.
+- Pendiente fuera de alcance: el tema `my_account` en `theme_colors` usa aún los valores por defecto (dorado de Carlos) en todo My Account; el menú lista ítems sin página en Gem2i (ebank, portfolios, "AUX Calendar", mentoría, bundles…) → ocultarlos en CMS → My Account Nav.
 
 ---
 

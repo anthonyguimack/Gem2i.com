@@ -76,6 +76,8 @@ const MemberResetPassword = lazy(() => import('./pages/myaccount/MemberResetPass
 const MyAccountLayout = lazy(() => import('./pages/myaccount/MyAccountLayout'));
 const MembershipProfile = lazy(() => import('./pages/myaccount/MembershipProfile'));
 const MySponsor = lazy(() => import('./pages/myaccount/MySponsor'));
+const InviteCode = lazy(() => import('./pages/myaccount/InviteCode'));
+const MyCommunity = lazy(() => import('./pages/myaccount/MyCommunity'));
 // gem2i Phase-2 catalogs — theme-gated routes; lazy so other themes never load them.
 const Gem2iArtists = lazy(() => import('./pages/gem2i/Gem2iArtists'));
 const Gem2iArtistDetail = lazy(() => import('./pages/gem2i/Gem2iArtistDetail'));
@@ -415,6 +417,8 @@ function AppRouter() {
           <Route index element={<Navigate to="/my-account/membership-profile" replace />} />
           <Route path="membership-profile" element={<MembershipProfile />} />
           <Route path="my-sponsor" element={<MySponsor />} />
+          <Route path="invite-code" element={<InviteCode />} />
+          <Route path="my-community" element={<MyCommunity />} />
         </Route>
       </Routes>
       </Suspense>
