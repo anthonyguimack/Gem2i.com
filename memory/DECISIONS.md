@@ -12,6 +12,9 @@ The box is a snapshot-clone of beta-carlos, chosen to inherit the installed Pyth
 ## D-GEM-2026-04 — Port from Carlos, lote 1: Invite Code + My Community (2026-09-23, Carlos M. Artiles)
 Ported per `work-plans-MD/PORT_FROM_CARLOS_PLAN.md` @ Carlos `8a0d4dd`. **Collection-name exception:** `invite_codes` (and, from sector 1.B, `enrollment_fields` / `enrollment_content` / `enrollment_applications` and the `counters` doc used by the atomic membership-number allocator) keep their core (non-`gem_`) names — it is an inherited CMS-core collection like `members`, and renaming it would touch the registration flow (legacy-login risk R8). **Privacy option (b):** My Community shows only name/ID/photo/country/state/city of downline members; email/phone/DOB/gender/ZIP are not rendered (still present in the API payload — option (c), trimming the endpoint, remains available).
 
+## D-GEM-2026-05 — Membership levels & enrollment "like Carlos" (2026-09-23, Carlos M. Artiles)
+Owner rulings after the port: (1) **enrollment** keeps Carlos' questionnaire and legal texts (his 50-field seed restored); (2) **levels** are Carlos' — Nivel 0 / Nivel 1 with his section permissions, **enforced server-side** (`membership_v2_enabled` + `level_enforcement_mode:"enforce"`), every non-admin member on Nivel 0. Level *labels* may be renamed in the CMS; the *access-by-level* behaviour may not be changed. Gem2i-specific exceptions forced by its data: gem2i's 5 legacy **member types stay** (they drive guest-list benefits — no "Simple" reset), and levels grant no quick links (gem2i has none). Consequence to remember: Invite Code / My Community are closed for Nivel 0 until a level lists them (CMS → Member Levels).
+
 ---
 
 ## Carried from GEM2I_MIGRATION_PLAN §9 (D-2026-58, 2026-07-07) — still in force

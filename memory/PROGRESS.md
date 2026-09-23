@@ -18,6 +18,11 @@
 
 **Commits:** d314981 (lote 1) · a4aff07 (1.A) · 7f5fad3 (1.B) · cff91d1 (enrollment R12 fix) · 509101c (1.D) + FINISH.
 
+**Same day, owner follow-ups (D-GEM-2026-05):**
+- e2e without login done by Claude (QR sponsor page, sponsor/code validation, community data); account creation/login parts left to a human (H3). Found: GEM-3 tree = 1,625 people / 8 levels, **7.2 s** without a `sponsor_id` index (H18); `settings.operator_email` still empty (H19).
+- **Enrollment like Carlos:** his 50 fields + legal texts + step labels restored (d9998ea); neutral set backed up in `/opt/_port_backups/`.
+- **Governance like Carlos (#29):** code 6ef4b21 (level gate in `get_current_member`, `utils/{level_access,product_access,member_capabilities,site_pages}`, level editor, `apply_member_defaults`) + data via `scripts/gem2i_gov_migrate_levels.js` (Nivel 0/1, enforce + v2 ON, 1,736 members → Nivel 0; types untouched; backups `/opt/_port_backups/gov_*_before.json`). Verified with deployed code: Nivel 0 → profile/sponsor/QR/guest-list/tickets allowed, **Invite Code + My Community denied** (as in Carlos); admin allowed everywhere.
+
 ## 2026-07-17 (session 5 continued, Anthony's machine) — PHASE 4/5 HISTORICAL-DATA ETL LOADED (data-only, no deploy)
 
 **All legacy per-event commerce config + the full transaction/points history are now in Mongo.** New two-stage ETL: `scripts/gem2i_etl_history.py` (local) + `scripts/gem2i_load_history.py` (box, idempotent).
