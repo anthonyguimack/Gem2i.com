@@ -191,6 +191,7 @@ const CONFIGS = {
       { key: 'show_portal', label: 'Show on the GEM2i portal', type: 'switch', half: true },
       { key: 'guest_list', label: 'Guest list', type: 'guestList' },
       { key: 'tiers', label: 'Ticket tiers', type: 'tiers' },
+      { key: 'points', label: 'Reward points', type: 'points' },
       { key: 'payment.currency', label: 'Payment currency', type: 'select', half: true, options: [
         { value: 'usd', label: 'USD' }, { value: 'eur', label: 'EUR' }, { value: 'gbp', label: 'GBP' },
       ] },
@@ -326,6 +327,60 @@ function TiersEditor({ value, onChange }) {
         );
       })}
       <p className="text-[11px] text-slate-400 mt-2">A tier is on sale when price &gt; 0 and stock &gt; 0. Profit &amp; 6-level e-commissions are computed at purchase.</p>
+    </div>
+  );
+}
+
+/** Reward-points sub-editor for events: the legacy point settings migrated as-is
+ *  (per event type). Configuration only — the award rules are defined later. The
+ *  summary keys mirror the ETL mapping so both views stay consistent. */
+const POINT_FIELDS = {
+  eticket: {
+    group: 'legacy_eticket',
+    rows: [
+      ['purchase_for_self', 'Purchase for self'],
+      ['each_additional', 'Each additional ticket'],
+      ['purchase_for_a_friend', 'Purchase for a friend'],
+      ['invite_to_purchase_share', 'Invite to purchase (share)'],
+      ['friend_purchased_via_invite', 'Friend purchased via invite'],
+    ],
+    summary: { purchase: 'purchase_for_self', invite_share: 'invite_to_purchase_share' },
+  },
+  guest_list: {
+    group: 'legacy_guest_list',
+    rows: [
+      ['yourself_points', 'Join the list yourself'],
+      ['add_friend_points', 'Add a friend'],
+      ['invite_friends_points', 'Invite friends'],
+      ['list_registration_reward_points', 'List registration reward'],
+      ['list_check_in_reward_points', 'Check-in reward'],
+    ],
+    summary: { guest_list_self: 'yourself_points' },
+  },
+};
+function PointsEditor({ eventType, value, onChange }) {
+  const spec = POINT_FIELDS[eventType];
+  const points = value || {};
+  const group = points[spec.group] || {};
+  const setField = (key, raw) => {
+    const n = raw === '' ? 0 : Math.max(0, Math.round(Number(raw) || 0));
+    const nextGroup = { ...group, [key]: n };
+    const next = { ...points, [spec.group]: nextGroup };
+    Object.entries(spec.summary).forEach(([sumKey, src]) => { next[sumKey] = nextGroup[src] || 0; });
+    onChange(next);
+  };
+  return (
+    <div className="border border-slate-200 rounded-sm p-3 mt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+        {spec.rows.map(([key, label]) => (
+          <label key={key} className="flex items-center justify-between gap-3 text-xs text-slate-600">
+            <span>{label}</span>
+            <Input type="number" min="0" step="1" className="h-8 w-24 text-xs" value={group[key] ?? 0}
+              onChange={(e) => setField(key, e.target.value)} data-testid={`points-${key}`} />
+          </label>
+        ))}
+      </div>
+      <p className="text-[11px] text-slate-400 mt-2">Point values migrated from the legacy site. They are stored per event; the rules that award them are defined separately.</p>
     </div>
   );
 }
@@ -578,6 +633,9 @@ export default function GemCatalogManager({ catalog }) {
       case 'tiers':
         return editing.type === 'eticket' ? <TiersEditor value={val} onChange={set} />
           : <p className="text-xs text-slate-400 mt-1">Set the event type to "E-Ticket" to configure tiers.</p>;
+      case 'points':
+        return POINT_FIELDS[editing.type] ? <PointsEditor eventType={editing.type} value={val} onChange={set} />
+          : <p className="text-xs text-slate-400 mt-1">Reward points apply to E-Ticket and Guest List events.</p>;
       default:
         return null;
     }
