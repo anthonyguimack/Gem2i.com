@@ -53,7 +53,7 @@ function formatCurrency(val) {
   return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-const STEP_LABELS = ['Invitation Code', 'Personal Details', 'Agreement & Signature', 'Confirm & Submit'];
+const STEP_LABELS = ['Invitation CODE', 'Clarity Statement and Interview', 'Application Enrollment', 'Confirm & Submit'];
 
 export default function MembershipEnrollment() {
   const navigate = useNavigate();
