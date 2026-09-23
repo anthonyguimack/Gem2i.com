@@ -1,23 +1,41 @@
 import React, { useRef, useState } from 'react';
 import { adminAPI } from '../lib/api';
 import { Upload, Loader2, X, Image } from 'lucide-react';
+import ImageAdjust from './ImageAdjust';
 
-export default function ImageUpload({ value, onChange, className }) {
+// SVGs aren't canvas-friendly (no intrinsic size / tainting) — they always
+// upload raw, so the adjust modal is skipped for them.
+const isSvg = (file) => file && (file.type === 'image/svg+xml' || /\.svg$/i.test(file.name || ''));
+
+// `adjust`          — opt-in: open the Crop / Auto Stretch / Use Original modal before upload.
+// `adjustRatio`     — target aspect ratio for Auto Stretch + preview (default 3:2).
+// `adjustDefaultMode` — which tab opens first ('crop' | 'stretch' | 'original').
+//                       Use 'original' for logos so transparency is kept by default.
+export default function ImageUpload({ value, onChange, className, adjust = false, adjustRatio = 3 / 2, adjustDefaultMode = 'crop' }) {
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [adjustFile, setAdjustFile] = useState(null);
 
-  const handleUpload = async (file) => {
-    if (!file) return;
+  const doUpload = async (fileOrBlob) => {
+    if (!fileOrBlob) return;
     setUploading(true);
     try {
-      const res = await adminAPI.uploadImage(file);
+      const res = await adminAPI.uploadImage(fileOrBlob);
       onChange(res.data.url);
     } catch (e) {
       alert(e.response?.data?.detail || 'Upload failed');
     } finally {
       setUploading(false);
     }
+  };
+
+  // Entry point for a picked/dropped file: route through the adjust modal when
+  // enabled (and not an SVG), otherwise upload as-is.
+  const handleUpload = (file) => {
+    if (!file) return;
+    if (adjust && !isSvg(file)) { setAdjustFile(file); return; }
+    doUpload(file);
   };
 
   const handleDrop = (e) => {
@@ -56,7 +74,24 @@ export default function ImageUpload({ value, onChange, className }) {
           )}
         </div>
       )}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files[0])} />
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { handleUpload(e.target.files[0]); e.target.value = ''; }} />
+      {adjustFile && (
+        <ImageAdjust
+          file={adjustFile}
+          targetRatio={adjustRatio}
+          defaultMode={adjustDefaultMode}
+          onCancel={() => setAdjustFile(null)}
+          onConfirm={(blobOrFile, filename) => {
+            setAdjustFile(null);
+            // Wrap a produced Blob in a File so the upload carries the right
+            // name+type (the backend derives the extension from the filename).
+            const payload = (blobOrFile instanceof File)
+              ? blobOrFile
+              : new File([blobOrFile], filename, { type: blobOrFile.type });
+            doUpload(payload);
+          }}
+        />
+      )}
       {/* URL fallback input */}
       <input
         type="text" value={value || ''} onChange={e => onChange(e.target.value)}

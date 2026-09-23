@@ -467,19 +467,19 @@ export default function SettingsManager() {
               <div>
                 <Label>Logo On #1 <span className="text-xs text-slate-400 font-normal">(Hero / Initial)</span></Label>
                 <p className="text-xs text-slate-400 mb-2">Shown on the hero or when the page first loads (before scrolling).</p>
-                <ImageUpload value={settings.logo_on_1 || ''} onChange={v => setSettings({...settings, logo_on_1: v})} data-testid="settings-logo-on-1" />
+                <ImageUpload value={settings.logo_on_1 || ''} onChange={v => setSettings({...settings, logo_on_1: v})} adjust adjustDefaultMode="original" data-testid="settings-logo-on-1" />
               </div>
               <div>
                 <Label>Logo On #2 <span className="text-xs text-slate-400 font-normal">(Scrolled Header)</span></Label>
                 <p className="text-xs text-slate-400 mb-2">Shown when the header has a white/solid background (after scrolling).</p>
-                <ImageUpload value={settings.logo_on_2 || ''} onChange={v => setSettings({...settings, logo_on_2: v})} data-testid="settings-logo-on-2" />
+                <ImageUpload value={settings.logo_on_2 || ''} onChange={v => setSettings({...settings, logo_on_2: v})} adjust adjustDefaultMode="original" data-testid="settings-logo-on-2" />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label>Logo Off <span className="text-xs text-slate-400 font-normal">(Footer, Admin Sidebar, My Account)</span></Label>
                 <p className="text-xs text-slate-400 mb-2">Displayed in the footer, admin sidebar, and My Account sidebar.</p>
-                <ImageUpload value={settings.logo_off || ''} onChange={v => setSettings({...settings, logo_off: v})} data-testid="settings-logo-off" />
+                <ImageUpload value={settings.logo_off || ''} onChange={v => setSettings({...settings, logo_off: v})} adjust adjustDefaultMode="original" data-testid="settings-logo-off" />
               </div>
               <div>
                 <Label>Favicon</Label>
@@ -547,7 +547,7 @@ export default function SettingsManager() {
                 <div>
                   <Label>Landing Page Logo</Label>
                   <p className="text-xs text-slate-400 mb-1">Exclusive logo for the landing page. Upload or paste URL.</p>
-                  <ImageUpload value={settings.landing_page_logo || ''} onChange={v => setSettings({...settings, landing_page_logo: v})} data-testid="lp-logo" />
+                  <ImageUpload value={settings.landing_page_logo || ''} onChange={v => setSettings({...settings, landing_page_logo: v})} adjust adjustDefaultMode="original" data-testid="lp-logo" />
                 </div>
               </>
             )}
@@ -556,7 +556,7 @@ export default function SettingsManager() {
               <div>
                 <Label>Membership Enrollment Logo</Label>
                 <p className="text-xs text-slate-400 mb-1">Exclusive logo displayed only in the Membership Enrollment portal. Upload or paste URL.</p>
-                <ImageUpload value={settings.enrollment_logo || ''} onChange={v => setSettings({...settings, enrollment_logo: v})} data-testid="enrollment-logo" />
+                <ImageUpload value={settings.enrollment_logo || ''} onChange={v => setSettings({...settings, enrollment_logo: v})} adjust adjustDefaultMode="original" data-testid="enrollment-logo" />
               </div>
             </div>
 
@@ -888,9 +888,9 @@ export default function SettingsManager() {
               <div><Label>Platform Domain</Label><Input value={settings.platform_domain || ''} onChange={e => setSettings({...settings, platform_domain: e.target.value})} className="mt-1" placeholder="legacy.com" /></div>
             </div>
             <div><Label>Login Background Image</Label>
-              <ImageUpload value={settings.membership_login_bg || ''} onChange={val => setSettings({...settings, membership_login_bg: val})} className="mt-1" /></div>
+              <ImageUpload value={settings.membership_login_bg || ''} onChange={val => setSettings({...settings, membership_login_bg: val})} className="mt-1" adjust adjustRatio={16 / 9} /></div>
             <div><Label>Default Member Avatar</Label>
-              <ImageUpload value={settings.membership_default_avatar || ''} onChange={val => setSettings({...settings, membership_default_avatar: val})} className="mt-1" /></div>
+              <ImageUpload value={settings.membership_default_avatar || ''} onChange={val => setSettings({...settings, membership_default_avatar: val})} className="mt-1" adjust adjustRatio={1} /></div>
             <div><Label>Welcome Email Template</Label>
               <p className="text-xs text-slate-400 mb-1">Use placeholders: {'{{first_name}}'}, {'{{last_name}}'}, {'{{membership_id}}'}, {'{{username}}'}, {'{{platform_name}}'}</p>
               <div className="mt-1"><RichTextEditor value={settings.welcome_email_template || ''} onChange={val => setSettings({...settings, welcome_email_template: val})} placeholder="Welcome email HTML template..." /></div>

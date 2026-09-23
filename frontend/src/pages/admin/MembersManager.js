@@ -269,7 +269,7 @@ export default function MembersManager() {
                   </div>
                   <div><Label className="text-xs">HTTP Access</Label><Input value={editing.http_access || ''} readOnly className="mt-1 bg-slate-100 cursor-not-allowed" data-testid="http-access-input" /><p className="text-xs text-slate-400 mt-0.5">Auto-populated from the domain where the member registered.</p></div>
                   <div><Label className="text-xs">Avatar</Label>
-                    <ImageUpload value={editing.avatar || ''} onChange={v => setEditing({...editing, avatar: v})} />
+                    <ImageUpload value={editing.avatar || ''} onChange={v => setEditing({...editing, avatar: v})} adjust adjustRatio={1} />
                   </div>
                 </div>
               )}

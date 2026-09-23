@@ -26,7 +26,7 @@ export default function BlockConfigModal({ block, open, onClose, onSave }) {
           <div className="space-y-4">
             <div>
               <Label className="text-xs text-slate-500">Image</Label>
-              <ImageUpload value={config.src || ''} onChange={v => setConfig({ ...config, src: v })} />
+              <ImageUpload value={config.src || ''} onChange={v => setConfig({ ...config, src: v })} adjust />
             </div>
             <div>
               <Label className="text-xs text-slate-500">Alt Text</Label>
@@ -64,7 +64,7 @@ export default function BlockConfigModal({ block, open, onClose, onSave }) {
             </div>
             <div>
               <Label className="text-xs text-slate-500">Photo</Label>
-              <ImageUpload value={config.image || ''} onChange={v => setConfig({ ...config, image: v })} />
+              <ImageUpload value={config.image || ''} onChange={v => setConfig({ ...config, image: v })} adjust />
             </div>
             <div>
               <Label className="text-xs text-slate-500">Bio</Label>

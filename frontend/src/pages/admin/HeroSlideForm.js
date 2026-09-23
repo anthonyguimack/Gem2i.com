@@ -395,7 +395,7 @@ export default function HeroSlideForm() {
         ) : (
           <div>
             <Label className="text-xs text-slate-500 mb-1 block">Photo</Label>
-            <ImageUpload value={form.photo} onChange={v => setForm(p => ({...p, photo: v}))} className="mt-1" />
+            <ImageUpload value={form.photo} onChange={v => setForm(p => ({...p, photo: v}))} className="mt-1" adjust adjustDefaultMode="original" />
           </div>
         )}
       </div>
@@ -420,7 +420,7 @@ export default function HeroSlideForm() {
       <div className={sectionCls}>
         <h2 className={sectionTitle}>Background</h2>
         <Label className="text-xs text-slate-500 mb-1 block">Background Image</Label>
-        <ImageUpload value={form.background} onChange={v => setForm(p => ({...p, background: v}))} className="mt-1" />
+        <ImageUpload value={form.background} onChange={v => setForm(p => ({...p, background: v}))} className="mt-1" adjust adjustRatio={16 / 9} />
       </div>
 
       {/* Layer Animation Effects */}

@@ -175,7 +175,7 @@ export default function MapsManager() {
           {editMap && <div className="space-y-4">
             <div><Label>Title</Label><Input value={editMap.title} onChange={e => setEditMap({...editMap, title: e.target.value})} className="mt-1" data-testid="map-title-input" /></div>
             <div><Label>Description</Label><textarea value={editMap.description} onChange={e => setEditMap({...editMap, description: e.target.value})} rows={3} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-sm text-sm mt-1" /></div>
-            <div><Label>Cover Image</Label><ImageUpload value={editMap.cover_image} onChange={v => setEditMap({...editMap, cover_image: v})} className="mt-1" /></div>
+            <div><Label>Cover Image</Label><ImageUpload value={editMap.cover_image} onChange={v => setEditMap({...editMap, cover_image: v})} className="mt-1" adjust /></div>
             <button onClick={saveMap} disabled={loading} className="w-full bg-[#0D9488] text-white py-2 rounded-sm text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2" data-testid="save-map-btn">{loading && <Loader2 className="w-4 h-4 animate-spin" />} Save</button>
           </div>}
         </DialogContent>

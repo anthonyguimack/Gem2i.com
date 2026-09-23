@@ -493,6 +493,33 @@ Verificación local 1.A: `py_compile` OK en los 7 .py tocados · `yarn build` ve
 
 Verificación local 1.B: `py_compile` OK · `yarn build` verde (solo los 4 avisos previos) · detector impeccable limpio en los 5 archivos de UI.
 **Deploy 1.B: GREEN 3m46s**, y en la verificación apareció un **fallo R12 (datos de Carlos colados)**: el seed de enrollment traía el cuestionario financiero de Carlos (activos, deuda, credit score, inversiones…) y 3 textos legales de ACG ("ACGMP Privacy Policy") → visibles en `/membership-enrollment` público. **Corregido**: `DEFAULT_FIELDS` reescrito a 19 campos neutros (identidad + contacto + firma + confirmación + 1 aceptación genérica de Términos/Privacidad; el submit solo consume esos campos) y **revertido el efecto en BD de mi propio deploy**: los 50 campos creados a las 16:02:27 por ese deploy (la colección no existía antes; 0 solicitudes dependientes) se exportaron a `/opt/_port_backups/enrollment_fields_carlos_seed_20260923.json` y se borraron; el redeploy siembra el set neutro.
+**Redeploy de corrección: GREEN 1m48s** — `/api/public/enrollment-fields` = 19 campos neutros; `/membership-enrollment` renderiza en navegador (antes fallaba); modal Waiting List renderiza con estilo gem2i. Etiquetas de pasos del enrollment cambiadas a neutras (salen en el deploy del siguiente sector).
+
+### Sector 1.C — Puntos, comercio y mentoría ⏸ (nada portable sin decisión humana)
+| # | Módulo | Resultado | Motivo |
+|---|---|---|---|
+| 32 | Puntos del miembro | **PENDIENTE (H12)** | R2: Gem2i ya tiene su propio libro de puntos (`gem_points_history`, 6.457 filas legacy + `points_actions`) y la Fase 6 de su plan (B5 share→referral + puntos por compra). Portar el motor de Carlos crearía un 2º libro |
+| 33 | eBank / ganancias | **PENDIENTE (H12)** | R2 + R4; depende de #32 y #35; sus campos son de inversión (metas, capital, riesgo) |
+| 34 | Bundles + cupones | **PENDIENTE (H12)** | Son paquetes de **sesiones de mentoría** (depende de #35, R14) + R4 (Stripe) |
+| 35 | Mentoría (agenda) | **PENDIENTE (H12)** | Producto de mentoría financiera; no existe en el plan de Gem2i. R3 + R4 |
+| 36 | Mentoring System | **PENDIENTE (H12)** | Depende de #35, #26 y del LMS (1.F) — R14 |
+| 37 | Calendario global + iCal | **PENDIENTE (H12)** | R3: Gem2i ya tiene `gem_events` (1.704 eventos, guest list, tickets). Un 2º sistema de eventos confundiría |
+| 38 | Portafolios del miembro | **PENDIENTE (H12)** | Son carteras de **inversión** (holdings, efectivo, empresas/sectores/industrias) → depende de Companies #40 (R14) |
+
+Sin cambios de código en 1.C.
+
+### Sector 1.D — Contenido y directorios ✅ (código listo; deploy al cierre)
+| # | Módulo | Resultado | Detalle |
+|---|---|---|---|
+| 39 | Reading List (libros) | Saltado (no aporta) | El tema gem2i no muestra la Reading List en ningún sitio; los 3 libros en BD son semilla demo del fork. El detalle de libro de Carlos además depende del KMS (posts relacionados) |
+| 40 | Companies | **PENDIENTE (H13)** | Directorio de inversión (572 empresas, CIK/IR); se quitó a propósito en el strip (D-GEM-2026-02) |
+| 41 | Opportunities | **PENDIENTE (H13)** | Igual que #40 y depende de él |
+| 42 | Model Portfolio | **PENDIENTE (H13)** | Depende de KMS + Companies (R14) |
+| 43 | Featured Projects / Conferences / Recommended | Saltado (no aporta) | Lista el contenido "Portfolio" de Carlos; Gem2i ya tiene sus propios catálogos (incl. conferencias) |
+| 44 | Documentación (admin) | **PENDIENTE (H14)** | Los manuales son de Carlos (R12: onboarding, skills, logos…); portarlos tal cual filtraría su documentación |
+| 45 | Reports / Analytics | **PENDIENTE (H14)** | Solo se monta dentro de My Account 2.0 (#26) y calcula ingresos desde `payment_transactions`; en Gem2i los ingresos viven en `gem_transactions` → mostraría 0. Sería trabajo nuevo, no un port |
+| 46 | ImageAdjust (recorte) | **Hecho** | `ImageAdjust` + `ImageUpload`/`MemberImageUpload` con la opción `adjust` (apagada por defecto). Activada en 13 puntos **del CMS**: logos (modo "original" para conservar transparencia), fondo de login y del hero (16:9), avatares (1:1), foto del hero, bloques del Page Builder, portada de mapas. **No** activada en el avatar del miembro (el modal usa el teal del CMS y chocaría con My Account oscuro) |
+| 47 | Imágenes por defecto | **Hecho** (en 1.B) | — |
 
 ---
 
@@ -511,4 +538,8 @@ Verificación local 1.B: `py_compile` OK · `yarn build` verde (solo los 4 aviso
 | H8 | #29 Gobernanza NIVEL/TIPO/ROL | Decidir el modelo de acceso de Gem2i: hoy los 1.737 miembros **no tienen nivel** (ven todo) y existen "Level 1–4" heredados del fork. La gobernanza de Carlos cambia qué ve cada miembro (niveles aplicados en servidor, capacidades por tipo, páginas por nivel, nivel/tipo por defecto al registrarse) | Primero definir los niveles de negocio de Gem2i (¿qué ve un miembro normal vs promotor vs VIP?) con Anthony; después portar. Sin esa definición portarlo solo añade código inerte o cambia accesos sin querer |
 | H9 | #30 Puerta única de productos | Depende de los productos hermanos 57–61 (IMS/PMS/LMS/MMS/Journal), que no existen en Gem2i (R14) | Saltar mientras no se decida portar algún producto hermano |
 | H10 | #20 Enrollment | El formulario de alta quedó con un set neutro de 19 campos y un texto legal **genérico** ("Terms of Service & Privacy Policy"). Falta el texto legal real de Gem2i y decidir si el alta pide algo más (p. ej. preguntas del mundo entretenimiento) | Anthony redacta/valida el texto legal y lo pega en CMS → Membership Enrollment → Content; los campos extra se añaden desde ese mismo editor, sin código |
+| H11 | #20 Enrollment (look) | `/membership-enrollment` ya funciona pero se ve con la paleta "Enrollment" por defecto (naranja/clara), que nunca se configuró para gem2i | Ajustar en CMS → Settings → Theme Colors → Enrollment (fondo oscuro #04080C, acento #3287B7) — es config, sin código. Las etiquetas de los pasos ya se cambiaron a neutras en código |
+| H12 | Sector 1.C completo (#32–#38) | Decisión de producto: ¿Gem2i necesita mentoría, sesiones de pago, eBank, carteras de inversión, un calendario aparte? Todos son del mundo financiero/mentoría de Carlos, y los puntos chocan con el libro propio de Gem2i (R2) | **No portar 1.C.** Para puntos: construir la Fase 6 de Gem2i sobre `gem_points_history` (B5 share→referral + puntos por compra de ticket). Revisar #37 solo si se quiere un calendario de miembros distinto de los eventos |
+| H13 | #40 Companies · #41 Opportunities · #42 Model Portfolio · #66 slash-commands · #69 banco de logos | Revertir la decisión del strip (D-GEM-2026-02): son el directorio de inversión de Carlos, sin relación con un portal de entretenimiento | **No portar.** Si algún día Gem2i quiere un directorio (p. ej. de agencias/promotoras), construirlo sobre los catálogos `gem_*` existentes |
+| H14 | #44 Documentación · #45 Reports | Docs: decidir si Gem2i quiere manuales en el CMS (el motor sirve, el contenido de Carlos no). Reports: decidir si se quiere un panel de métricas | Docs: escribir manuales propios de Gem2i cuando el producto esté estable. Reports: construir un informe propio sobre `gem_transactions` + `member_logins` (logins ya se registran desde 1.A) |
 | H4 | My Account (general) | El tema `my_account` de Theme Colors sigue en los valores por defecto (dorado de Carlos) y el menú lista ítems sin página en Gem2i (ebank, portfolios, "AUX Calendar", mentoría, bundles…) | Ajustar colores en CMS → Theme Colors → My Account y ocultar esos ítems en CMS → My Account Nav |

@@ -1,23 +1,38 @@
 import React, { useRef, useState } from 'react';
 import { memberAPI } from '../lib/api';
 import { Upload, Loader2, X, Image } from 'lucide-react';
+import ImageAdjust from './ImageAdjust';
 
-export default function MemberImageUpload({ value, onChange, className }) {
+// SVGs aren't canvas-friendly — they always upload raw (modal skipped).
+const isSvg = (file) => file && (file.type === 'image/svg+xml' || /\.svg$/i.test(file.name || ''));
+
+// `adjust`            — opt-in: open the Crop / Auto Stretch / Use Original modal before upload.
+// `adjustRatio`       — target aspect ratio for Auto Stretch + preview (default 3:2).
+// `adjustDefaultMode` — which tab opens first ('crop' | 'stretch' | 'original').
+export default function MemberImageUpload({ value, onChange, className, adjust = false, adjustRatio = 3 / 2, adjustDefaultMode = 'crop' }) {
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [adjustFile, setAdjustFile] = useState(null);
 
-  const handleUpload = async (file) => {
-    if (!file) return;
+  const doUpload = async (fileOrBlob) => {
+    if (!fileOrBlob) return;
     setUploading(true);
     try {
-      const res = await memberAPI.uploadImage(file);
+      const res = await memberAPI.uploadImage(fileOrBlob);
       onChange(res.data.url);
     } catch (e) {
       alert(e.response?.data?.detail || 'Upload failed');
     } finally {
       setUploading(false);
     }
+  };
+
+  // Route through the adjust modal when enabled (and not an SVG), else upload as-is.
+  const handleUpload = (file) => {
+    if (!file) return;
+    if (adjust && !isSvg(file)) { setAdjustFile(file); return; }
+    doUpload(file);
   };
 
   const handleDrop = (e) => {
@@ -56,7 +71,22 @@ export default function MemberImageUpload({ value, onChange, className }) {
           )}
         </div>
       )}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files[0])} />
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { handleUpload(e.target.files[0]); e.target.value = ''; }} />
+      {adjustFile && (
+        <ImageAdjust
+          file={adjustFile}
+          targetRatio={adjustRatio}
+          defaultMode={adjustDefaultMode}
+          onCancel={() => setAdjustFile(null)}
+          onConfirm={(blobOrFile, filename) => {
+            setAdjustFile(null);
+            const payload = (blobOrFile instanceof File)
+              ? blobOrFile
+              : new File([blobOrFile], filename, { type: blobOrFile.type });
+            doUpload(payload);
+          }}
+        />
+      )}
       <input
         type="text" value={value || ''} onChange={e => onChange(e.target.value)}
         placeholder="Or paste image URL..."
