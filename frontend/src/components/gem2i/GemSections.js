@@ -621,19 +621,19 @@ export function GemVenueGrid({ config = {}, items = [], limit = 12 }) {
           const where = [tt(v.city), tt(v.country)].filter(Boolean).join(', ');
           return (
             <li key={v.id}>
-              <Link to={`/venues/${v.slug}`} className="group relative block aspect-[2/1] overflow-hidden outline-none" style={{ backgroundColor: CARD }}
+              <Link to={`/venues/${v.slug}`} className="group relative block aspect-[4/3] overflow-hidden outline-none" style={{ backgroundColor: CARD }}
                 aria-label={`${tt(v.name)}${where ? ` · ${where}` : ''}`}>
                 <img src={view(v)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-visible:scale-105 motion-reduce:transition-none" />
-                <span className="absolute left-3 top-3 z-10 min-w-[38px] h-[38px] px-2 inline-flex items-center justify-center text-white text-[17px] font-semibold tabular-nums" style={{ backgroundColor: 'var(--color-accent, #0068b3)' }}>{i + 1}</span>
+                <span className="absolute left-4 top-4 z-10 min-w-[44px] h-[44px] px-2 inline-flex items-center justify-center text-white text-[19px] font-semibold tabular-nums" style={{ backgroundColor: 'var(--color-accent, #0068b3)' }}>{i + 1}</span>
                 {logo(v) && (
-                  <span className="absolute right-3 top-3 z-10 w-[84px] h-[84px] rounded-full bg-white flex items-center justify-center p-3 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]">
+                  <span className="absolute right-4 top-4 z-10 w-[88px] h-[88px] 2xl:w-[104px] 2xl:h-[104px] rounded-full bg-white flex items-center justify-center p-3 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]">
                     <img src={logo(v)} alt="" loading="lazy" className="max-w-full max-h-full object-contain transition-opacity duration-300 group-hover:opacity-0 group-focus-visible:opacity-0" />
                     <img src={logo(v, true)} alt="" loading="lazy" className="absolute inset-3 m-auto max-w-[calc(100%-1.5rem)] max-h-[calc(100%-1.5rem)] object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
                   </span>
                 )}
-                <span className="absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                <span className="absolute inset-0 flex flex-col justify-end p-6 lg:p-7 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
                   style={{ background: 'linear-gradient(180deg, rgba(4,8,12,.35) 0%, rgba(4,8,12,.9) 70%)' }}>
-                  <span className="text-white text-[22px] font-semibold leading-tight">{tt(v.name)}</span>
+                  <span className="text-white text-[24px] 2xl:text-[28px] font-semibold leading-tight">{tt(v.name)}</span>
                   {where && <span className="mt-1.5 inline-flex items-center gap-1.5 text-[15px]" style={{ color: ON_PHOTO }}><MapPin className="w-4 h-4" aria-hidden="true" />{where}</span>}
                   <span className="mt-3 self-start inline-flex items-center gap-2 border border-white/80 px-4 py-1.5 text-[15px] font-medium text-white">
                     {tt({ en: 'View details', es: 'Ver detalles' })} <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -678,24 +678,42 @@ export function GemFestivalBento({ config = {}, items = [] }) {
   );
 }
 
-// ── C-1 Conferences: logo cards with name and dates.
-export function GemConferenceCards({ config = {}, items = [], limit = 4 }) {
+// ── Conferences · photo cards (redesign 2026-10-17) ─────────────────────────
+// The event photo (flyer) on top with the conference logo on a white chip that
+// overlaps its bottom edge; name, dates and country below. Falls back to the
+// logo-only card when a conference has no photo.
+export function GemConferenceCards({ config = {}, items = [], limit = 8 }) {
   const tt = useT();
-  const logo = (c) => gemImg(c.image_urls?.logo || c.image_urls?.flyer);
-  const list = items.filter(logo).slice(0, limit);
+  const photo = (c) => gemImg(c.image_urls?.flyer);
+  const logo = (c) => gemImg(c.image_urls?.logo);
+  const list = items.filter(c => photo(c) || logo(c)).slice(0, limit);
   if (!list.length) return null;
   return (
     <Wrap testid="gem2i-conferences">
       <CatalogHead config={config} fallbackTitle={{ en: 'Conferences', es: 'Conferencias' }} allText={{ en: 'All conferences', es: 'Todas las conferencias' }} allUrl="/conferences" />
-      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {list.map(c => (
-          <Link key={c.id} to={`/conferences/${c.slug}`} className="group block rounded-2xl p-5 transition-colors hover:border-white/20"
+          <Link key={c.id} to={`/conferences/${c.slug}`} className="group flex flex-col rounded-2xl overflow-hidden transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-white/20"
             style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
-            <div className="h-28 rounded-xl bg-white flex items-center justify-center p-4">
-              <img src={logo(c)} alt={tt(c.title)} loading="lazy" className="max-w-full max-h-[72px] object-contain transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
+            <div className="relative aspect-[7/5] overflow-hidden" style={{ backgroundColor: '#0A121A' }}>
+              {photo(c)
+                ? <img src={photo(c)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none" />
+                : <div className="absolute inset-0 bg-white flex items-center justify-center p-8"><img src={logo(c)} alt="" className="max-h-full max-w-full object-contain" /></div>}
+              {(c.range_dates || c.event_date) && (
+                <span className="absolute left-4 top-4 text-[13px] font-semibold text-white px-3 py-1.5 rounded-full" style={{ backgroundColor: 'rgba(4,8,12,.72)' }}>
+                  {tt(c.range_dates) || c.event_date}
+                </span>
+              )}
             </div>
-            <p className="text-white font-semibold mt-4">{tt(c.title)}</p>
-            {(c.range_dates || c.event_date) && <p className="text-[15px] mt-0.5" style={{ color: BODY }}>{tt(c.range_dates) || c.event_date}</p>}
+            <div className="relative px-5 pb-5 pt-10 flex-1">
+              {photo(c) && logo(c) && (
+                <span className="absolute -top-8 left-5 w-16 h-16 rounded-xl bg-white flex items-center justify-center p-2 shadow-[0_10px_24px_-10px_rgba(0,0,0,.6)]">
+                  <img src={logo(c)} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
+                </span>
+              )}
+              <h3 className="text-white text-lg font-semibold leading-snug">{tt(c.title)}</h3>
+              {c.country && <p className="mt-1.5 inline-flex items-center gap-1.5 text-[15px]" style={{ color: BODY }}><MapPin className="w-4 h-4" aria-hidden="true" />{[tt(c.city), tt(c.country)].filter(Boolean).join(', ')}</p>}
+            </div>
           </Link>
         ))}
       </div>
@@ -855,6 +873,7 @@ export function GemTeamPortraits({ config = {}, items = [] }) {
               </div>
               <h3 className="text-white font-semibold mt-4">{tt(m.name)}</h3>
               <p className="text-[15px] mt-0.5" style={{ color: BODY }}>{tt(m.role)}</p>
+              {tt(m.bio) && <p className="text-[15px] mt-2 leading-[1.6]" style={{ color: BODY }}>{tt(m.bio)}</p>}
             </div>
           );
         })}
@@ -960,6 +979,76 @@ export function GemGalleryMarquee({ config = {}, items = [] }) {
         </div>
       )}
       <style>{MARQUEE_CSS}{`@media (prefers-reduced-motion: no-preference){.gem-fade-in{animation:gemFade .35s cubic-bezier(.16,1,.3,1)}}@keyframes gemFade{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}`}</style>
+    </section>
+  );
+}
+
+// ── Shared full-screen photo viewer (←/→/Esc, click outside closes) ──────────
+function usePhotoViewer(pics) {
+  const [open, setOpen] = useState(null);   // index into `pics`
+  const close = React.useCallback(() => setOpen(null), []);
+  const step = React.useCallback((d) => setOpen(i => (i == null ? i : (i + d + pics.length) % pics.length)), [pics.length]);
+  const onKey = React.useCallback((e) => { if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); }, [step]);
+  useOverlay(open != null, close, onKey);
+  return { open, setOpen, close, step };
+}
+function PhotoViewer({ pics, v }) {
+  const tt = useT();
+  const cur = v.open != null ? pics[v.open] : null;
+  if (!cur) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 md:p-12" style={{ backgroundColor: 'rgba(0,0,0,0.94)' }}
+      role="dialog" aria-modal="true" aria-label={tt({ en: 'Photo viewer', es: 'Visor de fotos' })} onClick={v.close}>
+      <button type="button" onClick={v.close} aria-label={tt({ en: 'Close', es: 'Cerrar' })} className="absolute top-4 right-4 w-11 h-11 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.X className="w-6 h-6" /></button>
+      {pics.length > 1 && <>
+        <button type="button" onClick={e => { e.stopPropagation(); v.step(-1); }} aria-label={tt({ en: 'Previous', es: 'Anterior' })} className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.ChevronLeft className="w-7 h-7" /></button>
+        <button type="button" onClick={e => { e.stopPropagation(); v.step(1); }} aria-label={tt({ en: 'Next', es: 'Siguiente' })} className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.ChevronRight className="w-7 h-7" /></button>
+      </>}
+      <img key={v.open} src={gemImg(cur.image)} alt={tt(cur.title) || ''} onClick={e => e.stopPropagation()} className="max-w-full max-h-[78vh] object-contain rounded-lg gem-fade-in" />
+      <p className="mt-4 text-[15px] text-white/85 tabular-nums text-center" onClick={e => e.stopPropagation()}>
+        {tt(cur.title) && <b className="text-white">{tt(cur.title)}</b>}{tt(cur.summary) ? ` · ${tt(cur.summary)}` : ''} <span className="text-white/60">· {v.open + 1} / {pics.length}</span>
+      </p>
+      <style>{`@media (prefers-reduced-motion: no-preference){.gem-fade-in{animation:gemFade .35s cubic-bezier(.16,1,.3,1)}}@keyframes gemFade{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}`}</style>
+    </div>
+  );
+}
+
+// ── Gallery GA-3 · full-bleed mosaic (approved 2026-10-17) ───────────────────
+// Dense edge-to-edge grid of mixed tile sizes (like the Venues grid); caption on
+// hover/focus; a click opens the full-screen viewer. The span pattern covers
+// 10 tiles in exactly 3 rows of 6 (area 18) so the grid never ends with holes;
+// more photos repeat the pattern.
+const MOSAIC_SPANS = ['col-span-2 row-span-2', '', 'col-span-2', 'row-span-2', '', 'col-span-2', 'col-span-2', '', '', 'col-span-2'];
+export function GemGalleryMosaic({ config = {}, items = [] }) {
+  const tt = useT();
+  const max = parseInt(config.max_items, 10) || 10;
+  const pics = items.filter(g => g.image).slice(0, Math.max(10, Math.floor(max / 10) * 10) || 10);
+  const v = usePhotoViewer(pics);
+  if (!pics.length) return null;
+  return (
+    <section className="py-20 md:py-28" data-testid="gem2i-gallery">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <GemHeading eyebrow={config.eyebrow} title={config.title || { en: 'Gallery', es: 'Galería' }} subtitle={config.subtitle}
+          action={<GemCta text={config.cta_text || { en: 'View all', es: 'Ver todo' }} url={config.cta_url || '/gallery'} newTab={config.cta_new_tab} />} />
+      </div>
+      <ul className="mt-12 grid grid-cols-2 md:grid-cols-6 auto-rows-[140px] md:auto-rows-[170px] 2xl:auto-rows-[210px] gap-1.5 [grid-auto-flow:dense]">
+        {pics.map((g, i) => (
+          <li key={g.id || i} className={MOSAIC_SPANS[i % MOSAIC_SPANS.length]}>
+            <button type="button" onClick={() => v.setOpen(i)} aria-label={`${tt(g.title) || tt({ en: 'Photo', es: 'Foto' })}${tt(g.summary) ? ` · ${tt(g.summary)}` : ''}`}
+              className="group relative block w-full h-full overflow-hidden outline-none" style={{ backgroundColor: CARD }}>
+              <img src={gemImg(g.image)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-visible:scale-105 motion-reduce:transition-none" />
+              {(tt(g.title) || tt(g.summary)) && (
+                <span className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5 text-left opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+                  style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(4,8,12,.9))' }}>
+                  {tt(g.title) && <span className="text-white text-lg font-semibold leading-tight">{tt(g.title)}</span>}
+                  {tt(g.summary) && <span className="mt-1 inline-flex items-center gap-1.5 text-[15px]" style={{ color: ON_PHOTO }}><MapPin className="w-4 h-4" aria-hidden="true" />{tt(g.summary)}</span>}
+                </span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <PhotoViewer pics={pics} v={v} />
     </section>
   );
 }

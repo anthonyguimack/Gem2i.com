@@ -17,7 +17,7 @@ import { LOOKS, readLook, toneOf } from '../../lib/gemLook';
 import {
   GemAudience, GemSteps, GemMethodCycle, GemAudienceList, GemTimeline,
   GemEventPosters, GemArtistMosaic,
-  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
+  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemTicker, GemLocations, GemGallery,
   GemIntroPhoto, GemFeaturedCards, GemServicesGrid,
 } from '../../components/gem2i/GemSections';
@@ -373,7 +373,7 @@ export default function Gem2iHome() {
     map: () => (isTpl01
       ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
       : <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />),
-    gallery: () => (isTpl01 ? <GemGalleryMarquee config={smCfg('aurex_gallery_cfg')} items={gallery} /> : <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />),
+    gallery: () => (isTpl01 ? <GemGalleryMosaic config={smCfg('aurex_gallery_cfg')} items={gallery} /> : <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />),
   };
 
   const order = (layout.section_order && layout.section_order.some(k => renderers[k]))

@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-10-17 (session 8, part 3) — Venues/Conferences/Team polish, Gallery GA-3, Footer FT-1 (DEPLOYED to beta)
+
+- **Venues** tiles 4:3 (472×354 at 1920), bigger number/logo/text; 02-wide 6-col override removed.
+- **Conferences** redesigned: photo cards (flyer, dates chip, logo plate, name, country), 4 cols; 02-wide 8-col override removed.
+- **Team** shows the CMS "Short bio"; 6 bios EN/ES + section subtitle loaded (backup `/opt/_port_backups/team_before_bios_*.json`).
+- **Gallery GA-3** (`GemGalleryMosaic` + shared `PhotoViewer`/`usePhotoViewer`): full-bleed mixed-size mosaic (10-tile pattern = 3×6, no holes), hover caption, full-screen viewer. Fork Unsplash gallery replaced by 18 real legacy venue photos (seed `gem2i_legacy_gallery_2026-10-17`, backup `gallery_before_real_*.json`).
+- **Footer FT-1** (`Gem2iFooter.js`, all pages): brand-gradient band + newsletter (`/public/landing-subscribe` → Landing subscribers), columns brand/contact, site map (legal pages moved to the bottom bar), offices (Maps & Locations global_business), socials + Contact us. Newsletter not test-submitted.
+- Bocetos: `work-plans-MD/bocetos/gallery-footer.html`.
+
+**Open:** footer content stays centred on template 02 (band is full-width); lighting look still to choose; Testimonials real content; team photos.
+
 ## 2026-10-17 (session 8, part 2) — partners, Contact section, typography T-2, hero carousel, lighting, contrast, legacy content, venues grid, all templates, 02 wide (all DEPLOYED to beta)
 
 **Shipped (beta, health 200 after each deploy; verified in the browser):**

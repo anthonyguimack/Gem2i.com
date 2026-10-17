@@ -728,8 +728,6 @@ body:has([data-testid="membership-enrollment"]) [role="dialog"][data-state="open
   max-width:none !important; padding-left:clamp(24px,5vw,96px) !important; padding-right:clamp(24px,5vw,96px) !important; }
 @media (min-width:1536px) {
   .gem-tpl-wide [data-testid="gem2i-team"] .lg\:grid-cols-4 { grid-template-columns:repeat(6,minmax(0,1fr)); }
-  .gem-tpl-wide [data-testid="gem2i-conferences"] .lg\:grid-cols-4 { grid-template-columns:repeat(8,minmax(0,1fr)); }
   .gem-tpl-wide [data-testid="gem2i-services"] .lg\:grid-cols-4 { grid-template-columns:repeat(5,minmax(0,1fr)); }
   .gem-tpl-wide [data-testid="gem2i-clients"] .lg\:grid-cols-6 { grid-template-columns:repeat(8,minmax(0,1fr)); }
-  .gem-tpl-wide [data-testid="gem2i-venues"] .lg\:grid-cols-4 { grid-template-columns:repeat(6,minmax(0,1fr)); }
 }
