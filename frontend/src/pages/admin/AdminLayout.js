@@ -3,12 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { useSettings } from '../../App';
 import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
-import {
-  LayoutDashboard, Image, Info, Package, FileText, BookOpen, Map, Images, Briefcase,
-  MessageSquare, Mail, CreditCard, Settings, LogOut, ChevronLeft, Menu, X, FileStack, Users,
-  BarChart3, Globe, Layers, UserCheck, Shield, ClipboardCheck, Database, Rocket, MapPin,
-  CalendarDays, Lock, Music, Tent, Presentation, Handshake, Ticket
-} from 'lucide-react';
+import { LayoutDashboard, Image, Info, Package, FileText, BookOpen, Map, Images, Briefcase, MessageSquare, Mail, CreditCard, Settings, LogOut, ChevronLeft, Menu, X, FileStack, Users, BarChart3, Globe, Layers, UserCheck, Shield, ClipboardCheck, Database, Rocket, MapPin, CalendarDays, Lock, Music, Tent, Presentation, Handshake, Ticket, Tag, Crown, Sparkles } from 'lucide-react';
 
 /* Each interactive entry carries the section key it maps to in the CMS Section
    Registry (`backend/models/cms_sections.py`). The sidebar is filtered at
@@ -31,6 +26,7 @@ const sidebarItems = [
   { label: 'Testimonials', icon: MessageSquare, href: '/admin/testimonials', section: 'testimonials' },
   { label: 'Pages', icon: FileStack, href: '/admin/pages', section: 'pages' },
   { type: 'divider', label: 'GEM2i Catalogs', group: 'gem2i' },
+  { label: 'Site Content', icon: FileText, href: '/admin/gem-content', group: 'gem2i', section: 'gem_content' },
   { label: 'Events', icon: CalendarDays, href: '/admin/gem-events', group: 'gem2i', section: 'gem_events' },
   { label: 'Artists', icon: Music, href: '/admin/gem-artists', group: 'gem2i', section: 'gem_artists' },
   { label: 'Venues', icon: MapPin, href: '/admin/gem-venues', group: 'gem2i', section: 'gem_venues' },
@@ -38,6 +34,8 @@ const sidebarItems = [
   { label: 'Conferences', icon: Presentation, href: '/admin/gem-conferences', group: 'gem2i', section: 'gem_conferences' },
   { label: 'Clients', icon: Handshake, href: '/admin/gem-clients', group: 'gem2i', section: 'gem_clients' },
   { label: 'Transactions & Passes', icon: Ticket, href: '/admin/gem-transactions', group: 'gem2i', section: 'gem_transactions' },
+  { label: 'Coupons', icon: Tag, href: '/admin/gem-coupons', group: 'gem2i', section: 'gem_coupons' },
+  { label: 'Paid Membership', icon: Crown, href: '/admin/gem-membership', group: 'gem2i', section: 'gem_membership' },
   { type: 'divider', label: 'Landing Page', group: 'landing' },
   { label: 'Hero', icon: Rocket, href: '/admin/landing-hero', group: 'landing', section: 'landing_hero' },
   { label: 'Content', icon: Layers, href: '/admin/landing-content', group: 'landing', section: 'landing_content' },
@@ -60,6 +58,7 @@ const sidebarItems = [
   { label: 'Contact Section', icon: MessageSquare, href: '/admin/contact-settings', section: 'contact_settings' },
   { label: 'Purchases', icon: CreditCard, href: '/admin/purchases', section: 'purchases' },
   { label: 'Page Builder', icon: Layers, href: '/admin/section-order', section: 'section_order' },
+  { label: 'Section Manager', icon: Sparkles, href: '/admin/aurex-sections', section: 'aurex_sections' },
   { label: 'SEO', icon: Globe, href: '/admin/seo', section: 'seo' },
   { label: 'Countries, States, Cities', icon: MapPin, href: '/admin/geo', section: 'geo' },
   { label: 'Backup', icon: Database, href: '/admin/backup', section: 'backup' },

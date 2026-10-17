@@ -13,11 +13,12 @@ import { isAurexFamily } from '../../lib/themeColors';
 import { resolveActivePersonality, scopePagesForPersonality, miniSiteLinks as buildMiniSiteLinks, getPersonalityVisibility, meetsVisibility } from '../../lib/pbPersonality';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iHeader from '../gem2i/Gem2iHeader';
+import { isGem2iTheme } from '../../lib/themeColors';
 import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 
 export default function Navbar() {
   const theme = useTheme();
-  if (theme === 'gem2i') return <Gem2iNavbar />;
+  if (isGem2iTheme(theme)) return <Gem2iNavbar />;
   if (theme === 'modern' || isAurexFamily(theme)) return <ModernNavbar />;
   if (theme === 'classic') return <ClassicNavbar />;
   return <DefaultNavbar />;

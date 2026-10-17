@@ -86,14 +86,14 @@ export default function LoginModal({ open, onClose }) {
                     <Input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required data-testid="login-password-input" />
                   </div>
                 </div>
-                <button type="button" onClick={() => setView('forgot')} className="text-xs hover:underline" style={{ color: 'var(--color-link, #0D9488)' }} data-testid="forgot-password-link">Forgot your password?</button>
+                <button type="button" onClick={() => setView('forgot')} className="text-xs hover:underline py-3 -my-3 sm:py-0 sm:my-0" style={{ color: 'var(--color-link, #0D9488)' }} data-testid="forgot-password-link">Forgot your password?</button>
                 <button type="submit" disabled={loading} className="w-full py-2.5 rounded-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50" style={{ backgroundColor: 'var(--color-button-bg, #1a2332)', color: 'var(--color-button-text, #fff)' }} data-testid="login-submit-btn">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
                   {loading ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
               <div className="mt-4 text-center">
-                <Link to="/my-account/register" onClick={onClose} className="text-sm hover:underline flex items-center justify-center gap-1" style={{ color: 'var(--color-link, #0D9488)' }} data-testid="register-from-modal">
+                <Link to="/my-account/register" onClick={onClose} className="text-sm hover:underline flex items-center justify-center gap-1 min-h-[44px] sm:min-h-0" style={{ color: 'var(--color-link, #0D9488)' }} data-testid="register-from-modal">
                   <UserPlus className="w-3.5 h-3.5" /> Register with Invite Code
                 </Link>
               </div>

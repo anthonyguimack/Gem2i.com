@@ -6,6 +6,30 @@ import { publicAPI, gemAPI } from '../../lib/api';
 import { gemImg } from '../../components/gem2i/GemCatalogBits';
 import { useSettings } from '../../App';
 import { useT } from '../../lib/i18n';
+import { useAuth } from '../../lib/auth';
+import { slideForAudience, isLoggedInUser } from '../../lib/heroAudience';
+import { AUREX_FONTS } from '../../lib/themeColors';
+import { GemHeroA, GemHeroB, GemHeroC } from '../../components/gem2i/GemHeroVariants';
+import {
+  GemAudience, GemSteps, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
+  GemCatalogStrip, GemContactBand, GemTicker, GemLocations, GemGallery,
+  GemIntroPhoto, GemFeaturedCards, GemServicesGrid,
+} from '../../components/gem2i/GemSections';
+
+// Section Manager content the home reads (one public call each, in parallel).
+const SM_KEYS = [
+  'aurex_audience', 'aurex_process', 'aurex_pricing', 'aurex_team', 'aurex_video',
+  'aurex_partners', 'aurex_clients', 'aurex_testimonials_cfg', 'aurex_services_cfg',
+  'gem_methodology', 'gem_events_cfg', 'gem_artists_cfg', 'gem_venues_cfg',
+  'gem_festivals_cfg', 'gem_conferences_cfg', 'gem_clients_cfg',
+  'news_ticker', 'aurex_locations_cfg', 'aurex_gallery_cfg',
+];
+const DEFAULT_ORDER = [
+  'news_ticker', 'hero', 'gem_intro', 'gem_featured', 'gem_services_banner', 'services', 'gem_methodology',
+  'aurex_audience', 'aurex_process', 'gem_events', 'gem_artists', 'gem_venues',
+  'gem_festivals', 'gem_conferences', 'aurex_video', 'aurex_pricing', 'aurex_team',
+  'testimonials', 'gem_media', 'gallery', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
+];
 
 const GEM_FONT = "'Poppins', sans-serif";
 
@@ -14,15 +38,32 @@ const GEM_FONT = "'Poppins', sans-serif";
  * featured blurbs → services banner + grid → methodology → festivals /
  * conferences carousels (Phase-2 data; hidden while empty) → media block →
  * clients. All copy is CMS-driven from gem_config content (EN/ES).
+ *
+ * Since the Section Manager port the page is a list of sections: the order,
+ * visibility (eye) and per-section background/font come from CMS → Page
+ * Builder (scope "gem2i"); section headers and items come from CMS →
+ * Section Manager. Sections with no content render nothing.
  */
 export default function Gem2iHome() {
   const settings = useSettings();
   const tt = useT();
   const [content, setContent] = useState(null);
-  const [heroSlides, setHeroSlides] = useState([]);
+  const [allHeroSlides, setHeroSlides] = useState([]);
+  const { user, loading: authLoading } = useAuth();
+  // Audience filter (Everyone / Not logged in / Logged in) — hold until the
+  // session check resolves so the wrong audience's hero never flashes.
+  const heroSlides = authLoading ? [] : allHeroSlides.filter(s => slideForAudience(s, isLoggedInUser(user)));
   const [festivals, setFestivals] = useState([]);
   const [conferences, setConferences] = useState([]);
   const [clientLogos, setClientLogos] = useState([]);
+  const [layout, setLayout] = useState(null);      // {section_order, sections, section_configs}
+  const [sm, setSm] = useState({});                // Section Manager content by key
+  const [events, setEvents] = useState([]);
+  const [artists, setArtists] = useState([]);
+  const [venues, setVenues] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [maps, setMaps] = useState([]);
+  const [gallery, setGallery] = useState([]);
 
   useEffect(() => {
     publicAPI.getGemContent().then(r => setContent(r.data || {})).catch(() => setContent({}));
@@ -34,18 +75,44 @@ export default function Gem2iHome() {
       name: cl.title, url: cl.url, image: cl.image_urls?.on?.startsWith('/api')
         ? `${process.env.REACT_APP_BACKEND_URL || ''}${cl.image_urls.on}` : cl.image_urls?.on,
     })))).catch(() => {});
-  }, []);
+    publicAPI.getSections(settings.active_theme).then(r => setLayout(r.data || {})).catch(() => setLayout({}));
+    Promise.all(SM_KEYS.map(k => publicAPI.getSectionContent(k).then(r => [k, r.data]).catch(() => [k, null])))
+      .then(rows => setSm(Object.fromEntries(rows.filter(([, v]) => v))));
+    gemAPI.events({ limit: 12 }).then(r => setEvents(r.data?.items || [])).catch(() => {});
+    gemAPI.artists({ limit: 12 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
+    gemAPI.venues({ limit: 12 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
+    publicAPI.getMaps().then(r => setMaps((r.data || []).filter(m => m.published !== false))).catch(() => {});
+    publicAPI.getGallery().then(r => setGallery(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => {});
+    publicAPI.getTestimonials().then(r => setTestimonials(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.active_theme]);
 
-  if (!content) {
+  if (!content || !layout) {
     return <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }} />;
   }
 
   const c = content;
   const brand = tt(settings.brand_name) || 'GEM2i';
 
-  return (
-    <div style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-home">
+  // Section-Manager header overrides on the legacy gem_content blocks.
+  const smCfg = (k) => sm[k]?.config || {};
+  const override = (section, k) => {
+    const c2 = smCfg(k);
+    if (!section && !c2.title) return section;
+    return { ...(section || {}), ...(c2.title ? { title: c2.title } : {}), ...(c2.eyebrow ? { kicker: c2.eyebrow } : {}) };
+  };
+  const limitOf = (k, d = 12) => parseInt(smCfg(k).max_items, 10) || d;
+  const methodologyItems = sm.gem_methodology?.items || [];
 
+  const renderers = {
+    hero: () => {
+      const tpl = settings.active_theme;
+      const slide = heroSlides[0];
+      if (tpl === 'gem2i_02') return <GemHeroB slide={slide} event={events[0]} />;
+      if (tpl === 'gem2i_03') return <GemHeroC slide={slide} events={events} />;
+      return <GemHeroA slide={slide} />;
+    },
+    legacy_hero: () => (<>
       {/* HERO — CMS hero-canvas slides; branded static fallback until slides are entered */}
       {heroSlides.length > 0 ? (
         <HeroSection slides={heroSlides} />
@@ -63,6 +130,9 @@ export default function Gem2iHome() {
         </section>
       )}
 
+      </>),
+    gem_intro: () => <GemIntroPhoto intro={c.intro} />,
+    legacy_gem_intro: () => (<>
       {/* INTRO */}
       {c.intro && (
         <section className="max-w-5xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-intro">
@@ -75,6 +145,9 @@ export default function Gem2iHome() {
         </section>
       )}
 
+      </>),
+    gem_featured: () => <GemFeaturedCards items={Array.isArray(c.featured) ? c.featured : []} />,
+    legacy_gem_featured: () => (<>
       {/* FEATURED — venues / events / artists */}
       {Array.isArray(c.featured) && c.featured.length > 0 && (
         <section style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }} data-testid="gem2i-featured">
@@ -95,6 +168,8 @@ export default function Gem2iHome() {
         </section>
       )}
 
+      </>),
+    gem_services_banner: () => (<>
       {/* SERVICES BANNER */}
       {c.services_banner && (
         <section className="py-10" style={{ backgroundColor: 'var(--color-accent, #3287B7)' }} data-testid="gem2i-services-banner">
@@ -109,6 +184,9 @@ export default function Gem2iHome() {
         </section>
       )}
 
+      </>),
+    services: () => <GemServicesGrid services={override(c.services, 'aurex_services_cfg')} banner={c.services_banner} />,
+    legacy_services: () => (<>
       {/* SERVICES */}
       {c.services && Array.isArray(c.services.items) && c.services.items.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-services">
@@ -124,6 +202,10 @@ export default function Gem2iHome() {
         </section>
       )}
 
+      </>),
+    gem_methodology: () => (methodologyItems.length > 0
+      ? <GemSteps config={smCfg('gem_methodology')} items={methodologyItems} testid="gem2i-methodology" />
+      : (<>
       {/* METHODOLOGY — a real 3-step sequence (legacy 1/2/3) */}
       {c.methodology && Array.isArray(c.methodology.steps) && c.methodology.steps.length > 0 && (
         <section style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }} data-testid="gem2i-methodology">
@@ -142,20 +224,20 @@ export default function Gem2iHome() {
         </section>
       )}
 
-      {/* FESTIVALS / CONFERENCES — live Phase-2 catalog data (CMS items win if entered) */}
-      <LogoCarousel
-        section={withCatalogItems(c.festivals, festivals, f => ({
+      </>)),
+    gem_festivals: () => <LogoCarousel
+        section={withCatalogItems(override(c.festivals, 'gem_festivals_cfg'), festivals.slice(0, limitOf('gem_festivals_cfg')), f => ({
           title: f.title, url: `/festivals/${f.slug}`, date: f.range_dates || f.event_date,
           image: gemImg(f.image_urls?.flyer) || gemImg(f.image_urls?.logo),
         }))}
-        testid="gem2i-festivals" />
-      <LogoCarousel
-        section={withCatalogItems(c.conferences, conferences, cf => ({
+        testid="gem2i-festivals" />,
+    gem_conferences: () => <LogoCarousel
+        section={withCatalogItems(override(c.conferences, 'gem_conferences_cfg'), conferences.slice(0, limitOf('gem_conferences_cfg')), cf => ({
           title: cf.title, url: `/conferences/${cf.slug}`, date: cf.range_dates || cf.event_date,
           image: gemImg(cf.image_urls?.logo) || gemImg(cf.image_urls?.flyer),
         }))}
-        testid="gem2i-conferences" />
-
+        testid="gem2i-conferences" />,
+    gem_media: () => (<>
       {/* MEDIA */}
       {c.media && Array.isArray(c.media.videos) && c.media.videos.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-media">
@@ -182,16 +264,18 @@ export default function Gem2iHome() {
         </section>
       )}
 
+      </>),
+    gem_clients: () => (<>
       {/* CLIENTS */}
-      {c.clients && (
+      {override(c.clients, 'gem_clients_cfg') && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-clients">
-          <SectionHeading kicker={tt(c.clients.kicker)} title={tt(c.clients.title)} />
+          <SectionHeading kicker={tt(override(c.clients, 'gem_clients_cfg').kicker)} title={tt(override(c.clients, 'gem_clients_cfg').title)} />
           <p className="mt-6 max-w-3xl text-sm md:text-[15px] leading-[1.85]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-            {tt(c.clients.text)}
+            {tt(override(c.clients, 'gem_clients_cfg').text)}
           </p>
-          {(c.clients.logos?.length > 0 ? c.clients.logos : clientLogos).length > 0 && (
+          {(override(c.clients, 'gem_clients_cfg').logos?.length > 0 ? override(c.clients, 'gem_clients_cfg').logos : clientLogos).length > 0 && (
             <div className="mt-10 flex flex-wrap items-center gap-x-12 gap-y-8">
-              {(c.clients.logos?.length > 0 ? c.clients.logos : clientLogos).map((l, i) => (
+              {(override(c.clients, 'gem_clients_cfg').logos?.length > 0 ? override(c.clients, 'gem_clients_cfg').logos : clientLogos).map((l, i) => (
                 l.url
                   ? <a key={i} href={l.url} target="_blank" rel="noreferrer" className="opacity-70 hover:opacity-100 transition-opacity"><img src={l.image} alt={l.name || 'client'} className="h-10 w-auto object-contain" /></a>
                   : <img key={i} src={l.image} alt={l.name || 'client'} className="h-10 w-auto object-contain opacity-70" />
@@ -200,6 +284,55 @@ export default function Gem2iHome() {
           )}
         </section>
       )}
+      </>),
+    gem_events: () => (
+      <GemCatalogStrip config={smCfg('gem_events_cfg')} fallbackTitle={{ en: 'Upcoming events', es: 'Próximos eventos' }} testid="gem2i-events"
+        items={events.slice(0, limitOf('gem_events_cfg')).map(e => ({
+          title: e.title, url: `/events/${e.slug}`, meta: e.event_date, metaIcon: 'date',
+          image: gemImg(e.image_urls?.flyer) || gemImg(e.image_urls?.logo),
+        }))} />
+    ),
+    gem_artists: () => (
+      <GemCatalogStrip config={smCfg('gem_artists_cfg')} fallbackTitle={{ en: 'Artists', es: 'Artistas' }} testid="gem2i-artists" square
+        items={artists.slice(0, limitOf('gem_artists_cfg')).map(a => ({
+          title: a.title || a.name, url: `/artists/${a.slug}`, meta: a.country, metaIcon: 'place',
+          image: gemImg(a.image_urls?.photo) || gemImg(a.image_urls?.main) || gemImg(Object.values(a.image_urls || {})[0]),
+        }))} />
+    ),
+    gem_venues: () => (
+      <GemCatalogStrip config={smCfg('gem_venues_cfg')} fallbackTitle={{ en: 'Venues', es: 'Venues' }} testid="gem2i-venues" square
+        items={venues.slice(0, limitOf('gem_venues_cfg')).map(v => ({
+          title: v.name || v.title, url: `/venues/${v.slug}`, meta: [v.city, v.country].filter(Boolean).join(', '), metaIcon: 'place',
+          image: gemImg(v.image_urls?.logo) || gemImg(v.image_urls?.photo) || gemImg(Object.values(v.image_urls || {})[0]),
+        }))} />
+    ),
+    aurex_audience: () => <GemAudience {...(sm.aurex_audience || {})} />,
+    aurex_process: () => <GemSteps {...(sm.aurex_process || {})} />,
+    aurex_pricing: () => <GemPricing {...(sm.aurex_pricing || {})} />,
+    aurex_team: () => <GemTeam {...(sm.aurex_team || {})} />,
+    aurex_video: () => <GemVideo {...(sm.aurex_video || {})} />,
+    aurex_partners: () => <GemLogos {...(sm.aurex_partners || {})} testid="gem2i-partners" />,
+    aurex_clients: () => <GemLogos {...(sm.aurex_clients || {})} testid="gem2i-aurex-clients" />,
+    testimonials: () => <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />,
+    contact: () => <GemContactBand />,
+    news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
+    map: () => <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />,
+    gallery: () => <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />,
+  };
+
+  const order = (layout.section_order && layout.section_order.some(k => renderers[k]))
+    ? layout.section_order : DEFAULT_ORDER;
+  const visibility = layout.sections || {};
+  const sectionCfg = layout.section_configs || {};
+
+  return (
+    <div style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-home">
+      {order.filter(k => renderers[k] && visibility[k]?.enabled !== false).map(k => {
+        const cfg = sectionCfg[k] || {};
+        const font = AUREX_FONTS.find(f => f.key === cfg.font_family)?.css;
+        const style = (cfg.bg_color || font) ? { ...(cfg.bg_color ? { backgroundColor: cfg.bg_color } : {}), ...(font ? { fontFamily: font } : {}) } : undefined;
+        return <div key={k} style={style} data-section={k}>{renderers[k]()}</div>;
+      })}
     </div>
   );
 }

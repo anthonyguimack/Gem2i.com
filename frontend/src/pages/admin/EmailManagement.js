@@ -314,8 +314,9 @@ function TemplatesTab({
                   value={draft.body}
                   onChange={(v) => setDraft(d => ({ ...d, body: v }))}
                   placeholder="Email body — supports formatting, lists, links, images."
+                  emailButtons
                 />
-                <p className="text-[11px] text-gray-500 mt-1">Tip: tag links with <code className="bg-gray-100 px-1 rounded">class="btn"</code> in the source view to apply your branded button style.</p>
+                <p className="text-[11px] text-gray-500 mt-1">Tip: place the cursor on a link and use the button icon (next to the link icon) to turn it into a branded button — and back.</p>
               </div>
 
               <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
@@ -433,12 +434,17 @@ function BrandingTab({ branding, setBranding, saving, setSaving, onSaved }) {
       } catch (e) {/* noop */}
     }, 400);
     return () => clearTimeout(handle);
-  }, [branding?.logo_url, branding?.primary_color, branding?.button_color, branding?.button_text_color, branding?.font_family, branding?.footer_text, branding?.social_links?.length]);
+  }, [branding?.theme_mode, branding?.logo_url, branding?.primary_color, branding?.button_color, branding?.button_text_color, branding?.font_family, branding?.footer_text, branding?.social_links?.length]);
 
   if (!branding) {
     return <div className="p-6 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-gray-400" /></div>;
   }
   const setField = (k, v) => setBranding(b => ({ ...b, [k]: v }));
+  // s137: "brand" = colours, logo and social links follow the brand identity
+  // (theme accent / dark surface / logo / Settings → Social Links) and are
+  // resolved by the server on every send — nothing hardcoded per brand.
+  const fromBrand = (branding.theme_mode || 'brand') === 'brand';
+  const lockCls = fromBrand ? ' opacity-60 pointer-events-none' : '';
   const setSocial = (idx, k, v) =>
     setBranding(b => ({ ...b, social_links: (b.social_links || []).map((s, i) => i === idx ? { ...s, [k]: v } : s) }));
   const addSocial = () =>
@@ -462,7 +468,25 @@ function BrandingTab({ branding, setBranding, saving, setSaving, onSaved }) {
   return (
     <div className="grid grid-cols-12 gap-6">
       <div className="col-span-12 lg:col-span-7 bg-white rounded-lg border border-gray-200 p-5 space-y-5" data-testid="email-branding-form">
-        <div>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2" data-testid="email-branding-mode">
+          <p className="text-xs font-medium text-gray-700">Look &amp; feel</p>
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input type="radio" name="email-mode" checked={fromBrand} onChange={() => setField('theme_mode', 'brand')} className="mt-0.5" />
+            <span className="text-sm">
+              <span className="font-medium text-gray-900">Use the brand theme</span> <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5">Recommended</span>
+              <span className="block text-[12px] text-gray-500">Header, button colour, logo and social links come from this brand (Settings → Colors, logos and Social Links) and update automatically when the brand changes. The LMS emails use the same look.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input type="radio" name="email-mode" checked={!fromBrand} onChange={() => setField('theme_mode', 'custom')} className="mt-0.5" />
+            <span className="text-sm">
+              <span className="font-medium text-gray-900">Custom</span>
+              <span className="block text-[12px] text-gray-500">Pick the colours, logo and links below by hand.</span>
+            </span>
+          </label>
+        </div>
+
+        <div className={lockCls} aria-disabled={fromBrand}>
           <label className="text-xs font-medium text-gray-700 mb-1 block">Platform logo URL</label>
           <input
             type="text"
@@ -475,7 +499,7 @@ function BrandingTab({ branding, setBranding, saving, setSaving, onSaved }) {
           <p className="text-[11px] text-gray-500 mt-1">Shown at the top of every email. Leave blank to fall back to the brand name.</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className={`grid grid-cols-3 gap-3${lockCls}`} aria-disabled={fromBrand}>
           <div>
             <label className="text-xs font-medium text-gray-700 mb-1 block">Primary color (header)</label>
             <div className="flex items-center gap-2">
@@ -533,7 +557,7 @@ function BrandingTab({ branding, setBranding, saving, setSaving, onSaved }) {
           <p className="text-[11px] text-gray-500 mt-1">Supports <code className="bg-gray-100 px-1 rounded">{'{{platform_name}}'}</code>.</p>
         </div>
 
-        <div>
+        <div className={lockCls} aria-disabled={fromBrand}>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-medium text-gray-700">Social links (optional)</label>
             <button onClick={addSocial} className="text-xs text-[#c9a84c] hover:text-[#b8973f] flex items-center gap-1" data-testid="email-branding-add-social">
@@ -578,6 +602,9 @@ function BrandingTab({ branding, setBranding, saving, setSaving, onSaved }) {
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save branding
           </button>
+          {fromBrand && (
+            <p className="text-[11px] text-gray-500 mt-2">The greyed-out values are what this brand's theme gives right now. Font and footer text stay editable in both modes.</p>
+          )}
         </div>
       </div>
 

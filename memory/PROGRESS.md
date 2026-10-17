@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-10-16 (session 7, Anthony's machine) — A Capital → GEM2I audit + F0–F6 port + Section Manager + 3 templates, all DEPLOYED to beta
+
+**Audit:** `work-plans-MD/auditoria-acapital-a-gem2i-2026-10-16.md` (A Capital `1775e05`, 267 commits since the Carlos port base `8a0d4dd`). Plan F0–F6, all executed this session.
+
+**Shipped (beta.gem2i.com, health 200, backend log clean):**
+- **F0 security:** `/api/public/settings` deny-list + recursive secret strip (A Capital `4ce2d39`; GEM was leaking smtp_host/admin_email/email_to…/operator_email — verified fixed live). `payments.py` webhook: optional signature (gem_config payments.webhook_secret) + Stripe re-fetch, payload only a hint.
+- **F1 CMS core:** race-safe role seed; email templates dedupe + unique index + "Use the brand theme" mode; RichTextEditor `btn` links survive saves; Hero slide **Clone** + **Audience** (everyone/guests/members, filtered on home, dynamic pages, system pages); Stripe brand labels + `rk_` keys; maps → keyless OSM (CARTO now needs a key; maps were blank); Purchases list price/coupon/paid.
+- **Pre-existing bug fixed:** `GET /api/admin/gem/transactions` was swallowed by `/admin/gem/{catalog}` (404 in CMS) → specific gem routers now registered BEFORE gem_catalogs in server.py.
+- **F3:** `routes/gem_calendar.py` — member calendar over gem_events (+ my passes/tickets, following), private iCal feed with rotate, notifications EN/ES (guest-list join, ticket paid, admin cancel, waiting-list spot open, membership active/lapsed).
+- **F4 My Account 2.0 "tal cual" A Capital:** Velzon palette + light default (`my_account_2`/`_dark` colour groups, CMS-editable), 2.0 pages copied from A Capital (Profile, Sponsor, Invite Code, Community, Biography) + gem2i Calendar, Calendar Sync, Membership. Shell bilingual, GEM nav only (catalog filtered). **Privacy (b) now enforced in the API** (`/member/my-community` no longer returns email/phone/DOB/gender/ZIP). Ported `/member/community/invite-membership`.
+- **F5:** `gem_coupons.py` (tickets / membership / all, per-event, total|per-member limits, redemption on completion, 100% coupon skips Stripe) + `gem_membership.py` (monthly/annual one-time Stripe, level granted while active, lapse restores previous level in `get_current_member`, shared gem webhook dispatches kind=membership). CMS: Coupons, Paid Membership.
+- **Section Manager** (`routes/gem_sections.py`, port of aurex_sections; collections `gem_section_configs`/`gem_section_items`): A Capital sections + gem_methodology + gem_*_cfg headers + News Ticker / Locations / Gallery. **Page Builder** scope per gem2i template. Home (`Gem2iHome`) renders in Page-Builder order with per-section bg/font/visibility.
+- **3 templates:** `gem2i` = "Gem2i - 01" (Hero A), `gem2i_02` (Hero B + next-event card), `gem2i_03` (Hero C + upcoming strip). Sections shared for now. Preview without switching live: `?template=01|02|03` (`off` clears; sessionStorage). `isGem2iTheme()` in lib/themeColors.
+- **Header** distributed like Aurex (logo left · nav centred · account right), verified 1280/1900px.
+- **Home designs approved:** Intro I-2, Featured F-1, Services S-2 (`components/gem2i/GemSections.js`); old blocks kept as `legacy_*`. New CMS **Site Content** editor (`/admin/gem-content`) for intro/featured/services copy + photos.
+- Sketches kept in `work-plans-MD/bocetos/`.
+
+**Data changes on the box (all with backups or seed tags):**
+- Levels: Nivel 0/1 += `global-calendar`, `calendar-sync` (`scripts/gem2i_levels_add_calendar.js`; backup `/opt/_port_backups/member_levels_before_calendar_20261016-210024.json`).
+- Section Manager test content tagged `seed:'gem2i_test_2026-10-16'` (`scripts/gem2i_seed_section_manager_test.js`).
+- `settings.sections.gem_services_banner.enabled=false` (S-2 has the contact card).
+
+**⚠ Incident:** disk hit 100% (29 deploy backups = 43 GB) → a deploy failed mid-backup. Cleaned to the 3 newest (35% used) and `deploy_beta_gem2i.ps1` now prunes to 3 before each backup and drops half-written archives.
+
+**Open / human:** test with real admin + member logins (CMS screens, My Account 2.0, coupons, membership); Stripe key; replace fork content (hero slide "Legacy Consulting", testimonials); upload real photos in Site Content; MMS (points) comes later as its own product; legacy gem2i.exclusivesession.com admin password = plaintext `admin.pass` on a box we can't reach (owner/host).
+
 ## 2026-09-23 (session 6, Carlos's machine) — PORT FROM CARLOS: plan executed 1.A → 1.H, all DEPLOYED
 
 **`work-plans-MD/PORT_FROM_CARLOS_PLAN.md` run end-to-end** from Carlos AUX-1.0 @ `8a0d4dd` (read-only). 70 modules: **19 done · 31 waiting on a human · 14 skipped · 6 identical.** Per-module log in plan §8; human items H1–H17 in "PENDIENTES PARA HUMANO". Method: Carlos tree extracted to a temp dir + file-by-file compare (324 same / 73 diff / 443 Carlos-only); every diff read and split into generic hunks (ported) vs hunks bound to KMS/MMS/governance/brand themes (left out).

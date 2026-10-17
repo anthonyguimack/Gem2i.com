@@ -13,7 +13,7 @@ import { LANGUAGE_LABELS } from '../../lib/i18n';
 import LocalizedField from '../../components/admin/LocalizedField';
 import ImageUpload from '../../components/ImageUpload';
 import RichTextEditor from '../../components/RichTextEditor';
-import { WEBSITE_COLORS, MYACCOUNT_COLORS, ADMIN_COLORS, LANDING_PAGE_COLORS, ENROLLMENT_COLORS, PMS_COLORS, THEMES } from '../../lib/themeColors';
+import { WEBSITE_COLORS, MYACCOUNT_COLORS, MYACCOUNT2_COLORS, MYACCOUNT2_DARK_COLORS, ADMIN_COLORS, LANDING_PAGE_COLORS, ENROLLMENT_COLORS, PMS_COLORS, THEMES } from '../../lib/themeColors';
 import { MAP_LANGUAGES } from '../../lib/mapConfig';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 
@@ -365,6 +365,8 @@ export default function SettingsManager() {
   // Migrate legacy colors if theme_colors.website is empty
   const websiteColors = tc.website || settings.colors || {};
   const myAccountColors = tc.my_account || {};
+  const myAccount2Colors = tc.my_account_2 || {};
+  const myAccount2DarkColors = tc.my_account_2_dark || {};
   const adminColors = tc.admin || {};
   const landingPageColors = tc.landing_page || {};
   const enrollmentColors = tc.enrollment || {};
@@ -660,6 +662,22 @@ export default function SettingsManager() {
               values={myAccountColors}
               onChange={(key, val) => updateThemeColor('my_account', key, val)}
               testIdPrefix="myaccount"
+            />
+            <ColorGroup
+              title="My Account 2.0"
+              description="Palette for the member portal at /my-account — brand and status colors, surfaces, sidebar, text, controls, progress, notifications and the chart series. Native date pickers and steppers follow the Card Background automatically."
+              colors={MYACCOUNT2_COLORS}
+              values={myAccount2Colors}
+              onChange={(key, val) => updateThemeColor('my_account_2', key, val)}
+              testIdPrefix="myaccount2"
+            />
+            <ColorGroup
+              title="My Account 2.0 — Dark mode"
+              description="The dark palette of /my-account, shown when the member picks dark with the sun/moon button."
+              colors={MYACCOUNT2_DARK_COLORS}
+              values={myAccount2DarkColors}
+              onChange={(key, val) => updateThemeColor('my_account_2_dark', key, val)}
+              testIdPrefix="myaccount2dark"
             />
             <ColorGroup
               title="CMS (Admin Panel)"

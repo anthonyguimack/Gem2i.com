@@ -636,3 +636,21 @@ body:has([data-testid="membership-enrollment"]) [role="dialog"][data-state="open
   font-style: normal;
 }
 
+
+/* gem2i News Ticker (Section Manager) — continuous marquee, transform only */
+.gem-ticker-track { animation: gem-ticker 40s linear infinite; }
+.gem-ticker:hover .gem-ticker-track { animation-play-state: paused; }
+@keyframes gem-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .gem-ticker-track { animation: none; } }
+
+/* gem2i hero buttons — press feedback (transform only) */
+.gem-press { transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease, background-color 150ms ease; }
+.gem-press:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { .gem-press:active { transform: none; } }
+
+/* gem2i S-2 service cards — lift on hover (mouse only), transform + border only */
+.gem-service-card { transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), border-color 200ms ease; }
+@media (hover: hover) and (pointer: fine) {
+  .gem-service-card:hover { transform: translateY(-3px); border-color: rgba(95, 178, 224, 0.35) !important; }
+}
+@media (prefers-reduced-motion: reduce) { .gem-service-card:hover { transform: none; } }

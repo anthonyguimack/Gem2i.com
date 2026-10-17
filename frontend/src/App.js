@@ -1,6 +1,9 @@
 import React, { useRef, useEffect, useState, createContext, useContext, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/auth';
+import { slideForAudience, isLoggedInUser } from './lib/heroAudience';
+import { getMa2Mode, onMa2ModeChange } from './pages/myaccount/ma2Theme';
+import { isGem2iTheme } from './lib/themeColors';
 import { MemberProvider, useMember } from './lib/memberAuth';
 import { authAPI, publicAPI } from './lib/api';
 import { Toaster } from 'sonner';
@@ -69,6 +72,11 @@ const RolesManager = lazy(() => import('./pages/admin/RolesManager'));
 const CmsWelcome = lazy(() => import('./pages/admin/CmsWelcome'));
 const GemCatalogManager = lazy(() => import('./pages/admin/GemCatalogManager'));
 const GemTransactionsManager = lazy(() => import('./pages/admin/GemTransactionsManager'));
+const GemCouponsManager = lazy(() => import('./pages/admin/GemCouponsManager'));
+const GemContentManager = lazy(() => import('./pages/admin/GemContentManager'));
+const AurexSectionsManager = lazy(() => import('./pages/admin/AurexSectionsManager'));
+const GemMembershipManager = lazy(() => import('./pages/admin/GemMembershipManager'));
+const MembershipPage = lazy(() => import('./pages/myaccount/Membership'));
 // Membership / My Account (core only)
 const MemberLogin = lazy(() => import('./pages/myaccount/MemberLogin'));
 const MemberRegister = lazy(() => import('./pages/myaccount/MemberRegister'));
@@ -79,6 +87,8 @@ const MembershipProfile = lazy(() => import('./pages/myaccount/MembershipProfile
 const MySponsor = lazy(() => import('./pages/myaccount/MySponsor'));
 const InviteCode = lazy(() => import('./pages/myaccount/InviteCode'));
 const MyCommunity = lazy(() => import('./pages/myaccount/MyCommunity'));
+const GlobalCalendar = lazy(() => import('./pages/myaccount/GlobalCalendar'));
+const CalendarSync = lazy(() => import('./pages/myaccount/CalendarSync'));
 // gem2i Phase-2 catalogs — theme-gated routes; lazy so other themes never load them.
 const Gem2iArtists = lazy(() => import('./pages/gem2i/Gem2iArtists'));
 const Gem2iArtistDetail = lazy(() => import('./pages/gem2i/Gem2iArtistDetail'));
@@ -97,6 +107,29 @@ import BackToTop from './components/BackToTop';
 import { isAdmin as isFullAdmin } from './lib/isAdmin';
 
 // Global settings context for colors and theme
+/**
+ * gem2i template preview: `?template=01|02|03` shows the site with that gem2i
+ * template WITHOUT changing the live one (CMS → Settings → Themes). Kept for the
+ * browser session so navigation stays in the preview; `?template=off` clears it.
+ * Only switches between gem2i templates — never to another brand theme.
+ */
+const TEMPLATE_KEY = 'gem2i:template-preview';
+function withTemplatePreview(s) {
+  if (!isGem2iTheme(s.active_theme)) return s;
+  let pick = null;
+  try {
+    const q = new URLSearchParams(window.location.search).get('template');
+    if (q === 'off') sessionStorage.removeItem(TEMPLATE_KEY);
+    else if (q) {
+      const id = { '01': 'gem2i', '1': 'gem2i', '02': 'gem2i_02', '2': 'gem2i_02', '03': 'gem2i_03', '3': 'gem2i_03' }[q];
+      if (id) sessionStorage.setItem(TEMPLATE_KEY, id);
+    }
+    pick = sessionStorage.getItem(TEMPLATE_KEY);
+  } catch { /* storage blocked: no preview */ }
+  if (!pick || !isGem2iTheme(pick) || pick === s.active_theme) return s;
+  return { ...s, active_theme: pick, _live_theme: s.active_theme, _template_preview: pick };
+}
+
 export const SettingsContext = createContext({});
 export const useSettings = () => useContext(SettingsContext);
 
@@ -107,9 +140,14 @@ function SettingsProvider({ children }) {
   const [settings, setSettings] = useState({ _loaded: false });
   useEffect(() => {
     publicAPI.getSettings()
-      .then(r => setSettings({ ...(r.data || {}), _loaded: true }))
+      .then(r => setSettings(withTemplatePreview({ ...(r.data || {}), _loaded: true })))
       .catch(() => setSettings({ _loaded: true }));
   }, []);
+
+  // My Account 2.0 light/dark (gem2i: dark by default). Kept in state so the
+  // injection effect below re-runs when the member flips the switch.
+  const [ma2Mode, setMa2ModeState] = useState(getMa2Mode);
+  useEffect(() => onMa2ModeChange(setMa2ModeState), []);
 
   useEffect(() => {
     const themeColors = settings.theme_colors || {};
@@ -119,8 +157,9 @@ function SettingsProvider({ children }) {
     injectThemeColors(themeColors, {
       my_account_color_scheme: settings.my_account_color_scheme,
       active_theme: settings.active_theme,
+      ma2_mode: ma2Mode,
     });
-  }, [settings.theme_colors, settings.colors, settings.my_account_color_scheme, settings.active_theme]);
+  }, [settings.theme_colors, settings.colors, settings.my_account_color_scheme, settings.active_theme, ma2Mode]);
 
   // Dynamic favicon
   useEffect(() => {
@@ -224,6 +263,10 @@ const ADMIN_ROUTES = [
   { path: 'gem-conferences',                 section: 'gem_conferences',                  el: <GemCatalogManager catalog="conferences" /> },
   { path: 'gem-clients',                     section: 'gem_clients',                      el: <GemCatalogManager catalog="clients" /> },
   { path: 'gem-transactions',                section: 'gem_transactions',                 el: <GemTransactionsManager /> },
+  { path: 'aurex-sections',                  section: 'aurex_sections',                   el: <AurexSectionsManager /> },
+  { path: 'gem-content',                     section: 'gem_content',                      el: <GemContentManager /> },
+  { path: 'gem-coupons',                     section: 'gem_coupons',                      el: <GemCouponsManager /> },
+  { path: 'gem-membership',                  section: 'gem_membership',                   el: <GemMembershipManager /> },
   { path: 'users',                           adminOnly: true,                             el: <UsersManager /> },
   { path: 'members',                         section: 'members',                          el: <MembersManager /> },
   { path: 'members/:memberId/signatures',    section: 'members',                          el: <MemberSignatures /> },
@@ -339,7 +382,8 @@ const SYSTEM_PAGE_MAP = {
 
 function SystemPageHero() {
   const location = useLocation();
-  const [heroSlides, setHeroSlides] = useState([]);
+  const [allHeroSlides, setHeroSlides] = useState([]);
+  const { user, loading: authLoading } = useAuth();
   const pageId = SYSTEM_PAGE_MAP[location.pathname];
 
   useEffect(() => {
@@ -347,7 +391,9 @@ function SystemPageHero() {
     publicAPI.getHeroSlides(pageId).then(r => setHeroSlides(r.data || [])).catch(() => setHeroSlides([]));
   }, [pageId]);
 
-  if (heroSlides.length === 0) return null;
+  // Audience filter; hold until the session check resolves (no wrong-hero flash).
+  const heroSlides = allHeroSlides.filter(s => slideForAudience(s, isLoggedInUser(user)));
+  if (authLoading || heroSlides.length === 0) return null;
   const HeroSection = require('./components/HeroSection').default;
   return <HeroSection slides={heroSlides} />;
 }
@@ -422,6 +468,9 @@ function AppRouter() {
           <Route path="my-sponsor" element={<MySponsor />} />
           <Route path="invite-code" element={<InviteCode />} />
           <Route path="my-community" element={<MyCommunity />} />
+          <Route path="global-calendar" element={<GlobalCalendar />} />
+          <Route path="calendar-sync" element={<CalendarSync />} />
+          <Route path="membership" element={<MembershipPage />} />
         </Route>
       </Routes>
       </Suspense>
@@ -457,7 +506,7 @@ function AppRouter() {
               <Route path="/" element={<HomePage />} />
               {/* gem2i catalogs take over these URLs when the theme is active;
                   other themes fall through to the CMS placeholder pages. */}
-              {settings.active_theme === 'gem2i' && <>
+              {isGem2iTheme(settings.active_theme) && <>
                 <Route path="/artists" element={<Gem2iArtists />} />
                 <Route path="/artists/:slug" element={<Gem2iArtistDetail />} />
                 <Route path="/venues" element={<Gem2iVenues />} />

@@ -8,12 +8,17 @@ import LayoutGalleryAlbums from '../components/layouts/LayoutGalleryAlbums';
 import LayoutFullContent from '../components/layouts/LayoutFullContent';
 import LayoutRenderer from '../components/layouts/LayoutRenderer';
 import { LAYOUTS } from '../lib/layoutDefinitions';
+import { useAuth } from '../lib/auth';
+import { slideForAudience, isLoggedInUser } from '../lib/heroAudience';
 
 export default function DynamicPage() {
   const { pageId } = useParams();
   const location = useLocation();
   const [page, setPage] = useState(null);
-  const [heroSlides, setHeroSlides] = useState([]);
+  const [allHeroSlides, setHeroSlides] = useState([]);
+  const { user } = useAuth();
+  // Audience filter (Everyone / Not logged in / Logged in), live on login/logout.
+  const heroSlides = allHeroSlides.filter(s => slideForAudience(s, isLoggedInUser(user)));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

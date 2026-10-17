@@ -1,28 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useMember } from '../../lib/memberAuth';
 import { memberAPI } from '../../lib/api';
 import { toast } from 'sonner';
-import { Save, X, Loader2 } from 'lucide-react';
+import { Save, Loader2, FileText } from 'lucide-react';
 import RichTextEditor from '../../components/RichTextEditor';
 
 export default function UpdateBiography() {
   const { member, refresh } = useMember();
   const [summary, setSummary] = useState('');
   const [biography, setBiography] = useState('');
+  const [baseline, setBaseline] = useState('');
   const [loading, setLoading] = useState(false);
+  const ctx = useOutletContext() || {};
+  const title = ctx.sectionLabel ? ctx.sectionLabel('update-biography', 'Update Biography') : 'Update Biography';
 
   useEffect(() => {
     if (member) {
-      setSummary(member.summary || '');
-      setBiography(member.biography || '');
+      const s = member.summary || '';
+      const b = member.biography || '';
+      setSummary(s); setBiography(b);
+      setBaseline(JSON.stringify([s, b]));
     }
   }, [member]);
+
+  const dirty = useMemo(() => JSON.stringify([summary, biography]) !== baseline, [summary, biography, baseline]);
 
   const handleSave = async () => {
     setLoading(true);
     try {
       await memberAPI.updateBiography({ summary, biography });
-      toast.success('Biography updated!');
+      setBaseline(JSON.stringify([summary, biography]));
+      toast.success('Biography updated');
       refresh();
     } catch { toast.error('Error saving'); }
     finally { setLoading(false); }
@@ -30,29 +39,44 @@ export default function UpdateBiography() {
 
   return (
     <div data-testid="update-biography-page">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'DM Serif Display', serif" }}>Update Biography</h1>
-        <div className="flex gap-2">
-          <button onClick={handleSave} disabled={loading}
-            className="px-4 py-2 bg-[#c9a84c] text-[#0d0f14] rounded text-sm font-semibold flex items-center gap-2 disabled:opacity-50 hover:bg-[#d4b85d]"
-            data-testid="save-biography-btn">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h1 className="text-[15px] font-semibold" style={{ color: 'var(--ma2-heading, #495057)' }}>{title}</h1>
+        <div className="flex items-center gap-3">
+          {dirty && <span className="ma2-badge ma2-badge-warning">Unsaved changes</span>}
+          <button onClick={handleSave} disabled={loading} className="ma2-btn ma2-btn-primary" data-testid="save-biography-btn">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {loading ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="bg-[#13161e] border border-white/5 rounded-lg p-5">
-          <label className="text-sm font-semibold text-gray-400 block mb-2">Summary</label>
-          <div className="[&_.ql-toolbar]:!bg-[#0d0f14] [&_.ql-toolbar]:!border-white/10 [&_.ql-container]:!border-white/10 [&_.ql-container]:!bg-[#0d0f14] [&_.ql-editor]:!text-white [&_.ql-editor]:!min-h-[120px] [&_.ql-snow_.ql-stroke]:!stroke-gray-400 [&_.ql-snow_.ql-fill]:!fill-gray-400 [&_.ql-snow_.ql-picker-label]:!text-gray-400 [&_.ql-snow_.ql-picker-options]:!bg-[#13161e]">
-            <RichTextEditor value={summary} onChange={setSummary} placeholder="Write your summary..." />
+      <div className="space-y-4">
+        <div className="ma2-card">
+          <div className="ma2-card-head flex items-center gap-2">
+            <FileText className="w-4 h-4" style={{ color: 'var(--ma2-muted, #878a99)' }} />
+            <h2 className="ma2-card-title">Summary</h2>
+          </div>
+          <div className="ma2-card-body">
+            <p className="text-[12px] mb-2" style={{ color: 'var(--ma2-faint, #adb5bd)' }}>
+              One or two lines. This is the short line other members see on your profile card.
+            </p>
+            <div className="ma2-compose-editor">
+              <RichTextEditor value={summary} onChange={setSummary} placeholder="Write your summary…" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-[#13161e] border border-white/5 rounded-lg p-5">
-          <label className="text-sm font-semibold text-gray-400 block mb-2">Biography</label>
-          <div className="[&_.ql-toolbar]:!bg-[#0d0f14] [&_.ql-toolbar]:!border-white/10 [&_.ql-container]:!border-white/10 [&_.ql-container]:!bg-[#0d0f14] [&_.ql-editor]:!text-white [&_.ql-editor]:!min-h-[200px] [&_.ql-snow_.ql-stroke]:!stroke-gray-400 [&_.ql-snow_.ql-fill]:!fill-gray-400 [&_.ql-snow_.ql-picker-label]:!text-gray-400 [&_.ql-snow_.ql-picker-options]:!bg-[#13161e]">
-            <RichTextEditor value={biography} onChange={setBiography} placeholder="Write your biography..." />
+        <div className="ma2-card">
+          <div className="ma2-card-head">
+            <h2 className="ma2-card-title">Biography</h2>
+          </div>
+          <div className="ma2-card-body">
+            <p className="text-[12px] mb-2" style={{ color: 'var(--ma2-faint, #adb5bd)' }}>
+              The full text shown on your member profile.
+            </p>
+            <div className="ma2-compose-editor">
+              <RichTextEditor value={biography} onChange={setBiography} placeholder="Write your biography…" />
+            </div>
           </div>
         </div>
       </div>

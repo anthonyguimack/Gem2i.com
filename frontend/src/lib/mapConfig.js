@@ -1,23 +1,28 @@
 // Centralized map tile URL configuration based on admin language setting
 // All map components import getTileUrl() from here
 
+// ⚠ s140: CARTO basemaps now answer every request with an "API KEY REQUIRED"
+// placeholder tile, so every map on the 6 instances (maps_language = pt → CARTO)
+// showed no map. Keyless OpenStreetMap is used instead (labels in the local
+// language of each place); fr/de keep their regional OSM mirrors.
+const OSM = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILE_URLS = {
-  local:   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  en:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  es:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  local:   OSM,
+  en:      OSM,
+  es:      OSM,
   fr:      'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
   de:      'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
-  pt:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  it:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  ja:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  zh:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  ru:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  ar:      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  pt:      OSM,
+  it:      OSM,
+  ja:      OSM,
+  zh:      OSM,
+  ru:      OSM,
+  ar:      OSM,
 };
 
 const TILE_ATTRIBUTIONS = {
   local:   '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
-  en:      '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  en:      '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
   fr:      '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> France',
   de:      '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> DE',
 };

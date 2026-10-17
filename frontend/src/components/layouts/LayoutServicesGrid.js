@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { publicAPI } from '../../lib/api';
+import { useT } from '../../lib/i18n';
 
 const API = process.env.REACT_APP_BACKEND_URL;
 const resolveSrc = (v) => v ? (v.startsWith('/api') ? `${API}${v}` : v) : null;
 const cleanHtml = (html) => html ? html.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ') : '';
 
 export default function LayoutServicesGrid({ page }) {
+  const tt = useT();
   const [services, setServices] = useState([]);
   useEffect(() => { publicAPI.getServices().then(r => setServices(r.data || [])).catch(() => {}); }, []);
 
@@ -24,7 +26,7 @@ export default function LayoutServicesGrid({ page }) {
             <div key={svc.id} className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden flex flex-col md:flex-row" data-testid={`service-card-${svc.id}`}>
               {imgSrc ? (
                 <div className="md:w-2/5 h-48 md:h-auto flex-shrink-0">
-                  <img src={imgSrc} alt={svc.title} className="w-full h-full object-cover" />
+                  <img src={imgSrc} alt={tt(svc.title)} className="w-full h-full object-cover" />
                 </div>
               ) : (
                 <div className="md:w-2/5 h-48 md:h-auto flex-shrink-0 bg-slate-100 flex items-center justify-center">
@@ -32,8 +34,8 @@ export default function LayoutServicesGrid({ page }) {
                 </div>
               )}
               <div className="p-5 flex flex-col flex-1">
-                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-heading, #1a2332)' }}>{svc.title}</h3>
-                <div className="text-slate-500 text-sm flex-1 mb-4 line-clamp-3 rich-text-content" dangerouslySetInnerHTML={{ __html: cleanHtml(svc.short_description || svc.description || '') }} />
+                <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--color-heading, #1a2332)' }}>{tt(svc.title)}</h3>
+                <div className="text-slate-500 text-sm flex-1 mb-4 line-clamp-3 rich-text-content" dangerouslySetInnerHTML={{ __html: cleanHtml(tt(svc.short_description) || tt(svc.description) || '') }} />
                 {svc.price > 0 && (
                   <p className="text-sm font-semibold mb-3" style={{ color: 'var(--color-accent, #0D9488)' }}>
                     ${Number(svc.price).toFixed(2)}

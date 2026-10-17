@@ -24,7 +24,8 @@ export const publicAPI = {
   getPortfolio: (personality) => api.get('/public/portfolio', personality ? { params: { personality } } : {}),
   getTestimonials: (personality) => api.get('/public/testimonials', personality ? { params: { personality } } : {}),
   getSocialCatalog: () => api.get('/public/social-catalog'),
-  getSections: () => api.get('/public/sections'),
+  getSections: (theme) => api.get('/public/sections', theme ? { params: { theme } } : {}),
+  getSectionContent: (section) => api.get(`/public/aurex/${section}`),
   getPage: (type) => api.get(`/public/page/${type}`),
   getNavPages: () => api.get('/public/nav-pages'),
   getSitePages: () => api.get('/public/site-pages'),
@@ -68,7 +69,22 @@ export const gemAPI = {
   leaveWaitingList: (eventId) => api.delete(`/member/gem/waiting-list/${eventId}`),
   // Phase-5 e-ticketing (routes/gem_tickets.py — Stripe checkout, verified webhook)
   tierAvailability: (eventId) => api.get(`/public/gem/events/${eventId}/tier-availability`),
-  checkout: (eventId, tier, quantity) => api.post('/member/gem/checkout', { event_id: eventId, tier, quantity, origin_url: window.location.origin }),
+  checkout: (eventId, tier, quantity, coupon) => api.post('/member/gem/checkout', { event_id: eventId, tier, quantity, coupon: coupon || undefined, origin_url: window.location.origin }),
+  validateCoupon: (code, context, amount, eventId) => api.post('/member/gem/coupons/validate', { code, context, amount, event_id: eventId }),
+  // Paid membership (My Account)
+  myMembership: () => api.get('/member/gem/membership'),
+  membershipQuote: (plan, coupon) => api.post('/member/gem/membership/quote', { plan, coupon: coupon || undefined }),
+  membershipCheckout: (plan, coupon) => api.post('/member/gem/membership/checkout', { plan, coupon: coupon || undefined, origin_url: window.location.origin }),
+  membershipStatus: (sessionId) => api.get(`/member/gem/membership/status/${sessionId}`),
+  // Admin — coupons + membership
+  adminCoupons: () => api.get('/admin/gem/coupons'),
+  adminCreateCoupon: (d) => api.post('/admin/gem/coupons', d),
+  adminUpdateCoupon: (id, d) => api.put(`/admin/gem/coupons/${id}`, d),
+  adminDeleteCoupon: (id) => api.delete(`/admin/gem/coupons/${id}`),
+  adminCouponRedemptions: (id) => api.get(`/admin/gem/coupons/${id}/redemptions`),
+  adminMembershipConfig: () => api.get('/admin/gem/membership-config'),
+  adminSaveMembershipConfig: (d) => api.put('/admin/gem/membership-config', d),
+  adminMembershipSubscriptions: () => api.get('/admin/gem/membership-subscriptions'),
   checkoutStatus: (sessionId) => api.get(`/member/gem/checkout-status/${sessionId}`),
   myTickets: (eventId) => api.get(`/member/gem/my-tickets/${eventId}`),
   // Phase-3 B7 formal-name confirmation gate (routes/gem_passes.py)
@@ -563,6 +579,15 @@ export const memberAPI = {
   getUnreadCount: () => api.get('/member/notifications/unread-count'),
   markNotificationRead: (id) => api.put(`/member/notifications/${id}/read`),
   markAllNotificationsRead: () => api.put('/member/notifications/read-all'),
+  // My Account 2.0 (A Capital pages)
+  inviteToMembership: (memberId, destination) => api.post('/member/community/invite-membership', { member_id: memberId, destination }),
+  // CV card only shows for LMS members (none in gem2i) — kept so the 2.0 page is identical
+  uploadCv: (file) => { const fd = new FormData(); fd.append('file', file); return api.post('/member/cv', fd, { headers: { 'Content-Type': 'multipart/form-data' } }); },
+  deleteCv: () => api.delete('/member/cv'),
+  // gem2i My Account 2.0 calendar (gem_events + my passes/tickets) and iCal feed
+  getGemCalendar: (start, end, mine = false) => api.get('/member/gem/calendar', { params: { start, end, mine } }),
+  getGemIcalUrl: () => api.get('/member/gem/calendar/ical-url'),
+  rotateGemIcalUrl: () => api.post('/member/gem/calendar/ical-url/rotate'),
   // Mentorship Calendar
   getMentorSlots: () => api.get('/member/mentorship/slots'),
   createMentorSlot: (data) => api.post('/member/mentorship/slots', data),

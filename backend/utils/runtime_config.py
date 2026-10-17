@@ -50,6 +50,16 @@ async def get_stripe_api_key() -> str:
     return (settings.get("stripe_api_key") or os.environ.get("STRIPE_API_KEY") or "").strip()
 
 
+async def get_stripe_webhook_secret() -> str:
+    """CMS settings.stripe_webhook_secret (whsec_…, write-only in the Stripe tab)
+    -> os.environ['STRIPE_WEBHOOK_SECRET'] -> ''. Per instance: each endpoint
+    registered in Stripe has its own signing secret."""
+    settings = await db.settings.find_one(
+        {}, {"_id": 0, "stripe_webhook_secret": 1}
+    ) or {}
+    return (settings.get("stripe_webhook_secret") or os.environ.get("STRIPE_WEBHOOK_SECRET") or "").strip()
+
+
 async def get_site_url(fallback_request_base: str = "") -> str:
     """CMS settings.site_url  -> os.environ['SITE_URL']  -> request.base_url.
 
@@ -66,6 +76,31 @@ async def get_site_url(fallback_request_base: str = "") -> str:
     if env:
         return env
     return (fallback_request_base or "").rstrip("/")
+
+
+async def stripe_site_tag() -> str:
+    """Host of this instance's Site URL (e.g. beta.carlosartiles.com), stored as
+    `site` metadata on every Checkout Session: one Stripe account serves the 3 brands,
+    so the webhook ignores sessions of other sites and the Stripe dashboard can be
+    filtered by brand."""
+    from urllib.parse import urlparse
+    return (urlparse(await get_site_url()).netloc or "").lower()
+
+
+async def stripe_brand() -> dict:
+    """{name, code, site} of this instance for labelling Stripe objects (one Stripe
+    account serves the 3 brands): name = settings.brand_name/site_name (en),
+    code = settings.aux_prefix (CA / ACG / AUX), site = Site URL host."""
+    s = await db.settings.find_one({}, {"_id": 0, "brand_name": 1, "site_name": 1, "aux_prefix": 1}) or {}
+
+    def _txt(v):
+        if isinstance(v, dict):
+            return (v.get("en") or next((x for x in v.values() if x), "") or "").strip()
+        return (v or "").strip() if isinstance(v, str) else ""
+    site = await stripe_site_tag()
+    name = _txt(s.get("brand_name")) or _txt(s.get("site_name")) or site
+    code = "".join(c for c in (s.get("aux_prefix") or "") if c.isalnum()).upper()[:10]
+    return {"name": name, "code": code, "site": site}
 
 
 async def get_webhook_url(fallback_request_base: str = "") -> str:

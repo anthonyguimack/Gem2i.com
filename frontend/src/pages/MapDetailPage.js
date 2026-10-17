@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { publicAPI } from '../lib/api';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { getTileUrl, getTileAttribution } from '../lib/mapConfig';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ArrowLeft, Tag } from 'lucide-react';
@@ -48,7 +49,7 @@ export default function MapDetailPage() {
         )}
         <div className="h-[500px] rounded-sm overflow-hidden border border-slate-200" data-testid="map-detail-container">
           <MapContainer center={[30, 0]} zoom={2} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" attribution='&copy; OpenStreetMap' />
+            <TileLayer url={getTileUrl('local')} attribution={getTileAttribution('local')} />
             {locations.map(loc => (
               <Marker key={loc.id} position={[loc.lat, loc.lng]}>
                 <Popup><strong>{loc.name}</strong><br />{loc.description}</Popup>

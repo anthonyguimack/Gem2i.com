@@ -19,7 +19,7 @@ export default function LanguageSwitcher({ compact = false, dark = false }) {
   const activeLabel = LANGUAGE_LABELS[lang]?.short || lang.toUpperCase();
   return (
     <div ref={ref} className="relative" data-testid="language-switcher">
-      <button type="button" onClick={() => setOpen(o => !o)} className={`inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${compact ? 'px-2 py-1' : 'px-3 py-1.5'} ${dark ? 'text-white/80 hover:text-white' : 'hover:opacity-70'}`} aria-label="Change language">
+      <button type="button" onClick={() => setOpen(o => !o)} className={`inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${compact ? 'px-2 py-1' : 'px-3 py-3 md:py-1.5'} ${dark ? 'text-white/80 hover:text-white' : 'hover:opacity-70'}`} aria-label="Change language">
         <Globe className="w-3.5 h-3.5" /> {activeLabel} <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (

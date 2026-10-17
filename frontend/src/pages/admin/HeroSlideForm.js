@@ -13,6 +13,7 @@ import LocalizedField from '../../components/admin/LocalizedField';
 import { adminText } from '../../lib/i18n';
 import { useSettings } from '../../App';
 import { CTA_ACTIONS, CTA_ACTION_LABELS, effectiveAction } from '../../lib/ctaActions';
+import { HERO_AUDIENCES } from '../../lib/heroAudience';
 
 const effectOptions = ['top', 'right', 'bottom', 'left'];
 import { BACKEND_URL as API_URL } from '../../lib/config';
@@ -135,6 +136,8 @@ const defaultSlide = {
   assigned_pages: [],
   // Personal Brand template scope: '' = Business (default) | 'lifestyle' | 'personal'
   pb_personality: '',
+  // Who sees the slide: '' = everyone | 'guests' = not logged in | 'members' = logged in
+  audience: '',
 };
 
 const quillCls = "[&_.ql-toolbar]:!bg-slate-50 [&_.ql-toolbar]:!border-slate-200 [&_.ql-container]:!border-slate-200 [&_.ql-editor]:!min-h-[80px]";
@@ -235,6 +238,40 @@ export default function HeroSlideForm() {
                   value={opt.value}
                   checked={active}
                   onChange={() => setForm(p => ({ ...p, pb_personality: opt.value }))}
+                  className="mt-0.5 accent-[#0D9488]"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-[#1a2332]">{opt.label}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{opt.hint}</p>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Audience — show the slide to everyone, only to guests, or only to members */}
+      <div className={sectionCls} data-testid="slide-audience-section">
+        <h2 className={sectionTitle}>Audience</h2>
+        <p className="text-xs text-slate-400 mb-3">
+          Who sees this slide. Use two slides — one for <span className="font-medium text-slate-600">Not logged in</span> and
+          one for <span className="font-medium text-slate-600">Logged in</span> — to show a different hero once a member signs in.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {HERO_AUDIENCES.map(opt => {
+            const active = (form.audience || '') === opt.value;
+            return (
+              <label
+                key={opt.value || 'everyone'}
+                className={`flex items-start gap-3 p-3 rounded-sm border-2 cursor-pointer transition-all ${active ? 'border-slate-400 bg-slate-50' : 'border-slate-100 bg-slate-50 hover:border-slate-200'}`}
+                data-testid={`audience-${opt.value || 'everyone'}`}
+              >
+                <input
+                  type="radio"
+                  name="audience"
+                  value={opt.value}
+                  checked={active}
+                  onChange={() => setForm(p => ({ ...p, audience: opt.value }))}
                   className="mt-0.5 accent-[#0D9488]"
                 />
                 <div>

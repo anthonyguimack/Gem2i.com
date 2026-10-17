@@ -177,8 +177,13 @@ async def test_send_email_template(key: str, request: Request, user: dict = Depe
 
 @router.get("/admin/email-branding")
 async def get_email_branding(user: dict = Depends(require_admin)):
+    """`saved` = what the operator stored (used in Custom mode); the top level =
+    the EFFECTIVE branding (brand mode resolves it from the brand identity)."""
     branding = await get_branding()
-    return {**branding, "available_fonts": EMAIL_FONT_OPTIONS}
+    saved = await db.email_branding.find_one({"id": "main"}, {"_id": 0}) or {}
+    saved = {**DEFAULT_EMAIL_BRANDING, **saved}
+    saved.pop("id", None)
+    return {**branding, "saved": saved, "available_fonts": EMAIL_FONT_OPTIONS}
 
 
 @router.put("/admin/email-branding")
@@ -186,6 +191,7 @@ async def update_email_branding(request: Request, user: dict = Depends(require_a
     body = await request.json()
     update = {
         "id": "main",
+        "theme_mode": "custom" if body.get("theme_mode") == "custom" else "brand",
         "logo_url": (body.get("logo_url") or "").strip(),
         "primary_color": body.get("primary_color") or DEFAULT_EMAIL_BRANDING["primary_color"],
         "button_color": body.get("button_color") or DEFAULT_EMAIL_BRANDING["button_color"],

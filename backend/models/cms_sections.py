@@ -59,7 +59,10 @@ CMS_SECTIONS = [
     {"key": "gem_conferences", "label": "Conferences",  "group": "gem2i", "frontend_path": "/admin/gem-conferences", "url_prefix": ["/api/admin/gem/conferences"]},
     {"key": "gem_clients",     "label": "Clients",      "group": "gem2i", "frontend_path": "/admin/gem-clients",     "url_prefix": ["/api/admin/gem/clients"]},
     {"key": "gem_transactions", "label": "Transactions & Passes", "group": "gem2i", "frontend_path": "/admin/gem-transactions", "url_prefix": ["/api/admin/gem/transactions", "/api/admin/gem/waiting-list"]},
-    {"key": "gem_content",     "label": "Site Content", "group": "gem2i", "frontend_path": "/admin",                 "url_prefix": ["/api/admin/gem/gem-content"]},
+    {"key": "aurex_sections", "label": "Section Manager", "group": "system", "frontend_path": "/admin/aurex-sections", "url_prefix": ["/api/admin/aurex"]},
+    {"key": "gem_coupons", "label": "Coupons", "group": "gem2i", "frontend_path": "/admin/gem-coupons", "url_prefix": ["/api/admin/gem/coupons"]},
+    {"key": "gem_membership", "label": "Paid Membership", "group": "gem2i", "frontend_path": "/admin/gem-membership", "url_prefix": ["/api/admin/gem/membership-config", "/api/admin/gem/membership-subscriptions"]},
+    {"key": "gem_content",     "label": "Site Content", "group": "gem2i", "frontend_path": "/admin/gem-content",     "url_prefix": ["/api/admin/gem/gem-content"]},
 
     # Landing Page
     {"key": "landing_hero",        "label": "Hero (Landing)",         "group": "landing", "frontend_path": "/admin/landing-hero",        "url_prefix": ["/api/admin/landing-hero"]},

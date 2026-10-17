@@ -68,10 +68,29 @@ async def stripe_webhook(request: Request):
     if not api_key:
         logger.warning("Stripe webhook received but no API key configured")
         return {"status": "error", "detail": "Stripe not configured"}
+    # Signature check when a webhook secret is configured (gem_config, same
+    # secret as the ticket webhook — house rule: never `settings`).
+    pay_cfg = await db.gem_config.find_one({"key": "payments"}, {"_id": 0}) or {}
+    secret = pay_cfg.get("webhook_secret")
+    if secret:
+        import stripe as _stripe
+        try:
+            _stripe.Webhook.construct_event(
+                body, request.headers.get("Stripe-Signature", ""), secret)
+        except Exception:
+            logger.warning("Stripe webhook rejected: invalid signature")
+            raise HTTPException(status_code=400, detail="Invalid signature")
     helper = StripeHelper(api_key)
     try:
         event = await helper.handle_webhook(body, request.headers.get("Stripe-Signature"))
-        if event.payment_status == "paid":
+        if not event.session_id:
+            return {"status": "ignored"}
+        tx = await db.payment_transactions.find_one({"session_id": event.session_id}, {"_id": 0})
+        if not tx:
+            return {"status": "ignored"}
+        # The payload is only a hint: trust Stripe's own view of the session.
+        status = await helper.get_checkout_status(event.session_id)
+        if status.payment_status == "paid":
             await db.payment_transactions.update_one({"session_id": event.session_id},
                 {"$set": {"status": "complete", "payment_status": "paid", "paid_at": datetime.now(timezone.utc).isoformat()}})
         return {"status": "ok"}

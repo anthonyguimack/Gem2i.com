@@ -20,6 +20,7 @@
   - `-Clean -IUnderstand` — wipe all app dirs/vhosts/certs/custom services + drop non-system Mongo DBs; keeps Python/Node/nginx/Mongo/certbot. Stages a pre-clean backup in `/opt/_preclean_backup`.
   - `-Standup -IUnderstand` — upload forked code, venv+build, systemd unit, nginx vhost (from `scripts/gem2i_nginx.conf`), LE cert, health check.
 - **`deploy_beta_gem2i.ps1 [-y]`** — ongoing smart deploy (git-diff since `.last-deploy-gem2i`; upload → conditional pip/yarn/build → restart → health → auto-rollback).
+  - **Backups:** one `/opt/beta.gem2i.com-backup-<ts>.tar.gz` (~1.8 GB) per deploy; the script keeps only the **3 newest** (since 2026-10-16 — 29 unpruned backups filled the 58 GB disk). Check `df -h /` if a deploy fails at "Backup".
 
 ## First stand-up order (on GO)
 1. `provision_gem2i_box.ps1 -Inventory` → review.

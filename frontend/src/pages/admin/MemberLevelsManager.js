@@ -8,19 +8,11 @@ import { Plus, Edit2, Trash2, Loader2, Shield, Link2, Lock } from 'lucide-react'
 
 const SIDEBAR_SECTIONS = [
   { id: 'membership-profile', label: 'Membership Profile' },
-  { id: 'mentorship-profile', label: 'Mentorship Profile' },
   { id: 'my-sponsor', label: 'My Sponsor' },
-  { id: 'ebank', label: 'My Ebank' },
   { id: 'invite-code', label: 'Invite Code' },
   { id: 'my-community', label: 'My Community' },
-  { id: 'portfolios', label: 'Portfolios' },
-  { id: 'global-calendar', label: 'AUX Calendar' },
-  { id: 'mentorship-calendar', label: 'My Calendar' },
-  { id: 'earnings', label: 'Earnings' },
-  { id: 'bundles', label: 'Session Bundles' },
-  { id: 'my-bookings', label: 'My Reservations' },
+  { id: 'global-calendar', label: 'Calendar (events + my passes)' },
   { id: 'calendar-sync', label: 'Calendar Sync' },
-  { id: 'points', label: 'Points & Rewards' },
 ];
 
 export default function MemberLevelsManager() {

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Query
 from models.database import db, send_email_smtp, logger
 from utils.personality import scoped_find, pb_validate, scope_query, has_content
 from datetime import datetime, timezone
+import re
 import uuid
 import httpx
 
@@ -12,21 +13,43 @@ router = APIRouter()
 _ABOUT_CONTENT_FIELDS = ["title", "description", "image", "signature_name",
                          "signature_title", "button_text", "label"]
 
+# Never sent to the browser: credentials, internal mail/infra config and
+# operator addresses. The admin reads the full doc from /admin/settings.
+# (Ported from AUX-1.0 4ce2d39; operator_email added for gem2i.)
+_PUBLIC_SETTINGS_DENY = {
+    "smtp_password", "smtp_user", "smtp_host", "smtp_port",
+    "stripe_api_key", "stripe_publishable_key", "stripe_webhook_secret",
+    "stripe_api_key_preview",
+    "kms_sync_key", "news_sync_key", "points_sync_key",
+    "news_replication_targets",  # embeds per-target sync keys
+    "morning_discord_webhook", "news_discord_webhook", "news_discord_webhook_news",
+    "claude_api_key",
+    "mail_settings",
+    "admin_email", "email_cc", "email_from", "email_to", "name_from", "name_to",
+    "operator_email",
+    "welcome_email_template", "kms_db", "kms_root", "backup_settings",
+    "platform_fee_percent",
+}
+# Safety net for keys added later: anything whose name looks like a secret is
+# dropped at any depth. Boolean "*_set" flags (configured yes/no) are kept.
+_SECRET_NAME = re.compile(r"(secret|password|passwd|token|access_key|api_key|private_key|sync_key|webhook)", re.I)
+
+
+def _strip_secrets(value):
+    if isinstance(value, dict):
+        return {k: _strip_secrets(v) for k, v in value.items()
+                if k.endswith("_set") or not _SECRET_NAME.search(k)}
+    if isinstance(value, list):
+        return [_strip_secrets(v) for v in value]
+    return value
+
+
 @router.get("/public/settings")
 async def get_public_settings():
     settings = await db.settings.find_one({}, {"_id": 0})
     if not settings:
         return {}
-    SENSITIVE = {
-        "smtp_password", "smtp_user",
-        "stripe_api_key", "stripe_publishable_key", "stripe_webhook_secret",
-        "stripe_api_key_preview",
-        "kms_sync_key", "news_sync_key", "points_sync_key",
-        "news_replication_targets",  # embeds per-target sync keys
-        "morning_discord_webhook", "news_discord_webhook", "news_discord_webhook_news",
-        "claude_api_key",
-    }
-    return {k: v for k, v in settings.items() if k not in SENSITIVE}
+    return _strip_secrets({k: v for k, v in settings.items() if k not in _PUBLIC_SETTINGS_DENY})
 
 @router.get("/public/social-catalog")
 async def get_social_catalog():
@@ -167,7 +190,7 @@ async def get_public_testimonials(personality: str = None):
     return await scoped_find(db.testimonials, base, personality, sort_field="order", limit=100)
 
 @router.get("/public/sections")
-async def get_public_sections():
+async def get_public_sections(theme: str | None = None):
     settings = await db.settings.find_one({}, {"_id": 0})
     if not settings:
         return {}
@@ -178,7 +201,15 @@ async def get_public_sections():
     # Per-theme order: fall back to legacy if Aurex has no theme-specific order yet
     orders = settings.get("section_orders", {}) or {}
     aurex_default = ["hero", "about", "aurex_audience", "services", "aurex_process", "aurex_video", "aurex_pricing", "aurex_team", "testimonials", "aurex_events", "news", "blog", "aurex_partners", "aurex_clients", "map", "contact"]
-    section_order = orders.get(active_theme) or (aurex_default if active_theme == "aurex" else legacy_order)
+    from routes.admin_tools import GEM2I_DEFAULT_ORDER, GEM2I_TEMPLATES
+    # gem2i template preview (?template=): another gem2i template's layout,
+    # never a different brand theme.
+    if active_theme in GEM2I_TEMPLATES and theme in GEM2I_TEMPLATES:
+        active_theme = theme
+    if active_theme in GEM2I_TEMPLATES:
+        section_order = orders.get(active_theme) or orders.get("gem2i") or GEM2I_DEFAULT_ORDER
+    else:
+        section_order = orders.get(active_theme) or (aurex_default if active_theme == "aurex" else legacy_order)
     section_configs = (settings.get("section_configs") or {}).get(active_theme, {})
     return {
         "sections": sections,

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { publicAPI } from '../lib/api';
 import { useTheme } from '../App';
+import { isGem2iTheme } from '../lib/themeColors';
 import Gem2iHome from './gem2i/Gem2iHome';
 
 // gem2i homepage: the real dark-entertainment home (Phase 1) when the gem2i
@@ -8,7 +9,7 @@ import Gem2iHome from './gem2i/Gem2iHome';
 // for any other theme selected in CMS Settings).
 export default function HomePage() {
   const theme = useTheme();
-  if (theme === 'gem2i') return <Gem2iHome />;
+  if (isGem2iTheme(theme)) return <Gem2iHome />;
   return <PlaceholderHome />;
 }
 

@@ -36,7 +36,7 @@ MYACCOUNT_SECTIONS = [
     ("invite-code",         ["/api/member/invite-codes"]),
     ("my-community",        ["/api/member/my-community", "/api/member/members-list"]),
     ("portfolios",          ["/api/member/portfolios"]),
-    ("global-calendar",     ["/api/member/calendar/events"]),
+    ("global-calendar",     ["/api/member/calendar/events", "/api/member/gem/calendar"]),
     ("mentorship-calendar", ["/api/member/mentorship/slots", "/api/member/mentor-slot-templates"]),
     ("earnings",            ["/api/member/mentor/earnings", "/api/member/mentor/payouts",
                              "/api/member/mentor/bundles"]),
@@ -50,7 +50,7 @@ MYACCOUNT_SECTIONS = [
                              "/api/member/mentorship/checkout"]),
     # La LISTA "My Bookings" (su propia sección del menú) sigue por su cuenta.
     ("my-bookings",         ["/api/member/my-bookings"]),
-    ("calendar-sync",       ["/api/member/ical"]),
+    ("calendar-sync",       ["/api/member/ical", "/api/member/gem/calendar/ical-url"]),
     ("points",              ["/api/member/points"]),
     # ⚠ `/api/member/mentor-calendar` NO figura aquí a propósito (2026-07-29): la
     # sección separada `/my-account/mentor-calendar` se retiró — el calendario del

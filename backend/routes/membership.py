@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Response, Depends, Upload
 from models.database import db, verify_password, create_jwt_token, hash_password, send_email_smtp, get_current_user, require_admin, logger, UPLOAD_DIR, is_admin
 from utils.kms_sync import sync_member_to_kms, push_password_to_kms, push_status_to_kms
 from datetime import datetime, timezone, timedelta
+import re
 import uuid
 import secrets
 import aiofiles
@@ -126,6 +127,11 @@ async def get_current_member(request: Request) -> dict:
             mroles = member.get("cms_roles") or []
             if "role_member" not in mroles:
                 raise HTTPException(status_code=403, detail="My Account access has been revoked")
+        # Paid membership expiry: restores the previous level BEFORE the level
+        # check below, so a lapsed member is gated by the level they're back on.
+        if (member.get("paid_membership") or {}).get("active"):
+            from routes.gem_membership import apply_lapse_if_due
+            member = await apply_lapse_if_due(member)
         # Membership LEVELS are enforced on the server too, not only in the browser menu.
         # Single choke point: every My Account API depends on this function. Inert unless
         # settings.level_enforcement_mode is shadow/enforce AND membership_v2_enabled is on.
@@ -263,6 +269,82 @@ async def send_invite_code(code_id: str, request: Request, member: dict = Depend
         except Exception as e:
             logger.warning(f"Failed to send invite email: {e}")
     return {"message": "Invitation sent", "code": {**code_doc, **update}}
+
+@router.post("/member/community/invite-membership")
+async def invite_community_to_membership(request: Request, member: dict = Depends(get_current_member)):
+    """Block 5 — invite a (pre_registered) member of your community to full membership.
+    Generates an invite code owned by you, pre-filled with their details and linked to
+    them, and (if SMTP is set) emails the invitation. The code appears in Invite Code and
+    is validated at the enrollment gates."""
+    body = await request.json()
+    target_id = (body.get("member_id") or "").strip()
+    if not target_id:
+        raise HTTPException(status_code=400, detail="member_id required")
+    # Carlos 2026-09-02: el sponsor elige a cuál de las 2 vías de ingreso invita;
+    # el botón/enlace del correo apunta a esa vía (ambas auto-rellenan el invite code).
+    destination = (body.get("destination") or "").strip()
+    if destination not in ("my_account", "membership_enrollment"):
+        raise HTTPException(status_code=400,
+                            detail="destination must be 'my_account' or 'membership_enrollment'")
+    target = await db.members.find_one({"member_id": target_id}, {"_id": 0, "password_hash": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Member not found")
+    # must be in YOUR community — walk up the target's sponsor chain to you
+    ok, cur, hops = False, target, 0
+    while cur and hops < 12:
+        if cur.get("sponsor_id") == member["member_id"]:
+            ok = True
+            break
+        cur = (await db.members.find_one({"member_id": cur.get("sponsor_id")},
+                                         {"_id": 0, "member_id": 1, "sponsor_id": 1})
+               if cur.get("sponsor_id") else None)
+        hops += 1
+    if not ok:
+        raise HTTPException(status_code=403, detail="This member is not in your community")
+    # one open invite per target from you (avoid duplicates)
+    existing = await db.invite_codes.find_one(
+        {"owner_member_id": member["member_id"], "invited_member_id": target_id,
+         "status": "available"}, {"_id": 0})
+    if existing:
+        return {"message": "already_invited", "code": existing}
+    prefix = await get_aux_prefix()
+    mn = member["membership_number"]
+    code = f"{prefix}-{mn}-{secrets.token_hex(3)}"
+    doc = {
+        "id": str(uuid.uuid4()), "code": code,
+        "owner_member_id": member["member_id"], "owner_membership_number": mn,
+        "owner_membership_id": f"{prefix}-{mn}",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "used_at": None, "used_by_membership_id": None, "used_by_membership_number": None,
+        "invited_member_id": target_id, "source": "community_invite",
+        "destination": destination,   # 'my_account' | 'membership_enrollment'
+        "invitee_first_name": target.get("first_name", ""),
+        "invitee_last_name": target.get("last_name", ""),
+        "invitee_email": target.get("email", ""),
+        "invitee_phone": target.get("phone", ""),
+        "invitee_gender": target.get("gender", ""),
+        "status": "available",
+    }
+    await db.invite_codes.insert_one(doc)
+    settings = await db.settings.find_one({}, {"_id": 0})
+    if settings and settings.get("smtp_host") and target.get("email"):
+        try:
+            from utils.runtime_config import get_site_url
+            base = await get_site_url("")
+            if base:
+                from utils.email_render import render_and_send
+                await render_and_send(
+                    "invite_code", settings, target["email"], target.get("first_name", ""),
+                    variables={"name": target.get("first_name", ""),
+                               "inviter_name": f"{member.get('first_name','')} {member.get('last_name','')}".strip(),
+                               "code": code,
+                               "register_link": (
+                                   f"{base}/membership-enrollment?code={code}"
+                                   if destination == "membership_enrollment"
+                                   else f"{base}/my-account/register?code={code}")})
+        except Exception as e:
+            logger.warning(f"community invite email failed: {e}")
+    return {"message": "invited", "code": {k: v for k, v in doc.items() if k != "_id"}}
 
 # ---- Public: Validate & Register ----
 
@@ -518,9 +600,11 @@ async def get_my_community(member: dict = Depends(get_current_member)):
     # sponsor_id_1 index), then the tree is assembled in memory. The old per-node
     # recursion cost one round trip per member (7s for a 1,600-member network).
     # Same limits as before: 11 levels below the member, at most 500 children each.
+    # gem2i privacy option (b): the downline never carries email / phone / date of
+    # birth / gender / ZIP — enforced HERE, so any My Account design (1.0 or 2.0)
+    # simply has nothing private to show.
     fields = ("member_id", "membership_id", "membership_number", "first_name", "last_name",
-              "avatar", "email", "phone", "gender", "date_of_birth", "country", "state",
-              "city", "zip_code", "sponsor_id")
+              "avatar", "country", "state", "city", "sponsor_id", "account_status")
     rows = await db.members.aggregate([
         {"$match": {"member_id": member["member_id"]}},
         {"$graphLookup": {"from": "members", "startWith": "$member_id",
@@ -546,14 +630,10 @@ async def get_my_community(member: dict = Depends(get_current_member)):
             "first_name": c.get("first_name", ""),
             "last_name": c.get("last_name", ""),
             "avatar": c.get("avatar", ""),
-            "email": c.get("email", ""),
-            "phone": c.get("phone", ""),
-            "gender": c.get("gender", ""),
-            "date_of_birth": c.get("date_of_birth", ""),
             "country": c.get("country", ""),
             "state": c.get("state", ""),
             "city": c.get("city", ""),
-            "zip_code": c.get("zip_code", ""),
+            "account_status": c.get("account_status", ""),
             "children": build_tree(c["member_id"], depth + 1),
         } for c in children_of.get(member_id, [])]
 
@@ -1545,20 +1625,17 @@ async def admin_reorder_myaccount_links(request: Request, user: dict = Depends(r
 # ---- My Account Navigation (ordering + visibility of built-in sidebar items) ----
 
 # Built-in nav catalog — the IDs MUST match the ids used in MyAccountLayout.js/ALL_NAV_ITEMS
+# gem2i My Account 2.0: only the sections this product has. Rows of retired
+# items (mentorship, ebank, portfolios…) left in the DB by the fork are ignored
+# by the SPA, which renders only the ids it knows.
 MYACCOUNT_NAV_CATALOG = [
     {"id": "membership-profile",  "label": "Membership Profile"},
-    {"id": "mentorship-profile",  "label": "Mentorship Profile"},
     {"id": "my-sponsor",          "label": "My Sponsor"},
-    {"id": "ebank",               "label": "My Ebank"},
     {"id": "invite-code",         "label": "Invite Code"},
     {"id": "my-community",        "label": "My Community"},
-    {"id": "portfolios",          "label": "Portfolios"},
-    {"id": "global-calendar",     "label": "AUX Calendar"},
-    {"id": "mentorship-calendar", "label": "My Calendar"},
-    {"id": "earnings",            "label": "Earnings"},
-    {"id": "bundles",             "label": "Session Bundles"},
-    {"id": "my-bookings",         "label": "My Reservations"},
+    {"id": "global-calendar",     "label": "Calendar"},  # shown as "<aux_prefix> Calendar" (see _brand_nav_labels)
     {"id": "calendar-sync",       "label": "Calendar Sync"},
+    {"id": "membership",          "label": "Membership"},
 ]
 
 
@@ -1580,19 +1657,36 @@ async def seed_myaccount_nav():
         next_order += 1
 
 
+_AUTO_CALENDAR_LABEL = re.compile(r"^(?:[A-Z0-9]{1,10}\s+)?Calendar$")  # prefixes are uppercase
+
+
+async def _brand_nav_labels(items: list) -> list:
+    """The calendar is named after the brand prefix ("GEM Calendar"). Older seeds
+    stored the literal "AUX Calendar": any "<PREFIX> Calendar"/"Calendar" label is
+    the automatic one and resolves to THIS brand's prefix; a real rename (e.g.
+    "Events") is kept as is. (Ported from AUX-1.0.)"""
+    prefix = (await get_aux_prefix() or "").strip()
+    for it in items:
+        if it.get("id") == "global-calendar" and _AUTO_CALENDAR_LABEL.match((it.get("label") or "Calendar").strip()):
+            it["label"] = f"{prefix} Calendar" if prefix else "Calendar"
+    return items
+
+
 @router.get("/public/myaccount-nav")
 async def get_myaccount_nav():
     """Public: ordered list of My Account nav items (includes hidden rows so frontend can honour visibility)."""
     await seed_myaccount_nav()
-    items = await db.myaccount_nav.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    return items
+    items = await db.myaccount_nav.find(
+        {"id": {"$in": [c["id"] for c in MYACCOUNT_NAV_CATALOG]}}, {"_id": 0}).sort("order", 1).to_list(100)
+    return await _brand_nav_labels(items)
 
 
 @router.get("/admin/myaccount-nav")
 async def admin_list_myaccount_nav(user: dict = Depends(require_admin)):
     await seed_myaccount_nav()
-    items = await db.myaccount_nav.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    return items
+    items = await db.myaccount_nav.find(
+        {"id": {"$in": [c["id"] for c in MYACCOUNT_NAV_CATALOG]}}, {"_id": 0}).sort("order", 1).to_list(100)
+    return await _brand_nav_labels(items)
 
 
 @router.put("/admin/myaccount-nav/{item_id}")

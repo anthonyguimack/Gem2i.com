@@ -145,6 +145,11 @@ async def _complete_ticket(tx: dict, background: BackgroundTasks | None = None) 
     if res.modified_count == 0:  # lost the race to another completer — no double QR/email
         return await db.gem_transactions.find_one({"id": tx["id"]}, {"_id": 0})
     tx = {**tx, **patch}
+    if tx.get("coupon"):
+        from routes.gem_coupons import record_redemption
+        await record_redemption(tx["coupon"]["id"], tx.get("member_id"), "tickets", tx["id"],
+                                float(tx["coupon"].get("subtotal") or 0), float(tx["coupon"].get("discount") or 0),
+                                tx.get("currency", ""))
     if tx.get("member_email"):
         if background is not None:
             background.add_task(_send_ticket_email, tx["member_email"], tx.get("member_name", ""), ev, tx)
@@ -153,6 +158,12 @@ async def _complete_ticket(tx: dict, background: BackgroundTasks | None = None) 
                 await _send_ticket_email(tx["member_email"], tx.get("member_name", ""), ev, tx)
             except Exception as e:
                 logger.warning(f"gem ticket email failed: {e}")
+    from routes.gem_calendar import notify
+    await notify(tx.get("member_id"), "ticket",
+                 {"en": "Your ticket is ready", "es": "Tu entrada está lista"},
+                 {"en": f'Payment received for "{ev.get("title", "")}". Your QR ticket is in your email.',
+                  "es": f'Recibimos tu pago para "{ev.get("title", "")}". Tu entrada QR está en tu correo.'},
+                 f"/events/{ev.get('slug', '')}" if ev.get("slug") else "")
     return tx
 
 
@@ -194,7 +205,7 @@ async def gem_payment_webhook(request: Request, background: BackgroundTasks):
         raise HTTPException(status_code=400, detail="No session in payload")
 
     tx = await db.gem_transactions.find_one(
-        {"payment.session_id": event.session_id, "kind": "ticket"}, {"_id": 0})
+        {"payment.session_id": event.session_id, "kind": {"$in": ["ticket", "membership"]}}, {"_id": 0})
     if not tx:
         raise HTTPException(status_code=404, detail="Unknown session")
 
@@ -207,7 +218,11 @@ async def gem_payment_webhook(request: Request, background: BackgroundTasks):
         logger.error(f"gem webhook amount mismatch tx={tx['id']} stripe={status.amount_total}")
         raise HTTPException(status_code=400, detail="Amount mismatch")
 
-    await _complete_ticket(tx, background)
+    if tx.get("kind") == "membership":
+        from routes.gem_membership import activate_membership
+        await activate_membership(tx)
+    else:
+        await _complete_ticket(tx, background)
     return {"status": "ok"}
 
 
@@ -238,23 +253,34 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
     if await _sold(event_id, tier) + quantity > t["stock"]:
         raise HTTPException(status_code=409, detail="tier_sold_out")
 
-    api_key = await get_stripe_api_key()
-    if not api_key:
-        raise HTTPException(status_code=503, detail="Payments are not configured yet")
-
     currency = (ev.get("payment") or {}).get("currency") or "usd"
-    total = round(t["price"] * quantity, 2)
+    subtotal = round(t["price"] * quantity, 2)
+    total = subtotal
+    coupon_doc = None
+    if (body.get("coupon") or "").strip():
+        from routes.gem_coupons import resolve_coupon
+        c, discount = await resolve_coupon(body["coupon"], member["member_id"], "tickets", subtotal, event_id)
+        total = round(subtotal - discount, 2)
+        coupon_doc = {"id": c["id"], "code": c["code"], "discount": discount, "subtotal": subtotal}
+    if 0 < total < 0.5:
+        raise HTTPException(status_code=422, detail="amount_below_minimum")
     name, email = _member_display(member)
     tx_id = str(uuid.uuid4())
 
-    helper = StripeHelper(api_key)
-    session = await helper.create_checkout_session(
-        amount=total, currency=currency,
-        product_name=f"{ev.get('title', 'Event')} — {t['label']} x{quantity}",
-        success_url=f"{origin}/tickets/success?session_id={{CHECKOUT_SESSION_ID}}",
-        cancel_url=f"{origin}/events/{ev.get('slug', '')}",
-        metadata={"gem_tx_id": tx_id, "event_id": event_id, "tier": tier},
-    )
+    session = None
+    if total > 0:
+        api_key = await get_stripe_api_key()
+        if not api_key:
+            raise HTTPException(status_code=503, detail="Payments are not configured yet")
+        helper = StripeHelper(api_key)
+        session = await helper.create_checkout_session(
+            amount=total, currency=currency,
+            product_name=f"{ev.get('title', 'Event')} — {t['label']} x{quantity}",
+            success_url=f"{origin}/tickets/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{origin}/events/{ev.get('slug', '')}",
+            metadata={"gem_tx_id": tx_id, "event_id": event_id, "tier": tier,
+                      **({"coupon": coupon_doc["code"]} if coupon_doc else {})},
+        )
 
     tx = {
         "id": tx_id,
@@ -268,9 +294,12 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
         "tier_label": t["label"],
         "quantity": quantity,
         "amount": t["price"],
+        "subtotal": subtotal,
         "total": total,
         "currency": currency,
-        "payment": {"provider": "stripe", "session_id": session.session_id},
+        "coupon": coupon_doc,
+        "payment": ({"provider": "stripe", "session_id": session.session_id} if session
+                    else {"provider": "coupon", "session_id": f"free_{tx_id}"}),
         "created_at": _now_iso(),
     }
     await db.gem_transactions.insert_one(dict(tx))
@@ -283,6 +312,11 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
                                      "canceled_by": "system_oversell"}})
         raise HTTPException(status_code=409, detail="tier_sold_out")
 
+    if session is None:
+        # 100% coupon: nothing to charge — issue the ticket right away.
+        await _complete_ticket(tx)
+        return {"url": f"{origin}/tickets/success?session_id=free_{tx_id}",
+                "session_id": f"free_{tx_id}", "free": True}
     return {"url": session.url, "session_id": session.session_id}
 
 
@@ -298,6 +332,8 @@ async def gem_checkout_status(session_id: str, background: BackgroundTasks,
         raise HTTPException(status_code=404, detail="Not found")
     if tx.get("status") == "completed":
         return {"payment_status": "paid", "transaction": tx}
+    if (tx.get("payment") or {}).get("provider") == "coupon":
+        return {"payment_status": tx.get("status"), "transaction": None}
     api_key = await get_stripe_api_key()
     if not api_key:
         raise HTTPException(status_code=503, detail="Payments not configured")

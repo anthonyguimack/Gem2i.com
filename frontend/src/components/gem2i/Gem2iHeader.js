@@ -90,14 +90,14 @@ export default function Gem2iHeader({ nav }) {
         }}
         data-testid="main-navbar"
       >
-        <div className="max-w-7xl mx-auto px-5 md:px-10 flex items-center justify-between h-[72px]">
-          <Link to="/" className="flex items-center gap-3 shrink-0" data-testid="brand-logo">
+        <div className="w-full px-5 md:px-8 2xl:px-16 grid grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center gap-6 h-[72px] lg:h-[88px]">
+          <Link to="/" className="flex items-center gap-3 shrink-0 justify-self-start" data-testid="brand-logo">
             {logoSrc
               ? <img src={logoSrc} alt={brandName} className="h-9 w-auto object-contain" data-testid="navbar-logo-img" />
               : <span className="text-white text-xl font-bold tracking-[0.18em]" style={{ fontFamily: GEM_FONT }}>{brandName}</span>}
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-7" aria-label={tt({ en: 'Main navigation', es: 'Navegación principal' })}>
+          <nav className="hidden lg:flex items-center justify-center gap-4 xl:gap-5 2xl:gap-8" aria-label={tt({ en: 'Main navigation', es: 'Navegación principal' })}>
             {headerPages.map(page => {
               const { href, isExt, active } = linkFor(page);
               const Comp = isExt ? 'a' : Link;
@@ -106,25 +106,27 @@ export default function Gem2iHeader({ nav }) {
                 : { to: href, onClick: e => handlePageClick(page, e) };
               return (
                 <Comp key={page.id} {...props}
-                  className="text-[13px] font-medium uppercase tracking-[0.14em] transition-colors hover:text-white"
-                  style={{ color: active ? 'var(--color-accent, #3287B7)' : 'rgba(255,255,255,0.85)' }}
+                  aria-current={active ? 'page' : undefined}
+                  className="relative whitespace-nowrap py-2 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors hover:text-white"
+                  style={{ color: active ? 'var(--color-link, #5FB2E0)' : 'rgba(255,255,255,0.88)' }}
                   data-testid={`nav-${page.title.toLowerCase().replace(/\s/g, '-')}`}>
                   {page.title}
+                  {active && <span aria-hidden="true" className="absolute left-0 right-0 -bottom-0.5 h-[2px] rounded-full" style={{ backgroundColor: 'var(--color-link, #5FB2E0)' }} />}
                 </Comp>
               );
             })}
           </nav>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-end gap-1.5 2xl:gap-3 justify-self-end">
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
-                {hasMyAccount && <Link to="/my-account/membership-profile" className="text-xs font-medium text-white/80 hover:text-white px-2 py-1.5" data-testid="nav-my-account">{tt({ en: 'My Account', es: 'Mi Cuenta' })}</Link>}
-                {hasCmsAccess && <Link to="/admin" className="text-xs font-medium px-3 py-1.5 rounded-sm" style={{ backgroundColor: 'var(--color-accent, #3287B7)', color: '#fff' }} data-testid="nav-admin-btn">Admin</Link>}
+                {hasMyAccount && <Link to="/my-account/membership-profile" className="whitespace-nowrap text-[13px] font-medium text-white/85 hover:text-white px-2 py-1.5" data-testid="nav-my-account">{tt({ en: 'My Account', es: 'Mi Cuenta' })}</Link>}
+                {hasCmsAccess && <Link to="/admin" className="gem-press text-[13px] font-medium px-4 py-2 rounded-full border border-white/10 hover:border-white/30 transition-colors" style={{ backgroundColor: 'rgba(4,8,12,0.85)', color: '#fff' }} data-testid="nav-admin-btn">Admin</Link>}
                 <button onClick={logout} aria-label={tt({ en: 'Log out', es: 'Cerrar sesión' })} className="p-2 text-white/70 hover:text-white transition-colors"><LogOut className="w-4 h-4" /></button>
               </div>
             ) : (
               <button onClick={() => setLoginOpen(true)}
-                className="text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-sm flex items-center gap-1.5 transition-colors"
+                className="gem-press whitespace-nowrap text-[13px] font-medium px-5 py-2 rounded-full flex items-center gap-1.5 transition-colors"
                 style={{ backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)' }}
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-button-hover-bg, #4DA3D4)'; e.currentTarget.style.color = 'var(--color-button-hover-text, #04080C)'; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--color-button-bg, #3287B7)'; e.currentTarget.style.color = 'var(--color-button-text, #fff)'; }}
@@ -140,7 +142,7 @@ export default function Gem2iHeader({ nav }) {
           </div>
         </div>
       </header>
-      {!hasHero && <div className="h-[72px]" aria-hidden="true" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }} />}
+      {!hasHero && <div className="h-[72px] lg:h-[88px]" aria-hidden="true" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }} />}
 
       {/* Side menu panel (legacy gem2i signature — all viewports) */}
       <div

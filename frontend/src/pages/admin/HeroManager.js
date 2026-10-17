@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '../../lib/api';
 import { toast } from 'sonner';
-import { Plus, Edit2, Trash2, Loader2, Image, Video } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, Image, Video, Copy } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { useDataTable, DataTableToolbar, DataTablePagination, SortableTh } from '../../components/admin/useDataTable';
+import { HERO_AUDIENCES } from '../../lib/heroAudience';
 
 const fmtDt = (d) => {
   if (!d) return '-';
@@ -24,6 +25,14 @@ function ScopeBadge({ pb_personality }) {
   return <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium ${meta.cls}`}>{meta.label}</span>;
 }
 
+// Audience badge — who sees the slide (Everyone / Not logged in / Logged in).
+const AUDIENCE_CLS = { '': 'bg-slate-100 text-slate-600', guests: 'bg-amber-50 text-amber-700', members: 'bg-teal-50 text-teal-700' };
+function AudienceBadge({ audience }) {
+  const a = audience || '';
+  const meta = HERO_AUDIENCES.find(o => o.value === a) || HERO_AUDIENCES[0];
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium ${AUDIENCE_CLS[a] || AUDIENCE_CLS['']}`}>{meta.label}</span>;
+}
+
 export default function HeroManager() {
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +45,19 @@ export default function HeroManager() {
     adminAPI.getHeroSlides().then(r => setSlides(r.data || [])).catch(() => toast.error('Failed to load')).finally(() => setLoading(false));
   };
   useEffect(load, []);
+
+  // Clone: full copy as a NEW slide (the API assigns id/created_at), then open
+  // the copy in the editor so the operator adjusts it right away.
+  const [cloningId, setCloningId] = useState(null);
+  const handleClone = async (s) => {
+    setCloningId(s.id);
+    try {
+      const { id, created_at, updated_at, ...copy } = s;
+      const r = await adminAPI.createHeroSlide(copy);
+      toast.success('Slide cloned — now editing the copy');
+      navigate(`/admin/hero/edit/${r.data.id}`);
+    } catch { toast.error('Clone failed'); setCloningId(null); }
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -83,6 +105,7 @@ export default function HeroManager() {
                 <SortableTh dt={dt} field="subtitle">Subtitle</SortableTh>
                 <SortableTh dt={dt} field="slide_type" align="center">Type</SortableTh>
                 <SortableTh dt={dt} field="pb_personality" align="center">Scope</SortableTh>
+                <SortableTh dt={dt} field="audience" align="center">Audience</SortableTh>
                 <SortableTh dt={dt} field="date_start">Start Date</SortableTh>
                 <SortableTh dt={dt} field="date_end">End Date</SortableTh>
                 <th className="text-right p-3">Actions</th>
@@ -101,11 +124,15 @@ export default function HeroManager() {
                     )}
                   </td>
                   <td className="p-3 text-center"><ScopeBadge pb_personality={s.pb_personality} /></td>
+                  <td className="p-3 text-center"><AudienceBadge audience={s.audience} /></td>
                   <td className="p-3 text-slate-500 text-xs">{fmtDt(s.date_start)}</td>
                   <td className="p-3 text-slate-500 text-xs">{fmtDt(s.date_end)}</td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <button onClick={() => navigate(`/admin/hero/edit/${s.id}`)} className="p-1.5 text-slate-400 hover:text-[#0D9488]" data-testid={`edit-slide-${s.id}`}><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={() => navigate(`/admin/hero/edit/${s.id}`)} className="p-1.5 text-slate-400 hover:text-[#0D9488]" title="Edit" aria-label="Edit slide" data-testid={`edit-slide-${s.id}`}><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={() => handleClone(s)} disabled={!!cloningId} className="p-1.5 text-slate-400 hover:text-[#0D9488] disabled:opacity-50" title="Clone" aria-label="Clone slide" data-testid={`clone-slide-${s.id}`}>
+                        {cloningId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                      </button>
                       <button onClick={() => setDeleteTarget(s)} className="p-1.5 text-slate-400 hover:text-red-500" data-testid={`delete-slide-${s.id}`}><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>

@@ -11,11 +11,11 @@ function Zone({ blocks, className }) {
   );
 }
 
-export default function LayoutRenderer({ page, hasHero }) {
+export default function LayoutRenderer({ page, hasHero, hideTitle = false }) {
   const zones = page.zones || {};
   const layout = page.layout;
   const topPad = hasHero ? 'py-16' : 'py-16 pt-24 md:pt-28';
-  const noAutoTitle = ['hero_banner', 'landing'].includes(layout);
+  const noAutoTitle = hideTitle || ['hero_banner', 'landing'].includes(layout);
 
   const Title = () => noAutoTitle ? null : (
     <>

@@ -1,17 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useMember } from '../../lib/memberAuth';
 import { memberAPI, publicAPI, geoAPI } from '../../lib/api';
 import { DEFAULT_AVATAR } from '../../lib/defaultImages';
 import { toast } from 'sonner';
-import { User, Save, Loader2, Edit3, Lock, Eye, ListChecks, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { User, Save, Loader2, Edit3, Lock, Eye, ListChecks, CheckCircle2, AlertCircle, Plus, RefreshCw, FileText, Upload, Trash2, ExternalLink } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
 import RichTextEditor from '../../components/RichTextEditor';
 import MemberImageUpload from '../../components/MemberImageUpload';
+import SocialLinksCard from './components/SocialLinksCard';
 
-const quillDark = "[&_.ql-toolbar]:!bg-[#0d0f14] [&_.ql-toolbar]:!border-white/10 [&_.ql-container]:!border-white/10 [&_.ql-container]:!bg-[#0d0f14] [&_.ql-editor]:!text-white [&_.ql-editor]:!min-h-[150px] [&_.ql-snow_.ql-stroke]:!stroke-gray-400 [&_.ql-snow_.ql-fill]:!fill-gray-400 [&_.ql-snow_.ql-picker-label]:!text-gray-400 [&_.ql-snow_.ql-picker-options]:!bg-[#13161e]";
+// Semantic colour tokens. ⚠ No colour literal belongs in a page: these resolve
+// to the CMS group (`theme_colors.my_account_2*`) and flip with light/dark.
+const T = {
+  success: 'var(--ma2-success)', warning: 'var(--ma2-warning)',
+  danger: 'var(--ma2-danger)', info: 'var(--ma2-info)', muted: 'var(--ma2-muted)',
+};
+
 
 const fmtDate = (d) => {
   if (!d) return '-';
@@ -25,8 +30,10 @@ const PROFILE_FIELD_LABELS = {
   gender: 'Gender', date_of_birth: 'Date of Birth', address: 'Address',
   country: 'Country', state: 'State', city: 'City', zip_code: 'ZIP Code',
   passport_id: 'ID# (Passport or DNI or etc.)', google_account: 'Google Account', avatar: 'Avatar',
-  summary: 'Summary (Bio)', biography: 'Biography',
+  summary: 'Summary (Bio)', biography: 'Biography', cv_file: 'Curriculum Vitae (PDF)',
 };
+
+const CV_MAX_MB = 10;
 
 const COMPLETION_FIELD_LABELS = {
   ...PROFILE_FIELD_LABELS,
@@ -45,8 +52,18 @@ function stripHtml(html) {
   return html.replace(/<[^>]*>/g, '').trim();
 }
 
-// Dark dialog class: makes the close button (X) visible on dark backgrounds
-const darkDialogCls = "[&>button]:text-white";
+const fmtActivityDate = (ts) => {
+  if (!ts) return '';
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '';
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  const yest = new Date(today); yest.setDate(today.getDate() - 1);
+  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (sameDay) return `Today, ${time}`;
+  if (d.toDateString() === yest.toDateString()) return `Yesterday, ${time}`;
+  return d.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
+};
 
 export default function MembershipProfile() {
   const { member, refresh } = useMember();
@@ -67,13 +84,23 @@ export default function MembershipProfile() {
   const [pwLoading, setPwLoading] = useState(false);
   const [viewBioOpen, setViewBioOpen] = useState(false);
   const [stepsOpen, setStepsOpen] = useState(false);
-  // Membership settings: mandatory fields fetched here; hidden fields come from the
-  // layout via context, resolved BEFORE this page paints, so hidden fields never flash.
+  // Membership settings: mandatory fields (drive the completion ring) are still
+  // fetched here; hidden fields come from the layout via context — resolved BEFORE
+  // this page paints, so hideable fields (passport_id, google_account…) never flash.
   const [mandatoryFields, setMandatoryFields] = useState([]);
   const [ebankData, setEbankData] = useState({});
   const ctx = useOutletContext() || {};
   const hiddenFields = ctx.hiddenFields || [];
   const isHidden = (k) => hiddenFields.includes(k);
+  // s150: the CV exists only for members whose LEVEL opens the LMS (mentorship),
+  // and only while CMS → Membership Settings keeps it visible. It counts toward
+  // the completion % when that page marks it mandatory — for those members only.
+  const showCv = !!member?._lms_access && !isHidden('cv_file');
+  const effectiveMandatory = useMemo(
+    () => (showCv ? mandatoryFields : mandatoryFields.filter(f => f !== 'cv_file')),
+    [mandatoryFields, showCv]);
+  const cvInputRef = useRef(null);
+  const [cvBusy, setCvBusy] = useState(false);
   const title = ctx.sectionLabel ? ctx.sectionLabel('membership-profile', 'Membership Profile') : 'Membership Profile';
 
   const fetchActivities = () => {
@@ -121,10 +148,10 @@ export default function MembershipProfile() {
 
   // --- Profile completion ---
   const { percentage, missingMandatory, missingOptional } = useMemo(() => {
-    if (!member || mandatoryFields.length === 0) return { percentage: 0, missingMandatory: [], missingOptional: [] };
+    if (!member || effectiveMandatory.length === 0) return { percentage: 0, missingMandatory: [], missingOptional: [] };
 
-    const profileFields = mandatoryFields.filter(f => !f.startsWith('ebank.'));
-    const ebankFields = mandatoryFields.filter(f => f.startsWith('ebank.'));
+    const profileFields = effectiveMandatory.filter(f => !f.startsWith('ebank.'));
+    const ebankFields = effectiveMandatory.filter(f => f.startsWith('ebank.'));
 
     let filled = 0;
     const missing = [];
@@ -142,12 +169,12 @@ export default function MembershipProfile() {
       else missing.push(key);
     });
 
-    const pct = Math.round((filled / mandatoryFields.length) * 100);
+    const pct = Math.round((filled / effectiveMandatory.length) * 100);
 
     const allProfileKeys = ['first_name', 'last_name', 'email', 'phone', 'gender', 'date_of_birth', 'address', 'country', 'state', 'city', 'zip_code', 'passport_id', 'google_account', 'avatar', 'summary', 'biography'];
     const allEbankKeys = ['ebank.investment_amount', 'ebank.additional_capital', 'ebank.investment_goal', 'ebank.monthly_savings', 'ebank.deposit_date', 'ebank.target_date', 'ebank.credit_limit', 'ebank.credit_debt', 'ebank.risk_level', 'ebank.finance_involvement', 'ebank.investment_safety', 'ebank.financial_independence_age', 'ebank.rate_of_return', 'ebank.investment_duration', 'ebank.own_business', 'ebank.projects'];
-    const allKeys = [...allProfileKeys, ...allEbankKeys];
-    const optionalKeys = allKeys.filter(k => !mandatoryFields.includes(k));
+    const allKeys = [...allProfileKeys, ...(showCv ? ['cv_file'] : []), ...allEbankKeys];
+    const optionalKeys = allKeys.filter(k => !effectiveMandatory.includes(k));
 
     const missingOpt = [];
     optionalKeys.forEach(key => {
@@ -161,7 +188,19 @@ export default function MembershipProfile() {
     });
 
     return { percentage: pct, missingMandatory: missing, missingOptional: missingOpt };
-  }, [member, mandatoryFields, ebankData]);
+  }, [member, effectiveMandatory, ebankData, showCv]);
+
+  // Anillo del avatar: arranca en 0 y se anima hasta `percentage` al cargar
+  // (o cuando los datos llegan async). Honra prefers-reduced-motion.
+  const ringReduced = typeof window !== 'undefined' && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [ringPct, setRingPct] = useState(0);
+  useEffect(() => {
+    if (ringReduced) { setRingPct(percentage); return; }
+    // pinta primero el estado 0 y en el siguiente frame transiciona al valor
+    const t = setTimeout(() => setRingPct(percentage), 150);
+    return () => clearTimeout(t);
+  }, [percentage, ringReduced]);
 
   const handleSave = async () => {
     setLoading(true);
@@ -187,6 +226,35 @@ export default function MembershipProfile() {
     finally { setLoading(false); }
   };
 
+  const handleCvPick = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!/\.pdf$/i.test(file.name) || (file.type && file.type !== 'application/pdf')) {
+      toast.error('Only PDF files are allowed'); return;
+    }
+    if (file.size > CV_MAX_MB * 1024 * 1024) { toast.error(`File too large (max ${CV_MAX_MB}MB)`); return; }
+    setCvBusy(true);
+    try {
+      await memberAPI.uploadCv(file);
+      toast.success('CV uploaded!');
+      refresh();
+      fetchActivities();
+    } catch (err) { toast.error(err.response?.data?.detail || 'Error uploading CV'); }
+    finally { setCvBusy(false); }
+  };
+
+  const handleCvDelete = async () => {
+    if (!window.confirm('Remove your CV?')) return;
+    setCvBusy(true);
+    try {
+      await memberAPI.deleteCv();
+      toast.success('CV removed');
+      refresh();
+    } catch { toast.error('Error removing CV'); }
+    finally { setCvBusy(false); }
+  };
+
   const handleChangePassword = async () => {
     if (pwForm.new_password.length < 8) { toast.error('Password must be at least 8 characters'); return; }
     if (pwForm.new_password !== pwForm.confirm_password) { toast.error('Passwords do not match'); return; }
@@ -201,7 +269,11 @@ export default function MembershipProfile() {
   };
 
   const platformSocials = (settings.social_links || []).map(s => s.platform || s.icon);
-  const memberSocials = form.social_links || member?.social_links || [];
+  // ⚠ Array.isArray, not `|| []`: legacy/imported member docs may store
+  // `social_links` as an OBJECT, which `|| []` would let through and then crash
+  // the spread/find/filter below (and SocialLinksCard). Coerce to a real array.
+  const memberSocials = Array.isArray(form.social_links) ? form.social_links
+    : (Array.isArray(member?.social_links) ? member.social_links : []);
   const updateSocial = (platform, url) => {
     const links = [...memberSocials];
     const idx = links.findIndex(l => l.platform === platform);
@@ -219,381 +291,518 @@ export default function MembershipProfile() {
     { id: 'activities', label: 'Activities' },
   ];
 
-  // iOS-compatible native select style: font-size 16px prevents iOS zoom
-  const selectCls = "w-full mt-1 px-3 py-2 bg-[#0d0f14] border border-white/10 text-white rounded-md text-base focus:outline-none";
+  const progressColor = percentage >= 80 ? T.success : percentage >= 50 ? T.warning : T.danger;
+  // El badge y el tirador viajan con el extremo del relleno; se acotan para que
+  // en 0% / 100% no se salgan de la caja de la barra.
+  const markerLeft = Math.min(Math.max(percentage, 5), 95);
 
-  const progressColor = percentage >= 80
-    ? (getComputedStyle(document.documentElement).getPropertyValue('--ma-progress-high')?.trim() || '#22c55e')
-    : percentage >= 50
-    ? (getComputedStyle(document.documentElement).getPropertyValue('--ma-progress-mid')?.trim() || '#c9a84c')
-    : (getComputedStyle(document.documentElement).getPropertyValue('--ma-progress-low')?.trim() || '#ef4444');
+  const avatarSrc = form.avatar || defaultAvatar;
+  const avatarUrl = avatarSrc
+    ? (avatarSrc.startsWith('/api') ? `${process.env.REACT_APP_BACKEND_URL}${avatarSrc}` : avatarSrc)
+    : '';
+
+  const infoRows = [
+    { key: 'name', label: 'Name', value: `${member?.first_name || ''} ${member?.last_name || ''}`.trim() },
+    { key: 'membership_id', label: 'Membership Number', value: member?.membership_id || '-' },
+    { key: 'email', label: 'Email', value: member?.email || '-' },
+    { key: 'phone', label: 'Phone', value: member?.phone || '-' },
+    { key: 'gender', label: 'Gender', value: member?.gender || '-' },
+    { key: 'date_of_birth', label: 'Date of Birth', value: fmtDate(member?.date_of_birth) },
+    { key: 'address', label: 'Address', value: member?.address || '-' },
+    { key: 'country', label: 'Country', value: member?.country || '-' },
+    { key: 'state', label: 'State', value: member?.state || '-' },
+    { key: 'city', label: 'City', value: member?.city || '-' },
+    { key: 'zip_code', label: 'ZIP Code', value: member?.zip_code || '-' },
+    { key: 'passport_id', label: 'ID# (Passport or DNI or etc.)', value: member?.passport_id || '-' },
+    { key: 'google_account', label: 'Google Account', value: member?.google_account || '-' },
+  ].filter(r => !isHidden(r.key));
 
   return (
     <div data-testid="membership-profile-page">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'DM Serif Display', serif" }} data-testid="membership-profile-title">{title}</h1>
-        <button onClick={() => setBioOpen(true)}
-          className="px-4 py-2 border rounded text-sm font-medium flex items-center gap-2 transition-colors"
-          style={{ backgroundColor: 'var(--ma-accent, #c9a84c)', color: 'var(--ma-button-text, #0d0f14)', opacity: 0.9, borderColor: 'var(--ma-accent, #c9a84c)' }}
-          data-testid="update-biography-btn">
-          <Edit3 className="w-4 h-4" /> Update Biography
-        </button>
+      {/* Page title row (Velzon page-title bar) */}
+      <div className="mb-4">
+        <h1 className="text-[15px] font-semibold" style={{ color: 'var(--ma2-heading, #495057)' }} data-testid="membership-profile-title">{title}</h1>
       </div>
 
-      {/* Progress Bar & Action Buttons */}
-      {mandatoryFields.length > 0 && (
-        <div className="mb-6 bg-[#13161e] border border-white/5 rounded-lg p-5" data-testid="profile-completion-section">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-white">Profile Completion</h2>
-            <span className="text-sm font-bold" style={{ color: progressColor }} data-testid="profile-completion-pct">{percentage}%</span>
-          </div>
-          <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden mb-4">
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: progressColor }} data-testid="profile-progress-bar" />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button onClick={() => setPwOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-              data-testid="change-password-btn">
-              <Lock className="w-3.5 h-3.5" /> Change your password
-            </button>
-            <button onClick={() => setViewBioOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-              data-testid="view-bio-btn">
-              <Eye className="w-3.5 h-3.5" /> View full bio
-            </button>
-            <button onClick={() => setStepsOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded text-xs text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
-              data-testid="steps-to-complete-btn">
-              <ListChecks className="w-3.5 h-3.5" /> Steps to complete my profile
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-[#13161e] border border-white/5 rounded-lg p-6 flex flex-col items-center">
-          <div className="w-28 h-28 rounded-full flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--ma-avatar-bg, rgba(201,168,76,0.1))', border: '2px solid var(--ma-avatar-border, rgba(201,168,76,0.3))' }}>
-            {(form.avatar || defaultAvatar) ?
-              <img src={(form.avatar || defaultAvatar).startsWith('/api') ? `${process.env.REACT_APP_BACKEND_URL}${form.avatar || defaultAvatar}` : (form.avatar || defaultAvatar)} alt="" className="w-full h-full object-cover" /> :
-              <User className="w-10 h-10" style={{ color: 'var(--ma-accent, #c9a84c)', opacity: 0.5 }} />}
-          </div>
-          <p className="mt-3 text-white font-medium text-sm">{member?.first_name} {member?.last_name}</p>
-          <p className="text-xs" style={{ color: 'var(--ma-accent, #c9a84c)' }}>{member?.membership_id}</p>
-          <p className="text-gray-500 text-xs mt-1">{member?.email}</p>
-          {member?._member_type?.permissions?.is_mentor && <span className="mt-2 text-xs px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--ma-accent, #c9a84c)', color: 'var(--ma-button-text, #0d0f14)', opacity: 0.8 }}>Mentor</span>}
-        </div>
-
-        <div className="lg:col-span-2 bg-[#13161e] border border-white/5 rounded-lg">
-          <div className="border-b border-white/5 p-4">
-            <div className="flex gap-4">
-              {tabs.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)}
-                  className={`text-sm font-medium pb-2 px-1 transition-colors ${tab === t.id ? 'border-b-2' : 'text-gray-500 hover:text-gray-300'}`}
-                  style={tab === t.id ? { color: 'var(--ma-accent, #c9a84c)', borderColor: 'var(--ma-accent, #c9a84c)' } : {}}
-                  data-testid={`profile-tab-${t.id}`}>
-                  {t.label}
-                </button>
-              ))}
+      {/* Profile band — avatar + identity + primary action + tabs */}
+      <div className="ma2-profile-band" data-testid="profile-band">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-5">
+          {/* Anillo de completado alrededor de la foto: mismo dato que la barra,
+              otra lectura. Se llena de 0 al valor al entrar (ringPct). */}
+          <div className="relative flex-shrink-0" style={{ width: 110, height: 110 }} data-testid="profile-avatar-ring">
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 160" aria-hidden="true">
+              <circle cx="80" cy="80" r="74" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="5" />
+              {effectiveMandatory.length > 0 && (
+                <circle cx="80" cy="80" r="74" fill="none" stroke={progressColor} strokeWidth="5" strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 74}
+                  strokeDashoffset={(2 * Math.PI * 74) * (1 - Math.min(Math.max(ringPct, 0), 100) / 100)}
+                  transform="rotate(-90 80 80)"
+                  style={{ transition: ringReduced ? 'none' : 'stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1)' }} />
+              )}
+            </svg>
+            <div className="absolute rounded-full overflow-hidden flex items-center justify-center"
+              style={{ inset: 10, backgroundColor: 'rgba(255,255,255,0.12)' }}>
+              {avatarUrl
+                ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                : <User className="w-10 h-10" style={{ color: 'rgba(255,255,255,0.6)' }} />}
             </div>
           </div>
-          <div className="p-5">
-            {tab === 'general' && (
-              <div>
-                <div className="flex justify-end mb-4">
-                  {!editing ? (
-                    <button onClick={() => setEditing(true)} className="text-sm hover:underline flex items-center gap-1" style={{ color: 'var(--ma-accent, #c9a84c)' }} data-testid="edit-profile-btn">
-                      <Edit3 className="w-3.5 h-3.5" /> Edit
-                    </button>
-                  ) : (
+
+          <div className="min-w-0 flex-1">
+            <p className="ma2-profile-name truncate">{member?.first_name} {member?.last_name}</p>
+            <p className="ma2-profile-meta mt-0.5">{member?.membership_id}</p>
+            <p className="ma2-profile-meta truncate">{member?.email}</p>
+            {member?._member_type?.permissions?.is_mentor && (
+              <span className="ma2-badge ma2-badge-success mt-2">Mentor</span>
+            )}
+          </div>
+
+          <button onClick={() => setBioOpen(true)} className="ma2-btn ma2-btn-success self-start sm:self-auto" data-testid="update-biography-btn">
+            <Edit3 className="w-4 h-4" /> Update Biography
+          </button>
+        </div>
+
+        <div className="ma2-tabs" role="tablist" aria-label="Profile sections">
+          {tabs.map(t => (
+            <button key={t.id} id={`ma2-tab-${t.id}`} role="tab" aria-selected={tab === t.id}
+              aria-controls="ma2-tabpanel" onClick={() => setTab(t.id)}
+              className="ma2-tab" data-testid={`profile-tab-${t.id}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+        {/* Left rail */}
+        <div className="space-y-4">
+          {effectiveMandatory.length > 0 && (
+            <div className="ma2-card" data-testid="profile-completion-section">
+              <div className="ma2-card-body">
+                <h2 className="ma2-card-title mb-6">Complete Your Profile</h2>
+                <div className="ma2-progress" style={{ color: progressColor }}>
+                  <div className="ma2-progress-bar" style={{ width: `${percentage}%`, backgroundColor: progressColor }} data-testid="profile-progress-bar" />
+                  <span className="ma2-progress-badge" style={{ left: `${markerLeft}%` }} data-testid="profile-completion-pct">{percentage}%</span>
+                  <span className="ma2-progress-knob" style={{ left: `${markerLeft}%` }} aria-hidden="true" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="ma2-card">
+            <div className="ma2-card-body space-y-2">
+              <button onClick={() => setPwOpen(true)} className="ma2-btn ma2-btn-outline w-full !justify-start" data-testid="change-password-btn">
+                <Lock className="w-3.5 h-3.5" /> Change your password
+              </button>
+              <button onClick={() => setViewBioOpen(true)} className="ma2-btn ma2-btn-outline w-full !justify-start" data-testid="view-bio-btn">
+                <Eye className="w-3.5 h-3.5" /> View full bio
+              </button>
+              <button onClick={() => setStepsOpen(true)} className="ma2-btn ma2-btn-outline w-full !justify-start" data-testid="steps-to-complete-btn">
+                <ListChecks className="w-3.5 h-3.5" /> Steps to complete my profile
+              </button>
+            </div>
+          </div>
+
+          {/* Curriculum Vitae — mentorship (LMS) members only (s150). */}
+          {showCv && (
+            <div className="ma2-card" data-testid="profile-cv-card">
+              <div className="ma2-card-body">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <h2 className="ma2-card-title">Resume to cv</h2>
+                  <span className={`ma2-badge ${member?.cv_file ? 'ma2-badge-success' : 'ma2-badge-danger'}`}>
+                    {member?.cv_file ? 'Uploaded' : (effectiveMandatory.includes('cv_file') ? 'Required' : 'Missing')}
+                  </span>
+                </div>
+                <p className="text-[12px] mb-4" style={{ color: 'var(--ma2-muted, #878a99)' }}>
+                  For the mentorship program. PDF only, max {CV_MAX_MB}MB.
+                </p>
+                <input ref={cvInputRef} type="file" accept="application/pdf,.pdf" className="hidden"
+                  onChange={handleCvPick} data-testid="profile-cv-input" />
+                {member?.cv_file ? (
+                  <>
+                    <a href={`${process.env.REACT_APP_BACKEND_URL || ''}${member.cv_file}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-md mb-3"
+                      style={{ border: '1px solid var(--ma2-border, #e9ebec)' }} data-testid="profile-cv-link">
+                      <FileText className="w-5 h-5 flex-shrink-0" style={{ color: T.danger }} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] font-medium truncate" style={{ color: 'var(--ma2-heading, #495057)' }}>{member.cv_file_name || 'cv.pdf'}</span>
+                        {member.cv_uploaded_at && (
+                          <span className="block text-[11px]" style={{ color: 'var(--ma2-faint, #adb5bd)' }}>Uploaded {fmtActivityDate(member.cv_uploaded_at)}</span>
+                        )}
+                      </span>
+                      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" style={{ color: T.muted }} />
+                    </a>
                     <div className="flex gap-2">
-                      <button onClick={() => setEditing(false)} className="text-sm text-gray-500 hover:text-gray-300 px-3 py-1">Cancel</button>
-                      <button onClick={handleSave} disabled={loading} className="text-sm px-4 py-1.5 rounded font-medium flex items-center gap-1 disabled:opacity-50" style={{ backgroundColor: 'var(--ma-button-bg, #c9a84c)', color: 'var(--ma-button-text, #0d0f14)' }} data-testid="save-profile-btn">
-                        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Save
+                      <button onClick={() => cvInputRef.current?.click()} disabled={cvBusy} className="ma2-btn ma2-btn-outline ma2-btn-sm flex-1" data-testid="profile-cv-replace">
+                        {cvBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />} Replace
+                      </button>
+                      <button onClick={handleCvDelete} disabled={cvBusy} className="ma2-btn ma2-btn-light ma2-btn-sm" aria-label="Remove CV" data-testid="profile-cv-delete">
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  )}
-                </div>
+                  </>
+                ) : (
+                  <button onClick={() => cvInputRef.current?.click()} disabled={cvBusy}
+                    className="ma2-btn ma2-btn-primary w-full" data-testid="profile-cv-upload">
+                    {cvBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />} Upload CV (PDF)
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Only the networks the member actually filled in; hidden entirely if none. */}
+          <SocialLinksCard links={memberSocials} />
+        </div>
+
+        {/* Main column */}
+        <div className="lg:col-span-2 ma2-card" id="ma2-tabpanel" role="tabpanel" aria-labelledby={`ma2-tab-${tab}`}>
+          {tab === 'general' && (
+            <>
+              <div className="ma2-card-head flex items-center justify-between">
+                <h2 className="ma2-card-title">Personal Details</h2>
+                {!editing && (
+                  <button onClick={() => setEditing(true)} className="ma2-btn ma2-btn-light ma2-btn-sm" data-testid="edit-profile-btn">
+                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                  </button>
+                )}
+              </div>
+              <div className="ma2-card-body">
                 {editing ? (
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div><Label className="text-xs text-gray-400">First Name</Label><Input value={form.first_name} onChange={set('first_name')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>
-                      <div><Label className="text-xs text-gray-400">Last Name</Label><Input value={form.last_name} onChange={set('last_name')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-first">First Name</label>
+                        <input id="mp-first" className="ma2-input" value={form.first_name} onChange={set('first_name')} />
+                      </div>
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-last">Last Name</label>
+                        <input id="mp-last" className="ma2-input" value={form.last_name} onChange={set('last_name')} />
+                      </div>
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-400">Email</Label>
-                      <Input value={form.email} onChange={set('email')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" data-testid="profile-email-input" />
-                      <p className="text-[10px] text-gray-500 mt-1">Changing your email will also update your login username.</p>
+                      <label className="ma2-label" htmlFor="mp-email">Email Address</label>
+                      <input id="mp-email" className="ma2-input" value={form.email} onChange={set('email')} data-testid="profile-email-input" />
+                      <p className="text-[11px] mt-1.5" style={{ color: 'var(--ma2-muted, #878a99)' }}>Changing your email will also update your login username.</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      {!isHidden('phone') && <div><Label className="text-xs text-gray-400">Phone</Label><Input value={form.phone} onChange={set('phone')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {!isHidden('phone') && (
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-phone">Phone Number</label>
+                        <input id="mp-phone" className="ma2-input" value={form.phone} onChange={set('phone')} />
+                      </div>
+                      )}
                       {!isHidden('gender') && (
-                      <div><Label className="text-xs text-gray-400">Gender</Label>
-                        <select value={form.gender} onChange={set('gender')} className={selectCls} style={{ colorScheme: 'dark' }}>
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-gender">Gender</label>
+                        <select id="mp-gender" className="ma2-input" value={form.gender} onChange={set('gender')}>
                           <option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option>
                         </select>
                       </div>
                       )}
                     </div>
-                    {!isHidden('date_of_birth') && <div><Label className="text-xs text-gray-400">Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={set('date_of_birth')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" style={{ colorScheme: 'dark' }} /></div>}
-                    {!isHidden('address') && <div><Label className="text-xs text-gray-400">Address</Label><Input value={form.address} onChange={set('address')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {!isHidden('date_of_birth') && (
                       <div>
-                        <Label className="text-xs text-gray-400">Country</Label>
-                        <select value={form.country} onChange={e => setForm(p => ({...p, country: e.target.value, state: '', city: ''}))} className={selectCls} style={{ colorScheme: 'dark' }} data-testid="profile-country-select">
+                        <label className="ma2-label" htmlFor="mp-dob">Date of Birth</label>
+                        <input id="mp-dob" type="date" className="ma2-input" value={form.date_of_birth} onChange={set('date_of_birth')} />
+                      </div>
+                      )}
+                      {!isHidden('passport_id') && (
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-passport">ID# (Passport or DNI or etc.)</label>
+                        <input id="mp-passport" className="ma2-input" value={form.passport_id || ''} onChange={set('passport_id')} data-testid="profile-passport-input" />
+                      </div>
+                      )}
+                    </div>
+                    {!isHidden('address') && (
+                    <div>
+                      <label className="ma2-label" htmlFor="mp-address">Address</label>
+                      <input id="mp-address" className="ma2-input" value={form.address} onChange={set('address')} />
+                    </div>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-country">Country</label>
+                        <select id="mp-country" className="ma2-input" value={form.country}
+                          onChange={e => setForm(p => ({ ...p, country: e.target.value, state: '', city: '' }))}
+                          data-testid="profile-country-select">
                           <option value="">Select</option>
                           {countries.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                         </select>
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-400">State</Label>
-                        <select value={form.state} onChange={e => setForm(p => ({...p, state: e.target.value, city: ''}))} className={selectCls} style={{ colorScheme: 'dark' }} disabled={!form.country} data-testid="profile-state-select">
+                        <label className="ma2-label" htmlFor="mp-state">State</label>
+                        <select id="mp-state" className="ma2-input" value={form.state} disabled={!form.country}
+                          onChange={e => setForm(p => ({ ...p, state: e.target.value, city: '' }))}
+                          data-testid="profile-state-select">
                           <option value="">Select</option>
                           {states.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                         </select>
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-400">City</Label>
-                        <select value={form.city} onChange={set('city')} className={selectCls} style={{ colorScheme: 'dark' }} disabled={!form.state} data-testid="profile-city-select">
+                        <label className="ma2-label" htmlFor="mp-city">City</label>
+                        <select id="mp-city" className="ma2-input" value={form.city} onChange={set('city')} disabled={!form.state} data-testid="profile-city-select">
                           <option value="">Select</option>
                           {cities.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                         </select>
                       </div>
                     </div>
-                    {!isHidden('zip_code') && <div><Label className="text-xs text-gray-400">ZIP Code</Label><Input value={form.zip_code} onChange={set('zip_code')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" /></div>}
-                    {!isHidden('passport_id') && <div><Label className="text-xs text-gray-400">ID# (Passport or DNI or etc.)</Label><Input value={form.passport_id || ''} onChange={set('passport_id')} className="mt-1 bg-[#0d0f14] border-white/10 text-white" data-testid="profile-passport-input" /></div>}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {!isHidden('zip_code') && (
+                      <div>
+                        <label className="ma2-label" htmlFor="mp-zip">ZIP Code</label>
+                        <input id="mp-zip" className="ma2-input" value={form.zip_code} onChange={set('zip_code')} />
+                      </div>
+                      )}
+                    </div>
                     {!isHidden('avatar') && (
                     <div>
-                      <Label className="text-xs text-gray-400">Avatar</Label>
-                      <div className="mt-1">
-                        <MemberImageUpload value={form.avatar} onChange={v => setForm(p => ({...p, avatar: v}))} />
-                      </div>
+                      <span className="ma2-label">Avatar</span>
+                      <MemberImageUpload value={form.avatar} onChange={v => setForm(p => ({ ...p, avatar: v }))} adjust adjustRatio={1} />
                     </div>
                     )}
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button onClick={() => setEditing(false)} className="ma2-btn ma2-btn-light">Cancel</button>
+                      <button onClick={handleSave} disabled={loading} className="ma2-btn ma2-btn-primary" data-testid="save-profile-btn">
+                        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />} Save
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {[
-                      { key: 'name', label: 'Name', value: `${member?.first_name || ''} ${member?.last_name || ''}`.trim() },
-                      { key: 'membership_id', label: 'Membership Number', value: member?.membership_id || '-' },
-                      { key: 'email', label: 'Email', value: member?.email || '-' },
-                      { key: 'phone', label: 'Phone', value: member?.phone || '-' },
-                      { key: 'gender', label: 'Gender', value: member?.gender || '-' },
-                      { key: 'date_of_birth', label: 'Date of Birth', value: fmtDate(member?.date_of_birth) },
-                      { key: 'address', label: 'Address', value: member?.address || '-' },
-                      { key: 'country', label: 'Country', value: member?.country || '-' },
-                      { key: 'state', label: 'State', value: member?.state || '-' },
-                      { key: 'city', label: 'City', value: member?.city || '-' },
-                      { key: 'zip_code', label: 'ZIP Code', value: member?.zip_code || '-' },
-                      { key: 'passport_id', label: 'ID# (Passport or DNI or etc.)', value: member?.passport_id || '-' },
-                      { key: 'google_account', label: 'Google Account', value: member?.google_account || '-' },
-                    ].filter(f => !isHidden(f.key)).map(f => (
-                      <div key={f.label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                        <span className="text-xs text-gray-500 w-48 flex-shrink-0">{f.label}</span>
-                        <span className="text-sm text-white">{f.value || '-'}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3.5">
+                    {infoRows.map(f => (
+                      <div key={f.label} className="flex items-start gap-2">
+                        <span className="ma2-dt flex-shrink-0" style={{ minWidth: '9rem' }}>{f.label} :</span>
+                        <span className="ma2-dd">{f.value || '-'}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
+            </>
+          )}
 
-            {tab === 'social' && (
-              <div className="space-y-4">
-                <p className="text-xs text-gray-500 mb-4">Enter your social network profiles.</p>
-                {platformSocials.length > 0 ? platformSocials.map(platform => (
-                  <div key={platform} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-400 w-28 capitalize flex-shrink-0">{platform}</span>
-                    <Input value={getSocialUrl(platform)} onChange={e => updateSocial(platform, e.target.value)}
-                      placeholder={`Enter your ${platform} URL`}
-                      className="bg-[#0d0f14] border-white/10 text-white flex-1"
-                      data-testid={`social-${platform}`} />
-                  </div>
-                )) : <p className="text-sm text-gray-500">No social platforms configured by the administrator.</p>}
-                {platformSocials.length > 0 && (
-                  <button onClick={handleSave} disabled={loading}
-                    className="mt-4 px-4 py-2 rounded text-sm font-medium flex items-center gap-1 disabled:opacity-50"
-                    style={{ backgroundColor: 'var(--ma-button-bg, #c9a84c)', color: 'var(--ma-button-text, #0d0f14)' }}
-                    data-testid="save-socials-btn">
-                    {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Save Social Links
-                  </button>
+          {tab === 'social' && (
+            <>
+              <div className="ma2-card-head">
+                <h2 className="ma2-card-title">Social Links</h2>
+              </div>
+              <div className="ma2-card-body">
+                <p className="text-[13px] mb-5" style={{ color: 'var(--ma2-muted, #878a99)' }}>Enter your social network profiles.</p>
+                {platformSocials.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {platformSocials.map(platform => (
+                        <div key={platform}>
+                          <label className="ma2-label capitalize" htmlFor={`mp-social-${platform}`}>{platform}</label>
+                          <input id={`mp-social-${platform}`} className="ma2-input"
+                            value={getSocialUrl(platform)} onChange={e => updateSocial(platform, e.target.value)}
+                            placeholder={`Enter your ${platform} URL`} data-testid={`social-${platform}`} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-end pt-5">
+                      <button onClick={handleSave} disabled={loading} className="ma2-btn ma2-btn-primary" data-testid="save-socials-btn">
+                        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />} Save Social Links
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-[13px]" style={{ color: 'var(--ma2-muted, #878a99)' }}>No social platforms configured by the administrator.</p>
                 )}
               </div>
-            )}
+            </>
+          )}
 
-            {tab === 'activities' && (
-              <div className="space-y-2" data-testid="profile-activities">
-                {profileActivities.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500 text-sm">No activities yet. Start by updating your profile information.</div>
-                ) : profileActivities.map(act => (
-                  <div key={act.id} className="bg-[#0d0f14] rounded-lg p-3 border border-white/5 flex items-start gap-3">
-                    <div className="mt-0.5">
-                      <Clock className="w-4 h-4" style={{ color: 'var(--ma-accent, #c9a84c)' }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white">
-                        <span className={`font-medium ${act.action === 'added' ? 'text-green-400' : ''}`} style={act.action !== 'added' ? { color: 'var(--ma-accent, #c9a84c)' } : {}}>{act.action === 'added' ? 'Added' : 'Updated'}</span>
-                        {' '}<span style={{ color: 'var(--ma-accent, #c9a84c)' }}>{PROFILE_FIELD_LABELS[act.field] || act.field}</span>
-                      </p>
-                      {act.action === 'updated' && act.old_value && (
-                        <p className="text-xs text-gray-500 mt-0.5 break-words">"{act.old_value}" &rarr; "{act.new_value}"</p>
-                      )}
-                      {act.action === 'added' && act.new_value && (
-                        <p className="text-xs text-gray-500 mt-0.5 break-words">Set to: "{act.new_value}"</p>
-                      )}
-                      <p className="text-xs text-gray-600 mt-1">{new Date(act.timestamp).toLocaleString()}</p>
-                    </div>
-                  </div>
-                ))}
+          {tab === 'activities' && (
+            <>
+              <div className="ma2-card-head">
+                <h2 className="ma2-card-title">Activities</h2>
               </div>
-            )}
-          </div>
+              <div className="ma2-card-body" data-testid="profile-activities">
+                {profileActivities.length === 0 ? (
+                  <div className="text-center py-12 text-[13px]" style={{ color: 'var(--ma2-muted, #878a99)' }}>
+                    No activities yet. Start by updating your profile information.
+                  </div>
+                ) : (
+                  <div className="ma2-timeline">
+                    {profileActivities.map(act => {
+                      const added = act.action === 'added';
+                      return (
+                        <div key={act.id} className="ma2-timeline-item">
+                          <span className="ma2-timeline-dot"
+                            style={{ backgroundColor: added ? 'color-mix(in srgb, var(--ma2-success) 12%, transparent)' : 'color-mix(in srgb, var(--ma2-info) 12%, transparent)' }}>
+                            {added
+                              ? <Plus className="w-4 h-4" style={{ color: T.success }} />
+                              : <RefreshCw className="w-3.5 h-3.5" style={{ color: T.info }} />}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[13px] font-semibold" style={{ color: 'var(--ma2-body, #212529)' }}>
+                              {PROFILE_FIELD_LABELS[act.field] || act.field}
+                            </span>
+                            <span className={`ma2-badge ${added ? 'ma2-badge-success' : 'ma2-badge-info'}`}>
+                              {added ? 'Added' : 'Updated'}
+                            </span>
+                          </div>
+                          {act.action === 'updated' && act.old_value && (
+                            <p className="text-[13px] mt-1 break-words" style={{ color: 'var(--ma2-muted, #878a99)' }}>
+                              "{act.old_value}" &rarr; "{act.new_value}"
+                            </p>
+                          )}
+                          {added && act.new_value && (
+                            <p className="text-[13px] mt-1 break-words" style={{ color: 'var(--ma2-muted, #878a99)' }}>
+                              Set to: "{act.new_value}"
+                            </p>
+                          )}
+                          <p className="text-[12px] mt-1.5" style={{ color: 'var(--ma2-faint, #adb5bd)' }}>{fmtActivityDate(act.timestamp)}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Update Biography Modal */}
       <Dialog open={bioOpen} onOpenChange={setBioOpen}>
-        <DialogContent className={`sm:max-w-[700px] max-h-[85vh] overflow-y-auto bg-[#13161e] border-white/10 ${darkDialogCls}`} data-testid="biography-modal">
-          <DialogHeader>
-            <DialogTitle className="text-white" style={{ fontFamily: "'DM Serif Display', serif" }}>Update Biography</DialogTitle>
-            <DialogDescription className="text-gray-500">Edit your summary and biography below.</DialogDescription>
+        <DialogContent className="ma2-modal sm:max-w-[700px]" data-testid="biography-modal">
+          <DialogHeader className="ma2-modal-header">
+            <DialogTitle className="ma2-modal-title">Update Biography</DialogTitle>
+            <DialogDescription className="ma2-modal-desc">Edit your summary and biography below.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="ma2-modal-body space-y-4">
             <div>
-              <Label className="text-xs text-gray-400 mb-2 block">Summary</Label>
-              <div className={quillDark}>
-                <RichTextEditor value={bioForm.summary} onChange={v => setBioForm(p => ({...p, summary: v}))} placeholder="Write your summary..." />
+              <span className="ma2-label">Summary</span>
+              <div className="ma2-compose-editor">
+                <RichTextEditor value={bioForm.summary} onChange={v => setBioForm(p => ({ ...p, summary: v }))} placeholder="Write your summary..." />
               </div>
             </div>
             <div>
-              <Label className="text-xs text-gray-400 mb-2 block">Biography</Label>
-              <div className={quillDark}>
-                <RichTextEditor value={bioForm.biography} onChange={v => setBioForm(p => ({...p, biography: v}))} placeholder="Write your biography..." />
+              <span className="ma2-label">Biography</span>
+              <div className="ma2-compose-editor">
+                <RichTextEditor value={bioForm.biography} onChange={v => setBioForm(p => ({ ...p, biography: v }))} placeholder="Write your biography..." />
               </div>
             </div>
-            <div className="flex gap-2 pt-2">
-              <button onClick={() => setBioOpen(false)} className="flex-1 py-2 border border-white/10 text-gray-400 rounded text-sm hover:bg-white/5">Cancel</button>
-              <button onClick={handleBioSave} disabled={loading}
-                className="flex-1 py-2 rounded text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-                style={{ backgroundColor: 'var(--ma-button-bg, #c9a84c)', color: 'var(--ma-button-text, #0d0f14)' }}
-                data-testid="save-biography-btn">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
-              </button>
-            </div>
+          </div>
+          <div className="ma2-modal-footer">
+            <button onClick={() => setBioOpen(false)} className="ma2-btn ma2-btn-light">Close</button>
+            <button onClick={handleBioSave} disabled={loading} className="ma2-btn ma2-btn-primary" data-testid="save-biography-btn">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Changes
+            </button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Change Password Modal */}
       <Dialog open={pwOpen} onOpenChange={setPwOpen}>
-        <DialogContent className={`sm:max-w-[420px] bg-[#13161e] border-white/10 ${darkDialogCls}`} data-testid="change-password-modal">
-          <DialogHeader>
-            <DialogTitle className="text-white" style={{ fontFamily: "'DM Serif Display', serif" }}>Change Password</DialogTitle>
-            <DialogDescription className="text-gray-500">Enter your new password below.</DialogDescription>
+        <DialogContent className="ma2-modal sm:max-w-[480px]" data-testid="change-password-modal">
+          <DialogHeader className="ma2-modal-header">
+            <DialogTitle className="ma2-modal-title">Change Password</DialogTitle>
+            <DialogDescription className="ma2-modal-desc">Enter your new password below.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="ma2-modal-body space-y-4">
             <div>
-              <Label className="text-xs text-gray-400 mb-1 block">New Password</Label>
-              <Input type="password" value={pwForm.new_password}
+              <label className="ma2-label" htmlFor="mp-newpw">New Password</label>
+              <input id="mp-newpw" type="password" className="ma2-input" value={pwForm.new_password}
                 onChange={e => setPwForm(p => ({ ...p, new_password: e.target.value }))}
-                placeholder="Min. 8 characters"
-                className="bg-[#0d0f14] border-white/10 text-white"
-                data-testid="new-password-input" />
+                placeholder="Min. 8 characters" data-testid="new-password-input" />
             </div>
             <div>
-              <Label className="text-xs text-gray-400 mb-1 block">Confirm Password</Label>
-              <Input type="password" value={pwForm.confirm_password}
+              <label className="ma2-label" htmlFor="mp-confirmpw">Confirm Password</label>
+              <input id="mp-confirmpw" type="password" className="ma2-input" value={pwForm.confirm_password}
                 onChange={e => setPwForm(p => ({ ...p, confirm_password: e.target.value }))}
-                placeholder="Re-enter password"
-                className="bg-[#0d0f14] border-white/10 text-white"
-                data-testid="confirm-password-input" />
+                placeholder="Re-enter password" data-testid="confirm-password-input" />
             </div>
-            <div className="flex gap-2 pt-2">
-              <button onClick={() => setPwOpen(false)} className="flex-1 py-2 border border-white/10 text-gray-400 rounded text-sm hover:bg-white/5">Cancel</button>
-              <button onClick={handleChangePassword} disabled={pwLoading}
-                className="flex-1 py-2 rounded text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-                style={{ backgroundColor: 'var(--ma-button-bg, #c9a84c)', color: 'var(--ma-button-text, #0d0f14)' }}
-                data-testid="submit-change-password-btn">
-                {pwLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />} Change Password
-              </button>
-            </div>
+          </div>
+          <div className="ma2-modal-footer">
+            <button onClick={() => setPwOpen(false)} className="ma2-btn ma2-btn-light">Close</button>
+            <button onClick={handleChangePassword} disabled={pwLoading} className="ma2-btn ma2-btn-primary" data-testid="submit-change-password-btn">
+              {pwLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />} Change Password
+            </button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* View Full Bio Modal — vertical layout, proper rich text rendering */}
+      {/* View Full Bio Modal */}
       <Dialog open={viewBioOpen} onOpenChange={setViewBioOpen}>
-        <DialogContent className={`sm:max-w-[650px] max-h-[85vh] overflow-y-auto overflow-x-hidden bg-[#13161e] border-white/10 ${darkDialogCls}`} data-testid="view-bio-modal">
-          <DialogHeader>
-            <DialogTitle className="text-white" style={{ fontFamily: "'DM Serif Display', serif" }}>Full Biography</DialogTitle>
-            <DialogDescription className="text-gray-500">Your summary and biography content.</DialogDescription>
+        <DialogContent className="ma2-modal sm:max-w-[650px]" data-testid="view-bio-modal">
+          <DialogHeader className="ma2-modal-header">
+            <DialogTitle className="ma2-modal-title">Full Biography</DialogTitle>
+            <DialogDescription className="ma2-modal-desc">Your summary and biography content.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-5">
+          <div className="ma2-modal-body space-y-5">
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ma-accent, #c9a84c)' }}>Summary</h3>
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--ma2-muted, #878a99)' }}>Summary</h3>
               {member?.summary && stripHtml(member.summary) ? (
-                <div
-                  className="text-gray-300 break-words bio-rich-content"
-                  dangerouslySetInnerHTML={{ __html: member.summary }}
-                />
+                <div className="ma2-rich break-words" dangerouslySetInnerHTML={{ __html: member.summary }} />
               ) : (
-                <p className="text-sm text-gray-500 italic">No summary written yet.</p>
+                <p className="text-[13px] italic" style={{ color: 'var(--ma2-faint, #adb5bd)' }}>No summary written yet.</p>
               )}
             </div>
-            <hr className="border-white/10" />
+            <hr style={{ borderColor: 'var(--ma2-border, #e9ebec)' }} />
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--ma-accent, #c9a84c)' }}>Biography</h3>
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--ma2-muted, #878a99)' }}>Biography</h3>
               {member?.biography && stripHtml(member.biography) ? (
-                <div
-                  className="text-gray-300 break-words bio-rich-content"
-                  dangerouslySetInnerHTML={{ __html: member.biography }}
-                />
+                <div className="ma2-rich break-words" dangerouslySetInnerHTML={{ __html: member.biography }} />
               ) : (
-                <p className="text-sm text-gray-500 italic">No biography written yet.</p>
+                <p className="text-[13px] italic" style={{ color: 'var(--ma2-faint, #adb5bd)' }}>No biography written yet.</p>
               )}
             </div>
+          </div>
+          <div className="ma2-modal-footer">
+            <button onClick={() => setViewBioOpen(false)} className="ma2-btn ma2-btn-light">Close</button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Steps to Complete Profile Modal */}
       <Dialog open={stepsOpen} onOpenChange={setStepsOpen}>
-        <DialogContent className={`sm:max-w-[500px] max-h-[85vh] overflow-y-auto bg-[#13161e] border-white/10 ${darkDialogCls}`} data-testid="steps-modal">
-          <DialogHeader>
-            <DialogTitle className="text-white" style={{ fontFamily: "'DM Serif Display', serif" }}>Steps to Complete Your Profile</DialogTitle>
-            <DialogDescription className="text-gray-500">Fields you still need to fill in.</DialogDescription>
+        <DialogContent className="ma2-modal sm:max-w-[520px]" data-testid="steps-modal">
+          <DialogHeader className="ma2-modal-header">
+            <DialogTitle className="ma2-modal-title">Steps to Complete Your Profile</DialogTitle>
+            <DialogDescription className="ma2-modal-desc">Fields you still need to fill in.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-5">
+          <div className="ma2-modal-body space-y-5">
             {missingMandatory.length > 0 ? (
               <div>
-                <h3 className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider mb-2.5 flex items-center gap-1.5" style={{ color: 'var(--ma2-danger, #f06548)' }}>
                   <AlertCircle className="w-3.5 h-3.5" /> Required Fields ({missingMandatory.length})
                 </h3>
                 <div className="space-y-1.5">
                   {missingMandatory.map(key => (
-                    <div key={key} className="flex items-center gap-2 p-2 bg-red-500/5 border border-red-500/10 rounded text-sm" data-testid={`missing-mandatory-${key}`}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
-                      <span className="text-gray-300">{COMPLETION_FIELD_LABELS[key] || key}</span>
+                    <div key={key} className="flex items-center gap-2 px-3 py-2 rounded text-[13px]"
+                      style={{ backgroundColor: 'color-mix(in srgb, var(--ma2-danger) 8%, transparent)', color: 'var(--ma2-heading, #495057)' }}
+                      data-testid={`missing-mandatory-${key}`}>
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--ma2-danger, #f06548)' }} />
+                      {COMPLETION_FIELD_LABELS[key] || key}
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-green-300">All mandatory fields are complete!</span>
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded text-[13px]"
+                style={{ backgroundColor: 'color-mix(in srgb, var(--ma2-success) 12%, transparent)', color: 'var(--ma2-success-fg)' }}>
+                <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--ma2-success, #0ab39c)' }} />
+                All mandatory fields are complete!
               </div>
             )}
 
             {missingOptional.length > 0 && (
               <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider mb-2.5" style={{ color: 'var(--ma2-muted, #878a99)' }}>
                   Optional Fields ({missingOptional.length})
                 </h3>
                 <div className="space-y-1.5">
                   {missingOptional.map(key => (
-                    <div key={key} className="flex items-center gap-2 p-2 bg-white/5 border border-white/5 rounded text-sm" data-testid={`missing-optional-${key}`}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-gray-500 flex-shrink-0" />
-                      <span className="text-gray-400">{COMPLETION_FIELD_LABELS[key] || key}</span>
+                    <div key={key} className="flex items-center gap-2 px-3 py-2 rounded text-[13px]"
+                      style={{ backgroundColor: 'var(--ma2-light, #f3f6f9)', color: 'var(--ma2-muted, #878a99)' }}
+                      data-testid={`missing-optional-${key}`}>
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--ma2-faint, #adb5bd)' }} />
+                      {COMPLETION_FIELD_LABELS[key] || key}
                     </div>
                   ))}
                 </div>
@@ -601,11 +810,15 @@ export default function MembershipProfile() {
             )}
 
             {missingMandatory.length === 0 && missingOptional.length === 0 && (
-              <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-green-300">Your profile is 100% complete!</span>
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded text-[13px]"
+                style={{ backgroundColor: 'color-mix(in srgb, var(--ma2-success) 12%, transparent)', color: 'var(--ma2-success-fg)' }}>
+                <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--ma2-success, #0ab39c)' }} />
+                Your profile is 100% complete!
               </div>
             )}
+          </div>
+          <div className="ma2-modal-footer">
+            <button onClick={() => setStepsOpen(false)} className="ma2-btn ma2-btn-light">Close</button>
           </div>
         </DialogContent>
       </Dialog>

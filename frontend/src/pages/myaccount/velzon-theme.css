@@ -1,0 +1,1060 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+/* ─────────────────────────────────────────────────────────────────────────
+   My Account 2.0 — TEMPORARY "Velzon" reference palette (Option B: scoped CSS).
+   Font = Poppins (the reference/Velzon face), loaded scoped via the @import above.
+
+   ⚠ ISOLATION: every rule is scoped under `.ma2-scope` (the MyAccount2Layout
+   root wrapper). It OVERRIDES the global `--ma-*` CSS variables ONLY inside the
+   2.0 subtree. My Account 1.0 (and every other product) keeps the CMS palette
+   from `:root` — the cascade guarantees zero bleed. Revert = delete this file
+   + its import + the wrapper class. Nothing here touches shared components.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ⚠ SINCE 2026-07-30 THESE VALUES COME FROM THE CMS.
+   `theme_colors.my_account_2` → `lib/themeColors.js` injects every key as an
+   INLINE `--ma2-*` custom property on :root, which outranks the `:root` block
+   further down this file. That block is now only the offline fallback, and the
+   scope simply maps the `--ma-*` names the components read off the `--ma2-*`
+   ones. Edit colours in CMS → Settings → Colors → "My Account 2.0", not here. */
+.ma2-scope {
+  /* Surfaces */
+  --ma-page-bg: var(--ma2-page-bg);
+  --ma-header-bg: var(--ma2-header-bg);
+  --ma-card-bg: var(--ma2-card-bg);
+  --ma-card-border: var(--ma2-card-border);
+  --ma-modal-bg: var(--ma2-modal-bg);
+  --ma-modal-border: var(--ma2-modal-border);
+
+  /* Sidebar */
+  --ma-sidebar-bg: var(--ma2-sidebar-bg);
+  --ma-sidebar-text: var(--ma2-sidebar-text);
+  --ma-sidebar-active-bg: var(--ma2-sidebar-active-bg);
+  --ma-sidebar-active-text: var(--ma2-sidebar-active-text);
+  --ma-sidebar-active-border: var(--ma2-sidebar-active-border);
+  --ma-sidebar-hover-bg: var(--ma2-sidebar-hover-bg);
+
+  /* Brand — accent + actions */
+  --ma-accent: var(--ma2-success);
+  --ma-button-bg: var(--ma2-button-bg);
+  --ma-button-text: var(--ma2-button-text);
+  --ma-tab-active: var(--ma2-tab-active);
+  --ma-tab-inactive: var(--ma2-tab-inactive);
+
+  /* Text */
+  --ma-text-primary: var(--ma2-body);
+  --ma-text-secondary: var(--ma2-muted);
+  --ma-text-muted: var(--ma2-faint);
+
+  /* Inputs */
+  --ma-input-bg: var(--ma2-input-bg);
+  --ma-input-border: var(--ma2-input-border);
+
+  /* Progress */
+  --ma-progress-low: var(--ma2-progress-low);
+  --ma-progress-mid: var(--ma2-progress-mid);
+  --ma-progress-high: var(--ma2-progress-high);
+
+  /* Avatar / notifications */
+  --ma-avatar-border: var(--ma2-avatar-border);
+  --ma-avatar-bg: var(--ma2-avatar-bg);
+  --ma-bell-icon: var(--ma2-bell-icon);
+  --ma-bell-hover-bg: var(--ma2-bell-hover-bg);
+  --ma-bell-badge-bg: var(--ma2-bell-badge-bg);
+  --ma-bell-badge-text: var(--ma2-bell-badge-text);
+
+  /* Velzon-ish base type inside the workspace */
+  --ma2-radius: 0.375rem; /* 6px cards */
+  color: var(--ma-text-primary);
+  font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  /* Native controls follow the 2.0's OWN mode, never the 1.0 palette at `:root`
+     (which is dark and would otherwise paint a dark date widget on a white card).
+     `--ma2-color-scheme` is derived from the active group's card background. */
+  color-scheme: var(--ma2-color-scheme, light);
+}
+
+/* Slightly softer card shadow like Velzon (scoped helper, opt-in via class) */
+.ma2-scope .ma2-card {
+  background: var(--ma-card-bg);
+  border: 1px solid var(--ma-card-border);
+  border-radius: var(--ma2-radius);
+  box-shadow: 0 1px 2px rgba(56, 65, 74, 0.06);
+}
+
+/* ── Scrollbars (reference: the SimpleBar overlay bars in the Velzon mailbox) ──
+   Thin, fully rounded, no arrows, transparent track, and inset from the edge via
+   a transparent border + `background-clip` so it floats over the content instead
+   of carving a gutter out of the layout.
+   ⚠ `.ma2-modal` is listed separately on purpose: dialogs render in a PORTAL,
+   outside `.ma2-scope`, so a scrollable modal would otherwise keep the browser's
+   default chrome-grey bar. Same portal rule as the rest of this file.
+   Note: the reference fades its bar in while scrolling (a SimpleBar behaviour we
+   deliberately did not add a dependency for) — ours is always visible when the
+   area overflows, like a native macOS overlay bar. */
+.ma2-scope, .ma2-scope *,
+.ma2-modal, .ma2-modal * {
+  scrollbar-width: thin;                                    /* Firefox */
+  scrollbar-color: rgba(135, 138, 153, 0.4) transparent;
+}
+.ma2-scope::-webkit-scrollbar, .ma2-scope *::-webkit-scrollbar,
+.ma2-modal::-webkit-scrollbar, .ma2-modal *::-webkit-scrollbar { width: 10px; height: 10px; }
+.ma2-scope::-webkit-scrollbar-track, .ma2-scope *::-webkit-scrollbar-track,
+.ma2-modal::-webkit-scrollbar-track, .ma2-modal *::-webkit-scrollbar-track { background: transparent; }
+.ma2-scope::-webkit-scrollbar-thumb, .ma2-scope *::-webkit-scrollbar-thumb,
+.ma2-modal::-webkit-scrollbar-thumb, .ma2-modal *::-webkit-scrollbar-thumb {
+  background: rgba(135, 138, 153, 0.4);
+  border: 2px solid transparent;        /* the inset that makes it read as 6px */
+  background-clip: padding-box;
+  border-radius: 10px;
+}
+.ma2-scope::-webkit-scrollbar-thumb:hover, .ma2-scope *::-webkit-scrollbar-thumb:hover,
+.ma2-modal::-webkit-scrollbar-thumb:hover, .ma2-modal *::-webkit-scrollbar-thumb:hover {
+  background: rgba(135, 138, 153, 0.7);
+  background-clip: padding-box;
+}
+.ma2-scope::-webkit-scrollbar-corner, .ma2-scope *::-webkit-scrollbar-corner,
+.ma2-modal::-webkit-scrollbar-corner, .ma2-modal *::-webkit-scrollbar-corner { background: transparent; }
+
+/* ── COMPAT LAYER (temporary) ──────────────────────────────────────────────
+   The 2.0 pages were cloned from the DARK My Account and carry hardcoded
+   Tailwind color classes (bg-[#13161e], text-white, text-[#c9a84c]…) that don't
+   flow through the --ma-* vars. This repaints those specific classes to the
+   Velzon palette, ONLY inside .ma2-scope, so every page renders readable on the
+   light theme without a per-instance rewrite. The proper per-page LAYOUT reskin
+   replaces these as we go. Consistent with the dark→light inversion:
+   dark card bg → white; gold accent → teal; white text (on cards) → dark;
+   dark text (on gold buttons) → white (now on teal). Scoped + fully revertible. */
+.ma2-scope .bg-\[\#13161e\],
+.ma2-scope .bg-\[\#1a1d24\]      { background-color: var(--ma-card-bg) !important; }
+.ma2-scope .bg-\[\#0d0f14\]      { background-color: var(--ma-page-bg) !important; }
+.ma2-scope .bg-\[\#c9a84c\],
+.ma2-scope .bg-\[\#d4b85d\],
+.ma2-scope .bg-\[\#b8973f\]      { background-color: var(--ma-accent) !important; }
+.ma2-scope .text-white          { color: var(--ma-text-primary) !important; }
+.ma2-scope .text-\[\#c9a84c\]    { color: var(--ma-accent) !important; }
+.ma2-scope .text-\[\#0d0f14\]    { color: var(--ma-button-text) !important; }
+.ma2-scope .text-\[\#8a8d93\],
+.ma2-scope .text-\[\#555\]       { color: var(--ma-text-secondary) !important; }
+.ma2-scope .border-\[\#c9a84c\]  { border-color: var(--ma-accent) !important; }
+.ma2-scope .border-\[\#2a2d35\]  { border-color: var(--ma-card-border) !important; }
+/* dark-theme white/opacity leftovers → light-theme equivalents */
+.ma2-scope .border-white\/5,
+.ma2-scope .border-white\/10     { border-color: var(--ma-card-border) !important; }
+.ma2-scope .bg-white\/5,
+.ma2-scope .bg-white\/10         { background-color: rgba(0,0,0,0.035) !important; }
+.ma2-scope .text-gray-300        { color: var(--ma-text-secondary) !important; }
+.ma2-scope .hover\:text-white:hover        { color: var(--ma-text-primary) !important; }
+.ma2-scope .hover\:bg-white\/5:hover,
+.ma2-scope .hover\:bg-white\/10:hover      { background-color: rgba(0,0,0,0.05) !important; }
+/* Velzon uses a sans (Poppins/Inter) everywhere — override the dark theme's serif
+   page titles (inline `font-family: DM Serif Display`). !important beats inline. */
+.ma2-scope [style*="DM Serif"],
+.ma2-scope [style*="Playfair"],
+.ma2-scope [style*="Georgia"],
+.ma2-scope .font-serif,
+/* headings inherit a global serif rule (h1..h6 { font-family: Playfair }) that
+   beats the inherited Poppins — force Poppins with higher specificity + !important */
+.ma2-scope h1, .ma2-scope h2, .ma2-scope h3,
+.ma2-scope h4, .ma2-scope h5, .ma2-scope h6 { font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif !important; }
+/* Give every plain card a hairline border + soft shadow so white-on-white reads */
+.ma2-scope [class*="bg-[#13161e]"],
+.ma2-scope [class*="bg-[#1a1d24]"] { border: 1px solid var(--ma-card-border); box-shadow: 0 1px 2px rgba(56,65,74,0.05); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VELZON COMPONENT LAYER  (introduced with the Membership Profile pass)
+
+   ⚠ These classes are DELIBERATELY *NOT* nested under `.ma2-scope`.
+   Radix dialogs render through a PORTAL into <body> — i.e. OUTSIDE the 2.0
+   wrapper — so a descendant selector can never reach a modal. (That is exactly
+   why the 2.0 modals were still painting dark: the compat layer above only
+   matches inside `.ma2-scope`.) Isolation here comes from the `ma2-` prefix:
+   each class only styles the nodes we opt in, and nothing in 1.0 uses them.
+
+   Values are the Velzon light-theme constants, taken from the approved
+   reference screenshots. Font/heading resets are repeated for the portal,
+   which inherits neither Poppins nor the scope's heading override.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --ma2-primary:        #405189;
+  --ma2-primary-hover:  #364574;
+  --ma2-success:        #0ab39c;
+  --ma2-info:           #299cdb;
+  --ma2-warning:        #f7b84b;
+  --ma2-danger:         #f06548;
+  --ma2-body:           #212529;
+  --ma2-heading:        #495057;
+  --ma2-muted:          #878a99;
+  --ma2-faint:          #adb5bd;
+  --ma2-border:         #e9ebec;
+  --ma2-input-border:   #ced4da;
+  --ma2-light:          #f3f6f9;
+  --ma2-track:          #eff2f7;
+  --ma2-font: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.ma2-card {
+  background: var(--ma-card-bg, #ffffff);
+  border: 1px solid var(--ma-card-border, #e9ebec);
+  border-radius: var(--ma2-radius, 0.375rem);
+  box-shadow: 0 1px 2px rgba(56, 65, 74, 0.06);
+}
+.ma2-card-head { padding: 1rem 1.25rem; border-bottom: 1px solid var(--ma2-border); }
+.ma2-card-title { margin: 0; font-size: 0.9375rem; font-weight: 600; color: var(--ma2-heading); }
+.ma2-card-body { padding: 1.25rem; }
+
+/* ── Profile band (Velzon "profile-foreground") ─────────────────────────── */
+.ma2-profile-band {
+  position: relative;
+  border-radius: var(--ma2-radius, 0.375rem);
+  background: linear-gradient(135deg, #405189 0%, #35426f 100%);
+  padding: 1.5rem 1.5rem 0;
+  overflow: hidden;
+}
+/* faint depth wash so the flat navy doesn't read as a plain block */
+.ma2-profile-band::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 100% at 85% 0%, rgba(255,255,255,0.10), transparent 60%);
+  pointer-events: none;
+}
+.ma2-profile-band > * { position: relative; }
+.ma2-profile-name { font-size: 1.125rem; font-weight: 600; color: #fff; line-height: 1.4; }
+.ma2-profile-meta { font-size: 0.8125rem; color: rgba(255, 255, 255, 0.75); }
+
+/* ── Tabs (pills over the band) ─────────────────────────────────────────── */
+.ma2-tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.ma2-tab {
+  font-family: var(--ma2-font);
+  font-size: 0.8125rem; font-weight: 500; line-height: 1.5;
+  padding: 0.5rem 1rem; border: 0; border-radius: 0.25rem 0.25rem 0 0;
+  background: transparent; color: rgba(255, 255, 255, 0.75); cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ma2-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.10); }
+.ma2-tab[aria-selected="true"] { background: var(--ma2-card-bg); color: var(--ma2-primary); font-weight: 600; }
+.ma2-tab:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.ma2-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font-family: var(--ma2-font); font-size: 0.8125rem; font-weight: 500; line-height: 1.5;
+  padding: 0.5rem 0.9rem; border: 1px solid transparent; border-radius: 0.25rem;
+  cursor: pointer; white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.ma2-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+.ma2-btn:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.35); }
+.ma2-btn-primary { background: var(--ma2-primary); border-color: var(--ma2-primary); color: #fff; }
+.ma2-btn-primary:hover:not(:disabled) { background: var(--ma2-primary-hover); border-color: var(--ma2-primary-hover); }
+.ma2-btn-success { background: var(--ma2-success); border-color: var(--ma2-success); color: #fff; }
+.ma2-btn-success:hover:not(:disabled) { background: #099885; border-color: #099885; }
+.ma2-btn-light { background: var(--ma2-light); border-color: var(--ma2-light); color: var(--ma2-heading); }
+.ma2-btn-light:hover:not(:disabled) { background: var(--ma2-hover); border-color: var(--ma2-hover); }
+.ma2-btn-outline { background: var(--ma2-card-bg); border-color: var(--ma2-border); color: var(--ma2-heading); }
+.ma2-btn-outline:hover:not(:disabled) { background: var(--ma2-light); border-color: var(--ma2-border-strong); }
+.ma2-btn-danger { background: var(--ma2-danger); border-color: var(--ma2-danger); color: #fff; }
+.ma2-btn-danger:hover:not(:disabled) { background: #d9503a; border-color: #d9503a; }
+/* Soft danger: a destructive action that is NOT the primary action on the page
+   (⚠ measured: #c23a1f on the tinted wash = 4.9:1 — the raw #f06548 gives 3.1:1
+   and fails AA for the label). */
+.ma2-btn-danger-soft { background: rgba(240, 101, 72, 0.10); border-color: rgba(240, 101, 72, 0.22); color: var(--ma2-danger-fg); }
+.ma2-btn-danger-soft:hover:not(:disabled) { background: rgba(240, 101, 72, 0.18); border-color: rgba(240, 101, 72, 0.35); }
+.ma2-btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+/* Square icon-only button. ⚠ Do NOT try to get this with Tailwind's `p-0`:
+   that utility and `.ma2-btn` are both single classes, so the winner is
+   stylesheet order — this file loads last, `.ma2-btn`'s 0.9rem side padding
+   survives, and inside a 2rem box the glyph is squeezed to nothing (the button
+   renders as an empty square). Declaring it here settles it deterministically. */
+.ma2-btn-icon { width: 2rem; height: 2rem; padding: 0; flex-shrink: 0; }
+.ma2-btn-icon > svg { flex-shrink: 0; }
+
+/* ── Form controls ──────────────────────────────────────────────────────── */
+.ma2-label {
+  display: block; font-family: var(--ma2-font);
+  font-size: 0.8125rem; font-weight: 500; color: var(--ma2-body); margin-bottom: 0.375rem;
+}
+.ma2-input {
+  width: 100%; font-family: var(--ma2-font); font-size: 0.8125rem; line-height: 1.5;
+  color: var(--ma2-body); background: var(--ma2-input-bg);
+  border: 1px solid var(--ma2-input-border); border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ma2-input::placeholder { color: var(--ma2-faint); }
+.ma2-input:focus { outline: none; border-color: var(--ma2-focus-border); box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.12); }
+.ma2-input:disabled { background: var(--ma2-track); color: var(--ma2-muted); cursor: not-allowed; }
+textarea.ma2-input { min-height: 6rem; resize: vertical; }
+/* Native select dressed as the reference control: same box + chevron affordance.
+   (The reference uses choices.js with a search panel; a native <select> keeps the
+   OS picker on mobile, which is the better trade for this form.) */
+select.ma2-input {
+  appearance: none; -webkit-appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23878a99' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.65rem center; background-size: 14px;
+}
+/* iOS zooms any focused control under 16px — keep the reference size on desktop
+   only (this guard replaces the old `text-base` hack on the dark selects). */
+@media (max-width: 640px) { .ma2-input { font-size: 16px; } }
+
+/* Read-only definition rows (reference "Info" card) */
+.ma2-dt { font-size: 0.8125rem; font-weight: 600; color: var(--ma2-body); }
+.ma2-dd { font-size: 0.8125rem; color: var(--ma2-muted); word-break: break-word; }
+
+/* ── Progress (reference "Complete Your Profile") ───────────────────────── */
+.ma2-progress { position: relative; height: 0.5rem; background: var(--ma2-track); border-radius: 1rem; }
+.ma2-progress-bar { height: 100%; border-radius: 1rem; transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+.ma2-progress-knob {
+  position: absolute; top: 50%; width: 0.7rem; height: 0.7rem; border-radius: 50%;
+  background: var(--ma2-card-bg); border: 2px solid currentColor; transform: translate(-50%, -50%);
+  transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ma2-progress-badge {
+  position: absolute; bottom: calc(100% + 0.55rem); transform: translateX(-50%);
+  background: var(--ma2-primary); color: #fff; font-size: 0.6875rem; font-weight: 500;
+  padding: 0.1rem 0.4rem; border-radius: 0.25rem; white-space: nowrap;
+  transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ma2-progress-badge::after {
+  content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 4px solid transparent; border-top-color: var(--ma2-primary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ma2-progress-bar, .ma2-progress-knob, .ma2-progress-badge { transition: none; }
+}
+
+/* ── Soft badges ────────────────────────────────────────────────────────── */
+.ma2-badge {
+  display: inline-flex; align-items: center; font-family: var(--ma2-font);
+  font-size: 0.6875rem; font-weight: 500; line-height: 1.4;
+  padding: 0.15rem 0.45rem; border-radius: 0.25rem;
+}
+.ma2-badge-success { background: rgba(10, 179, 156, 0.10); color: var(--ma2-success); }
+.ma2-badge-info    { background: rgba(41, 156, 219, 0.10); color: var(--ma2-info); }
+.ma2-badge-warning { background: rgba(247, 184, 75, 0.12); color: #d9a13c; }
+.ma2-badge-danger  { background: rgba(240, 101, 72, 0.10); color: var(--ma2-danger); }
+.ma2-badge-light   { background: var(--ma2-light); color: var(--ma2-muted); }
+/* Table status pill of the reference: tiny, uppercase, slightly tracked.
+   (Scoped to status cells on purpose — this is the standard product status
+   affordance, not a decorative section eyebrow.) */
+.ma2-badge-up { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+
+/* ── Icon chips (reference: the "Portfolio" social circles and the round
+      Designation/Website glyphs) ─────────────────────────────────────────── */
+/* Soft chip: tinted circle + coloured glyph. Tint comes from `currentColor`,
+   so one class covers every semantic colour — set `color` on the element. */
+.ma2-icon-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.ma2-icon-chip > * { color: #fff; }        /* glyph rides on the solid disc */
+.ma2-icon-chip-soft { background: transparent; box-shadow: inset 0 0 0 2rem rgba(64, 81, 137, 0.10); }
+.ma2-icon-chip-soft > * { color: inherit; }
+
+/* Solid brand disc for a social link (the reference's Portfolio row) */
+.ma2-social-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  color: #fff; flex-shrink: 0;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+.ma2-social-chip:hover { filter: brightness(1.08); transform: translateY(-2px); }
+.ma2-social-chip:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.35); }
+@media (prefers-reduced-motion: reduce) { .ma2-social-chip:hover { transform: none; } }
+
+/* ── Segmented control (calendar Month/List switch) ─────────────────────── */
+.ma2-segmented { display: inline-flex; gap: 0.125rem; padding: 0.1875rem; background: var(--ma2-light); border-radius: 0.3rem; }
+.ma2-segment {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--ma2-font); font-size: 0.75rem; font-weight: 500;
+  padding: 0.35rem 0.7rem; border: 0; border-radius: 0.25rem;
+  background: transparent; color: var(--ma2-muted); cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ma2-segment:hover { color: var(--ma2-heading); }
+.ma2-segment[aria-pressed="true"] { background: var(--ma2-card-bg); color: var(--ma2-primary); box-shadow: 0 1px 2px rgba(56, 65, 74, 0.10); }
+
+/* ── Activity timeline (reference "Activities") ─────────────────────────── */
+.ma2-timeline { position: relative; }
+.ma2-timeline-item { position: relative; padding: 0 0 1.25rem 3rem; }
+.ma2-timeline-item::before {                 /* the connector, not drawn on the last item */
+  content: ''; position: absolute; left: 1rem; top: 2.25rem; bottom: 0;
+  width: 1px; background: var(--ma2-border);
+}
+.ma2-timeline-item:last-child { padding-bottom: 0; }
+.ma2-timeline-item:last-child::before { display: none; }
+.ma2-timeline-dot {
+  position: absolute; left: 0; top: 0; width: 2rem; height: 2rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Data tables (reference: the Velzon light `.table` inside a card) ─────
+   Introduced with the Invite Code / My Ebank pass. Put the table in a
+   `.ma2-card` that also carries `overflow-hidden`, so the header band clips to
+   the card radius, and wrap it in `.ma2-table-wrap` — a dense table must scroll
+   HORIZONTALLY on a phone rather than reflow into unreadable stacks (the header
+   row is what makes 9 columns legible; wrapping cells would throw it away).
+   ⚠ Row hover paints on `td`, not `tr`: a background on `tr` sits *under* the
+   cell borders in some engines and the hairlines disappear mid-row. */
+.ma2-table-wrap { width: 100%; overflow-x: auto; }
+.ma2-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--ma2-font); font-size: 0.8125rem; line-height: 1.5;
+}
+.ma2-table thead th {
+  padding: 0.7rem 0.9rem;
+  background: var(--ma2-light);
+  color: var(--ma2-heading);
+  font-weight: 600; text-align: left; white-space: nowrap;
+  border-bottom: 1px solid var(--ma2-border);
+}
+.ma2-table tbody td {
+  padding: 0.75rem 0.9rem;
+  color: var(--ma2-body); vertical-align: middle;
+  border-bottom: 1px solid var(--ma2-border);
+  transition: background-color 0.15s ease;
+}
+.ma2-table tbody tr:last-child td { border-bottom: 0; }
+.ma2-table tbody tr:hover td { background: var(--ma2-light); }
+/* Numeric columns right-align so digits line up on the decimal. */
+.ma2-table th.ma2-th-right, .ma2-table td.ma2-td-right { text-align: right; white-space: nowrap; }
+/* Total row: part of the table, not a body row — heavier, own top rule. */
+.ma2-table tfoot td {
+  padding: 0.75rem 0.9rem;
+  font-weight: 600; color: var(--ma2-body);
+  background: var(--ma2-light);
+  border-top: 1px solid var(--ma2-border-strong);
+}
+/* Pinned CASH row — a tint, never a coloured side stripe. */
+.ma2-table tbody tr.ma2-tr-accent td { background: rgba(64, 81, 137, 0.045); }
+.ma2-table tbody tr.ma2-tr-accent:hover td { background: rgba(64, 81, 137, 0.08); }
+/* cell modifiers */
+.ma2-table .ma2-td-muted { color: var(--ma2-muted); }
+.ma2-table .ma2-td-tight { width: 1%; white-space: nowrap; color: var(--ma2-muted); }
+.ma2-table .ma2-td-nowrap { white-space: nowrap; }
+.ma2-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.75rem;
+}
+
+/* ── Native control chrome MUST be light inside the 2.0 ──────────────────────
+   ⚠⚠ Declaring `color-scheme` on the scope root is NOT enough, and this is why
+   the date/time icons were invisible (white glyph on a white field) and the
+   native picker opened DARK:
+     · `index.css` puts `color-scheme: var(--ma-color-scheme, dark)` on
+       `[data-testid="myaccount-layout"]` — the SAME element that carries
+       `.ma2-scope`, so specificity ties (0,1,0) and mere stylesheet order decides;
+     · for dialogs it puts it on `body:has([data-testid="myaccount-layout"])
+       [role="dialog"][data-state="open"]` = (0,3,1), which beats `.ma2-modal`
+       (0,1,0) outright — and the portal resolves `--ma-color-scheme` against
+       `:root`, where JS computed it from the DARK 1.0 palette.
+   Declaring it on the CONTROL itself wins both cases, because a declaration on
+   the element always beats a value inherited from an ancestor. */
+.ma2-scope input, .ma2-scope select, .ma2-scope textarea,
+.ma2-modal input, .ma2-modal select, .ma2-modal textarea {
+  /* Follows the CMS group: `themeColors.js` derives `--ma2-color-scheme` from the
+     2.0 card background, so painting the workspace dark flips native pickers and
+     steppers with it instead of leaving them white-on-white. */
+  color-scheme: var(--ma2-color-scheme, light);
+}
+
+/* The whole date/time field opens its picker (see `openPicker` in the pages), so
+   it gets a pointer; the native indicator becomes a visible muted glyph. */
+.ma2-input[type="date"], .ma2-input[type="time"], .ma2-input[type="datetime-local"],
+.ma2-input[type="month"], .ma2-input[type="week"] { cursor: pointer; }
+.ma2-input::-webkit-calendar-picker-indicator {
+  cursor: pointer; opacity: 0.6; margin-left: 0.25rem;
+  transition: opacity 0.15s ease;
+}
+.ma2-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+/* The value text of native date/time fields (::-webkit-datetime-edit) otherwise
+   follows `color-scheme`, which can leave it light on a light field (invisible on
+   the light theme — the labels stay readable because they use --ma2-body). Pin the
+   edit text (and every sub-field) to --ma2-body so it flips with the theme like the
+   rest of the form. */
+.ma2-input::-webkit-datetime-edit,
+.ma2-input::-webkit-datetime-edit-fields-wrapper,
+.ma2-input::-webkit-datetime-edit-text,
+.ma2-input::-webkit-datetime-edit-hour-field,
+.ma2-input::-webkit-datetime-edit-minute-field,
+.ma2-input::-webkit-datetime-edit-second-field,
+.ma2-input::-webkit-datetime-edit-ampm-field,
+.ma2-input::-webkit-datetime-edit-month-field,
+.ma2-input::-webkit-datetime-edit-day-field,
+.ma2-input::-webkit-datetime-edit-year-field { color: var(--ma2-body); }
+
+/* Number stepper. Its chrome follows the control's `color-scheme` (light, set
+   above) — under the dark scheme it rendered as a near-black block with white
+   arrows on a white field. Kept visible as an affordance but at a lighter
+   weight so it never competes with the value. */
+.ma2-input[type="number"]::-webkit-inner-spin-button,
+.ma2-input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.5; cursor: pointer; transition: opacity 0.15s ease;
+}
+.ma2-input[type="number"]:hover::-webkit-inner-spin-button,
+.ma2-input[type="number"]:focus::-webkit-inner-spin-button { opacity: 1; }
+
+/* ── Date picker (our own white calendar, not the browser's) ─────────────────
+   Velzon has no native-looking date field; the reference uses a light calendar
+   panel. This mirrors `components/VelzonCalendar` at picker scale. */
+.ma2-datepicker { position: relative; }
+.ma2-datepicker-field {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  width: 100%; text-align: left; cursor: pointer;
+}
+.ma2-datepicker-placeholder { color: var(--ma2-faint); }
+.ma2-datepicker-panel {
+  position: absolute; z-index: 40; top: calc(100% + 0.3rem); left: 0;
+  width: 17.5rem; padding: 0.6rem;
+  background: var(--ma2-card-bg); border: 1px solid var(--ma2-border); border-radius: 0.375rem;
+  box-shadow: 0 5px 14px rgba(30, 32, 37, 0.16);
+}
+/* flip up when the field sits low in a scrolling modal body */
+.ma2-datepicker-panel.is-up { top: auto; bottom: calc(100% + 0.3rem); }
+.ma2-datepicker-panel.is-right { left: auto; right: 0; }
+.ma2-datepicker-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+.ma2-datepicker-month { font-size: 0.8125rem; font-weight: 600; color: var(--ma2-heading); }
+.ma2-datepicker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+.ma2-datepicker-dow {
+  padding: 0.3rem 0; text-align: center;
+  font-size: 0.6875rem; font-weight: 600; color: var(--ma2-muted);
+}
+.ma2-datepicker-day {
+  padding: 0.4rem 0; border: 0; border-radius: 0.25rem;
+  background: transparent; color: var(--ma2-body);
+  font-family: var(--ma2-font); font-size: 0.75rem; line-height: 1.4; cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ma2-datepicker-day:hover:not(:disabled) { background: var(--ma2-light); }
+.ma2-datepicker-day:focus-visible { outline: none; box-shadow: 0 0 0 0.12rem rgba(64, 81, 137, 0.35); }
+.ma2-datepicker-day.is-outside { color: var(--ma2-faint); }
+.ma2-datepicker-day.is-today { background: rgba(64, 81, 137, 0.10); color: var(--ma2-primary); font-weight: 600; }
+.ma2-datepicker-day.is-selected { background: var(--ma2-primary); color: #fff; font-weight: 600; }
+.ma2-datepicker-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--ma2-border);
+}
+
+/* ── Stat tiles (reference: the Velzon dashboard widgets) ────────────────── */
+.ma2-stat {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  padding: 1.25rem;
+  background: var(--ma-card-bg, #fff);
+  border: 1px solid var(--ma2-border); border-radius: var(--ma2-radius, 0.375rem);
+  box-shadow: 0 1px 2px rgba(56, 65, 74, 0.06);
+}
+.ma2-stat-label { font-size: 0.8125rem; font-weight: 500; color: var(--ma2-muted); }
+.ma2-stat-value { margin-top: 0.35rem; font-size: 1.375rem; font-weight: 600; color: var(--ma2-body); line-height: 1.2; }
+.ma2-stat-sub { margin-top: 0.2rem; font-size: 0.6875rem; color: var(--ma2-faint); }
+.ma2-stat-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 2.5rem; height: 2.5rem; border-radius: 0.25rem;
+  background: rgba(64, 81, 137, 0.10); color: var(--ma2-primary);
+}
+
+/* ── Navy band (a dominant figure or an identity strip) ──────────────────── */
+/* Same material as `.ma2-profile-band`, but self-contained padding so it can
+   carry a headline metric instead of an avatar row. */
+.ma2-band {
+  position: relative; overflow: hidden;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--ma2-radius, 0.375rem);
+  background: linear-gradient(135deg, #405189 0%, #35426f 100%);
+  color: #fff;
+}
+.ma2-band::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 100% at 85% 0%, rgba(255, 255, 255, 0.10), transparent 60%);
+}
+.ma2-band > * { position: relative; }
+.ma2-band-label { font-size: 0.75rem; font-weight: 500; color: rgba(255, 255, 255, 0.75); }
+.ma2-band-value { font-size: 1.75rem; font-weight: 600; line-height: 1.2; }
+.ma2-band-meta { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); }
+
+/* ── Chart chrome ───────────────────────────────────────────────────────── */
+/* Recharts renders its tooltip in-place, INSIDE the scope, so `--ma2-*` resolve
+   here — unlike the Radix portal case. */
+.ma2-chart-tip {
+  background: var(--ma2-card-bg); border: 1px solid var(--ma2-border); border-radius: 0.25rem;
+  box-shadow: 0 5px 10px rgba(30, 32, 37, 0.12);
+  padding: 0.5rem 0.65rem; font-size: 0.75rem;
+}
+.ma2-chart-tip-name { font-weight: 600; color: var(--ma2-body); }
+.ma2-chart-tip-value { color: var(--ma2-muted); margin-top: 0.1rem; }
+/* Legend: identity is never colour-alone — every dot ships with its label. */
+.ma2-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; margin-top: 0.75rem; }
+.ma2-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.6875rem; color: var(--ma2-muted); }
+.ma2-legend-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Radio / checkbox rows ──────────────────────────────────────────────── */
+.ma2-radio { display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.8125rem; color: var(--ma2-body); }
+.ma2-radio input { accent-color: var(--ma2-primary); cursor: pointer; }
+
+/* ── Removable token (shared-with members) ──────────────────────────────── */
+.ma2-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.2rem 0.5rem; border-radius: 0.25rem;
+  background: rgba(64, 81, 137, 0.10); color: var(--ma2-primary);
+  font-size: 0.75rem; font-weight: 500;
+}
+.ma2-chip button { display: inline-flex; color: inherit; opacity: 0.7; }
+.ma2-chip button:hover { opacity: 1; }
+
+/* ── Typeahead panel ────────────────────────────────────────────────────── */
+/* `position: absolute` is safe here: no ancestor clips it (the parent cards do
+   not set overflow). Inside an `overflow-hidden` card this must become a portal. */
+.ma2-popover {
+  position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 0.25rem);
+  max-height: 12rem; overflow-y: auto;
+  background: var(--ma2-card-bg); border: 1px solid var(--ma2-border); border-radius: 0.25rem;
+  box-shadow: 0 5px 10px rgba(30, 32, 37, 0.12);
+}
+.ma2-popover-item {
+  display: block; width: 100%; text-align: left;
+  padding: 0.5rem 0.75rem; font-size: 0.8125rem; color: var(--ma2-body);
+  background: transparent; border: 0; cursor: pointer;
+}
+.ma2-popover-item:hover { background: var(--ma2-light); }
+
+/* ── Collapsible (Calendar-sync disclosure) ─────────────────────────────── */
+.ma2-details summary { list-style: none; cursor: pointer; }
+.ma2-details summary::-webkit-details-marker { display: none; }
+
+/* ── Member-authored rich text on a light card ──────────────────────────── */
+.ma2-prose { font-size: 0.8125rem; line-height: 1.7; color: var(--ma2-heading); max-width: 75ch; }
+.ma2-prose p { margin: 0 0 0.75rem; }
+.ma2-prose :last-child { margin-bottom: 0; }
+.ma2-prose h1, .ma2-prose h2, .ma2-prose h3 { color: var(--ma2-body); font-weight: 600; margin: 1rem 0 0.5rem; }
+.ma2-prose h1 { font-size: 1.0625rem; } .ma2-prose h2 { font-size: 1rem; } .ma2-prose h3 { font-size: 0.9375rem; }
+.ma2-prose a { color: var(--ma2-primary); text-decoration: underline; }
+.ma2-prose strong, .ma2-prose b { color: var(--ma2-body); font-weight: 600; }
+.ma2-prose ul, .ma2-prose ol { margin: 0 0 0.75rem 1.15rem; }
+.ma2-prose li { margin-bottom: 0.2rem; }
+/* clamped preview inside a card grid */
+.ma2-prose-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ── Table toolbar + search (reference: Velzon "List.js" table, Screenshot_51)
+   The toolbar is the first row of the card BODY, under the card head, with the
+   search box right-aligned; row actions sit at the left when a table has any. */
+.ma2-table-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 0.75rem; padding: 1rem 1.25rem;
+}
+.ma2-table-toolbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+.ma2-search { position: relative; width: 100%; max-width: 17rem; margin-left: auto; }
+.ma2-search svg {
+  position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%);
+  color: var(--ma2-muted); pointer-events: none;
+}
+.ma2-search input.ma2-input { padding-left: 2.1rem; }
+
+/* ── Sortable header cells ──────────────────────────────────────────────── */
+.ma2-table thead th.ma2-th-sort {
+  cursor: pointer; user-select: none;
+  transition: background-color 0.15s ease;
+}
+.ma2-table thead th.ma2-th-sort:hover { background: var(--ma2-hover); }
+.ma2-table thead th.ma2-th-sort:focus-visible { outline: 2px solid var(--ma2-primary); outline-offset: -2px; }
+.ma2-th-inner { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+/* numeric (right-aligned) sortable headers: label + arrows sit over the figures */
+.ma2-table th.ma2-th-right .ma2-th-inner { justify-content: flex-end; }
+/* the stacked chevron pair of the reference: both drawn, the active half tinted */
+.ma2-sort-ind { display: inline-flex; flex-direction: column; line-height: 0; flex-shrink: 0; }
+.ma2-sort-ind > svg { display: block; color: var(--ma2-faint); }
+.ma2-sort-ind > svg:last-child { margin-top: -3px; }
+.ma2-sort-ind > svg.is-active { color: var(--ma2-primary); }
+
+/* ── Pagination (reference: Previous · numbered · Next, bottom-right) ────── */
+.ma2-pagination {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+  gap: 0.375rem; padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--ma2-border);
+}
+.ma2-page-btn {
+  min-width: 2rem; padding: 0.35rem 0.7rem;
+  font-family: var(--ma2-font); font-size: 0.75rem; font-weight: 500; line-height: 1.5;
+  border: 1px solid transparent; border-radius: 0.25rem;
+  background: transparent; color: var(--ma2-muted); cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.ma2-page-btn:hover:not(:disabled):not(.is-active) { background: var(--ma2-light); color: var(--ma2-heading); }
+.ma2-page-btn:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.25); }
+.ma2-page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ma2-page-nav { border-color: var(--ma2-border); background: var(--ma2-card-bg); }
+.ma2-page-btn.is-active {
+  background: var(--ma2-primary); border-color: var(--ma2-primary); color: #fff;
+  cursor: default;
+}
+.ma2-page-ellipsis { padding: 0 0.15rem; font-size: 0.75rem; color: var(--ma2-faint); }
+
+/* Row hover that survives BOTH modes. ⚠ `hover:bg-black/[0.02]` is invisible on a
+   dark surface — the feedback simply disappears; `--ma2-hover` flips with the mode. */
+.ma2-row-hover { transition: background-color 0.15s ease; }
+.ma2-row-hover:hover { background-color: var(--ma2-hover); }
+
+/* ── Ghost icon button (row actions: copy, send) ─────────────────────────── */
+.ma2-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem; flex-shrink: 0;
+  border: 0; border-radius: 0.25rem;
+  background: transparent; color: var(--ma2-muted); cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ma2-icon-btn:hover:not(:disabled) { background: var(--ma2-hover); color: var(--ma2-heading); }
+.ma2-icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.25); }
+.ma2-icon-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ma2-icon-btn-primary { color: var(--ma2-primary); }
+.ma2-icon-btn-primary:hover:not(:disabled) { background: rgba(64, 81, 137, 0.10); color: var(--ma2-primary); }
+.ma2-icon-btn-success { color: var(--ma2-success); }
+
+/* ── Inline alerts ──────────────────────────────────────────────────────── */
+.ma2-alert {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.75rem 0.9rem; border: 1px solid transparent; border-radius: 0.25rem;
+  font-size: 0.8125rem; line-height: 1.55;
+}
+/* ⚠ measured: #8a5e0e on the tinted amber wash = 5.15:1 (the obvious #f7b84b
+   text colour lands at 2.0:1 and fails AA on its own background). */
+.ma2-alert-warning {
+  background: rgba(247, 184, 75, 0.12);
+  border-color: rgba(247, 184, 75, 0.30);
+  color: var(--ma2-warning-fg);
+}
+.ma2-alert-title { font-weight: 600; }
+
+/* ── Range slider (1-5 self-assessment scales) ──────────────────────────── */
+/* The filled portion is a gradient driven by `--pct`, which the component sets
+   inline from the current value — no second element, no layout animation. */
+.ma2-range {
+  appearance: none; -webkit-appearance: none;
+  width: 100%; height: 0.375rem; border-radius: 1rem; cursor: pointer;
+  background: linear-gradient(to right,
+    var(--ma2-primary) 0 var(--pct, 50%), var(--ma2-track) var(--pct, 50%) 100%);
+}
+.ma2-range::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 1rem; height: 1rem; border-radius: 50%;
+  background: var(--ma2-card-bg); border: 3px solid var(--ma2-primary);
+  box-shadow: 0 1px 3px rgba(56, 65, 74, 0.25); cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.ma2-range::-moz-range-thumb {
+  width: 1rem; height: 1rem; border-radius: 50%;
+  background: var(--ma2-card-bg); border: 3px solid var(--ma2-primary);
+  box-shadow: 0 1px 3px rgba(56, 65, 74, 0.25); cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.ma2-range:hover::-webkit-slider-thumb { transform: scale(1.12); }
+.ma2-range:hover::-moz-range-thumb { transform: scale(1.12); }
+.ma2-range:focus-visible { outline: none; }
+.ma2-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 0.2rem rgba(64, 81, 137, 0.30); }
+.ma2-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 0.2rem rgba(64, 81, 137, 0.30); }
+.ma2-range-value {
+  min-width: 1.75rem; text-align: center;
+  font-size: 0.8125rem; font-weight: 600; color: var(--ma2-primary);
+}
+.ma2-range-scale { font-size: 0.6875rem; color: var(--ma2-faint); }
+@media (prefers-reduced-motion: reduce) {
+  .ma2-range:hover::-webkit-slider-thumb { transform: none; }
+  .ma2-range:hover::-moz-range-thumb { transform: none; }
+}
+
+/* ── Empty states ───────────────────────────────────────────────────────── */
+.ma2-empty { padding: 2.75rem 1.25rem; text-align: center; }
+.ma2-empty-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.75rem; height: 2.75rem; margin-bottom: 0.75rem;
+  border-radius: 50%; background: var(--ma2-light); color: var(--ma2-muted);
+}
+.ma2-empty-title { font-size: 0.875rem; font-weight: 600; color: var(--ma2-heading); }
+.ma2-empty-text {
+  margin: 0.3rem auto 0; max-width: 34rem;
+  font-size: 0.8125rem; line-height: 1.6; color: var(--ma2-muted);
+}
+
+/* ── Skeletons (loading placeholders instead of a centred spinner) ───────── */
+.ma2-skel {
+  border-radius: 0.25rem;
+  background: linear-gradient(90deg, var(--ma2-track) 25%, var(--ma2-skel-shine) 37%, var(--ma2-track) 63%);
+  background-size: 400% 100%;
+  animation: ma2-skel-sweep 1.4s ease infinite;
+}
+@keyframes ma2-skel-sweep {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+@media (prefers-reduced-motion: reduce) { .ma2-skel { animation: none; } }
+
+/* ── Modals (portal-safe: no `.ma2-scope` ancestor) ─────────────────────── */
+.ma2-modal {
+  background: var(--ma2-modal-bg) !important;
+  border: 1px solid var(--ma2-border) !important;
+  border-radius: var(--ma2-radius, 0.375rem) !important;
+  box-shadow: 0 5px 10px rgba(30, 32, 37, 0.12) !important;
+  padding: 0 !important;                 /* header/body/footer own the spacing */
+  gap: 0 !important;
+  font-family: var(--ma2-font);
+  color: var(--ma2-body);
+}
+/* the portal escapes both the scope's Poppins and its h1..h6 override */
+.ma2-modal h1, .ma2-modal h2, .ma2-modal h3,
+.ma2-modal h4, .ma2-modal h5, .ma2-modal h6 { font-family: var(--ma2-font) !important; }
+/* ⚠ nested under `.ma2-modal` on purpose: `DialogTitle`/`DialogDescription`
+   ship their own Tailwind utilities (text-lg, text-sm, text-muted-foreground).
+   At equal specificity the winner would depend on stylesheet import order —
+   the extra class makes these deterministic without reaching for !important. */
+.ma2-modal .ma2-modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--ma2-border); }
+.ma2-modal .ma2-modal-title { font-size: 1rem; font-weight: 600; color: var(--ma2-heading); }
+.ma2-modal .ma2-modal-desc { font-size: 0.8125rem; color: var(--ma2-muted); margin-top: 0.15rem; }
+.ma2-modal .ma2-modal-body { padding: 1.25rem; }
+/* Velzon closes a dialog with a RULED footer, not floating buttons. */
+.ma2-modal .ma2-modal-footer {
+  display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--ma2-border);
+}
+
+/* Tall forms: the sheet stops growing and only the BODY scrolls, so the title
+   and the actions stay put. (The default `DialogContent` scrolls the whole
+   sheet, which scrolls the header away.) Pair with `ma2-modal-tall`. */
+.ma2-modal.ma2-modal-tall { display: flex; flex-direction: column; max-height: 88vh; overflow: hidden !important; }
+.ma2-modal.ma2-modal-tall .ma2-modal-header,
+.ma2-modal.ma2-modal-tall .ma2-modal-footer { flex: 0 0 auto; }
+.ma2-modal.ma2-modal-tall .ma2-modal-body { flex: 1 1 auto; overflow-y: auto; }
+
+/* ── Close button ────────────────────────────────────────────────────────────
+   Radix renders it as the only DIRECT child <button>. ⚠ `!important` is load-
+   bearing here, not laziness: the shared `DialogContent` ships
+   `data-[state=open]:bg-accent` and `focus:ring-2 focus:ring-ring`, both of
+   which are (0,2,0) selectors that outrank `.ma2-modal > button` (0,1,1). The
+   accent one is the visible bug — it paints a filled box behind the ✕ for as
+   long as the dialog is open (it is NOT a focus ring). */
+.ma2-modal > button {
+  top: 1rem; right: 1.15rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem;
+  border-radius: 0.25rem;
+  color: var(--ma2-muted); opacity: 1;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ma2-modal > button:hover { color: var(--ma2-body); background: var(--ma2-light) !important; }
+.ma2-modal > button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.30) !important;
+}
+/* member-authored rich text inside a light modal */
+.ma2-rich { font-size: 0.8125rem; line-height: 1.75; color: var(--ma2-heading); }
+.ma2-rich p { margin: 0 0 0.75rem; }
+.ma2-rich :last-child { margin-bottom: 0; }
+
+/* Compose / biography rich-text editor inside 2.0 modals (light theme, Velzon-ish).
+   ⚠ LITERAL colours on purpose — do NOT reach for `--ma-*` here. These editors live
+   inside a Radix PORTAL, i.e. outside `.ma2-scope`, so `--ma-text-primary` resolves
+   against `:root`, where the CMS palette of the DARK My Account 1.0 defines it as
+   WHITE. The fallback never fires (the variable exists, it is just the wrong value)
+   → white text on a white sheet, invisible. Same trap as `.ma2-modal`. */
+.ma2-compose-editor .ql-toolbar,
+.ma2-compose-editor .ql-container { border-color: var(--ma2-border) !important; }
+.ma2-compose-editor .ql-toolbar { background: var(--ma2-light); border-radius: 6px 6px 0 0; }
+.ma2-compose-editor .ql-container { border-radius: 0 0 6px 6px; background: var(--ma2-input-bg); }
+.ma2-compose-editor .ql-editor {
+  min-height: 180px; color: var(--ma2-body) !important;
+  font-family: 'Poppins', sans-serif !important; font-size: 0.8125rem;
+}
+.ma2-compose-editor .ql-editor.ql-blank::before { color: var(--ma2-faint) !important; font-style: normal; }
+/* toolbar glyphs + dropdowns (snow theme defaults are tuned for light, but the
+   pickers inherit colour from the dark `:root` the same way) */
+.ma2-compose-editor .ql-snow .ql-stroke { stroke: var(--ma2-muted) !important; }
+.ma2-compose-editor .ql-snow .ql-fill { fill: var(--ma2-muted) !important; }
+.ma2-compose-editor .ql-snow .ql-picker { color: var(--ma2-heading) !important; }
+.ma2-compose-editor .ql-snow .ql-picker-options { background: var(--ma2-card-bg) !important; border-color: var(--ma2-border) !important; }
+
+/* ── Alertas: variantes success / info ──────────────────────────────────────
+   ⚠ El texto NO usa el color puro de la marca sobre su propio tinte: `#0ab39c`
+   sobre el lavado verde da 2.3:1 y suspende AA. Se usan las variantes `-fg`,
+   las mismas que ya calibró el modo oscuro. */
+.ma2-alert-success {
+  background: rgba(10, 179, 156, 0.12);
+  border-color: rgba(10, 179, 156, 0.30);
+  color: var(--ma2-success-fg, #0b7a6b);
+}
+.ma2-alert-info {
+  background: rgba(41, 156, 219, 0.12);
+  border-color: rgba(41, 156, 219, 0.30);
+  color: var(--ma2-info-fg, #1c6f9e);
+}
+
+/* ── Botones: respuesta a la pulsación ──────────────────────────────────────
+   Un botón que no se hunde al pulsarlo no parece haber oído al usuario. 160ms
+   ease-out y un 0.97 discreto (nada de rebotes en un portal de trabajo). */
+.ma2-btn { transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1); }
+.ma2-btn:active:not(:disabled) { transform: scale(0.97); }
+
+/* ── Mentoring System (cuestionario previo al LMS) ─────────────────────────── */
+.mentoring-steps {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem;
+}
+.mentoring-step {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.45rem 0.75rem; border-radius: 0.375rem;
+  border: 1px solid var(--ma2-border); background: var(--ma2-card-bg);
+  font-family: var(--ma2-font); font-size: 0.75rem; color: var(--ma2-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.mentoring-step:hover { background: var(--ma2-light); }
+.mentoring-step:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.35); }
+.mentoring-step.is-active {
+  border-color: var(--ma2-primary); color: var(--ma2-primary); font-weight: 600;
+  background: color-mix(in srgb, var(--ma2-primary) 8%, var(--ma2-card-bg));
+}
+.mentoring-step.is-done { color: var(--ma2-success-fg, #0b7a6b); border-color: rgba(10, 179, 156, 0.35); }
+.mentoring-step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.15rem; height: 1.15rem; border-radius: 50%;
+  background: var(--ma2-track); color: inherit;
+  font-size: 0.6875rem; font-weight: 600; flex-shrink: 0;
+}
+.mentoring-step.is-active .mentoring-step-num { background: var(--ma2-primary); color: #fff; }
+.mentoring-step.is-done .mentoring-step-num { background: rgba(10, 179, 156, 0.18); }
+/* En móvil la tira de 6 pasos no cabe: se queda solo el número, que sigue
+   diciendo dónde estás sin robar toda la pantalla. */
+@media (max-width: 640px) {
+  .mentoring-step-label { display: none; }
+  .mentoring-step { padding: 0.4rem 0.55rem; }
+}
+
+.mentoring-q { padding-bottom: 1.15rem; margin-bottom: 1.15rem; border-bottom: 1px solid var(--ma2-border); }
+.mentoring-q:last-of-type { border-bottom: 0; margin-bottom: 0.5rem; }
+.mentoring-q .ma2-label { display: block; margin-bottom: 0.4rem; line-height: 1.5; }
+.mentoring-req { color: var(--ma2-danger-fg, #c23a1f); }
+.mentoring-help { margin: -0.15rem 0 0.45rem; font-size: 0.75rem; color: var(--ma2-faint); }
+
+/* Tooltip de la pregunta: icono con popup al hover (patrón de Membership
+   Enrollment). El popup aparece SOLO con hover/foco del grupo. */
+.mentoring-tip { position: relative; display: inline-flex; align-items: center; margin-left: 0.4rem; }
+.mentoring-tip-pop {
+  position: absolute; z-index: 60; bottom: calc(100% + 0.5rem); left: 50%;
+  transform: translateX(-50%);
+  width: 15rem; max-width: 60vw; padding: 0.55rem 0.65rem;
+  border-radius: 0.375rem; font-size: 0.75rem; font-weight: 400; line-height: 1.5;
+  white-space: normal; text-align: left;
+  box-shadow: 0 6px 18px rgba(30, 32, 37, 0.22);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease;
+}
+.mentoring-tip:hover .mentoring-tip-pop,
+.mentoring-tip:focus-within .mentoring-tip-pop { opacity: 1; pointer-events: auto; }
+/* flechita hacia abajo, hacia el icono */
+.mentoring-tip-pop::after {
+  content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--ma2-heading);
+}
+.mentoring-q textarea.ma2-input { resize: vertical; min-height: 5.5rem; }
+
+.mentoring-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.mentoring-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.4rem 0.7rem; border-radius: 1rem;
+  border: 1px solid var(--ma2-border); background: var(--ma2-card-bg);
+  font-family: var(--ma2-font); font-size: 0.75rem; color: var(--ma2-body);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.mentoring-chip:hover:not(:disabled) { border-color: var(--ma2-border-strong); background: var(--ma2-light); }
+.mentoring-chip:active:not(:disabled) { transform: scale(0.97); }
+.mentoring-chip:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.35); }
+.mentoring-chip:disabled { opacity: 0.65; cursor: not-allowed; }
+.mentoring-chip.is-on {
+  border-color: var(--ma2-primary); color: var(--ma2-primary); font-weight: 600;
+  background: color-mix(in srgb, var(--ma2-primary) 10%, var(--ma2-card-bg));
+}
+
+.mentoring-actions {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  padding-top: 1rem; margin-top: 0.25rem; border-top: 1px solid var(--ma2-border);
+}
+.mentoring-hint { margin: 0.7rem 0 0; font-size: 0.75rem; color: var(--ma2-faint); }
+
+.mentoring-save {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.6875rem; color: var(--ma2-muted); white-space: nowrap;
+}
+.mentoring-save.is-busy { color: var(--ma2-faint); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ma2-btn, .mentoring-chip, .mentoring-step { transition-duration: 0.01ms; }
+  .ma2-btn:active:not(:disabled), .mentoring-chip:active:not(:disabled) { transform: none; }
+}
+
+/* ── Mentoring System como página independiente (fuera de Mi Cuenta) ────────
+   Vive en /mentorship-system, igual que /membership-enrollment. Al no estar
+   dentro de ningún layout, trae su propio fondo, cabecera y ancho de lectura. */
+.mentoring-standalone { min-height: 100vh; background: var(--ma2-page-bg, #f3f3f9); }
+.mentoring-topbar { background: var(--ma2-card-bg); border-bottom: 1px solid var(--ma2-border); }
+.mentoring-topbar-inner {
+  max-width: 60rem; margin: 0 auto; padding: 0.75rem 1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.mentoring-topbar-logo { height: 2.25rem; width: auto; object-fit: contain; }
+.mentoring-topbar-title { font-size: 0.9375rem; font-weight: 600; color: var(--ma2-heading); }
+.mentoring-topbar-actions { display: flex; align-items: center; gap: 0.6rem; }
+/* Botón de modo: mismo gesto que el de My Account 2.0 (icono redondo, tenue). */
+.mentoring-mode-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem; border-radius: 50%;
+  border: 1px solid var(--ma2-border); background: var(--ma2-card-bg);
+  color: var(--ma2-muted); cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.mentoring-mode-btn:hover { background: var(--ma2-light); color: var(--ma2-heading); }
+.mentoring-mode-btn:focus-visible { outline: none; box-shadow: 0 0 0 0.15rem rgba(64, 81, 137, 0.35); }
+.mentoring-main { max-width: 60rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+/* Responsive hardening (s154): grid/flex children may shrink below their content
+   (long names, file names, emails truncate/wrap instead of pushing the card past the
+   screen); media never wider than its column. */
+.ma2-main .grid > *, .ma2-modal .grid > * { min-width: 0; }
+.ma2-main img, .ma2-main video, .ma2-main iframe { max-width: 100%; }
+.ma2-main { overflow-wrap: anywhere; }
+.ma2-main .ma2-table { overflow-wrap: normal; }
+/* Phone: shared compact controls get a finger-sized hit area (desktop unchanged). */
+@media (max-width: 640px) {
+  .ma2-segment { min-height: 40px; }
+  .ma2-icon-btn { min-width: 40px; min-height: 40px; }
+  .ma2-page-btn { min-width: 40px; min-height: 40px; }
+}
+
+/* ── gem2i additions (My Account 2.0 shell) ─────────────────────────────────
+   Press feedback, icon-button hover (mouse only), the notification popover
+   that grows from the bell, and the mobile drawer slide. Only transform and
+   opacity animate; reduced motion keeps the fades and drops the movement. */
+.ma2-scope {
+  --ma2-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ma2-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+.ma2-scope .ma2-press { transition: transform 140ms var(--ma2-ease-out), background-color 150ms ease, color 150ms ease; }
+.ma2-scope .ma2-press:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .ma2-scope .ma2-icon-btn:hover { background-color: var(--ma-bell-hover-bg); }
+  .ma2-scope .ma2-notif:hover { background-color: var(--ma2-hover) !important; }
+  .ma2-scope aside nav a:hover { color: var(--ma-sidebar-active-text) !important; }
+}
+.ma2-scope .ma2-popover {
+  transform-origin: top right;
+  animation: ma2-pop-in 180ms var(--ma2-ease-out);
+}
+@keyframes ma2-pop-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } }
+.ma2-scope .ma2-drawer { transition: transform 280ms var(--ma2-ease-drawer); }
+.ma2-scope .ma2-notif { transition: background-color 150ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .ma2-scope .ma2-popover { animation: ma2-fade-in 150ms ease; }
+  .ma2-scope .ma2-drawer { transition: none; }
+  .ma2-scope .ma2-press:active { transform: none; }
+}
+@keyframes ma2-fade-in { from { opacity: 0; } }

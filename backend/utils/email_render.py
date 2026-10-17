@@ -57,20 +57,46 @@ def _substitute(text: str, variables: dict) -> str:
 
 async def ensure_templates_seeded():
     """Insert any template that's defined in code but missing from the DB.
-    Idempotent — safe to call on every backend startup."""
-    existing_keys = {t["key"] for t in await db.email_templates.find({}, {"_id": 0, "key": 1}).to_list(100)}
+    Idempotent — safe to call on every backend startup.
+
+    Runs in every uvicorn worker at once (--workers 2), so the old
+    find-then-insert raced and each worker inserted its own copy: every
+    template ended up duplicated. Now: drop duplicates (keeping the row
+    find_one() already served, so nothing visible changes), enforce a unique
+    index, and seed with an atomic $setOnInsert upsert."""
+    for coll, field in ((db.email_templates, "key"), (db.email_branding, "id")):
+        async for grp in coll.aggregate([
+            {"$group": {"_id": f"${field}", "ids": {"$push": "$_id"}, "n": {"$sum": 1}}},
+            {"$match": {"n": {"$gt": 1}}},
+        ]):
+            keep = await coll.find_one({field: grp["_id"]}, {"_id": 1})
+            extra = [i for i in grp["ids"] if keep and i != keep["_id"]]
+            if extra:
+                await coll.delete_many({"_id": {"$in": extra}})
+                logger.warning("email seed: removed %d duplicate %s=%r", len(extra), field, grp["_id"])
+        try:
+            await coll.create_index(field, unique=True, name=f"uniq_{field}")
+        except Exception as e:  # the other worker may be mid-cleanup; next boot retries
+            logger.warning("email seed: unique index on %s not created yet: %s", field, e)
     for t in EMAIL_TEMPLATES:
-        if t["key"] in existing_keys:
-            continue
-        await db.email_templates.insert_one({
-            "key": t["key"],
-            "subject": t["default_subject"],
-            "body": t["default_body"],
-            "enabled": True,
-        })
-    # Ensure a branding doc exists.
-    if not await db.email_branding.find_one({"id": "main"}):
-        await db.email_branding.insert_one({"id": "main", **DEFAULT_EMAIL_BRANDING})
+        try:
+            await db.email_templates.update_one(
+                {"key": t["key"]},
+                {"$setOnInsert": {
+                    "key": t["key"],
+                    "subject": t["default_subject"],
+                    "body": t["default_body"],
+                    "enabled": True,
+                }},
+                upsert=True,
+            )
+        except Exception:  # DuplicateKeyError: the other worker won the race
+            pass
+    try:
+        await db.email_branding.update_one(
+            {"id": "main"}, {"$setOnInsert": {"id": "main", **DEFAULT_EMAIL_BRANDING}}, upsert=True)
+    except Exception:
+        pass
 
 
 async def get_template(key: str) -> dict:
@@ -94,10 +120,65 @@ async def get_template(key: str) -> dict:
     }
 
 
+def _contrast_text(hex_color: str) -> str:
+    """Readable text colour for a solid background (WCAG relative luminance)."""
+    h = (hex_color or "").lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    try:
+        r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    except (ValueError, IndexError):
+        return "#ffffff"
+    lin = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in (r, g, b)]
+    lum = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+    # pick whichever of white / near-black gives the higher WCAG contrast ratio
+    return "#111111" if (lum + 0.05) / 0.0556 >= 1.05 / (lum + 0.05) else "#ffffff"
+
+
+def _abs_url(url: str, site_url: str) -> str:
+    url = (url or "").strip()
+    if not url or url.startswith(("http://", "https://")):
+        return url
+    return (site_url or "").rstrip("/") + ("" if url.startswith("/") else "/") + url
+
+
+def brand_identity(settings: dict, saved: dict) -> dict:
+    """s137 — the email look derived from THIS brand's identity (nothing hard-
+    coded): header = the theme's dark surface, button = the brand accent (text
+    colour by contrast), logo = the brand's logo for dark backgrounds on THIS
+    instance's own URL, social links = Settings → Social Links. Any piece the
+    brand hasn't defined falls back to what is saved in Email Management."""
+    web = ((settings or {}).get("theme_colors") or {}).get("website") or {}
+    site_url = ((settings or {}).get("site_url") or "").rstrip("/")
+    header = (web.get("footer_bg") or web.get("heading_color") or web.get("button_bg")
+              or saved.get("primary_color"))
+    accent = web.get("accent") or web.get("button_bg") or saved.get("button_color")
+    logo = _abs_url((settings or {}).get("logo_on_1") or (settings or {}).get("logo") or "", site_url) \
+        or saved.get("logo_url") or ""
+    socials = [{"platform": s.get("platform") or s.get("key") or "", "url": s.get("url")}
+               for s in ((settings or {}).get("social_links") or [])
+               if s.get("active", True) and (s.get("url") or "").strip()]
+    return {
+        "primary_color": header,
+        "button_color": accent,
+        "button_text_color": _contrast_text(accent),
+        "logo_url": logo,
+        "social_links": socials or (saved.get("social_links") or []),
+    }
+
+
 async def get_branding() -> dict:
+    """Effective email branding. `theme_mode` "brand" (default) follows the
+    brand identity (brand_identity); "custom" uses exactly what the operator
+    saved in Email Management → General Design."""
     doc = await db.email_branding.find_one({"id": "main"}, {"_id": 0}) or {}
     out = {**DEFAULT_EMAIL_BRANDING, **doc}
     out.pop("id", None)
+    out["theme_mode"] = out.get("theme_mode") or "brand"
+    if out["theme_mode"] == "brand":
+        settings = await db.settings.find_one({}, {"_id": 0, "theme_colors": 1, "site_url": 1,
+                                                    "logo_on_1": 1, "logo": 1, "social_links": 1}) or {}
+        out.update(brand_identity(settings, out))
     return out
 
 

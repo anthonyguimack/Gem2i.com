@@ -199,10 +199,23 @@ try {
     Write-OK "SSH connection established"
 
     Write-Banner "Backup"
+    # Retention: keep only the newest $KEEP_BACKUPS archives (each is ~1.8 GB).
+    # 2026-10-16: 29 unpruned backups filled the 58 GB disk and a deploy failed
+    # mid-backup. Prune BEFORE creating the new one so there is room for it.
+    $KEEP_BACKUPS = 3
+    Invoke-SSH "ls -1t /opt/${BACKUP_SLUG}-backup-*.tar.gz 2>/dev/null | tail -n +$KEEP_BACKUPS | xargs -r sudo rm -f" | Out-Null
     $ts = Get-Date -Format "yyyyMMdd-HHmmss"
     $backupPath = "/opt/${BACKUP_SLUG}-backup-${ts}.tar.gz"
-    Invoke-SSH "sudo tar --exclude='*/node_modules' --exclude='*/venv' --exclude='*/__pycache__' -czf $backupPath -C /opt $BACKUP_SLUG"
-    Write-OK "$backupPath"
+    try {
+        Invoke-SSH "sudo tar --exclude='*/node_modules' --exclude='*/venv' --exclude='*/__pycache__' -czf $backupPath -C /opt $BACKUP_SLUG"
+    } catch {
+        # A half-written archive is useless and only eats disk: drop it, and
+        # don't hand it to the rollback.
+        Invoke-SSH "sudo rm -f $backupPath" | Out-Null
+        $backupPath = $null
+        throw "Backup failed (disk full?): $_"
+    }
+    Write-OK "$backupPath (keeping the newest $KEEP_BACKUPS)"
 
     Write-Banner "Ownership"
     Invoke-SSH "sudo chown -R ubuntu:ubuntu $DEPLOY_DIR/frontend"

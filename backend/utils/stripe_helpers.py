@@ -70,15 +70,44 @@ class StripeHelper:
     ) -> CheckoutSessionResult:
         """Create a Stripe Checkout Session. Returns session_id and redirect URL."""
         unit_amount = max(1, round(amount * 100))  # cents, minimum 1
+        # One Stripe account serves the 3 brands: label everything Stripe shows with
+        # this instance's brand — product name, payment description, `site`/`brand`
+        # metadata on the session AND the PaymentIntent (searchable in Payments), and
+        # the card-statement suffix (CA / ACG / AUX).
+        metadata = dict(metadata or {})
+        name = product_name or "Payment"
+        pi_data = {}
+        try:
+            from utils.runtime_config import stripe_brand
+            b = await stripe_brand()
+            metadata.setdefault("site", b["site"])
+            metadata.setdefault("brand", b["name"])
+            if b["name"] and not name.startswith(b["name"]):
+                name = f"{b['name']} · {name}"
+            pi_data = {"metadata": metadata, "description": name}
+            if b["code"]:
+                pi_data["statement_descriptor_suffix"] = b["code"]
+        except Exception:
+            pass
 
         def _create():
+            try:
+                return _create_with(pi_data)
+            except stripe.InvalidRequestError as e:
+                # the card-statement suffix depends on the account's descriptor
+                # settings; never let it block a payment
+                if "statement_descriptor" in str(e).lower() and "statement_descriptor_suffix" in pi_data:
+                    return _create_with({k: v for k, v in pi_data.items() if k != "statement_descriptor_suffix"})
+                raise
+
+        def _create_with(pi_data):
             return stripe.checkout.Session.create(
                 api_key=self.api_key,
                 payment_method_types=["card"],
                 line_items=[{
                     "price_data": {
                         "currency": currency.lower(),
-                        "product_data": {"name": product_name or "Payment"},
+                        "product_data": {"name": name},
                         "unit_amount": unit_amount,
                     },
                     "quantity": 1,
@@ -87,6 +116,7 @@ class StripeHelper:
                 success_url=success_url,
                 cancel_url=cancel_url,
                 metadata=metadata or {},
+                **({"payment_intent_data": pi_data} if pi_data else {}),
             )
 
         session = await asyncio.to_thread(_create)

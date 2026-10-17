@@ -15,6 +15,18 @@ Ported per `work-plans-MD/PORT_FROM_CARLOS_PLAN.md` @ Carlos `8a0d4dd`. **Collec
 ## D-GEM-2026-05 — Membership levels & enrollment "like Carlos" (2026-09-23, Carlos M. Artiles)
 Owner rulings after the port: (1) **enrollment** keeps Carlos' questionnaire and legal texts (his 50-field seed restored); (2) **levels** are Carlos' — Nivel 0 / Nivel 1 with his section permissions, **enforced server-side** (`membership_v2_enabled` + `level_enforcement_mode:"enforce"`), every non-admin member on Nivel 0. Level *labels* may be renamed in the CMS; the *access-by-level* behaviour may not be changed. Gem2i-specific exceptions forced by its data: gem2i's 5 legacy **member types stay** (they drive guest-list benefits — no "Simple" reset), and levels grant no quick links (gem2i has none). Consequence to remember: Invite Code / My Community are closed for Nivel 0 until a level lists them (CMS → Member Levels).
 
+## D-GEM-2026-06 — Port A Capital, keep gem2i identity (2026-10-16, Anthony)
+Bring A Capital's backend/CMS advances into gem2i via the audit plan F0–F6; KMS/LMS/PMS/IMS/News out; **MMS comes later product by product** (so Points & Rewards waits). gem_* collections stay (Section Manager stored in `gem_section_*`).
+
+## D-GEM-2026-07 — My Account 2.0 "tal cual" A Capital (2026-10-16, Anthony)
+Same Velzon palette, light default, A Capital's 2.0 pages. gem2i extras kept (Calendar, Calendar Sync, Membership); privacy option (b) enforced server-side instead of in the page.
+
+## D-GEM-2026-08 — Three gem2i templates (2026-10-16, Anthony)
+`gem2i` (Gem2i - 01, Hero A), `gem2i_02` (Hero B), `gem2i_03` (Hero C). Same header/footer/catalogs/My Account; own hero and own Page Builder order; section designs shared until a template gets a variant. Compare with `?template=`. Approved shared designs: Intro I-2, Featured F-1, Services S-2; header laid out like Aurex.
+
+## D-GEM-2026-09 — Paid membership + coupons (2026-10-16, Anthony)
+Paid membership = registered member buys monthly/annual (one-time Stripe, no auto-renew) → configured level while active; on lapse back to previous level (access never cut). Coupons for tickets and membership; a use counts only on completed payment.
+
 ---
 
 ## Carried from GEM2I_MIGRATION_PLAN §9 (D-2026-58, 2026-07-07) — still in force

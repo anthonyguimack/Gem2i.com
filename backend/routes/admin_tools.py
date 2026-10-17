@@ -117,7 +117,20 @@ AUREX_DEFAULT_ORDER = [
     "map", "contact",
 ]
 
+GEM2I_DEFAULT_ORDER = [
+    "news_ticker", "hero", "gem_intro", "gem_featured", "gem_services_banner", "services", "gem_methodology",
+    "aurex_audience", "aurex_process", "gem_events", "gem_artists", "gem_venues",
+    "gem_festivals", "gem_conferences", "aurex_video", "aurex_pricing", "aurex_team",
+    "testimonials", "gem_media", "gallery", "map", "aurex_partners", "gem_clients", "aurex_clients", "contact",
+]
+
+
+GEM2I_TEMPLATES = ("gem2i", "gem2i_02", "gem2i_03")
+
+
 def _default_order_for(theme: str) -> list[str]:
+    if theme in GEM2I_TEMPLATES:
+        return GEM2I_DEFAULT_ORDER
     return AUREX_DEFAULT_ORDER if theme == "aurex" else DEFAULT_SECTION_ORDER
 
 

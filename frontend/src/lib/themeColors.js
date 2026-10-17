@@ -23,6 +23,12 @@ function getLuminance(color) {
   // ITU-R BT.601 perceptual luma
   return (r * 299 + g * 587 + b * 114) / 1000 / 255;
 }
+/** gem2i template family: Gem2i - 01 (`gem2i`), - 02 and - 03. They share the
+ *  header, footer, catalogs and My Account; each has its own hero, and its own
+ *  Page Builder order (section designs are shared until a template gets its own). */
+export const GEM2I_TEMPLATES = ['gem2i', 'gem2i_02', 'gem2i_03'];
+export function isGem2iTheme(t) { return GEM2I_TEMPLATES.includes(t); }
+
 export function schemeFor(color) {
   return getLuminance(color) < 0.5 ? 'dark' : 'light';
 }
@@ -80,6 +86,180 @@ export const MYACCOUNT_COLORS = [
   { key: 'bell_hover_bg', label: 'Notification Bell Hover BG', default: 'rgba(201,168,76,0.12)' },
   { key: 'bell_badge_bg', label: 'Notification Badge Background', default: '#ef4444' },
   { key: 'bell_badge_text', label: 'Notification Badge Text', default: '#ffffff' },
+];
+
+/**
+ * MY ACCOUNT 2.0 — its own palette group (`theme_colors.my_account_2`).
+ *
+ * Every value below was hardcoded in `pages/myaccount2/velzon-theme.css` until
+ * 2026-07-30; the defaults here ARE those values, so switching the group on
+ * changes nothing visually until an operator edits a field.
+ *
+ * All keys inject as `--ma2-<key>`. The 2.0 stylesheet then maps the portal-safe
+ * `--ma-*` names off them inside `.ma2-scope`, which is why one group can drive
+ * both the component kit and the scope overrides.
+ *
+ * ⚠ Do NOT fold this into `my_account`: that group paints the LIVE 1.0 portal
+ * for every brand. Keeping them apart is what lets the 2.0 be repainted (and,
+ * later, get its own light/dark switch) without touching production.
+ */
+export const MYACCOUNT2_COLORS = [
+  // Brand + status (the kit's semantic set)
+  { key: 'primary', label: 'Primary (brand)', default: '#405189' },
+  { key: 'primary_hover', label: 'Primary — Hover', default: '#364574' },
+  { key: 'success', label: 'Success / Accent', default: '#0ab39c' },
+  { key: 'info', label: 'Info', default: '#299cdb' },
+  { key: 'warning', label: 'Warning', default: '#f7b84b' },
+  { key: 'danger', label: 'Danger', default: '#f06548' },
+  // Surfaces
+  { key: 'page_bg', label: 'Page Background', default: '#f3f3f9' },
+  { key: 'card_bg', label: 'Card Background', default: '#ffffff' },
+  { key: 'header_bg', label: 'Header Background', default: '#ffffff' },
+  { key: 'modal_bg', label: 'Modal Background', default: '#ffffff' },
+  { key: 'light', label: 'Light Surface (table head, wells)', default: '#f3f6f9' },
+  { key: 'track', label: 'Track (progress, sliders)', default: '#eff2f7' },
+  // Lines
+  { key: 'border', label: 'Hairline / Divider', default: '#e9ebec' },
+  { key: 'card_border', label: 'Card Border', default: '#e9ebec' },
+  { key: 'modal_border', label: 'Modal Border', default: '#e9ebec' },
+  { key: 'input_border', label: 'Input Border', default: '#ced4da' },
+  // Text
+  { key: 'body', label: 'Body Text', default: '#212529' },
+  { key: 'heading', label: 'Heading Text', default: '#495057' },
+  { key: 'muted', label: 'Muted Text', default: '#878a99' },
+  { key: 'faint', label: 'Faint Text', default: '#adb5bd' },
+  // Sidebar
+  { key: 'sidebar_bg', label: 'Sidebar Background', default: '#405189' },
+  { key: 'sidebar_text', label: 'Sidebar Text', default: '#abb9e8' },
+  { key: 'sidebar_active_bg', label: 'Sidebar Active Background', default: 'rgba(255,255,255,0.10)' },
+  { key: 'sidebar_active_text', label: 'Sidebar Active Text', default: '#ffffff' },
+  { key: 'sidebar_active_border', label: 'Sidebar Active Border', default: '#0ab39c' },
+  { key: 'sidebar_hover_bg', label: 'Sidebar Hover Background', default: 'rgba(255,255,255,0.07)' },
+  // Controls
+  { key: 'input_bg', label: 'Input Background', default: '#ffffff' },
+  { key: 'button_bg', label: 'Button Background', default: '#0ab39c' },
+  { key: 'button_text', label: 'Button Text', default: '#ffffff' },
+  { key: 'tab_active', label: 'Tab Active', default: '#0ab39c' },
+  { key: 'tab_inactive', label: 'Tab Inactive', default: '#878a99' },
+  // Progress
+  { key: 'progress_low', label: 'Progress — Low', default: '#f06548' },
+  { key: 'progress_mid', label: 'Progress — Mid', default: '#f7b84b' },
+  { key: 'progress_high', label: 'Progress — High', default: '#0ab39c' },
+  // Avatar + notifications
+  { key: 'avatar_border', label: 'Avatar Border', default: 'rgba(10,179,156,0.35)' },
+  { key: 'avatar_bg', label: 'Avatar Background', default: 'rgba(10,179,156,0.10)' },
+  { key: 'bell_icon', label: 'Notification Bell Icon', default: '#878a99' },
+  { key: 'bell_hover_bg', label: 'Notification Bell Hover BG', default: '#f3f6f9' },
+  { key: 'bell_badge_bg', label: 'Notification Badge Background', default: '#f06548' },
+  { key: 'bell_badge_text', label: 'Notification Badge Text', default: '#ffffff' },
+  // Charts — a FIXED, colour-vision-validated order. ⚠ Re-validate before editing:
+  // adjacent pairs must stay ≥8 ΔE under deuteranopia (see D-2026-82).
+  { key: 'chart_1', label: 'Chart Series 1', default: '#3577f1' },
+  { key: 'chart_2', label: 'Chart Series 2', default: '#0ab39c' },
+  { key: 'chart_3', label: 'Chart Series 3', default: '#6559cc' },
+  { key: 'chart_4', label: 'Chart Series 4', default: '#eb9e34' },
+  { key: 'chart_5', label: 'Chart Series 5', default: '#45cb85' },
+  { key: 'chart_6', label: 'Chart Series 6', default: '#f06548' },
+  { key: 'chart_7', label: 'Chart Series 7', default: '#299cdb' },
+  { key: 'chart_other', label: 'Chart — "Other" bucket', default: '#878a99' },
+  // Interaction + state tokens (added with light/dark, D-2026-84)
+  { key: 'hover', label: 'Hover Fill', default: '#e2e7ee' },
+  { key: 'focus_border', label: 'Focus Border', default: '#a3aed0' },
+  { key: 'border_strong', label: 'Strong Divider (table total)', default: '#dde1e6' },
+  { key: 'skel_shine', label: 'Skeleton Shine', default: '#f8fafc' },
+  { key: 'warning_fg', label: 'Warning Text (on tint)', default: '#8a5e0e' },
+  { key: 'danger_fg', label: 'Danger Text (on tint)', default: '#c23a1f' },
+  { key: 'success_fg', label: 'Success Text (on tint)', default: '#0a8f7e' },
+  // Mismo criterio que los otros `-fg`: el azul de marca (#299cdb) sobre su
+  // propio lavado da 2.6:1 y suspende AA. Medido: #1c6f9e = 5.2:1.
+  { key: 'info_fg', label: 'Info Text (on tint)', default: '#1c6f9e' },
+];
+
+/**
+ * MY ACCOUNT 2.0 — DARK mode (`theme_colors.my_account_2_dark`).
+ *
+ * Same keys as the light group; the 2.0 injects ONE of the two sets depending on
+ * the member's chosen mode (see `lib/ma2Theme.js`). Both are CMS-editable.
+ *
+ * ⚠ Values READ FROM THE REFERENCE, not guessed: taken off the live Velzon dark
+ * theme (`data-bs-theme="dark"`) — body-bg #1a1d21, card #212529, border #32383e,
+ * body text #ced4da, light surface #282b2e, input #202328.
+ *
+ * ⚠⚠ THE BRAND AND STATUS COLOURS ARE IDENTICAL TO LIGHT — primary #405189,
+ * success, info, warning, danger. That is how the reference behaves and what
+ * Anthony asked for: in dark only the SURFACES and the TEXT change; a button
+ * keeps the colour the CMS gave it. White on #405189 measures 7.62:1, so the
+ * button needs no dark-specific variant. Do not "adapt" these per mode.
+ *
+ * Two deliberate deviations from the reference, both measured on the dark card:
+ *  · sidebar text #9aa1ac (5.93:1) instead of Velzon's #7c7f90, which is 3.89:1
+ *    and fails AA for the small nav labels;
+ *  · heading #e9ecef instead of #ced4da, to keep the heading/body hierarchy the
+ *    light mode has (Velzon collapses both to one tone).
+ * Text ramp on #212529: body 10.3:1 · muted ~7:1 · faint 4.5:1.
+ *  · the chart series are a DIFFERENT set, validated on the dark surface. The
+ *    light series FAIL there: the OKLCH lightness band for dark is 0.48–0.67,
+ *    so four of the light hues sit above it. Re-validate with
+ *    `scripts/validate_palette.js --mode dark --surface "#212529"` before editing.
+ */
+export const MYACCOUNT2_DARK_COLORS = [
+  { key: 'primary', label: 'Primary (brand)', default: '#405189' },
+  { key: 'primary_hover', label: 'Primary — Hover', default: '#4a5c9c' },
+  { key: 'success', label: 'Success / Accent', default: '#0ab39c' },
+  { key: 'info', label: 'Info', default: '#299cdb' },
+  { key: 'warning', label: 'Warning', default: '#f7b84b' },
+  { key: 'danger', label: 'Danger', default: '#f06548' },
+  { key: 'page_bg', label: 'Page Background', default: '#1a1d21' },
+  { key: 'card_bg', label: 'Card Background', default: '#212529' },
+  { key: 'header_bg', label: 'Header Background', default: '#212529' },
+  { key: 'modal_bg', label: 'Modal Background', default: '#212529' },
+  { key: 'light', label: 'Light Surface (table head, wells)', default: '#282b2e' },
+  { key: 'track', label: 'Track (progress, sliders)', default: '#2a2d31' },
+  { key: 'border', label: 'Hairline / Divider', default: '#32383e' },
+  { key: 'card_border', label: 'Card Border', default: '#32383e' },
+  { key: 'modal_border', label: 'Modal Border', default: '#32383e' },
+  { key: 'input_border', label: 'Input Border', default: '#32383e' },
+  { key: 'body', label: 'Body Text', default: '#ced4da' },
+  { key: 'heading', label: 'Heading Text', default: '#e9ecef' },
+  { key: 'muted', label: 'Muted Text', default: '#adb5bd' },
+  { key: 'faint', label: 'Faint Text', default: '#878a99' },
+  { key: 'sidebar_bg', label: 'Sidebar Background', default: '#212529' },
+  { key: 'sidebar_text', label: 'Sidebar Text', default: '#9aa1ac' },
+  { key: 'sidebar_active_bg', label: 'Sidebar Active Background', default: 'rgba(255,255,255,0.07)' },
+  { key: 'sidebar_active_text', label: 'Sidebar Active Text', default: '#ffffff' },
+  { key: 'sidebar_active_border', label: 'Sidebar Active Border', default: '#0ab39c' },
+  { key: 'sidebar_hover_bg', label: 'Sidebar Hover Background', default: 'rgba(255,255,255,0.05)' },
+  { key: 'input_bg', label: 'Input Background', default: '#202328' },
+  { key: 'button_bg', label: 'Button Background', default: '#0ab39c' },
+  { key: 'button_text', label: 'Button Text', default: '#ffffff' },
+  { key: 'tab_active', label: 'Tab Active', default: '#0ab39c' },
+  { key: 'tab_inactive', label: 'Tab Inactive', default: '#9aa1ac' },
+  { key: 'progress_low', label: 'Progress — Low', default: '#f06548' },
+  { key: 'progress_mid', label: 'Progress — Mid', default: '#f7b84b' },
+  { key: 'progress_high', label: 'Progress — High', default: '#0ab39c' },
+  { key: 'avatar_border', label: 'Avatar Border', default: 'rgba(10,179,156,0.40)' },
+  { key: 'avatar_bg', label: 'Avatar Background', default: 'rgba(10,179,156,0.14)' },
+  { key: 'bell_icon', label: 'Notification Bell Icon', default: '#adb5bd' },
+  { key: 'bell_hover_bg', label: 'Notification Bell Hover BG', default: '#2a2f34' },
+  { key: 'bell_badge_bg', label: 'Notification Badge Background', default: '#f06548' },
+  { key: 'bell_badge_text', label: 'Notification Badge Text', default: '#ffffff' },
+  // Validated on #212529 — do not reuse the light series here.
+  { key: 'chart_1', label: 'Chart Series 1', default: '#4a86f5' },
+  { key: 'chart_2', label: 'Chart Series 2', default: '#0a9d89' },
+  { key: 'chart_3', label: 'Chart Series 3', default: '#7a6dd6' },
+  { key: 'chart_4', label: 'Chart Series 4', default: '#bd7e28' },
+  { key: 'chart_5', label: 'Chart Series 5', default: '#31a066' },
+  { key: 'chart_6', label: 'Chart Series 6', default: '#dd4f33' },
+  { key: 'chart_7', label: 'Chart Series 7', default: '#2f92cc' },
+  { key: 'chart_other', label: 'Chart — "Other" bucket', default: '#7a828c' },
+  { key: 'hover', label: 'Hover Fill', default: 'rgba(255,255,255,0.07)' },
+  { key: 'focus_border', label: 'Focus Border', default: '#5a6bab' },
+  { key: 'border_strong', label: 'Strong Divider (table total)', default: '#3b4148' },
+  { key: 'skel_shine', label: 'Skeleton Shine', default: '#2c3238' },
+  { key: 'warning_fg', label: 'Warning Text (on tint)', default: '#f7c56b' },
+  { key: 'danger_fg', label: 'Danger Text (on tint)', default: '#f6a08c' },
+  { key: 'success_fg', label: 'Success Text (on tint)', default: '#3fd6c0' },
+  { key: 'info_fg', label: 'Info Text (on tint)', default: '#7cc4ea' },
 ];
 
 export const LANDING_PAGE_COLORS = [
@@ -199,7 +379,7 @@ export function getColor(group, key, themeColors) {
 }
 
 function getDefault(group, key) {
-  const groups = { website: WEBSITE_COLORS, my_account: MYACCOUNT_COLORS, admin: ADMIN_COLORS, landing_page: LANDING_PAGE_COLORS, enrollment: ENROLLMENT_COLORS, pms: PMS_COLORS };
+  const groups = { website: WEBSITE_COLORS, my_account: MYACCOUNT_COLORS, my_account_2: MYACCOUNT2_COLORS, my_account_2_dark: MYACCOUNT2_DARK_COLORS, admin: ADMIN_COLORS, landing_page: LANDING_PAGE_COLORS, enrollment: ENROLLMENT_COLORS, pms: PMS_COLORS };
   return groups[group]?.find(c => c.key === key)?.default || '#000000';
 }
 
@@ -244,6 +424,18 @@ export function injectThemeColors(themeColors, overrides = {}) {
     ? overrides.my_account_color_scheme
     : schemeFor(maCardBg);
   root.style.setProperty('--ma-color-scheme', maScheme);
+
+  // My Account 2.0 colors (--ma2-*). The member's mode (pages/myaccount/
+  // ma2Theme.js) decides WHICH group is injected; inline :root properties beat
+  // any stylesheet rule, so the switch lives here in JS (ported from AUX-1.0).
+  const ma2Dark = overrides.ma2_mode === 'dark';
+  const ma2Defs = ma2Dark ? MYACCOUNT2_DARK_COLORS : MYACCOUNT2_COLORS;
+  const ma2 = (ma2Dark ? themeColors?.my_account_2_dark : themeColors?.my_account_2) || {};
+  ma2Defs.forEach(c => {
+    root.style.setProperty(`--ma2-${c.key.replace(/_/g, '-')}`, ma2[c.key] || c.default);
+  });
+  const ma2CardBg = ma2.card_bg || ma2Defs.find(c => c.key === 'card_bg').default;
+  root.style.setProperty('--ma2-color-scheme', schemeFor(ma2CardBg));
 
   // Admin colors (--ad-*)
   const ad = themeColors?.admin || {};
@@ -308,8 +500,18 @@ export const THEMES = [
   },
   {
     id: 'gem2i',
-    name: 'GEM2i',
-    description: 'Dark entertainment theme — near-black surfaces, electric-blue accent, big imagery, side menu + contact panels. The gem2i.com brand look.',
+    name: 'Gem2i - 01',
+    description: 'GEM2i dark entertainment theme · Hero A "Fiel a Aurex": full-bleed photo, dark left veil, huge two-line title, round arrow CTA + pills.',
+  },
+  {
+    id: 'gem2i_02',
+    name: 'Gem2i - 02',
+    description: 'GEM2i dark entertainment theme · Hero B "Aurex + evento destacado": Hero A layout with a floating card of the next real event.',
+  },
+  {
+    id: 'gem2i_03',
+    name: 'Gem2i - 03',
+    description: 'GEM2i dark entertainment theme · Hero C "Cinematográfico centrado": full-screen photo/video, centred title and an upcoming-events strip.',
   },
   {
     id: 'personalbrand',

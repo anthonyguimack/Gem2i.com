@@ -262,6 +262,12 @@ async def join_guest_list(request: Request, background: BackgroundTasks,
     await db.gem_waiting_list.delete_one({"event_id": event_id, "member_id": member_id})
     if email:
         background.add_task(_send_pass_email, email, name, ev, tx)
+    from routes.gem_calendar import notify
+    background.add_task(notify, member_id, "guest_pass",
+                        {"en": "You're on the guest list", "es": "Estás en la lista de invitados"},
+                        {"en": f'Your pass for "{ev.get("title", "")}" is ready. Show the QR at the door.',
+                         "es": f'Tu pase para "{ev.get("title", "")}" está listo. Muestra el QR en la puerta.'},
+                        f"/events/{ev.get('slug', '')}")
     return {"pass": tx}
 
 
@@ -273,6 +279,10 @@ async def cancel_guest_pass(event_id: str, member: dict = Depends(get_current_me
         {"$set": {"status": "canceled", "canceled_at": _now_iso(), "canceled_by": "member"}})
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="No active pass for this event")
+    ev = await db.gem_events.find_one({"id": event_id}, {"_id": 0, "id": 1, "title": 1, "slug": 1})
+    if ev:
+        from routes.gem_calendar import notify_waitlist_spot_open
+        await notify_waitlist_spot_open(ev)
     return {"message": "canceled"}  # stock frees up automatically (arithmetic-on-read)
 
 
@@ -347,9 +357,21 @@ async def admin_update_transaction(tx_id: str, request: Request,
     if status == "canceled":
         patch["canceled_at"] = _now_iso()
         patch["canceled_by"] = "admin"
+    before = await db.gem_transactions.find_one({"id": tx_id}, {"_id": 0})
     res = await db.gem_transactions.update_one({"id": tx_id}, {"$set": patch})
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Not found")
+    if status == "canceled" and before and before.get("status") != "canceled":
+        from routes.gem_calendar import notify, notify_waitlist_spot_open
+        ev = await db.gem_events.find_one({"id": before.get("event_id")},
+                                          {"_id": 0, "id": 1, "title": 1, "slug": 1}) or {}
+        await notify(before.get("member_id"), "pass_canceled_by_admin",
+                     {"en": "Your pass was canceled", "es": "Tu pase fue cancelado"},
+                     {"en": f'The organizer canceled your pass for "{ev.get("title", "")}".',
+                      "es": f'El organizador canceló tu pase para "{ev.get("title", "")}".'},
+                     f"/events/{ev.get('slug', '')}" if ev.get("slug") else "")
+        if before.get("kind") == "guest_pass" and ev:
+            await notify_waitlist_spot_open(ev)
     return {"message": "updated"}
 
 

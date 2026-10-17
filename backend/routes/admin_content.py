@@ -489,8 +489,8 @@ async def admin_stripe_status(request: Request, user: dict = Depends(require_adm
     api_key = await get_stripe_api_key()
     webhook_url = await get_webhook_url(str(request.base_url))
     site_url = await get_site_url(str(request.base_url))
-    is_test = api_key.startswith("sk_test_")
-    is_live = api_key.startswith("sk_live_")
+    is_test = api_key.startswith("sk_test_") or api_key.startswith("rk_test_")
+    is_live = api_key.startswith("sk_live_") or api_key.startswith("rk_live_")
     return {
         "configured": bool(api_key),
         "mode": "test" if is_test else ("live" if is_live else None),

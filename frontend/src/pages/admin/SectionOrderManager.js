@@ -6,7 +6,7 @@ import { SortableContext, verticalListSortingStrategy, horizontalListSortingStra
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Save, Loader2, Eye, EyeOff, Palette, Type, Sparkles, Lock, LockOpen, Home } from 'lucide-react';
 import { Switch } from '../../components/ui/switch';
-import { AUREX_PALETTE, AUREX_FONTS, aurexContrastFor, THEMES } from '../../lib/themeColors';
+import { AUREX_PALETTE, AUREX_FONTS, aurexContrastFor, THEMES, isGem2iTheme } from '../../lib/themeColors';
 import { getPersonalityOrder } from '../../lib/pbPersonality';
 
 // Map a theme id ('aurex', 'personalbrand'…) to its operator-facing display
@@ -39,6 +39,19 @@ const sectionLabels = {
   aurex_reading_cfg:      'Reading List — Section Config',
   aurex_portfolio_cfg:    'Portfolio — Section Config',
   aurex_gallery_cfg:      'Gallery — Section Config',
+  // gem2i template (GEM2I home, pages/gem2i/Gem2iHome.js)
+  news_ticker: 'News Ticker',
+  gem_intro: 'Intro (GEM2i)',
+  gem_featured: 'Featured: venues / events / artists',
+  gem_services_banner: 'Services banner',
+  gem_methodology: 'Methodology (1 · 2 · 3)',
+  gem_events: 'Upcoming events (catalog)',
+  gem_artists: 'Artists (catalog)',
+  gem_venues: 'Venues (catalog)',
+  gem_festivals: 'Festivals (catalog)',
+  gem_conferences: 'Conferences (catalog)',
+  gem_media: 'Media block',
+  gem_clients: 'Clients logos (catalog)',
   // NOTE: pb_stats / pb_marquee were removed — they had no renderer in HomePage
   // (the marquee already lives inside PBHero). Re-add here + add a sectionMap
   // entry in HomePage.js if they are ever built as real standalone sections.
@@ -238,6 +251,16 @@ const PB_KNOWN_SECTIONS = [
 // Returns true when the order contains PB-specific section keys that are absent
 // from the legacy DEFAULT_SECTION_ORDER.  Used to detect whether a personality
 // order was ever explicitly saved vs. the backend returning the generic default.
+// gem2i template: every section the GEM2I home can render, in its default order.
+// Keys missing from a saved order are appended so new sections always show up.
+const GEM2I_KNOWN_SECTIONS = [
+  'news_ticker', 'hero', 'gem_intro', 'gem_featured', 'gem_services_banner', 'services', 'gem_methodology',
+  'aurex_audience', 'aurex_process', 'gem_events', 'gem_artists', 'gem_venues',
+  'gem_festivals', 'gem_conferences', 'aurex_video', 'aurex_pricing', 'aurex_team',
+  'testimonials', 'gem_media', 'gallery', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
+];
+const isConfigurableTheme = (t) => t === 'aurex' || t === 'personalbrand' || isGem2iTheme(t);
+
 const isPBLikeOrder = (ord) =>
   (ord || []).some(k => ['map_global', 'map_conferences', 'aurex_audience', 'aurex_process'].includes(k));
 
@@ -290,7 +313,7 @@ export default function SectionOrderManager() {
   const loadAll = useCallback(async () => {
     if (!theme) return;
     try {
-      const isAurexLike = theme === 'aurex' || theme === 'personalbrand';
+      const isAurexLike = isConfigurableTheme(theme);
       const isPBTheme   = theme === 'personalbrand';
 
       // For Personal Brand, load section orders for all 3 personalities in
@@ -336,7 +359,11 @@ export default function SectionOrderManager() {
         setOrder(newMap[pbPersonality] || bizOrder);
       } else {
         let nextOrder = orderRes.data || [];
-        if (isAurexLike) {
+        if (isGem2iTheme(theme)) {
+          if (!nextOrder.some(k => k.startsWith('gem_'))) nextOrder = [...GEM2I_KNOWN_SECTIONS];
+          const missing = GEM2I_KNOWN_SECTIONS.filter(k => !nextOrder.includes(k));
+          nextOrder = [...nextOrder.filter(k => GEM2I_KNOWN_SECTIONS.includes(k)), ...missing];
+        } else if (isAurexLike) {
           const known = ['hero', 'about', 'aurex_audience', 'services', 'aurex_process', 'aurex_video', 'aurex_pricing', 'aurex_team', 'testimonials', 'reading_list', 'aurex_events', 'news', 'blog', 'aurex_partners', 'aurex_clients', 'map', 'contact'];
           const missing = known.filter(k => !nextOrder.includes(k));
           if (missing.length) nextOrder = [...nextOrder, ...missing];
@@ -350,7 +377,7 @@ export default function SectionOrderManager() {
 
   // ── Derived flags ────────────────────────────────────────────────────────────
   const isPB = theme === 'personalbrand';
-  const showAurexControls = theme === 'aurex' || isPB;
+  const showAurexControls = isConfigurableTheme(theme);
 
   // When editing the Personal Brand theme we work on per-personality auth gates
   // rather than the global sections object.  Each section can be:
@@ -429,7 +456,7 @@ export default function SectionOrderManager() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const isAurexLike = theme === 'aurex' || isPB;
+      const isAurexLike = isConfigurableTheme(theme);
       if (isPB) {
         // Save all 3 personality orders in parallel — each is stored under its own
         // section_orders key: personalbrand, personalbrand_lifestyle, personalbrand_personal.
@@ -486,7 +513,7 @@ export default function SectionOrderManager() {
             <label className="text-xs text-slate-500">Editing:</label>
             <select value={theme || ''} onChange={(e) => setTheme(e.target.value)} className="text-sm border border-slate-200 rounded px-3 py-1.5 bg-white" data-testid="theme-scope-select">
               <option value="default">Default / Modern / Classic (legacy order)</option>
-              {THEMES.filter(t => t.id === 'aurex' || t.id === 'personalbrand').map(t => (
+              {THEMES.filter(t => isConfigurableTheme(t.id)).map(t => (
                 <option key={t.id} value={t.id}>{t.name} — full config</option>
               ))}
             </select>

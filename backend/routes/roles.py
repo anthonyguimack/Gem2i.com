@@ -111,12 +111,23 @@ async def seed_system_roles():
     back-fills the `cms_roles` array on every existing member so legacy accounts
     continue to work seamlessly (admins get full access, everyone else gets the
     Member role).  Called from the FastAPI startup event."""
+    # s153: 2 uvicorn workers seed at the same time — a plain find+insert
+    # duplicated role_opportunity_reviewer on ACapital. Unique id + upsert.
+    try:
+        await db.cms_roles.create_index("id", unique=True)
+    except Exception:
+        pass  # pre-existing duplicates: the upsert below still avoids new ones
     for role in SYSTEM_ROLES:
         existing = await db.cms_roles.find_one({"id": role["id"]}, {"_id": 0})
         if not existing:
-            doc = {**role, "created_at": datetime.now(timezone.utc).isoformat(),
-                   "updated_at": datetime.now(timezone.utc).isoformat()}
-            await db.cms_roles.insert_one(doc)
+            now = datetime.now(timezone.utc).isoformat()
+            try:
+                await db.cms_roles.update_one(
+                    {"id": role["id"]},
+                    {"$setOnInsert": {**role, "created_at": now, "updated_at": now}},
+                    upsert=True)
+            except Exception:
+                pass  # the other worker won the race
         elif (existing.get("name") != role["name"]
               or existing.get("description") != role["description"]):
             # Reconcile labels only, so a rename in SYSTEM_ROLES reaches the DB;

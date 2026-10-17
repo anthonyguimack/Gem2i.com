@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i — Bocetos del Hero</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --accent:#3287B7; --link:#5FB2E0; --body:#c7d2dc; --muted:#8fa0ae; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#0b0f14; font-family:'Poppins',sans-serif; color:#fff; }
+  .label { max-width:1440px; margin:0 auto; padding:28px 24px 10px; font-size:14px; color:#9aa6b2; }
+  .label b { color:#fff; font-weight:600; margin-right:8px; }
+  .hero { position:relative; height:min(86vh,760px); min-height:560px; overflow:hidden; max-width:1440px; margin:0 auto; border-radius:14px; }
+  .bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+  .shade-left { position:absolute; inset:0; background:linear-gradient(90deg, rgba(4,8,12,.96) 0%, rgba(4,8,12,.85) 30%, rgba(4,8,12,.35) 60%, rgba(4,8,12,.15) 100%); }
+  .shade-full { position:absolute; inset:0; background:linear-gradient(180deg, rgba(4,8,12,.55) 0%, rgba(4,8,12,.45) 50%, rgba(4,8,12,.92) 100%); }
+  nav { position:absolute; top:0; left:0; right:0; display:flex; align-items:center; gap:28px; padding:22px 48px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#dbe3ea; z-index:5; }
+  nav .logo { font-size:20px; font-weight:700; letter-spacing:.04em; text-transform:none; margin-right:auto; }
+  nav .on { color:var(--link); border-bottom:1px solid var(--link); padding-bottom:3px; }
+  nav .login { background:rgba(4,8,12,.8); border:1px solid rgba(255,255,255,.15); border-radius:999px; padding:9px 18px; letter-spacing:.04em; text-transform:none; font-size:13px; }
+  .glow { position:absolute; right:-140px; top:-160px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(50,135,183,.55), rgba(50,135,183,0) 70%); z-index:1; }
+  .ring { position:absolute; width:260px; height:260px; border-radius:50%; border:1px solid rgba(255,255,255,.28); z-index:2; }
+  .copy { position:absolute; z-index:4; }
+  h1 { margin:0; font-weight:800; line-height:.95; letter-spacing:-.03em; }
+  .lead { color:var(--body); line-height:1.7; font-size:16px; }
+  .ctas { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .round { display:inline-flex; align-items:center; gap:14px; font-size:13px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; }
+  .round span.c { width:62px; height:62px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .pill { border:1px solid rgba(255,255,255,.6); border-radius:999px; padding:11px 22px; font-size:13px; font-weight:500; }
+  .solid { background:var(--accent); border-radius:999px; padding:13px 26px; font-size:14px; font-weight:600; }
+  .scroll { position:absolute; left:22px; bottom:28px; font-size:10px; letter-spacing:.35em; color:var(--muted); writing-mode:vertical-rl; transform:rotate(180deg); z-index:4; }
+  .kicker { font-size:12px; letter-spacing:.35em; color:var(--link); text-transform:uppercase; }
+  .card { position:absolute; right:56px; bottom:56px; width:300px; background:rgba(8,13,19,.88); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:14px; z-index:4; backdrop-filter: blur(6px); }
+  .card .img { height:150px; border-radius:10px; background-size:cover; background-position:center; }
+  .ticker { position:absolute; left:0; right:0; bottom:0; display:flex; gap:34px; padding:16px 48px; background:rgba(8,13,19,.88); border-top:1px solid rgba(255,255,255,.1); font-size:13px; color:var(--body); white-space:nowrap; z-index:4; }
+  .ticker .t { color:var(--link); letter-spacing:.25em; font-weight:600; font-size:12px; }
+  .note { max-width:1440px; margin:10px auto 0; padding:0 24px; font-size:13px; color:#8fa0ae; }
+  @media (max-width:800px){ nav{padding:16px 20px;gap:12px} nav span:not(.logo):not(.login){display:none} .copy{left:24px!important;right:24px} .card{display:none} }
+</style>
+</head>
+<body>
+
+<!-- ───────────── A ───────────── -->
+<p class="label"><b>A · Fiel a Aurex</b>Foto a sangre, degradado oscuro a la izquierda, título enorme en 2 líneas, botón redondo + píldoras, anillo y halo azul.</p>
+<section class="hero">
+  <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=2000&q=80')"></div>
+  <div class="shade-left"></div>
+  <div class="glow"></div>
+  <div class="ring" style="left:44%; top:28%;"></div>
+  <nav><span class="logo">GEM2i</span><span class="on">Home</span><span>Events</span><span>Festivals</span><span>Artists</span><span>Venues</span><span class="login">→ Login</span><span>EN</span></nav>
+  <div class="copy" style="left:72px; top:150px; max-width:560px;">
+    <h1 style="font-size:clamp(56px,7.4vw,108px)">GEM2i<br>Network</h1>
+    <p class="lead" style="margin:28px 0 36px">Una red privada de miembros para la industria del entretenimiento: listas de invitados, pases QR y e-tickets para los mejores eventos, festivales y conferencias del mundo.</p>
+    <div class="ctas"><span class="round"><span class="c">→</span>Más información</span><span class="pill">Únete con invitación</span></div>
+    <div class="ctas" style="margin-top:14px"><span class="pill">Próximos eventos</span></div>
+  </div>
+  <div class="scroll">SCROLL</div>
+</section>
+
+<!-- ───────────── B ───────────── -->
+<p class="label"><b>B · Aurex + evento destacado</b>Misma base que A, con una tarjeta flotante del próximo evento real (flyer, fecha, venue y botón de lista de invitados).</p>
+<section class="hero">
+  <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=2000&q=80')"></div>
+  <div class="shade-left"></div>
+  <div class="glow"></div>
+  <nav><span class="logo">GEM2i</span><span class="on">Home</span><span>Events</span><span>Festivals</span><span>Artists</span><span>Venues</span><span class="login">→ Login</span><span>EN</span></nav>
+  <div class="copy" style="left:72px; top:170px; max-width:520px;">
+    <div class="kicker">Global Entertainment</div>
+    <h1 style="font-size:clamp(48px,6.2vw,92px); margin-top:14px">Vive la noche<br>sin filas</h1>
+    <p class="lead" style="margin:24px 0 34px">Tu pase QR para fiestas, festivales y conferencias en un solo lugar.</p>
+    <div class="ctas"><span class="round"><span class="c">→</span>Ver eventos</span><span class="pill">Membresía</span></div>
+  </div>
+  <div class="card">
+    <div class="img" style="background-image:url('https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?w=800&q=80')"></div>
+    <div style="font-size:11px; letter-spacing:.2em; color:var(--link); margin-top:12px">PRÓXIMO · SÁB 19 ABR</div>
+    <div style="font-size:17px; font-weight:600; margin:4px 0">Analog Soul &amp; Joey Anderson</div>
+    <div style="font-size:13px; color:var(--muted); margin-bottom:12px">📍 Nowadays · New York</div>
+    <div class="solid" style="text-align:center">Unirme a la lista</div>
+  </div>
+  <div class="scroll">SCROLL</div>
+</section>
+
+<!-- ───────────── C ───────────── -->
+<p class="label"><b>C · Cinematográfico centrado</b>Video/foto a pantalla completa con velo oscuro, título al centro y cinta de próximos eventos abajo.</p>
+<section class="hero">
+  <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=2000&q=80')"></div>
+  <div class="shade-full"></div>
+  <nav><span class="logo">GEM2i</span><span class="on">Home</span><span>Events</span><span>Festivals</span><span>Artists</span><span>Venues</span><span class="login">→ Login</span><span>EN</span></nav>
+  <div class="copy" style="left:0; right:0; top:28%; text-align:center;">
+    <div class="kicker">Global Entertainment Management &amp; Marketing</div>
+    <h1 style="font-size:clamp(64px,9vw,140px); margin:16px 0 18px">GEM2i</h1>
+    <p class="lead" style="max-width:620px; margin:0 auto 34px">Listas de invitados, pases QR y e-tickets para la comunidad que mueve la noche.</p>
+    <div class="ctas" style="justify-content:center"><span class="solid">Únete ahora</span><span class="pill">Ver eventos</span></div>
+  </div>
+  <div class="ticker"><span class="t">PRÓXIMOS</span><span>19 ABR · Analog Soul — New York</span><span>·</span><span>26 ABR · Karnaval Fest — Lima</span><span>·</span><span>03 MAY · Maceo Plex — Valencia</span><span>·</span><span>17 MAY · The Blackout Tour — Miami</span></div>
+</section>
+
+<p class="note">Fotos de ejemplo (Unsplash). En el sitio real el fondo será la imagen o video del slide del Hero en el CMS.</p>
+<div style="height:40px"></div>
+</body>
+</html>

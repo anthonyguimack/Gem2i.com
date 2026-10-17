@@ -37,6 +37,10 @@ from routes.gem_content import router as gem_content_router, seed_gem_content
 from routes.gem_catalogs import router as gem_catalogs_router
 from routes.gem_passes import router as gem_passes_router, ensure_pass_indexes
 from routes.gem_tickets import router as gem_tickets_router, seed_gem_ecommissions
+from routes.gem_calendar import router as gem_calendar_router, ensure_calendar_indexes
+from routes.gem_coupons import router as gem_coupons_router, ensure_coupon_indexes
+from routes.gem_membership import router as gem_membership_router, ensure_membership_indexes
+from routes.gem_sections import router as gem_sections_router
 from routes.enrollment import router as enrollment_router, seed_enrollment_fields
 
 api_router.include_router(auth_router)
@@ -51,9 +55,16 @@ api_router.include_router(roles_router)
 api_router.include_router(email_templates_router)
 api_router.include_router(captcha_router)
 api_router.include_router(gem_content_router)
-api_router.include_router(gem_catalogs_router)
+# ⚠ Specific /admin/gem/<name> routers BEFORE gem_catalogs: its generic
+# /admin/gem/{catalog} would otherwise swallow /admin/gem/transactions,
+# /admin/gem/coupons, … (first match wins) and answer 404.
 api_router.include_router(gem_passes_router)
 api_router.include_router(gem_tickets_router)
+api_router.include_router(gem_calendar_router)
+api_router.include_router(gem_coupons_router)
+api_router.include_router(gem_membership_router)
+api_router.include_router(gem_sections_router)
+api_router.include_router(gem_catalogs_router)
 api_router.include_router(enrollment_router)
 
 
@@ -71,6 +82,9 @@ async def startup():
     await seed_system_roles()
     await seed_gem_content()
     await ensure_pass_indexes()
+    await ensure_calendar_indexes()
+    await ensure_coupon_indexes()
+    await ensure_membership_indexes()
     await seed_gem_ecommissions()
     await seed_enrollment_fields()
     from utils.email_render import ensure_templates_seeded

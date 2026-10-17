@@ -1,4 +1,5 @@
 import React from 'react';
+import { isGem2iTheme } from '../../lib/themeColors';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, Send } from 'lucide-react';
 import { useSettings } from '../../App';
@@ -230,7 +231,7 @@ function Gem2iFooterWrapper() {
 export default function Footer() {
   const settings = useSettings();
   const theme = settings.active_theme || 'default';
-  if (theme === 'gem2i') return <Gem2iFooterWrapper />;
+  if (isGem2iTheme(theme)) return <Gem2iFooterWrapper />;
   if (theme === 'modern') return <ModernFooter />;
   if (theme === 'classic') return <ClassicFooter />;
   if (theme === 'personalbrand') return <PersonalBrandFooter />;
