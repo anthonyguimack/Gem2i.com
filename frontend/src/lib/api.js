@@ -69,7 +69,10 @@ export const gemAPI = {
   leaveWaitingList: (eventId) => api.delete(`/member/gem/waiting-list/${eventId}`),
   // Phase-5 e-ticketing (routes/gem_tickets.py — Stripe checkout, verified webhook)
   tierAvailability: (eventId) => api.get(`/public/gem/events/${eventId}/tier-availability`),
-  checkout: (eventId, tier, quantity, coupon) => api.post('/member/gem/checkout', { event_id: eventId, tier, quantity, coupon: coupon || undefined, origin_url: window.location.origin }),
+  checkout: (eventId, tier, quantity, coupon, ref) => api.post('/member/gem/checkout', { event_id: eventId, tier, quantity, coupon: coupon || undefined, ref: ref || undefined, origin_url: window.location.origin }),
+  // B3/B5 reward points (routes/gem_points.py — legacy rules)
+  shareEvent: (eventId) => api.post(`/member/gem/events/${eventId}/share`),
+  myPoints: () => api.get('/member/gem/points'),
   validateCoupon: (code, context, amount, eventId) => api.post('/member/gem/coupons/validate', { code, context, amount, event_id: eventId }),
   // Paid membership (My Account)
   myMembership: () => api.get('/member/gem/membership'),

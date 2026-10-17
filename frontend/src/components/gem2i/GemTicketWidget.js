@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Ticket, QrCode, Tag, X } from 'lucide-react';
+import { Loader2, Ticket, QrCode, Tag, X, Share2 } from 'lucide-react';
 import { gemAPI } from '../../lib/api';
 import { useMember } from '../../lib/memberAuth';
 import { useT } from '../../lib/i18n';
@@ -25,6 +25,17 @@ export default function GemTicketWidget({ event }) {
   const [coupon, setCoupon] = useState(null);          // validated {code, discount_type, discount_value}
   const [couponBusy, setCouponBusy] = useState(false);
   const [couponError, setCouponError] = useState('');
+
+  const [shareMsg, setShareMsg] = useState('');
+  const [shareBusy, setShareBusy] = useState(false);
+
+  // B5: an invite link (?ref=GEM-n) credits its sender when this visitor buys.
+  const refKey = `gem_ref_${event?.id}`;
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref && event?.id) { try { sessionStorage.setItem(refKey, ref); } catch { /* storage blocked */ } }
+  }, [event?.id, refKey]);
+  const storedRef = () => { try { return sessionStorage.getItem(refKey) || ''; } catch { return ''; } };
 
   const isEticket = event?.type === 'eticket';
   const isPast = (event?.event_date || '') < new Date().toISOString().slice(0, 10);
@@ -80,7 +91,7 @@ export default function GemTicketWidget({ event }) {
     if (!member) { window.dispatchEvent(new CustomEvent('gem2i:open-login')); return; }
     setBusyTier(tierKey); setError('');
     try {
-      const r = await gemAPI.checkout(event.id, tierKey, qty[tierKey] || 1, coupon?.code);
+      const r = await gemAPI.checkout(event.id, tierKey, qty[tierKey] || 1, coupon?.code, storedRef());
       window.location.assign(r.data.url); // → Stripe Checkout (or the success page for a 100% coupon)
     } catch (e) {
       const detail = e.response?.data?.detail;
@@ -99,6 +110,26 @@ export default function GemTicketWidget({ event }) {
       gemAPI.tierAvailability(event.id).then(r => setAvail(r.data)).catch(() => {});
       setBusyTier(null);
     }
+  };
+
+  const share = async () => {
+    setShareBusy(true); setShareMsg('');
+    try {
+      const r = await gemAPI.shareEvent(event.id);
+      const url = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(r.data?.ref || '')}`;
+      let shared = false;
+      if (navigator.share) {
+        try { await navigator.share({ title: event.title || '', url }); shared = true; } catch { /* dismissed */ }
+      }
+      if (!shared) { try { await navigator.clipboard.writeText(url); } catch { /* clipboard blocked */ } }
+      const pts = r.data?.awarded || 0;
+      setShareMsg(shared
+        ? tt({ en: 'Invite sent.', es: 'Invitación enviada.' })
+        : tt({ en: `Link copied: ${url}`, es: `Enlace copiado: ${url}` }));
+      if (pts > 0) setShareMsg(m => `${m} +${pts} ${tt({ en: 'points', es: 'puntos' })}`);
+    } catch {
+      setShareMsg(tt({ en: 'Could not create the invite link.', es: 'No se pudo crear el enlace de invitación.' }));
+    } finally { setShareBusy(false); }
   };
 
   return (
@@ -209,6 +240,17 @@ export default function GemTicketWidget({ event }) {
         </div>
       )}
       {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
+      {member && !isPast && (
+        <div className="mt-4">
+          <button type="button" onClick={share} disabled={shareBusy} data-testid="ticket-share"
+            className="inline-flex items-center gap-2 text-xs font-semibold transition-opacity hover:opacity-80 active:scale-[0.97] disabled:opacity-50"
+            style={{ color: 'var(--color-accent, #3287B7)' }}>
+            {shareBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Share2 className="w-3.5 h-3.5" />}
+            {tt({ en: 'Invite friends & earn points', es: 'Invita amigos y gana puntos' })}
+          </button>
+          {shareMsg && <p className="mt-2 text-xs" style={mutedText} role="status">{shareMsg}</p>}
+        </div>
+      )}
       <p className="mt-4 text-[11px]" style={mutedText}>
         {tt({ en: 'Secure payment via Stripe. Tickets arrive by email and appear here after payment.',
               es: 'Pago seguro con Stripe. Los tickets llegan por email y aparecen aquí tras el pago.' })}

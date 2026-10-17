@@ -246,6 +246,8 @@ async def join_guest_list(request: Request, background: BackgroundTasks,
         "kind": "guest_pass",
         "status": "completed",
         "guest_additional": additional,
+        # legacy: yourself_points stored on the pass (no history row)
+        "points": int(((ev.get("points") or {}).get("guest_list_self")) or 0),
         "benefit": {k: benefit.get(k) for k in
                     ("member_type_id", "open_until", "free_until", "additional_until")
                     if benefit and benefit.get(k)} or None,

@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Watch a Clients</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bg2:#0A121A; --card:#0D1721; --line:rgba(255,255,255,.09); --accent:#3287B7; --link:#5FB2E0; --body:#a9b6c2; --muted:#7f8e9b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; font-family:'Poppins',sans-serif; color:#fff; }
+  .group { max-width:1440px; margin:0 auto; padding:64px 24px 8px; }
+  .group h2 { margin:0; font-size:22px; font-weight:600; }
+  .group p { margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.6; }
+  .label { max-width:1440px; margin:0 auto; padding:26px 24px 10px; font-size:14px; color:#9aa6b2; }
+  .label b { color:#fff; font-weight:600; margin-right:8px; }
+  .frame { max-width:1440px; margin:0 auto; border-radius:14px; overflow:hidden; background:var(--bg); }
+  .wrap { padding:88px 72px; }
+  .kicker { font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--link); }
+  .h { font-weight:700; letter-spacing:-.02em; line-height:1.08; margin:0; }
+  .txt { color:var(--body); line-height:1.7; font-size:14px; margin:0; }
+  .img { background-size:cover; background-position:center; background-color:#111c26; }
+  .arrow { display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--link); white-space:nowrap; }
+  .head { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; }
+  .chip { display:inline-flex; padding:8px 16px; border-radius:999px; border:1px solid var(--line); font-size:13px; color:var(--body); }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .solid { display:inline-flex; justify-content:center; background:var(--accent); border-radius:999px; padding:12px 24px; font-size:14px; font-weight:600; }
+  .ghost { display:inline-flex; justify-content:center; border:1px solid rgba(255,255,255,.4); border-radius:999px; padding:12px 24px; font-size:14px; font-weight:500; }
+  .play { width:84px; height:84px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 0 0 12px rgba(50,135,183,.22); }
+  .logo { display:flex; align-items:center; justify-content:center; height:96px; border-radius:14px; background:var(--card); border:1px solid var(--line); padding:16px; }
+  .logo img { max-width:100%; max-height:60px; object-fit:contain; filter:grayscale(1) brightness(1.5); opacity:.7; }
+  .ex { display:inline-block; font-size:10px; letter-spacing:.15em; color:#f0c674; border:1px solid rgba(240,198,116,.4); border-radius:6px; padding:2px 6px; margin-left:8px; vertical-align:middle; }
+  .note { max-width:1440px; margin:0 auto; padding:30px 24px 80px; font-size:13px; color:var(--muted); line-height:1.7; }
+  .warn { max-width:1440px; margin:0 auto; padding:0 24px; }
+  .warn div { background:rgba(50,135,183,.08); border:1px solid rgba(95,178,224,.3); border-radius:12px; padding:14px 18px; font-size:13px; color:#cfe3f0; line-height:1.6; }
+  @media (max-width:900px){ .wrap{padding:56px 20px} .gx{grid-template-columns:1fr !important} .head{flex-direction:column; align-items:flex-start} }
+</style>
+</head>
+<body>
+<div class="group"><h2>Bocetos: Watch · Plans · Team · Testimonials · Gallery · Where GEM2i plays · Partners · Clients</h2>
+<p>Tres opciones por sección. Elige una letra por sección (ej. W-1, P-2, T-3, Q-1, G-2, L-1, B-3, K-2).</p></div>
+
+<div class="warn" style="margin-top:22px"><div><b>Contenido:</b> varias de estas secciones todavía muestran contenido del fork o de prueba: <b>Team</b> (fotos de stock, nombres inventados), <b>Testimonials</b> («Legacy Consulting»…), <b>Partners</b> (placeholders «PARTNER ONE»), <b>Gallery</b> y <b>Where GEM2i plays</b> (fotos de Unsplash). Aquí uso fotos reales del legacy donde las hay y marco con <span class="ex">EJEMPLO</span> lo que es texto de muestra. El contenido real lo carga el dueño desde el CMS; el diseño no depende de él. Clients sí tiene logos reales.</div></div>
+
+<!-- ═════════════ WATCH ═════════════ -->
+<div class="group"><h2>1 · Watch</h2><p>«Inside a GEM2i night»: un video de YouTube.</p></div>
+
+<p class="label"><b>W-1 · Video a pantalla completa</b>Portada del video a todo ancho con el título encima y un botón de play grande; el video se abre en un visor al hacer clic (no carga YouTube hasta entonces).</p>
+<section class="frame"><div class="img" style="height:560px; position:relative; background-image:linear-gradient(180deg,rgba(4,8,12,.25),rgba(4,8,12,.85)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479827748.png')">
+  <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:26px">
+    <div class="play">▶</div><h3 class="h" style="font-size:48px">Inside a GEM2i night</h3><p class="txt">2:14</p></div>
+</div></section>
+
+<p class="label"><b>W-2 · Texto + video</b>Texto corto y botón a la izquierda; el video con marco redondeado a la derecha.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap gx" style="display:grid; grid-template-columns:.8fr 1.2fr; gap:64px; align-items:center">
+  <div><h3 class="h" style="font-size:44px">Inside a GEM2i night</h3><p class="txt" style="margin-top:16px; max-width:380px">From the guest list at the door to the last track. See what a night with GEM2i looks like.</p><div style="margin-top:28px"><span class="solid">Join GEM2i</span></div></div>
+  <div class="img" style="aspect-ratio:16/9; border-radius:18px; position:relative; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479753132.png')"><div class="play" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%)">▶</div></div>
+</div></section>
+
+<p class="label"><b>W-3 · Video + lista de videos</b>Video principal grande y, a la derecha, una lista de otros videos (para cuando haya más de uno en el CMS).</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:44px">Inside a GEM2i night</h3>
+  <div class="gx" style="display:grid; grid-template-columns:1.6fr 1fr; gap:24px; margin-top:40px">
+    <div class="img" style="aspect-ratio:16/9; border-radius:16px; position:relative; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430322312.png')"><div class="play" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%)">▶</div></div>
+    <div style="display:grid; gap:14px; align-content:start">
+      <div style="display:grid; grid-template-columns:140px 1fr; gap:14px; align-items:center; padding:10px; border-radius:12px; background:var(--card); outline:1px solid var(--accent)"><div class="img" style="aspect-ratio:16/9; border-radius:8px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430322312.png')"></div><div><b style="font-size:14px">Inside a GEM2i night</b><p class="txt" style="font-size:12px">2:14</p></div></div>
+      <div style="display:grid; grid-template-columns:140px 1fr; gap:14px; align-items:center; padding:10px; border-radius:12px"><div class="img" style="aspect-ratio:16/9; border-radius:8px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479825809.png')"></div><div><b style="font-size:14px">Festival recap<span class="ex">EJEMPLO</span></b><p class="txt" style="font-size:12px">3:40</p></div></div>
+      <div style="display:grid; grid-template-columns:140px 1fr; gap:14px; align-items:center; padding:10px; border-radius:12px"><div class="img" style="aspect-ratio:16/9; border-radius:8px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1453757650.png')"></div><div><b style="font-size:14px">Artist interview<span class="ex">EJEMPLO</span></b><p class="txt" style="font-size:12px">5:02</p></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═════════════ PLANS ═════════════ -->
+<div class="group"><h2>2 · Plans</h2><p>«Pick your membership»: Member (gratis), Premium (19 USD), Promoter (49 USD), con mensual / anual.</p></div>
+
+<p class="label"><b>P-1 · Tres planes, el del medio elevado</b>Columnas con el plan Premium más alto y en azul; interruptor mensual / anual arriba.</p>
+<section class="frame"><div class="wrap">
+  <div class="head"><h3 class="h" style="font-size:44px">Pick your membership</h3><div style="display:flex; gap:6px; padding:5px; border:1px solid var(--line); border-radius:999px"><span class="chip on" style="border:0">Monthly</span><span class="chip" style="border:0">Annual</span></div></div>
+  <div class="gx" style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:48px; align-items:center">
+    <div style="background:var(--card); border:1px solid var(--line); border-radius:18px; padding:32px"><b style="font-size:18px">Member</b><p class="txt">Free with an invite</p><p style="font-size:44px; font-weight:700; margin:20px 0">0 <span style="font-size:14px; color:var(--muted)">USD / month</span></p><p class="txt">✓ Guest lists<br>✓ QR e-passes<br>✓ Event calendar</p><div style="margin-top:26px"><span class="ghost" style="width:100%">Join</span></div></div>
+    <div style="background:var(--accent); border-radius:18px; padding:44px 32px; box-shadow:0 30px 60px rgba(50,135,183,.25)"><b style="font-size:18px">Premium</b> <span class="chip" style="background:rgba(255,255,255,.18); border:0; color:#fff; padding:4px 10px; font-size:11px; margin-left:6px">MOST POPULAR</span><p style="color:#dcecf6; margin:4px 0 0; font-size:14px">For the regulars</p><p style="font-size:52px; font-weight:700; margin:20px 0">19 <span style="font-size:14px; color:#dcecf6">USD / month</span></p><p style="color:#eaf4fa; line-height:1.9; font-size:14px; margin:0">✓ Everything in Member<br>✓ Priority guest lists<br>✓ Member discounts</p><div style="margin-top:26px"><span class="solid" style="width:100%; background:#fff; color:#0b2233">Go Premium</span></div></div>
+    <div style="background:var(--card); border:1px solid var(--line); border-radius:18px; padding:32px"><b style="font-size:18px">Promoter</b><p class="txt">Run your own events</p><p style="font-size:44px; font-weight:700; margin:20px 0">49 <span style="font-size:14px; color:var(--muted)">USD / month</span></p><p class="txt">✓ Event pages<br>✓ Guest-list management<br>✓ E-ticket sales</p><div style="margin-top:26px"><span class="ghost" style="width:100%">Contact us</span></div></div>
+  </div>
+</div></section>
+
+<p class="label"><b>P-2 · Tabla comparativa</b>Planes como columnas de una tabla, con cada beneficio en una fila y ✓ / –. Ideal si los planes crecen en beneficios.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap">
+  <h3 class="h" style="font-size:44px">Pick your membership</h3>
+  <div style="margin-top:44px; display:grid; grid-template-columns:1.4fr repeat(3,1fr); font-size:14px">
+    <div></div>
+    <div style="padding:18px; text-align:center"><b>Member</b><div style="font-size:28px; font-weight:700; margin-top:6px">0</div><span class="txt" style="font-size:12px">USD / month</span></div>
+    <div style="padding:18px; text-align:center; background:var(--card); border-radius:14px 14px 0 0; border-top:2px solid var(--accent)"><b>Premium</b><div style="font-size:28px; font-weight:700; margin-top:6px">19</div><span class="txt" style="font-size:12px">USD / month</span></div>
+    <div style="padding:18px; text-align:center"><b>Promoter</b><div style="font-size:28px; font-weight:700; margin-top:6px">49</div><span class="txt" style="font-size:12px">USD / month</span></div>
+    <div style="padding:14px 0; border-top:1px solid var(--line)" class="txt">Guest lists &amp; QR e-passes</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line)">✓</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); background:var(--card)">✓</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line)">✓</div>
+    <div style="padding:14px 0; border-top:1px solid var(--line)" class="txt">Priority guest lists</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); color:var(--muted)">-</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); background:var(--card)">✓</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line)">✓</div>
+    <div style="padding:14px 0; border-top:1px solid var(--line)" class="txt">Member discounts</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); color:var(--muted)">-</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); background:var(--card)">✓</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line)">✓</div>
+    <div style="padding:14px 0; border-top:1px solid var(--line)" class="txt">Event pages &amp; e-ticket sales</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); color:var(--muted)">-</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line); background:var(--card); color:var(--muted)">-</div><div style="text-align:center; padding:14px; border-top:1px solid var(--line)">✓</div>
+    <div></div><div style="padding:18px; text-align:center"><span class="ghost">Join</span></div><div style="padding:18px; text-align:center; background:var(--card); border-radius:0 0 14px 14px"><span class="solid">Go Premium</span></div><div style="padding:18px; text-align:center"><span class="ghost">Contact us</span></div>
+  </div>
+</div></section>
+
+<p class="label"><b>P-3 · Plan destacado + dos compactos</b>Premium como tarjeta grande con foto; Member y Promoter como filas compactas a la derecha.</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:44px">Pick your membership</h3>
+  <div class="gx" style="display:grid; grid-template-columns:1.2fr 1fr; gap:24px; margin-top:44px">
+    <div class="img" style="border-radius:18px; position:relative; min-height:420px; background-image:linear-gradient(90deg,rgba(4,8,12,.95) 35%,rgba(4,8,12,.3)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479825809.png')">
+      <div style="position:absolute; left:36px; top:36px; bottom:36px; display:flex; flex-direction:column; justify-content:space-between; max-width:320px">
+        <div><span class="chip on" style="font-size:11px; padding:4px 12px">MOST POPULAR</span><h4 style="font-size:30px; margin:16px 0 4px">Premium</h4><p class="txt">For the regulars</p></div>
+        <div><p style="font-size:52px; font-weight:700; margin:0">19 <span style="font-size:14px; color:var(--muted)">USD / month</span></p><p class="txt" style="margin:10px 0 22px">Everything in Member, priority guest lists and member discounts.</p><span class="solid">Go Premium</span></div>
+      </div></div>
+    <div style="display:grid; gap:24px">
+      <div style="background:var(--card); border:1px solid var(--line); border-radius:18px; padding:28px; display:flex; justify-content:space-between; align-items:center; gap:20px"><div><b style="font-size:18px">Member</b><p class="txt">Free with an invite. Guest lists, QR e-passes, event calendar.</p></div><span class="ghost">Join</span></div>
+      <div style="background:var(--card); border:1px solid var(--line); border-radius:18px; padding:28px; display:flex; justify-content:space-between; align-items:center; gap:20px"><div><b style="font-size:18px">Promoter · 49 USD</b><p class="txt">Event pages, guest-list management, e-ticket sales.</p></div><span class="ghost">Contact us</span></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ═════════════ TEAM ═════════════ -->
+<div class="group"><h2>3 · Team</h2><p>«The people behind GEM2i»: hoy 4 personas de ejemplo (nombre, cargo, foto).</p></div>
+
+<p class="label"><b>T-1 · Retratos verticales</b>Cuatro retratos altos en gris; al pasar el mouse pasan a color y aparecen las redes.</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:44px">The people behind GEM2i</h3>
+  <div class="gx" style="display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-top:44px">
+    <div><div class="img" style="aspect-ratio:3/4; border-radius:16px; background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80')"></div><b style="display:block; margin-top:14px">Alex Rivera<span class="ex">EJEMPLO</span></b><span class="txt" style="font-size:13px">Founder</span></div>
+    <div><div class="img" style="aspect-ratio:3/4; border-radius:16px; filter:grayscale(1); background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80')"></div><b style="display:block; margin-top:14px">Maya Chen</b><span class="txt" style="font-size:13px">Head of events</span></div>
+    <div><div class="img" style="aspect-ratio:3/4; border-radius:16px; filter:grayscale(1); background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80')"></div><b style="display:block; margin-top:14px">Diego Torres</b><span class="txt" style="font-size:13px">Artist relations</span></div>
+    <div><div class="img" style="aspect-ratio:3/4; border-radius:16px; filter:grayscale(1); background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80')"></div><b style="display:block; margin-top:14px">Sara Kim</b><span class="txt" style="font-size:13px">Partnerships</span></div>
+  </div>
+</div></section>
+
+<p class="label"><b>T-2 · Fundador destacado + equipo</b>El fundador grande con una frase; el resto del equipo en círculos debajo.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap">
+  <div class="gx" style="display:grid; grid-template-columns:.8fr 1.2fr; gap:56px; align-items:center">
+    <div class="img" style="aspect-ratio:4/5; border-radius:18px; background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80')"></div>
+    <div><h3 class="h" style="font-size:44px">The people behind GEM2i</h3>
+      <p style="font-size:22px; line-height:1.5; margin:26px 0 10px">“We started GEM2i to give promoters, venues and artists one place to work together.”<span class="ex">EJEMPLO</span></p>
+      <p class="txt">Alex Rivera, Founder</p>
+      <div style="display:flex; gap:28px; margin-top:40px; flex-wrap:wrap">
+        <div style="text-align:center"><div class="img" style="width:88px; height:88px; border-radius:50%; background-image:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80')"></div><b style="display:block; font-size:13px; margin-top:8px">Maya Chen</b><span class="txt" style="font-size:12px">Events</span></div>
+        <div style="text-align:center"><div class="img" style="width:88px; height:88px; border-radius:50%; background-image:url('https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&q=80')"></div><b style="display:block; font-size:13px; margin-top:8px">Diego Torres</b><span class="txt" style="font-size:12px">Artists</span></div>
+        <div style="text-align:center"><div class="img" style="width:88px; height:88px; border-radius:50%; background-image:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&q=80')"></div><b style="display:block; font-size:13px; margin-top:8px">Sara Kim</b><span class="txt" style="font-size:12px">Partnerships</span></div>
+      </div></div>
+  </div>
+</div></section>
+
+<p class="label"><b>T-3 · Lista con foto al pasar</b>Sin fotos fijas: nombres grandes con el cargo; la foto aparece al pasar el mouse por cada fila.</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:22px; color:var(--muted); font-weight:500">The people behind GEM2i</h3>
+  <div style="margin-top:28px">
+    <div class="gx" style="display:grid; grid-template-columns:1fr 1fr 120px; gap:30px; align-items:center; padding:22px 0; border-top:1px solid var(--line)"><span style="font-size:40px; font-weight:700">Alex Rivera</span><span class="txt">Founder</span><div class="img" style="height:80px; border-radius:10px; background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80')"></div></div>
+    <div class="gx" style="display:grid; grid-template-columns:1fr 1fr 120px; gap:30px; align-items:center; padding:22px 0; border-top:1px solid var(--line); opacity:.5"><span style="font-size:40px; font-weight:700">Maya Chen</span><span class="txt">Head of events</span><span></span></div>
+    <div class="gx" style="display:grid; grid-template-columns:1fr 1fr 120px; gap:30px; align-items:center; padding:22px 0; border-top:1px solid var(--line); opacity:.5"><span style="font-size:40px; font-weight:700">Diego Torres</span><span class="txt">Artist relations</span><span></span></div>
+    <div class="gx" style="display:grid; grid-template-columns:1fr 1fr 120px; gap:30px; align-items:center; padding:22px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); opacity:.5"><span style="font-size:40px; font-weight:700">Sara Kim</span><span class="txt">Partnerships</span><span></span></div>
+  </div>
+  <p class="txt" style="margin-top:14px; font-size:12px">Ojo: Who it is for (A-3) ya usa esta forma en el home; T-3 la repetiría.</p>
+</div></section>
+
+<!-- ═════════════ TESTIMONIALS ═════════════ -->
+<div class="group"><h2>4 · Testimonials</h2><p>«What our members say»: cita, nombre, cargo y foto. Los textos de abajo son ejemplos del rubro.</p></div>
+
+<p class="label"><b>Q-1 · Una cita grande con navegación</b>Una sola cita en tipografía grande, con foto y nombre; flechas o puntos para pasar a la siguiente.</p>
+<section class="frame"><div class="wrap" style="text-align:center">
+  <p class="kicker">What our members say</p>
+  <p style="font-size:34px; line-height:1.4; font-weight:500; max-width:900px; margin:28px auto 0">“The guest list and QR passes cut our door time in half. Members actually show up.”<span class="ex">EJEMPLO</span></p>
+  <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:32px"><div class="img" style="width:52px; height:52px; border-radius:50%; background-image:url('https://images.pexels.com/photos/29852895/pexels-photo-29852895.jpeg?auto=compress&cs=tinysrgb&w=200')"></div><div style="text-align:left"><b>Promoter</b><p class="txt" style="font-size:13px">Nightlife, Lima</p></div></div>
+  <div style="display:flex; gap:8px; justify-content:center; margin-top:30px"><span style="width:26px; height:4px; border-radius:4px; background:var(--accent)"></span><span style="width:10px; height:4px; border-radius:4px; background:var(--line)"></span><span style="width:10px; height:4px; border-radius:4px; background:var(--line)"></span></div>
+</div></section>
+
+<p class="label"><b>Q-2 · Muro de citas</b>Tres o más citas en columnas de alturas distintas (estilo mural), cada una con foto y nombre.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap">
+  <h3 class="h" style="font-size:44px">What our members say</h3>
+  <div class="gx" style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:44px; align-items:start">
+    <div style="background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px"><p style="line-height:1.7; margin:0">“The guest list and QR passes cut our door time in half.”</p><div style="display:flex; gap:12px; align-items:center; margin-top:20px"><div class="img" style="width:40px; height:40px; border-radius:50%; background-image:url('https://images.pexels.com/photos/29852895/pexels-photo-29852895.jpeg?auto=compress&cs=tinysrgb&w=200')"></div><div><b style="font-size:14px">Promoter</b><p class="txt" style="font-size:12px">Lima<span class="ex">EJEMPLO</span></p></div></div></div>
+    <div style="background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px; margin-top:40px"><p style="line-height:1.7; margin:0">“We publish the month's calendar once and the room fills with members who know the music. Ticket sales and guest list live in the same place.”</p><div style="display:flex; gap:12px; align-items:center; margin-top:20px"><div class="img" style="width:40px; height:40px; border-radius:50%; background-image:url('https://images.pexels.com/photos/30004360/pexels-photo-30004360.jpeg?auto=compress&cs=tinysrgb&w=200')"></div><div><b style="font-size:14px">Venue manager</b><p class="txt" style="font-size:12px">Miami</p></div></div></div>
+    <div style="background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px"><p style="line-height:1.7; margin:0">“My fans find my dates and line-ups without me posting everywhere.”</p><div style="display:flex; gap:12px; align-items:center; margin-top:20px"><div class="img" style="width:40px; height:40px; border-radius:50%; background-image:url('https://images.unsplash.com/photo-1755519024827-fd05075a7200?w=200')"></div><div><b style="font-size:14px">DJ</b><p class="txt" style="font-size:12px">Madrid</p></div></div></div>
+  </div>
+</div></section>
+
+<p class="label"><b>Q-3 · Foto + cita</b>Foto grande de la persona a la izquierda y su cita a la derecha; miniaturas de las demás personas para cambiar.</p>
+<section class="frame"><div class="wrap gx" style="display:grid; grid-template-columns:.8fr 1.2fr; gap:64px; align-items:center">
+  <div class="img" style="aspect-ratio:4/5; border-radius:18px; background-image:url('https://images.pexels.com/photos/30004360/pexels-photo-30004360.jpeg?auto=compress&cs=tinysrgb&w=800')"></div>
+  <div><p class="kicker">What our members say</p>
+    <p style="font-size:30px; line-height:1.45; margin:22px 0 18px">“We publish the month's calendar once and the room fills with members who know the music.”<span class="ex">EJEMPLO</span></p>
+    <b>Venue manager</b><p class="txt">Miami</p>
+    <div style="display:flex; gap:12px; margin-top:34px"><div class="img" style="width:56px; height:56px; border-radius:50%; outline:2px solid var(--accent); outline-offset:3px; background-image:url('https://images.pexels.com/photos/30004360/pexels-photo-30004360.jpeg?auto=compress&cs=tinysrgb&w=200')"></div><div class="img" style="width:56px; height:56px; border-radius:50%; opacity:.5; background-image:url('https://images.pexels.com/photos/29852895/pexels-photo-29852895.jpeg?auto=compress&cs=tinysrgb&w=200')"></div><div class="img" style="width:56px; height:56px; border-radius:50%; opacity:.5; background-image:url('https://images.unsplash.com/photo-1755519024827-fd05075a7200?w=200')"></div></div>
+  </div>
+</div></section>
+
+<!-- ═════════════ GALLERY ═════════════ -->
+<div class="group"><h2>5 · Gallery</h2><p>Fotos desde CMS → Gallery. Aquí con fotos reales del legacy (venues_view).</p></div>
+
+<p class="label"><b>G-1 · Mosaico (masonry)</b>Fotos de alturas distintas en columnas; al hacer clic se abre el visor a pantalla completa.</p>
+<section class="frame"><div class="wrap">
+  <div class="head"><h3 class="h" style="font-size:44px">Gallery</h3><span class="arrow">View all →</span></div>
+  <div style="columns:4; column-gap:16px; margin-top:44px">
+    <div class="img" style="height:260px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479753132.png')"></div>
+    <div class="img" style="height:180px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430322312.png')"></div>
+    <div class="img" style="height:200px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479827748.png')"></div>
+    <div class="img" style="height:280px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1429716025.png')"></div>
+    <div class="img" style="height:240px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479825809.png')"></div>
+    <div class="img" style="height:180px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1453757650.png')"></div>
+    <div class="img" style="height:220px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1433543136.png')"></div>
+    <div class="img" style="height:200px; border-radius:12px; margin-bottom:16px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1422294839.png')"></div>
+  </div>
+</div></section>
+
+<p class="label"><b>G-2 · Franja que se desplaza</b>Una o dos filas de fotos que se deslizan lentamente de lado a lado (se detienen al pasar el mouse). Muy liviana visualmente.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap" style="padding-left:0; padding-right:0">
+  <div class="head" style="padding:0 72px"><h3 class="h" style="font-size:44px">Gallery</h3><span class="arrow">View all →</span></div>
+  <div style="display:flex; gap:14px; margin-top:40px; overflow:hidden; transform:translateX(-60px)">
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479753132.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430322312.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479827748.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1429716025.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479825809.png')"></div>
+  </div>
+  <div style="display:flex; gap:14px; margin-top:14px; overflow:hidden; transform:translateX(-200px)">
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1453757650.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1433543136.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1422294839.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479751957.png')"></div>
+    <div class="img" style="flex:0 0 300px; height:210px; border-radius:12px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430843608.png')"></div>
+  </div>
+</div></section>
+
+<p class="label"><b>G-3 · Foto grande + cuadrícula</b>Una foto protagonista y cuatro chicas al lado; la quinta muestra «+24» y abre la galería completa.</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:44px">Gallery</h3>
+  <div class="gx" style="display:grid; grid-template-columns:1.4fr 1fr 1fr; grid-template-rows:200px 200px; gap:14px; margin-top:44px">
+    <div class="img" style="grid-row:span 2; border-radius:14px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1429716025.png')"></div>
+    <div class="img" style="border-radius:14px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479753132.png')"></div>
+    <div class="img" style="border-radius:14px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430322312.png')"></div>
+    <div class="img" style="border-radius:14px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479827748.png')"></div>
+    <div class="img" style="border-radius:14px; position:relative; background-image:linear-gradient(rgba(4,8,12,.6),rgba(4,8,12,.6)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479825809.png')"><span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:700">+24</span></div>
+  </div>
+</div></section>
+
+<!-- ═════════════ LOCATIONS ═════════════ -->
+<div class="group"><h2>6 · Where GEM2i plays</h2><p>«Cities where our members party»: hoy una imagen + «Global Business Presence» (mapas del CMS).</p></div>
+
+<p class="label"><b>L-1 · Mapa oscuro con puntos</b>Mapa del mundo en tono oscuro con un punto por ciudad; al lado, la lista de ciudades con el número de eventos.</p>
+<section class="frame"><div class="wrap gx" style="display:grid; grid-template-columns:1.5fr 1fr; gap:48px; align-items:center">
+  <div style="aspect-ratio:2/1; border-radius:18px; position:relative; background:radial-gradient(circle at 30% 40%,rgba(50,135,183,.12),transparent 60%),var(--card); border:1px solid var(--line); overflow:hidden">
+    <div style="position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px); background-size:14px 14px; -webkit-mask-image:url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg'); mask-image:url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg'); -webkit-mask-size:contain; mask-size:contain; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; mask-position:center"></div>
+    <span style="position:absolute; left:27%; top:37%; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 8px rgba(50,135,183,.25)"></span>
+    <span style="position:absolute; left:25%; top:46%; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 8px rgba(50,135,183,.25)"></span>
+    <span style="position:absolute; left:30%; top:70%; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 8px rgba(50,135,183,.25)"></span>
+    <span style="position:absolute; left:48%; top:36%; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 8px rgba(50,135,183,.25)"></span>
+    <span style="position:absolute; left:50%; top:40%; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 8px rgba(50,135,183,.25)"></span>
+  </div>
+  <div><h3 class="h" style="font-size:40px">Where GEM2i plays</h3><p class="txt" style="margin-top:12px">Cities where our members party.</p>
+    <div style="margin-top:28px; display:grid; gap:0">
+      <div style="display:flex; justify-content:space-between; padding:14px 0; border-top:1px solid var(--line)"><b>New York</b><span class="txt">120 events<span class="ex">EJEMPLO</span></span></div>
+      <div style="display:flex; justify-content:space-between; padding:14px 0; border-top:1px solid var(--line)"><b>Miami</b><span class="txt">84 events</span></div>
+      <div style="display:flex; justify-content:space-between; padding:14px 0; border-top:1px solid var(--line)"><b>Lima</b><span class="txt">61 events</span></div>
+      <div style="display:flex; justify-content:space-between; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line)"><b>Ibiza</b><span class="txt">40 events</span></div>
+    </div></div>
+</div></section>
+
+<p class="label"><b>L-2 · Tarjetas de ciudad con foto</b>Una tarjeta por ciudad con foto de fondo, nombre grande y país; lleva a los eventos de esa ciudad.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap">
+  <h3 class="h" style="font-size:44px">Where GEM2i plays</h3>
+  <div class="gx" style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:44px">
+    <div class="img" style="aspect-ratio:3/4; border-radius:16px; position:relative; background-image:linear-gradient(180deg,transparent 45%,rgba(4,8,12,.92)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1453757650.png')"><div style="position:absolute; left:20px; bottom:18px"><b style="font-size:24px">Miami</b><p class="txt" style="font-size:13px">United States</p></div></div>
+    <div class="img" style="aspect-ratio:3/4; border-radius:16px; position:relative; background-image:linear-gradient(180deg,transparent 45%,rgba(4,8,12,.92)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479827748.png')"><div style="position:absolute; left:20px; bottom:18px"><b style="font-size:24px">New York</b><p class="txt" style="font-size:13px">United States</p></div></div>
+    <div class="img" style="aspect-ratio:3/4; border-radius:16px; position:relative; background-image:linear-gradient(180deg,transparent 45%,rgba(4,8,12,.92)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479753132.png')"><div style="position:absolute; left:20px; bottom:18px"><b style="font-size:24px">Ibiza</b><p class="txt" style="font-size:13px">Spain</p></div></div>
+    <div class="img" style="aspect-ratio:3/4; border-radius:16px; position:relative; background-image:linear-gradient(180deg,transparent 45%,rgba(4,8,12,.92)),url('https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1430322312.png')"><div style="position:absolute; left:20px; bottom:18px"><b style="font-size:24px">Lima</b><p class="txt" style="font-size:13px">Peru</p></div></div>
+  </div>
+</div></section>
+
+<p class="label"><b>L-3 · Cifras + nombres de ciudades</b>Tres cifras grandes (ciudades, países, eventos) y debajo los nombres de las ciudades en línea, como un cartel.</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:44px">Where GEM2i plays</h3>
+  <div class="gx" style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:44px; padding-bottom:40px; border-bottom:1px solid var(--line)">
+    <div><b style="font-size:64px; letter-spacing:-.03em">40+</b><p class="txt">Cities<span class="ex">EJEMPLO</span></p></div>
+    <div><b style="font-size:64px; letter-spacing:-.03em">18</b><p class="txt">Countries</p></div>
+    <div><b style="font-size:64px; letter-spacing:-.03em">1,700+</b><p class="txt">Events listed</p></div>
+  </div>
+  <p style="font-size:30px; font-weight:600; line-height:1.6; color:var(--body); margin:36px 0 0">New York <span style="color:var(--accent)">/</span> Miami <span style="color:var(--accent)">/</span> Lima <span style="color:var(--accent)">/</span> Ibiza <span style="color:var(--accent)">/</span> Madrid <span style="color:var(--accent)">/</span> Buenos Aires <span style="color:var(--accent)">/</span> Tel Aviv <span style="color:var(--accent)">/</span> São Paulo</p>
+  <p class="txt" style="margin-top:14px; font-size:12px">Las cifras reales se calculan del catálogo (ciudades y países de venues y eventos).</p>
+</div></section>
+
+<!-- ═════════════ PARTNERS ═════════════ -->
+<div class="group"><h2>7 · Partners</h2><p>«Brands that party with us»: logos de marcas aliadas (hoy placeholders).</p></div>
+
+<p class="label"><b>B-1 · Franja de logos en movimiento</b>Una línea de logos que se desliza lento (se detiene al pasar el mouse). Ocupa poco alto.</p>
+<section class="frame"><div class="wrap" style="padding-top:56px; padding-bottom:56px">
+  <h3 class="h" style="font-size:20px; color:var(--muted); font-weight:500; text-align:center">Brands that party with us</h3>
+  <div style="display:flex; gap:56px; align-items:center; justify-content:center; margin-top:30px; flex-wrap:wrap; opacity:.75; font-size:24px; font-weight:700; letter-spacing:.05em; color:#c9d3dc">
+    <span>PARTNER ONE</span><span>PARTNER TWO</span><span>PARTNER THREE</span><span>PARTNER FOUR</span><span>PARTNER FIVE</span></div>
+  <p class="txt" style="text-align:center; margin-top:14px; font-size:12px">(Los logos reales reemplazan los textos.)</p>
+</div></section>
+
+<p class="label"><b>B-2 · Texto + cuadrícula de logos</b>A la izquierda una frase y un botón para ser partner; a la derecha la cuadrícula de logos.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap gx" style="display:grid; grid-template-columns:.8fr 1.2fr; gap:56px; align-items:center">
+  <div><h3 class="h" style="font-size:40px">Brands that party with us</h3><p class="txt" style="margin-top:14px">Reach a crowd that goes out every weekend.</p><div style="margin-top:26px"><span class="solid">Become a partner</span></div></div>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px">
+    <div class="logo"><b style="color:#8b98a5">PARTNER ONE</b></div><div class="logo"><b style="color:#8b98a5">PARTNER TWO</b></div><div class="logo"><b style="color:#8b98a5">PARTNER THREE</b></div>
+    <div class="logo"><b style="color:#8b98a5">PARTNER FOUR</b></div><div class="logo"><b style="color:#8b98a5">PARTNER FIVE</b></div><div class="logo"><b style="color:#8b98a5">PARTNER SIX</b></div>
+  </div>
+</div></section>
+
+<p class="label"><b>B-3 · Partner destacado + resto</b>Un partner principal con su logo grande y una línea de texto; los demás en fila más pequeña debajo.</p>
+<section class="frame"><div class="wrap">
+  <h3 class="h" style="font-size:40px">Brands that party with us</h3>
+  <div class="gx" style="display:grid; grid-template-columns:1fr 1.4fr; gap:32px; margin-top:40px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:36px">
+    <div class="logo" style="height:150px; background:#0A121A"><b style="font-size:28px; color:#c9d3dc">PARTNER ONE</b></div>
+    <div><p class="txt" style="font-size:12px; letter-spacing:.2em">OFFICIAL PARTNER<span class="ex">EJEMPLO</span></p><p style="font-size:22px; line-height:1.5; margin:10px 0 0">Official drinks partner of GEM2i nights in New York and Miami.</p></div>
+  </div>
+  <div style="display:flex; gap:40px; justify-content:center; margin-top:30px; opacity:.6; font-weight:700; letter-spacing:.05em"><span>PARTNER TWO</span><span>PARTNER THREE</span><span>PARTNER FOUR</span><span>PARTNER FIVE</span></div>
+</div></section>
+
+<!-- ═════════════ CLIENTS ═════════════ -->
+<div class="group"><h2>8 · Clients</h2><p>«Who trusts us»: texto + logos reales (images_clients_home).</p></div>
+
+<p class="label"><b>K-1 · Texto arriba + cuadrícula de logos</b>El texto centrado y los logos en cuadrícula con bordes finos, en gris (color al pasar el mouse).</p>
+<section class="frame"><div class="wrap" style="text-align:center">
+  <h3 class="h" style="font-size:44px">Who trusts us</h3>
+  <p class="txt" style="max-width:640px; margin:16px auto 0">We have worked on campaigns with some of the top global brands side by side with our regional partners.</p>
+  <div class="gx" style="display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-top:44px">
+    <div class="logo"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007144.png"></div>
+    <div class="logo"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007215.png"></div>
+    <div class="logo"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007240.png"></div>
+    <div class="logo"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007431.png"></div>
+    <div class="logo"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007463.png"></div>
+    <div class="logo"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007492.png"></div>
+  </div>
+</div></section>
+
+<p class="label"><b>K-2 · Dividido: texto + logos sueltos</b>Texto a la izquierda; a la derecha los logos sin cajas, en 3 columnas, separados solo por espacio.</p>
+<section class="frame" style="background:var(--bg2)"><div class="wrap gx" style="display:grid; grid-template-columns:.9fr 1.1fr; gap:64px; align-items:center">
+  <div><h3 class="h" style="font-size:44px">Who trusts us</h3><p class="txt" style="margin-top:16px">We have worked on campaigns with some of the top global brands side by side with our regional partners.</p></div>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:40px 32px; align-items:center">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007144.png" style="max-width:100%; max-height:56px; object-fit:contain; filter:grayscale(1) brightness(1.6); opacity:.75">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007215.png" style="max-width:100%; max-height:56px; object-fit:contain; filter:grayscale(1) brightness(1.6); opacity:.75">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007240.png" style="max-width:100%; max-height:56px; object-fit:contain; filter:grayscale(1) brightness(1.6); opacity:.75">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007431.png" style="max-width:100%; max-height:56px; object-fit:contain; filter:grayscale(1) brightness(1.6); opacity:.75">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007463.png" style="max-width:100%; max-height:56px; object-fit:contain; filter:grayscale(1) brightness(1.6); opacity:.75">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007492.png" style="max-width:100%; max-height:56px; object-fit:contain; filter:grayscale(1) brightness(1.6); opacity:.75">
+  </div>
+</div></section>
+
+<p class="label"><b>K-3 · Logos en blanco sobre banda azul</b>Una banda azul a todo ancho con los logos en blanco y la frase corta encima. Cierra la página con color antes del contacto.</p>
+<section class="frame" style="background:var(--accent)"><div class="wrap" style="padding-top:64px; padding-bottom:64px; text-align:center">
+  <h3 class="h" style="font-size:32px">Who trusts us</h3>
+  <div style="display:flex; gap:48px; justify-content:center; align-items:center; flex-wrap:wrap; margin-top:34px">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007144.png" style="height:48px; object-fit:contain; filter:brightness(0) invert(1)">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007215.png" style="height:48px; object-fit:contain; filter:brightness(0) invert(1)">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007240.png" style="height:48px; object-fit:contain; filter:brightness(0) invert(1)">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007431.png" style="height:48px; object-fit:contain; filter:brightness(0) invert(1)">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007463.png" style="height:48px; object-fit:contain; filter:brightness(0) invert(1)">
+    <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_clients_home/1567007492.png" style="height:48px; object-fit:contain; filter:brightness(0) invert(1)">
+  </div>
+</div></section>
+
+<p class="note">Notas: en móvil todo pasa a una columna o a carrusel deslizable. Partners y Clients son dos muros de logos seguidos: conviene que tengan formas distintas (por ejemplo B-1 franja + K-2 dividido), o fusionarlos en una sola sección.<br><br>
+<b>Mi recomendación</b> (sin repetir formas ya usadas en el home): <b>W-1</b> (video a pantalla completa, rompe el ritmo) · <b>P-1</b> (planes clásicos, claros) · <b>T-1</b> (retratos) · <b>Q-1</b> (una cita grande) · <b>G-1</b> (mosaico) · <b>L-1</b> (mapa con puntos) · <b>B-1</b> (franja) · <b>K-2</b> (dividido).</p>
+</body>
+</html>

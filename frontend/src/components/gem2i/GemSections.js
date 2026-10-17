@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as lucide from 'lucide-react';
 import { ArrowRight, Check, Quote, Linkedin, Twitter, Instagram, Globe, Calendar, MapPin } from 'lucide-react';
-import { useT } from '../../lib/i18n';
+import { useT, useLang } from '../../lib/i18n';
 import { normalizeRichText } from '../../lib/richText';
 import { gemImg } from './GemCatalogBits';
 
@@ -108,6 +108,118 @@ export function GemSteps({ config = {}, items = [], testid = 'gem2i-process' }) 
           </li>
         ))}
       </ol>
+    </Wrap>
+  );
+}
+
+// ── Methodology as a cycle (boceto M-3) ─────────────────────────────────────
+// Steps sit around a ring with the brand in the centre: Grow feeds the next
+// Discover. Desktop = polar layout; < md = plain vertical list.
+export function GemMethodCycle({ config = {}, items = [], brand = 'GEM2i', testid = 'gem2i-methodology' }) {
+  const tt = useT();
+  if (!items.length) return null;
+  const n = items.length;
+  const pos = (i) => {
+    const a = (-90 + (360 / n) * i) * (Math.PI / 180);
+    return { left: `${50 + 41 * Math.cos(a)}%`, top: `${50 + 41 * Math.sin(a)}%` };
+  };
+  const Step = ({ s, center }) => (
+    <div className={center ? 'w-56 text-center' : ''}>
+      <span className="inline-flex w-11 h-11 items-center justify-center rounded-xl" style={{ backgroundColor: 'rgba(50,135,183,0.14)', color: ACCENT }}>
+        <GemIcon name={s.icon || 'sparkles'} className="w-5 h-5" />
+      </span>
+      <h3 className="text-white text-lg font-semibold mt-3 mb-1">{tt(s.title)}</h3>
+      <Rich html={s.description} className="!text-[13px]" />
+    </div>
+  );
+  return (
+    <Wrap testid={testid}>
+      <div className="text-center"><GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle} /></div>
+      <ol className="md:hidden mt-10 grid gap-8">
+        {items.map((s, i) => <li key={s.id || i}><Step s={s} /></li>)}
+      </ol>
+      <div className="hidden md:block relative mx-auto mt-14" style={{ width: 640, maxWidth: '100%', aspectRatio: '1 / 1' }}>
+        <div className="absolute rounded-full gem-spin-slow" style={{ inset: '22%', border: '1px dashed rgba(95,178,224,0.45)' }} aria-hidden="true" />
+        <div className="absolute rounded-full flex items-center justify-center text-white font-extrabold text-2xl"
+          style={{ left: '50%', top: '50%', width: 132, height: 132, transform: 'translate(-50%,-50%)', backgroundColor: ACCENT }}>{brand}</div>
+        <ol>
+          {items.map((s, i) => (
+            <li key={s.id || i} className="absolute" style={{ ...pos(i), transform: 'translate(-50%,-50%)' }}><Step s={s} center /></li>
+          ))}
+        </ol>
+      </div>
+      <style>{`@media (prefers-reduced-motion: no-preference){.gem-spin-slow{animation:gemSpin 60s linear infinite}}@keyframes gemSpin{to{transform:rotate(360deg)}}`}</style>
+    </Wrap>
+  );
+}
+
+// ── Audience as an editorial list (boceto A-3) ──────────────────────────────
+// No cards: one big row per profile. The active row (hover / focus) lights up
+// and shows its photo; the others dim.
+export function GemAudienceList({ config = {}, items = [] }) {
+  const tt = useT();
+  const [active, setActive] = useState(0);
+  if (!items.length) return null;
+  return (
+    <Wrap testid="gem2i-audience">
+      <GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle} />
+      <ul className="mt-12" style={{ borderBottom: `1px solid ${BORDER}` }} onMouseLeave={() => setActive(0)}>
+        {items.map((it, i) => {
+          const on = i === active;
+          return (
+            <li key={it.id || i} tabIndex={0} onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)}
+              className="grid grid-cols-1 md:grid-cols-[1.2fr_1.4fr_150px] gap-3 md:gap-10 items-center py-7 md:py-8 outline-none transition-opacity duration-300 motion-reduce:transition-none"
+              style={{ borderTop: `1px solid ${BORDER}`, opacity: on ? 1 : 0.5 }}>
+              <span className="text-white font-bold tracking-tight leading-[1.05]" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>{tt(it.title)}</span>
+              <Rich html={it.description} />
+              <div className="hidden md:block h-24 rounded-xl overflow-hidden transition-[opacity,transform] duration-300 motion-reduce:transition-none"
+                style={{ opacity: on && it.image ? 1 : 0, transform: on ? 'scale(1)' : 'scale(0.94)' }} aria-hidden="true">
+                {it.image && <img src={gemImg(it.image)} alt="" className="w-full h-full object-cover" loading="lazy" />}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-10"><GemCta text={config.cta_text} url={config.cta_url} newTab={config.cta_new_tab} /></div>
+    </Wrap>
+  );
+}
+
+// ── How it works as a timeline (boceto P-1) ─────────────────────────────────
+// Dots on a line; the line fills once when the section scrolls into view.
+export function GemTimeline({ config = {}, items = [], testid = 'gem2i-process' }) {
+  const tt = useT();
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    if (!('IntersectionObserver' in window)) { setSeen(true); return undefined; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } }, { threshold: 0, rootMargin: "0px 0px -25% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [items.length]); // the section mounts empty and gets its steps later
+  if (!items.length) return null;
+  return (
+    <Wrap testid={testid}>
+      <GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle} />
+      <div ref={ref} className="relative mt-14 md:mt-16">
+        <div className="absolute left-[11px] md:left-0 top-0 bottom-0 md:bottom-auto md:right-0 md:top-[11px] w-[2px] md:w-auto md:h-[2px]" style={{ backgroundColor: BORDER }} aria-hidden="true" />
+        <div className="absolute left-[11px] md:left-0 top-0 md:top-[11px] w-[2px] md:h-[2px] md:w-full origin-top md:origin-left transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none gem-tl-fill"
+          style={{ backgroundColor: ACCENT, height: '100%', transform: seen ? 'scale(1)' : 'var(--gem-tl-off)' }} aria-hidden="true" />
+        <style>{`.gem-tl-fill{--gem-tl-off:scaleY(0)}@media(min-width:768px){.gem-tl-fill{--gem-tl-off:scaleX(0);height:2px!important}.gem-tl-grid{grid-template-columns:repeat(${items.length},minmax(0,1fr))}}`}</style>
+        <ol className="relative grid grid-cols-1 gap-10 md:gap-8 gem-tl-grid">
+          {items.map((s, i) => (
+            <li key={s.id || i} className="relative pl-12 md:pl-0">
+              <span className="absolute md:static left-0 block w-6 h-6 rounded-full transition-colors duration-500 motion-reduce:transition-none"
+                style={{ backgroundColor: seen ? ACCENT : 'var(--color-bg, #04080C)', border: `2px solid ${seen ? ACCENT : BORDER}`, boxShadow: seen ? '0 0 0 6px rgba(50,135,183,0.2)' : 'none', transitionDelay: `${i * 250}ms` }} aria-hidden="true" />
+              <p className="md:mt-7 mb-1.5 text-[13px] tabular-nums" style={{ color: 'var(--color-link, #5FB2E0)' }}>{String(s.step_number || i + 1).padStart(2, '0')}</p>
+              <h3 className="text-white text-lg font-semibold mb-2">{tt(s.title)}</h3>
+              <Rich html={s.description} />
+            </li>
+          ))}
+        </ol>
+      </div>
     </Wrap>
   );
 }
@@ -317,6 +429,528 @@ export function GemCatalogStrip({ config = {}, items = [], fallbackTitle, testid
         ))}
       </div>
     </section>
+  );
+}
+
+// ═════════════ Catalog sections, template 01 (bocetos E-2 / R-2 / V-1 / F-2 / C-1) ═════════════
+// Each takes the raw catalog rows (as /api/public/gem/<catalog> returns them)
+// plus the Section Manager header config, and renders nothing when empty.
+
+function CatalogHead({ config, fallbackTitle, allText, allUrl }) {
+  return (
+    <GemHeading eyebrow={config.eyebrow} title={config.title || fallbackTitle} subtitle={config.subtitle}
+      action={<GemCta text={config.cta_text || allText} url={config.cta_url || allUrl} newTab={config.cta_new_tab} />} />
+  );
+}
+
+function useDateParts() {
+  const { lang } = useLang() || { lang: 'en' };
+  return (iso) => {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return null;
+    const d = new Date(`${iso.slice(0, 10)}T12:00:00`);
+    return { day: d.getDate(), month: d.toLocaleDateString(lang === 'es' ? 'es' : 'en', { month: 'short' }).replace('.', '').toUpperCase() };
+  };
+}
+
+const DateBadge = ({ parts, className = '' }) => (parts ? (
+  <span className={`inline-flex flex-col items-center justify-center w-16 h-[68px] rounded-xl text-white leading-none ${className}`} style={{ backgroundColor: ACCENT }}>
+    <b className="text-2xl tabular-nums">{parts.day}</b><span className="text-[11px] tracking-[0.2em] mt-1">{parts.month}</span>
+  </span>
+) : null);
+
+const ACCESS = {
+  guest_list: { en: 'Guest list', es: 'Guest list' },
+  eticket: { en: 'E-tickets', es: 'E-tickets' },
+};
+
+// ── E-2 Upcoming events: posters. ≤ 2 events → posters + "list your event"
+// tile (as in the boceto); 3 or more → a swipeable carousel with arrows.
+export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-events' }) {
+  const tt = useT();
+  const parts = useDateParts();
+  const track = useRef(null);
+  if (!items.length) return null;
+  const carousel = items.length > 2;
+  const scroll = (dir) => {
+    const el = track.current;
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+  };
+  const Poster = ({ e }) => (
+    <Link to={`/events/${e.slug}`} className="group block">
+      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden" style={{ backgroundColor: CARD }}>
+        {gemImg(e.image_urls?.flyer || e.image_urls?.logo) && (
+          <img src={gemImg(e.image_urls?.flyer || e.image_urls?.logo)} alt={tt(e.title) || ''} loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none" />
+        )}
+        <DateBadge parts={parts(e.event_date)} className="absolute left-3.5 top-3.5" />
+      </div>
+      <h3 className="mt-4 text-white text-base font-semibold leading-snug line-clamp-2 group-hover:text-[color:var(--color-link,#5FB2E0)] transition-colors">{tt(e.title)}</h3>
+      {ACCESS[e.type] && <p className="mt-1 text-[13px]" style={{ color: BODY }}>{tt(ACCESS[e.type])}</p>}
+    </Link>
+  );
+  const arrows = carousel ? (
+    <div className="flex items-center gap-4">
+      <div className="hidden sm:flex gap-2">
+        {[-1, 1].map(d => (
+          <button key={d} type="button" onClick={() => scroll(d)} aria-label={d < 0 ? tt({ en: 'Previous', es: 'Anterior' }) : tt({ en: 'Next', es: 'Siguiente' })}
+            className="w-10 h-10 rounded-full inline-flex items-center justify-center text-white transition-[background-color,transform] hover:bg-white/10 active:scale-95"
+            style={{ border: `1px solid ${BORDER}` }}>
+            <ArrowRight className={`w-4 h-4 ${d < 0 ? 'rotate-180' : ''}`} />
+          </button>
+        ))}
+      </div>
+      <GemCta text={config.cta_text || { en: 'All events', es: 'Todos los eventos' }} url={config.cta_url || '/events'} newTab={config.cta_new_tab} />
+    </div>
+  ) : <GemCta text={config.cta_text || { en: 'All events', es: 'Todos los eventos' }} url={config.cta_url || '/events'} newTab={config.cta_new_tab} />;
+  return (
+    <Wrap testid={testid}>
+      <GemHeading eyebrow={config.eyebrow} title={config.title || { en: 'Upcoming events', es: 'Próximos eventos' }} subtitle={config.subtitle} action={arrows} />
+      {carousel ? (
+        <div ref={track} className="mt-12 flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {items.map(e => <div key={e.id} className="snap-start shrink-0 w-[72%] sm:w-[42%] lg:w-[calc((100%-4.5rem)/4)]"><Poster e={e} /></div>)}
+        </div>
+      ) : (
+        <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {items.map(e => <Poster key={e.id} e={e} />)}
+          <div className="col-span-2 rounded-2xl p-8 md:p-10 flex flex-col justify-center" style={{ border: `1px dashed ${BORDER}` }}>
+            <h3 className="text-white text-2xl font-semibold mb-2.5">{tt({ en: 'Promoting an event?', es: '¿Organizas un evento?' })}</h3>
+            <p className="text-sm leading-[1.8]" style={{ color: BODY }}>{tt({ en: 'Publish it on GEM2i with guest list, QR e-passes and e-tickets.', es: 'Publícalo en GEM2i con guest list, e-passes QR y e-tickets.' })}</p>
+            <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('gem2i:open-contact'))}
+              className="mt-5 self-start inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-white" style={{ color: 'var(--color-link, #5FB2E0)' }}>
+              {tt({ en: 'List your event', es: 'Publica tu evento' })} <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+    </Wrap>
+  );
+}
+
+const artistImg = (a, big) => gemImg((big && a.image_urls?.big) || a.image_urls?.small || a.image_urls?.logo || a.image_urls?.detail);
+
+// ── R-2 Artists: one featured portrait + a grid of six.
+export function GemArtistMosaic({ config = {}, items = [] }) {
+  const tt = useT();
+  const withImg = items.filter(a => artistImg(a));
+  if (!withImg.length) return null;
+  const [lead, ...rest] = withImg;
+  const name = (a) => tt(a.name || a.title);
+  return (
+    <Wrap testid="gem2i-artists">
+      <CatalogHead config={config} fallbackTitle={{ en: 'Artists', es: 'Artistas' }} allText={{ en: 'All artists', es: 'Todos los artistas' }} allUrl="/artists" />
+      {/* The featured portrait stretches to the height of the 3x2 grid beside it. */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-[1fr_1.35fr] gap-5">
+        <Link to={`/artists/${lead.slug}`} className="group relative block aspect-square md:aspect-auto md:h-full rounded-2xl overflow-hidden" style={{ backgroundColor: CARD }}>
+          <img src={artistImg(lead, true)} alt={name(lead)} loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 55%, rgba(4,8,12,0.92))' }} />
+          <div className="absolute left-7 bottom-6">
+            {lead.country && <p className="text-[12px] tracking-[0.2em] uppercase" style={{ color: BODY }}>{tt(lead.country)}</p>}
+            <h3 className="text-white font-bold mt-1" style={{ fontSize: 'clamp(1.8rem, 3.4vw, 2.6rem)' }}>{name(lead)}</h3>
+          </div>
+        </Link>
+        <div className="grid grid-cols-3 gap-5 content-start">
+          {rest.slice(0, 6).map(a => (
+            <Link key={a.id} to={`/artists/${a.slug}`} className="group relative block aspect-square rounded-xl overflow-hidden" style={{ backgroundColor: CARD }} title={name(a)}>
+              <img src={artistImg(a)} alt={name(a)} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none" />
+              <span className="absolute inset-x-0 bottom-0 px-2.5 py-2 text-[12px] font-medium text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
+                style={{ background: 'linear-gradient(180deg, transparent, rgba(4,8,12,0.9))' }}>{name(a)}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </Wrap>
+  );
+}
+
+// ── V-1 Venues: photo of the place + logo plate, name and country below.
+// Venues with a photo go first; rows without any image are skipped.
+export function GemVenueCards({ config = {}, items = [], limit = 3 }) {
+  const tt = useT();
+  const view = (v) => gemImg(v.image_urls?.view);
+  const logo = (v) => gemImg(v.image_urls?.logo);
+  const list = [...items.filter(v => view(v)), ...items.filter(v => !view(v) && logo(v))].slice(0, limit);
+  if (!list.length) return null;
+  return (
+    <Wrap testid="gem2i-venues">
+      <CatalogHead config={config} fallbackTitle={{ en: 'Venues', es: 'Venues' }} allText={{ en: 'All venues', es: 'Todos los venues' }} allUrl="/venues" />
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {list.map(v => (
+          <Link key={v.id} to={`/venues/${v.slug}`} className="group block">
+            <div className="aspect-[7/5] rounded-2xl overflow-hidden flex items-center justify-center" style={{ backgroundColor: CARD }}>
+              {view(v)
+                ? <img src={view(v)} alt={tt(v.name)} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none" />
+                : <img src={logo(v)} alt={tt(v.name)} loading="lazy" className="max-w-[55%] max-h-[55%] object-contain opacity-80" />}
+            </div>
+            <div className="flex items-center gap-3.5 mt-4">
+              {logo(v) && <img src={logo(v)} alt="" className="w-12 h-12 rounded-[10px] object-contain bg-white p-1" loading="lazy" />}
+              <div>
+                <p className="text-white font-semibold">{tt(v.name)}</p>
+                {(v.city || v.country) && <p className="text-[13px]" style={{ color: BODY }}>{[tt(v.city), tt(v.country)].filter(Boolean).join(', ')}</p>}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </Wrap>
+  );
+}
+
+// ── F-2 Festivals: bento (one tall, one wide, two small). Fewer than 4 →
+// the grid shrinks to what there is; never an empty cell.
+export function GemFestivalBento({ config = {}, items = [] }) {
+  const tt = useT();
+  const img = (f) => gemImg(f.image_urls?.flyer || f.image_urls?.view || f.image_urls?.logo);
+  const list = items.filter(img).slice(0, 4);
+  if (!list.length) return null;
+  const cells = ['md:row-span-2', 'md:col-span-2', '', ''];
+  const sizes = ['text-2xl md:text-[28px]', 'text-xl', 'text-base', 'text-base'];
+  const cols = list.length === 1 ? 'md:grid-cols-1' : list.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-[1.4fr_1fr_1fr]';
+  return (
+    <Wrap testid="gem2i-festivals">
+      <CatalogHead config={config} fallbackTitle={{ en: 'Festivals', es: 'Festivales' }} allText={{ en: 'All festivals', es: 'Todos los festivales' }} allUrl="/festivals" />
+      <div className={`mt-12 grid grid-cols-1 ${cols} md:auto-rows-[220px] gap-4`}>
+        {list.map((f, i) => (
+          <Link key={f.id} to={`/festivals/${f.slug}`}
+            className={`group relative block rounded-2xl overflow-hidden min-h-[220px] ${list.length >= 3 ? cells[i] : 'md:row-span-2'}`} style={{ backgroundColor: CARD }}>
+            <img src={img(f)} alt={tt(f.title)} loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04] motion-reduce:transition-none" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(4,8,12,0.92))' }} />
+            <div className="absolute left-5 right-5 bottom-4">
+              <h3 className={`text-white font-semibold ${sizes[i]}`}>{tt(f.title)}</h3>
+              {i < 2 && (f.range_dates || f.event_date) && <p className="text-[13px] mt-0.5" style={{ color: BODY }}>{tt(f.range_dates) || f.event_date}</p>}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </Wrap>
+  );
+}
+
+// ── C-1 Conferences: logo cards with name and dates.
+export function GemConferenceCards({ config = {}, items = [], limit = 4 }) {
+  const tt = useT();
+  const logo = (c) => gemImg(c.image_urls?.logo || c.image_urls?.flyer);
+  const list = items.filter(logo).slice(0, limit);
+  if (!list.length) return null;
+  return (
+    <Wrap testid="gem2i-conferences">
+      <CatalogHead config={config} fallbackTitle={{ en: 'Conferences', es: 'Conferencias' }} allText={{ en: 'All conferences', es: 'Todas las conferencias' }} allUrl="/conferences" />
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {list.map(c => (
+          <Link key={c.id} to={`/conferences/${c.slug}`} className="group block rounded-2xl p-5 transition-colors hover:border-white/20"
+            style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+            <div className="h-28 rounded-xl bg-white flex items-center justify-center p-4">
+              <img src={logo(c)} alt={tt(c.title)} loading="lazy" className="max-w-full max-h-[72px] object-contain transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
+            </div>
+            <p className="text-white font-semibold mt-4">{tt(c.title)}</p>
+            {(c.range_dates || c.event_date) && <p className="text-[13px] mt-0.5" style={{ color: BODY }}>{tt(c.range_dates) || c.event_date}</p>}
+          </Link>
+        ))}
+      </div>
+    </Wrap>
+  );
+}
+
+// ═════════════ Lower home sections, template 01 (bocetos W-1 / P-1 / T-1 / Q-1 / G-2 / B-1 / K-1) ═════════════
+
+// Shared: close on Escape, lock page scroll while an overlay is open.
+function useOverlay(open, onClose, onKey) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const h = (e) => { if (e.key === 'Escape') onClose(); else if (onKey) onKey(e); };
+    window.addEventListener('keydown', h);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', h); };
+  }, [open, onClose, onKey]);
+}
+
+const ytId = (url) => (url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/)?.[1];
+
+// ── W-1 Watch: full-width cover + play; the player loads only on click.
+export function GemVideoCover({ config = {} }) {
+  const tt = useT();
+  const [open, setOpen] = useState(false);
+  const close = React.useCallback(() => setOpen(false), []);
+  useOverlay(open, close);
+  if (!config.video_url) return null;
+  const id = ytId(config.video_url);
+  const poster = gemImg(config.poster_url) || (id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null);
+  const src = embedUrl(config.video_url, true);
+  return (
+    <section data-testid="gem2i-video" className="relative overflow-hidden" style={{ backgroundColor: '#000' }}>
+      {poster && <img src={poster} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-70"
+        // YouTube answers a missing maxres thumbnail with a 120px grey placeholder: fall back to hq.
+        onLoad={e => { if (id && e.currentTarget.naturalWidth <= 120 && !e.currentTarget.src.includes('hqdefault')) e.currentTarget.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }} />}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(4,8,12,0.25), rgba(4,8,12,0.85))' }} />
+      <div className="relative min-h-[420px] md:min-h-[560px] flex flex-col items-center justify-center text-center px-6 py-20 gap-7">
+        <button type="button" onClick={() => setOpen(true)} aria-label={tt({ en: 'Play video', es: 'Reproducir video' })}
+          className="w-[84px] h-[84px] rounded-full inline-flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95"
+          style={{ backgroundColor: ACCENT, boxShadow: '0 0 0 12px rgba(50,135,183,0.22)' }}>
+          <lucide.Play className="w-8 h-8 ml-1" fill="currentColor" />
+        </button>
+        {tt(config.title) && <h2 className="text-white font-bold max-w-3xl" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', textWrap: 'balance' }}>{tt(config.title)}</h2>}
+        {tt(config.subtitle) && <p className="max-w-xl text-sm md:text-[15px]" style={{ color: 'rgba(255,255,255,0.75)' }}>{tt(config.subtitle)}</p>}
+      </div>
+      {open && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10" style={{ backgroundColor: 'rgba(0,0,0,0.92)' }}
+          role="dialog" aria-modal="true" onClick={close}>
+          <button type="button" onClick={close} aria-label={tt({ en: 'Close', es: 'Cerrar' })} className="absolute top-4 right-4 w-11 h-11 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.X className="w-6 h-6" /></button>
+          <div className="w-full max-w-5xl aspect-video" onClick={e => e.stopPropagation()}>
+            {src
+              ? <iframe src={src.replace('mute=1', 'mute=0')} title={tt(config.title) || 'video'} className="w-full h-full rounded-lg" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />
+              : <video src={gemImg(config.video_url)} autoPlay controls className="w-full h-full rounded-lg bg-black" />}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ── P-1 Plans: three columns, the featured plan raised and filled blue.
+export function GemPricingTiers({ config = {}, items = [] }) {
+  const tt = useT();
+  const [annual, setAnnual] = useState(false);
+  if (!items.length) return null;
+  const hasAnnual = config.show_toggle && items.some(p => p.price_annual);
+  const cols = { 1: 'md:grid-cols-1 max-w-md mx-auto', 2: 'md:grid-cols-2 max-w-4xl mx-auto' }[items.length] || 'md:grid-cols-3';
+  return (
+    <Wrap testid="gem2i-pricing">
+      <GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle}
+        action={hasAnnual ? (
+          <div className="inline-flex gap-1 p-1 rounded-full" style={{ border: `1px solid ${BORDER}` }} role="group">
+            {[false, true].map(a => (
+              <button key={String(a)} type="button" onClick={() => setAnnual(a)} aria-pressed={annual === a}
+                className="px-4 py-2 rounded-full text-[13px] font-semibold transition-colors"
+                style={annual === a ? { backgroundColor: ACCENT, color: '#fff' } : { color: BODY }}>
+                {a ? tt({ en: 'Annual', es: 'Anual' }) : tt({ en: 'Monthly', es: 'Mensual' })}
+              </button>
+            ))}
+          </div>
+        ) : null} />
+      <div className={`mt-12 grid grid-cols-1 ${cols} gap-5 items-center`}>
+        {items.map(p => {
+          const hot = !!p.is_featured;
+          const price = annual && p.price_annual ? p.price_annual : p.price;
+          const sub = hot ? 'rgba(255,255,255,0.82)' : BODY;
+          return (
+            <div key={p.id} className={`rounded-2xl flex flex-col ${hot ? 'px-8 py-11 md:-my-3' : 'p-8'}`}
+              style={hot ? { backgroundColor: ACCENT, boxShadow: '0 30px 60px rgba(50,135,183,0.22)' } : { backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-white text-lg font-semibold">{tt(p.name)}</h3>
+                {tt(p.badge) && <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ backgroundColor: hot ? 'rgba(255,255,255,0.18)' : ACCENT, color: '#fff' }}>{tt(p.badge)}</span>}
+              </div>
+              {tt(p.description) && <p className="mt-1 text-sm" style={{ color: sub }}>{tt(p.description)}</p>}
+              <p className="mt-5 text-white tabular-nums">
+                <span className={`${hot ? 'text-[52px]' : 'text-[44px]'} font-bold leading-none`}>{price}</span>
+                <span className="ml-1.5 text-sm" style={{ color: sub }}>{p.currency} {tt(p.period)}</span>
+              </p>
+              <ul className="mt-6 space-y-2.5 flex-1">
+                {features(tt(p.features)).map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: hot ? '#fff' : 'rgba(255,255,255,0.85)' }}>
+                    <Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: hot ? '#fff' : ACCENT }} />{f}
+                  </li>
+                ))}
+              </ul>
+              {tt(p.cta_text) && p.cta_url && (
+                <a href={p.cta_url} target={p.cta_new_tab ? '_blank' : '_self'} rel={p.cta_new_tab ? 'noopener noreferrer' : undefined}
+                  className="mt-7 text-center px-5 py-3 text-sm font-semibold rounded-full transition-[opacity,transform] hover:opacity-90 active:scale-[0.98]"
+                  style={hot ? { backgroundColor: '#fff', color: '#0b2233' } : { border: '1px solid rgba(255,255,255,0.4)', color: '#fff' }}>
+                  {tt(p.cta_text)}
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </Wrap>
+  );
+}
+
+// ── T-1 Team: tall portraits in grey; colour + socials on hover / focus.
+export function GemTeamPortraits({ config = {}, items = [] }) {
+  const tt = useT();
+  if (!items.length) return null;
+  const max = parseInt(config.max_visible, 10) || items.length;
+  return (
+    <Wrap testid="gem2i-team">
+      <GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle}
+        action={config.show_view_all ? <GemCta text={config.view_all_text} url={config.view_all_url} newTab={config.view_all_new_tab} /> : null} />
+      <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-5">
+        {items.slice(0, max).map(m => {
+          const socials = Object.entries(m.social_links || {}).filter(([, u]) => u);
+          return (
+            <div key={m.id} className="group" tabIndex={0}>
+              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden" style={{ backgroundColor: CARD }}>
+                {m.photo_url && <img src={gemImg(m.photo_url)} alt={tt(m.name)} loading="lazy"
+                  className="w-full h-full object-cover grayscale transition-[filter,transform] duration-500 group-hover:grayscale-0 group-focus-within:grayscale-0 group-hover:scale-[1.03] motion-reduce:transition-none" />}
+                {socials.length > 0 && (
+                  <div className="absolute inset-x-0 bottom-0 p-4 flex gap-2 opacity-0 translate-y-2 transition-[opacity,transform] duration-300 group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0"
+                    style={{ background: 'linear-gradient(180deg, transparent, rgba(4,8,12,0.85))' }}>
+                    {socials.map(([k, u]) => {
+                      const Icon = SOCIAL_ICONS[k] || Globe;
+                      return <a key={k} href={u} target="_blank" rel="noopener noreferrer" aria-label={k} className="w-9 h-9 rounded-full inline-flex items-center justify-center text-white bg-white/15 hover:bg-white/25"><Icon className="w-4 h-4" /></a>;
+                    })}
+                  </div>
+                )}
+              </div>
+              <h3 className="text-white font-semibold mt-4">{tt(m.name)}</h3>
+              <p className="text-[13px] mt-0.5" style={{ color: BODY }}>{tt(m.role)}</p>
+            </div>
+          );
+        })}
+      </div>
+    </Wrap>
+  );
+}
+
+// ── Q-1 Testimonials: one big quote at a time, dots + arrows.
+export function GemTestimonialSpotlight({ config = {}, items = [] }) {
+  const tt = useT();
+  const [at, setAt] = useState(0);
+  if (!items.length) return null;
+  const list = items.slice(0, 8);
+  const t = list[Math.min(at, list.length - 1)];
+  const go = (d) => setAt(i => (i + d + list.length) % list.length);
+  return (
+    <div style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }}>
+      <Wrap testid="gem2i-testimonials" narrow>
+        <div className="text-center">
+          {(tt(config.eyebrow) || tt(config.title)) && <p className="text-xs font-medium uppercase tracking-[0.3em]" style={{ color: ACCENT }}>{tt(config.eyebrow) || tt(config.title)}</p>}
+          <figure key={t.id} className="mt-8 gem-fade-in">
+            <blockquote className="text-white font-medium mx-auto max-w-4xl" style={{ fontSize: 'clamp(1.4rem, 3vw, 2.15rem)', lineHeight: 1.4, textWrap: 'balance' }}>
+              “{tt(t.content)}”
+            </blockquote>
+            <figcaption className="mt-9 inline-flex items-center gap-3.5 text-left">
+              {t.image && <img src={gemImg(t.image)} alt="" className="w-[52px] h-[52px] rounded-full object-cover" loading="lazy" />}
+              <span><span className="block text-white font-semibold">{tt(t.name)}</span>
+                <span className="block text-[13px]" style={{ color: BODY }}>{tt(t.title)}</span></span>
+            </figcaption>
+          </figure>
+          {list.length > 1 && (
+            <div className="mt-9 flex items-center justify-center gap-5">
+              <button type="button" onClick={() => go(-1)} aria-label={tt({ en: 'Previous', es: 'Anterior' })} className="w-10 h-10 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10 active:scale-95" style={{ border: `1px solid ${BORDER}` }}><ArrowRight className="w-4 h-4 rotate-180" /></button>
+              <div className="flex gap-2">
+                {list.map((x, i) => (
+                  <button key={x.id || i} type="button" onClick={() => setAt(i)} aria-label={`${i + 1}`} aria-current={i === at}
+                    className="h-1 rounded-full transition-[width,background-color] duration-300" style={{ width: i === at ? 26 : 10, backgroundColor: i === at ? ACCENT : BORDER }} />
+                ))}
+              </div>
+              <button type="button" onClick={() => go(1)} aria-label={tt({ en: 'Next', es: 'Siguiente' })} className="w-10 h-10 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10 active:scale-95" style={{ border: `1px solid ${BORDER}` }}><ArrowRight className="w-4 h-4" /></button>
+            </div>
+          )}
+        </div>
+        <style>{`@media (prefers-reduced-motion: no-preference){.gem-fade-in{animation:gemFade .45s cubic-bezier(.16,1,.3,1)}}@keyframes gemFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}`}</style>
+      </Wrap>
+    </div>
+  );
+}
+
+// Shared marquee: the track is the list twice, slid by -50%. Pauses on hover
+// and focus; with reduced motion it becomes a plain horizontal scroller.
+const MARQUEE_CSS = `.gem-mq{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.gem-mq-track{display:flex;width:max-content}
+@media (prefers-reduced-motion: no-preference){.gem-mq-track{animation:gemMq var(--mq-dur,60s) linear infinite}.gem-mq-track.rev{animation-direction:reverse}.gem-mq:hover .gem-mq-track,.gem-mq:focus-within .gem-mq-track{animation-play-state:paused}}
+@media (prefers-reduced-motion: reduce){.gem-mq{overflow-x:auto;-webkit-mask-image:none;mask-image:none}}
+@keyframes gemMq{to{transform:translateX(-50%)}}`;
+
+// ── G-2 Gallery: two drifting rows; a click opens a full-screen viewer.
+export function GemGalleryMarquee({ config = {}, items = [] }) {
+  const tt = useT();
+  const [open, setOpen] = useState(null);   // index into `pics`
+  const pics = items.filter(g => g.image);
+  const close = React.useCallback(() => setOpen(null), []);
+  const step = React.useCallback((d) => setOpen(i => (i == null ? i : (i + d + pics.length) % pics.length)), [pics.length]);
+  const onKey = React.useCallback((e) => { if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); }, [step]);
+  useOverlay(open != null, close, onKey);
+  if (!pics.length) return null;
+  const half = Math.ceil(pics.length / 2);
+  const rows = pics.length >= 8 ? [pics.slice(0, half).map((g, i) => [g, i]), pics.slice(half).map((g, i) => [g, i + half])] : [pics.map((g, i) => [g, i])];
+  const cur = open != null ? pics[open] : null;
+  return (
+    <section className="py-20 md:py-28 overflow-hidden" data-testid="gem2i-gallery" style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }}>
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <GemHeading eyebrow={config.eyebrow} title={config.title || { en: 'Gallery', es: 'Galería' }} subtitle={config.subtitle}
+          action={<GemCta text={config.cta_text || { en: 'View all', es: 'Ver todo' }} url={config.cta_url || '/gallery'} newTab={config.cta_new_tab} />} />
+      </div>
+      <div className="mt-10 space-y-3.5">
+        {rows.map((row, r) => (
+          <div key={r} className="gem-mq">
+            <div className={`gem-mq-track ${r ? 'rev' : ''}`} style={{ '--mq-dur': `${Math.max(30, row.length * 7)}s` }}>
+              {[0, 1].map(copy => row.map(([g, idx]) => (
+                <button key={`${copy}-${g.id || idx}`} type="button" onClick={() => setOpen(idx)} tabIndex={copy ? -1 : 0} aria-hidden={copy ? 'true' : undefined}
+                  aria-label={tt(g.title) || tt({ en: 'Open photo', es: 'Abrir foto' })}
+                  className="shrink-0 mr-3.5 w-[240px] md:w-[300px] aspect-[10/7] rounded-xl overflow-hidden focus-visible:outline focus-visible:outline-2" style={{ backgroundColor: CARD, outlineColor: ACCENT }}>
+                  <img src={gemImg(g.image)} alt={tt(g.title) || ''} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 hover:scale-105 motion-reduce:transition-none" />
+                </button>
+              )))}
+            </div>
+          </div>
+        ))}
+      </div>
+      {cur && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 md:p-12" style={{ backgroundColor: 'rgba(0,0,0,0.94)' }}
+          role="dialog" aria-modal="true" aria-label={tt({ en: 'Photo viewer', es: 'Visor de fotos' })} onClick={close}>
+          <button type="button" onClick={close} aria-label={tt({ en: 'Close', es: 'Cerrar' })} className="absolute top-4 right-4 w-11 h-11 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.X className="w-6 h-6" /></button>
+          {pics.length > 1 && <>
+            <button type="button" onClick={e => { e.stopPropagation(); step(-1); }} aria-label={tt({ en: 'Previous', es: 'Anterior' })} className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.ChevronLeft className="w-7 h-7" /></button>
+            <button type="button" onClick={e => { e.stopPropagation(); step(1); }} aria-label={tt({ en: 'Next', es: 'Siguiente' })} className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.ChevronRight className="w-7 h-7" /></button>
+          </>}
+          <img key={open} src={gemImg(cur.image)} alt={tt(cur.title) || ''} onClick={e => e.stopPropagation()} className="max-w-full max-h-[80vh] object-contain rounded-lg gem-fade-in" />
+          <p className="mt-4 text-sm text-white/80 tabular-nums" onClick={e => e.stopPropagation()}>{tt(cur.title) ? `${tt(cur.title)} · ` : ''}{open + 1} / {pics.length}</p>
+        </div>
+      )}
+      <style>{MARQUEE_CSS}{`@media (prefers-reduced-motion: no-preference){.gem-fade-in{animation:gemFade .35s cubic-bezier(.16,1,.3,1)}}@keyframes gemFade{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}`}</style>
+    </section>
+  );
+}
+
+// ── B-1 Partners: one slow strip of logos, centred heading.
+export function GemLogoMarquee({ config = {}, items = [], testid }) {
+  const tt = useT();
+  if (!items.length) return null;
+  const Logo = ({ l, hidden }) => {
+    const img = <img src={gemImg(l.logo_url || l.image)} alt={hidden ? '' : (tt(l.name) || '')} loading="lazy" className="h-10 md:h-12 w-auto max-w-[180px] object-contain opacity-60 grayscale transition-[opacity,filter] hover:opacity-100 hover:grayscale-0" />;
+    return l.link_url
+      ? <a href={l.link_url} target={l.link_target || '_blank'} rel="noopener noreferrer" tabIndex={hidden ? -1 : 0} aria-hidden={hidden || undefined} className="shrink-0 mx-8 md:mx-12">{img}</a>
+      : <span className="shrink-0 mx-8 md:mx-12" aria-hidden={hidden || undefined}>{img}</span>;
+  };
+  return (
+    <section className="py-14 md:py-16" data-testid={testid}>
+      {tt(config.title) && <h2 className="text-center text-lg md:text-xl font-medium mb-8 px-6" style={{ color: BODY }}>{tt(config.title)}</h2>}
+      <div className="gem-mq">
+        <div className="gem-mq-track items-center" style={{ '--mq-dur': `${Math.max(25, items.length * 6)}s` }}>
+          {items.map((l, i) => <Logo key={`a${l.id || i}`} l={l} />)}
+          {items.map((l, i) => <Logo key={`b${l.id || i}`} l={l} hidden />)}
+        </div>
+      </div>
+      <style>{MARQUEE_CSS}</style>
+    </section>
+  );
+}
+
+// ── K-1 Clients: centred heading + text, logo grid in boxes (colour on hover).
+export function GemClientsGrid({ title, kicker, text, logos = [] }) {
+  if (!logos.length && !title) return null;
+  return (
+    <Wrap testid="gem2i-clients">
+      <div className="text-center">
+        {kicker && <p className="text-xs font-medium uppercase tracking-[0.3em] mb-1.5" style={{ color: ACCENT }}>{kicker}</p>}
+        {title && <h2 className="text-white font-bold" style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.5rem)' }}>{title}</h2>}
+        {text && <p className="mt-4 mx-auto max-w-2xl text-sm md:text-[15px] leading-[1.85]" style={{ color: BODY }}>{text}</p>}
+      </div>
+      {logos.length > 0 && (
+        <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          {logos.map((l, i) => {
+            const img = <img src={l.image} alt={l.name || 'client'} loading="lazy" className="max-w-full max-h-[60px] object-contain grayscale brightness-150 opacity-70 transition-[filter,opacity] duration-300 group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100" />;
+            const cls = 'group h-24 rounded-2xl flex items-center justify-center p-4 transition-colors hover:border-white/20';
+            const style = { backgroundColor: CARD, border: `1px solid ${BORDER}` };
+            return l.url
+              ? <a key={i} href={l.url} target="_blank" rel="noreferrer" className={cls} style={style}>{img}</a>
+              : <div key={i} className={cls} style={style}>{img}</div>;
+          })}
+        </div>
+      )}
+    </Wrap>
   );
 }
 

@@ -10,8 +10,11 @@ import { useAuth } from '../../lib/auth';
 import { slideForAudience, isLoggedInUser } from '../../lib/heroAudience';
 import { AUREX_FONTS } from '../../lib/themeColors';
 import { GemHeroA, GemHeroB, GemHeroC } from '../../components/gem2i/GemHeroVariants';
+import GemModernMaps from '../../components/gem2i/GemModernMaps';
 import {
-  GemAudience, GemSteps, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
+  GemAudience, GemSteps, GemMethodCycle, GemAudienceList, GemTimeline,
+  GemEventPosters, GemArtistMosaic,
+  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemContactBand, GemTicker, GemLocations, GemGallery,
   GemIntroPhoto, GemFeaturedCards, GemServicesGrid,
 } from '../../components/gem2i/GemSections';
@@ -64,6 +67,7 @@ export default function Gem2iHome() {
   const [testimonials, setTestimonials] = useState([]);
   const [maps, setMaps] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [mapTabs, setMapTabs] = useState([]);      // [{key, locations}] for GemModernMaps
 
   useEffect(() => {
     publicAPI.getGemContent().then(r => setContent(r.data || {})).catch(() => setContent({}));
@@ -80,7 +84,10 @@ export default function Gem2iHome() {
       .then(rows => setSm(Object.fromEntries(rows.filter(([, v]) => v))));
     gemAPI.events({ limit: 12 }).then(r => setEvents(r.data?.items || [])).catch(() => {});
     gemAPI.artists({ limit: 12 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
-    gemAPI.venues({ limit: 12 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
+    gemAPI.venues({ limit: 40 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
+    Promise.all([['map_global', 'global_business'], ['map_conferences', 'conferences'], ['map_recommended', 'recommended_sites']]
+      .map(([key, type]) => publicAPI.getMapLocations(type).then(r => ({ key, locations: Array.isArray(r.data) ? r.data : [] })).catch(() => ({ key, locations: [] }))))
+      .then(setMapTabs);
     publicAPI.getMaps().then(r => setMaps((r.data || []).filter(m => m.published !== false))).catch(() => {});
     publicAPI.getGallery().then(r => setGallery(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => {});
     publicAPI.getTestimonials().then(r => setTestimonials(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => {});
@@ -103,6 +110,7 @@ export default function Gem2iHome() {
   };
   const limitOf = (k, d = 12) => parseInt(smCfg(k).max_items, 10) || d;
   const methodologyItems = sm.gem_methodology?.items || [];
+  const isTpl01 = !['gem2i_02', 'gem2i_03'].includes(settings.active_theme);
 
   const renderers = {
     hero: () => {
@@ -204,7 +212,9 @@ export default function Gem2iHome() {
 
       </>),
     gem_methodology: () => (methodologyItems.length > 0
-      ? <GemSteps config={smCfg('gem_methodology')} items={methodologyItems} testid="gem2i-methodology" />
+      ? (isTpl01
+        ? <GemMethodCycle config={smCfg('gem_methodology')} items={methodologyItems} brand={brand} />
+        : <GemSteps config={smCfg('gem_methodology')} items={methodologyItems} testid="gem2i-methodology" />)
       : (<>
       {/* METHODOLOGY — a real 3-step sequence (legacy 1/2/3) */}
       {c.methodology && Array.isArray(c.methodology.steps) && c.methodology.steps.length > 0 && (
@@ -225,13 +235,17 @@ export default function Gem2iHome() {
       )}
 
       </>)),
-    gem_festivals: () => <LogoCarousel
+    gem_festivals: () => isTpl01
+      ? <GemFestivalBento config={smCfg('gem_festivals_cfg')} items={festivals} />
+      : <LogoCarousel
         section={withCatalogItems(override(c.festivals, 'gem_festivals_cfg'), festivals.slice(0, limitOf('gem_festivals_cfg')), f => ({
           title: f.title, url: `/festivals/${f.slug}`, date: f.range_dates || f.event_date,
           image: gemImg(f.image_urls?.flyer) || gemImg(f.image_urls?.logo),
         }))}
         testid="gem2i-festivals" />,
-    gem_conferences: () => <LogoCarousel
+    gem_conferences: () => isTpl01
+      ? <GemConferenceCards config={smCfg('gem_conferences_cfg')} items={conferences} limit={Math.min(limitOf('gem_conferences_cfg', 4), 8)} />
+      : <LogoCarousel
         section={withCatalogItems(override(c.conferences, 'gem_conferences_cfg'), conferences.slice(0, limitOf('gem_conferences_cfg')), cf => ({
           title: cf.title, url: `/conferences/${cf.slug}`, date: cf.range_dates || cf.event_date,
           image: gemImg(cf.image_urls?.logo) || gemImg(cf.image_urls?.flyer),
@@ -265,7 +279,11 @@ export default function Gem2iHome() {
       )}
 
       </>),
-    gem_clients: () => (<>
+    gem_clients: () => (isTpl01 ? (() => {
+      const cl = override(c.clients, 'gem_clients_cfg');
+      if (!cl) return null;
+      return <GemClientsGrid kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cl.text)} logos={cl.logos?.length > 0 ? cl.logos : clientLogos} />;
+    })() : (<>
       {/* CLIENTS */}
       {override(c.clients, 'gem_clients_cfg') && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-clients">
@@ -284,40 +302,46 @@ export default function Gem2iHome() {
           )}
         </section>
       )}
-      </>),
-    gem_events: () => (
-      <GemCatalogStrip config={smCfg('gem_events_cfg')} fallbackTitle={{ en: 'Upcoming events', es: 'Próximos eventos' }} testid="gem2i-events"
+      </>)),
+    gem_events: () => (isTpl01
+      ? <GemEventPosters config={smCfg('gem_events_cfg')} items={events.slice(0, limitOf('gem_events_cfg'))} />
+      : <GemCatalogStrip config={smCfg('gem_events_cfg')} fallbackTitle={{ en: 'Upcoming events', es: 'Próximos eventos' }} testid="gem2i-events"
         items={events.slice(0, limitOf('gem_events_cfg')).map(e => ({
           title: e.title, url: `/events/${e.slug}`, meta: e.event_date, metaIcon: 'date',
           image: gemImg(e.image_urls?.flyer) || gemImg(e.image_urls?.logo),
         }))} />
     ),
-    gem_artists: () => (
-      <GemCatalogStrip config={smCfg('gem_artists_cfg')} fallbackTitle={{ en: 'Artists', es: 'Artistas' }} testid="gem2i-artists" square
+    gem_artists: () => (isTpl01
+      ? <GemArtistMosaic config={smCfg('gem_artists_cfg')} items={artists} />
+      : <GemCatalogStrip config={smCfg('gem_artists_cfg')} fallbackTitle={{ en: 'Artists', es: 'Artistas' }} testid="gem2i-artists" square
         items={artists.slice(0, limitOf('gem_artists_cfg')).map(a => ({
           title: a.title || a.name, url: `/artists/${a.slug}`, meta: a.country, metaIcon: 'place',
           image: gemImg(a.image_urls?.photo) || gemImg(a.image_urls?.main) || gemImg(Object.values(a.image_urls || {})[0]),
         }))} />
     ),
-    gem_venues: () => (
-      <GemCatalogStrip config={smCfg('gem_venues_cfg')} fallbackTitle={{ en: 'Venues', es: 'Venues' }} testid="gem2i-venues" square
+    gem_venues: () => (isTpl01
+      ? <GemVenueCards config={smCfg('gem_venues_cfg')} items={venues} limit={Math.min(limitOf('gem_venues_cfg', 3), 6)} />
+      : <GemCatalogStrip config={smCfg('gem_venues_cfg')} fallbackTitle={{ en: 'Venues', es: 'Venues' }} testid="gem2i-venues" square
         items={venues.slice(0, limitOf('gem_venues_cfg')).map(v => ({
           title: v.name || v.title, url: `/venues/${v.slug}`, meta: [v.city, v.country].filter(Boolean).join(', '), metaIcon: 'place',
           image: gemImg(v.image_urls?.logo) || gemImg(v.image_urls?.photo) || gemImg(Object.values(v.image_urls || {})[0]),
         }))} />
     ),
-    aurex_audience: () => <GemAudience {...(sm.aurex_audience || {})} />,
-    aurex_process: () => <GemSteps {...(sm.aurex_process || {})} />,
-    aurex_pricing: () => <GemPricing {...(sm.aurex_pricing || {})} />,
-    aurex_team: () => <GemTeam {...(sm.aurex_team || {})} />,
-    aurex_video: () => <GemVideo {...(sm.aurex_video || {})} />,
-    aurex_partners: () => <GemLogos {...(sm.aurex_partners || {})} testid="gem2i-partners" />,
+    // Template 01 = approved bocetos A-3 / P-1; P-2 is reserved for 02/03.
+    aurex_audience: () => (isTpl01 ? <GemAudienceList {...(sm.aurex_audience || {})} /> : <GemAudience {...(sm.aurex_audience || {})} />),
+    aurex_process: () => (isTpl01 ? <GemTimeline {...(sm.aurex_process || {})} /> : <GemSteps {...(sm.aurex_process || {})} />),
+    aurex_pricing: () => (isTpl01 ? <GemPricingTiers {...(sm.aurex_pricing || {})} /> : <GemPricing {...(sm.aurex_pricing || {})} />),
+    aurex_team: () => (isTpl01 ? <GemTeamPortraits {...(sm.aurex_team || {})} /> : <GemTeam {...(sm.aurex_team || {})} />),
+    aurex_video: () => (isTpl01 ? <GemVideoCover {...(sm.aurex_video || {})} /> : <GemVideo {...(sm.aurex_video || {})} />),
+    aurex_partners: () => (isTpl01 ? <GemLogoMarquee {...(sm.aurex_partners || {})} testid="gem2i-partners" /> : <GemLogos {...(sm.aurex_partners || {})} testid="gem2i-partners" />),
     aurex_clients: () => <GemLogos {...(sm.aurex_clients || {})} testid="gem2i-aurex-clients" />,
-    testimonials: () => <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />,
+    testimonials: () => (isTpl01 ? <GemTestimonialSpotlight config={smCfg('aurex_testimonials_cfg')} items={testimonials} /> : <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />),
     contact: () => <GemContactBand />,
     news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
-    map: () => <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />,
-    gallery: () => <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />,
+    map: () => (isTpl01
+      ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
+      : <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />),
+    gallery: () => (isTpl01 ? <GemGalleryMarquee config={smCfg('aurex_gallery_cfg')} items={gallery} /> : <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />),
   };
 
   const order = (layout.section_order && layout.section_order.some(k => renderers[k]))

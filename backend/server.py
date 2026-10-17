@@ -41,6 +41,7 @@ from routes.gem_calendar import router as gem_calendar_router, ensure_calendar_i
 from routes.gem_coupons import router as gem_coupons_router, ensure_coupon_indexes
 from routes.gem_membership import router as gem_membership_router, ensure_membership_indexes
 from routes.gem_sections import router as gem_sections_router
+from routes.gem_points import router as gem_points_router, ensure_points_indexes
 from routes.enrollment import router as enrollment_router, seed_enrollment_fields
 
 api_router.include_router(auth_router)
@@ -64,6 +65,7 @@ api_router.include_router(gem_calendar_router)
 api_router.include_router(gem_coupons_router)
 api_router.include_router(gem_membership_router)
 api_router.include_router(gem_sections_router)
+api_router.include_router(gem_points_router)
 api_router.include_router(gem_catalogs_router)
 api_router.include_router(enrollment_router)
 
@@ -85,6 +87,7 @@ async def startup():
     await ensure_calendar_indexes()
     await ensure_coupon_indexes()
     await ensure_membership_indexes()
+    await ensure_points_indexes()
     await seed_gem_ecommissions()
     await seed_enrollment_fields()
     from utils.email_render import ensure_templates_seeded

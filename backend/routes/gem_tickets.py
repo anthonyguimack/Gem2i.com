@@ -5,7 +5,7 @@ Public:
   POST /api/public/gem/payment-webhook                        Stripe webhook (verified)
 
 Member (identity from JWT ONLY):
-  POST /api/member/gem/checkout                    {event_id, tier, quantity, origin_url}
+  POST /api/member/gem/checkout                    {event_id, tier, quantity, origin_url, ref?}
   GET  /api/member/gem/checkout-status/{session_id}   poll from the success page
   GET  /api/member/gem/my-tickets/{event_id}
 
@@ -145,6 +145,8 @@ async def _complete_ticket(tx: dict, background: BackgroundTasks | None = None) 
     if res.modified_count == 0:  # lost the race to another completer — no double QR/email
         return await db.gem_transactions.find_one({"id": tx["id"]}, {"_id": 0})
     tx = {**tx, **patch}
+    from routes.gem_points import award_ticket_points
+    await award_ticket_points(tx, ev)
     if tx.get("coupon"):
         from routes.gem_coupons import record_redemption
         await record_redemption(tx["coupon"]["id"], tx.get("member_id"), "tickets", tx["id"],
@@ -266,6 +268,8 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
         raise HTTPException(status_code=422, detail="amount_below_minimum")
     name, email = _member_display(member)
     tx_id = str(uuid.uuid4())
+    from routes.gem_points import resolve_referrer
+    referrer_id = await resolve_referrer(body.get("ref"), member["member_id"])
 
     session = None
     if total > 0:
@@ -298,6 +302,7 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
         "total": total,
         "currency": currency,
         "coupon": coupon_doc,
+        "referrer_member_id": referrer_id,   # B5: inviter from the share link
         "payment": ({"provider": "stripe", "session_id": session.session_id} if session
                     else {"provider": "coupon", "session_id": f"free_{tx_id}"}),
         "created_at": _now_iso(),

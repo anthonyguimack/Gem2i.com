@@ -38,5 +38,11 @@ Paid membership = registered member buys monthly/annual (one-time Stripe, no aut
 - **D8 Branding:** keep gem2i identity as-is (pure tech migration, no rebrand).
 - **D5 Hosting:** dedicated box — now concrete (34.198.159.54).
 
+## D-GEM-2026-06 — Points B3/B5 = legacy rules + safety (2026-10-17, Anthony)
+Ported only the 4 point rules the legacy PHP actually awards (purchase_for_self, friend_purchased_via_invite, invite_to_purchase_share, guest-list yourself_points on the pass). Added: idempotent `dedupe_key`, share points max once per member/event/day (legacy paid every click), no self-referral.
+
+## D-GEM-2026-07 — Home designs per template (2026-10-17, Anthony)
+Each gem2i template gets its own section designs, approved from HTML bocetos in `work-plans-MD/bocetos/`. Template 01 = M-3, A-3, P-1, E-2, R-2, V-1, F-2, C-1, W-1, P-1(plans), T-1, Q-1, G-2, B-1, K-1 + A Capital's map. Reserved for 02/03: How-it-works P-2, Festivals F-1. Unchosen templates keep the previous renderers.
+
 ## Standing security note
 The legacy PHP source carries live secrets (SES SMTP, MySQL, Facebook, reCAPTCHA). Rotate them at cutover time; NEVER copy any into repo/plan/memory.

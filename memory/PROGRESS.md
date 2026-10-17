@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-10-17 (session 8, Anthony's machine) — B3/B5 points, real Site Content photos, template-01 home redesign (all DEPLOYED to beta)
+
+**Shipped (beta.gem2i.com, health 200 after every deploy, verified in the browser at 1280px):**
+- **B3/B5 reward points** (`routes/gem_points.py`), rules read from the legacy PHP in `C:6\Acapitalgroup.com\Gem2i.com-backup-del-plesk` (`paypal_ipn.php`, `ajax/points-invite-event.php`, `ajax/ajax-event-add-gues-list.php`): paid ticket → buyer `purchase_for_self` (flat per tx); bought via invite link `?ref=GEM-n` → inviter `friend_purchased_via_invite`; share → `invite_to_purchase_share`; guest-list join stores `yourself_points` ON the pass (no history row). Other configured values were never awarded by legacy → not awarded. Safety vs legacy: unique `dedupe_key` (webhook retries can't double-pay), share once/member/event/day, no self-referral. Rows in `gem_points_history` (`source:'gem2i'`). Endpoints `GET /member/gem/points`, `POST /member/gem/events/{id}/share`; "Invite friends & earn points" button in the ticket widget. **Not e2e-tested** (needs Stripe + member login).
+- **Site Content photos:** intro + 3 featured cards now real legacy photos (crops of Ushuaia / Mirage / Amnesia / a DJ portrait) in `/opt/beta.gem2i.com/backend/uploads/gem2i/site/`. Backup `/opt/_port_backups/gem_content_before_photos_20261017-124614.json`.
+- **Home template 01 (`gem2i`) redesign from approved bocetos** (`work-plans-MD/bocetos/secciones-*.html`); templates 02/03 keep the old renderers (`isTpl01` in Gem2iHome):
+  - Methodology M-3 (cycle) · Who it is for A-3 (editorial list, new `image` item field) · How it works P-1 (timeline). **P-2 reserved for 02/03.**
+  - Upcoming events E-2 (posters; ≤2 events + "list your event" tile, ≥3 → carousel) · Artists R-2 (featured + 6 grid) · Venues V-1 (view photo + logo; photo-first, imageless skipped) · Festivals F-2 (bento) · Conferences C-1 (logo cards). **F-1 reserved for another template.**
+  - Watch W-1 (cover + play, player in a modal) · Plans P-1 · Team T-1 · Testimonials Q-1 (one quote) · Gallery G-2 (two drifting rows + full-screen viewer, ←/→/Esc) · Partners B-1 (logo marquee) · Clients K-1 (logo grid).
+  - **Where GEM2i plays = port of A Capital `components/ModernMaps.js`** (AUX-1.0 @1775e05) → `components/gem2i/GemModernMaps.js` (graphite layout default, gem2i blue; `layout:'split'` on aurex_locations_cfg for the light one); tabs from `/public/map-locations` map types.
+
+**Data changes on the box:** audience test items got `image`; `gem_section_configs.aurex_video.poster_url` = site/gem_events.jpg (the test YouTube video has no thumbnail).
+
+**Open / human:** Team, Testimonials ("Legacy Consulting"), Partners (placeholders), Gallery and map locations are still fork/test content → replace in CMS. Events carousel (≥3) untested live (only 2 future events). Points need an e2e purchase.
+
 ## 2026-10-16 (session 7, Anthony's machine) — A Capital → GEM2I audit + F0–F6 port + Section Manager + 3 templates, all DEPLOYED to beta
 
 **Audit:** `work-plans-MD/auditoria-acapital-a-gem2i-2026-10-16.md` (A Capital `1775e05`, 267 commits since the Carlos port base `8a0d4dd`). Plan F0–F6, all executed this session.

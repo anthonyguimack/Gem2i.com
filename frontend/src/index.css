@@ -654,3 +654,18 @@ body:has([data-testid="membership-enrollment"]) [role="dialog"][data-state="open
   .gem-service-card:hover { transform: translateY(-3px); border-color: rgba(95, 178, 224, 0.35) !important; }
 }
 @media (prefers-reduced-motion: reduce) { .gem-service-card:hover { transform: none; } }
+
+/* gem2i «Where GEM2i plays» (components/gem2i/GemModernMaps.js, port of A Capital
+   ModernMaps): greyscale tiles, numbered pins, gem2i blue when active. */
+.modern-map .leaflet-tile-pane { filter: grayscale(1) contrast(1.02) brightness(1.03); }
+.modern-map--dark .leaflet-tile-pane { filter: grayscale(1) invert(1) brightness(.82) contrast(.92); }
+.modern-map .leaflet-container { background: #eceef0; font-family: inherit; }
+.modern-map--dark .leaflet-container { background: #1f2024; }
+.mm-pin-wrap { background: none; border: 0; }
+.mm-pin { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9999px;
+  background: #16171a; color: #fff; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.28);
+  transform: scale(.86); transition: transform 160ms cubic-bezier(.23,1,.32,1), background-color 160ms ease; }
+.mm-pin b { font: 700 11px/1 inherit; font-variant-numeric: tabular-nums; }
+.modern-map--dark .mm-pin { background: #fff; color: #16171a; border-color: #16171a; }
+.mm-pin.is-active { transform: scale(1.08); background: var(--color-accent, #3287B7); color: #fff; border-color: #fff; }
+@media (prefers-reduced-motion: reduce) { .mm-pin { transition: none; } }

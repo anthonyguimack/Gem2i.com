@@ -38,6 +38,7 @@ export const AUREX_SECTIONS = {
       { key: 'icon',        label: 'Icon', type: 'icon',     placeholder: 'briefcase' },
       { key: 'title',       label: 'Title',              type: 'text',     required: true },
       { key: 'description', label: 'Description',        type: 'rich' },
+      { key: 'image',       label: 'Photo (gem2i 01: shown on hover)', type: 'image' },
     ],
     itemPreview: (i) => adminText(i.title),
   },
