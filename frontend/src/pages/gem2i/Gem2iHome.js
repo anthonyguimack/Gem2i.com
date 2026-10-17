@@ -11,11 +11,14 @@ import { slideForAudience, isLoggedInUser } from '../../lib/heroAudience';
 import { AUREX_FONTS } from '../../lib/themeColors';
 import { GemHeroA, GemHeroB, GemHeroC } from '../../components/gem2i/GemHeroVariants';
 import GemModernMaps from '../../components/gem2i/GemModernMaps';
+import GemContactSection from '../../components/gem2i/GemContactSection';
+import AccentTitle from '../../components/gem2i/AccentTitle';
+import { LOOKS, readLook, toneOf } from '../../lib/gemLook';
 import {
   GemAudience, GemSteps, GemMethodCycle, GemAudienceList, GemTimeline,
   GemEventPosters, GemArtistMosaic,
-  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
-  GemCatalogStrip, GemContactBand, GemTicker, GemLocations, GemGallery,
+  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
+  GemCatalogStrip, GemTicker, GemLocations, GemGallery,
   GemIntroPhoto, GemFeaturedCards, GemServicesGrid,
 } from '../../components/gem2i/GemSections';
 
@@ -34,7 +37,7 @@ const DEFAULT_ORDER = [
   'testimonials', 'gem_media', 'gallery', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
 ];
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /**
  * gem2i homepage (GEM2I_MIGRATION_PLAN Phase 1 / §2): hero slides → intro →
@@ -84,7 +87,7 @@ export default function Gem2iHome() {
       .then(rows => setSm(Object.fromEntries(rows.filter(([, v]) => v))));
     gemAPI.events({ limit: 12 }).then(r => setEvents(r.data?.items || [])).catch(() => {});
     gemAPI.artists({ limit: 12 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
-    gemAPI.venues({ limit: 40 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
+    gemAPI.venues({ limit: 150 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
     Promise.all([['map_global', 'global_business'], ['map_conferences', 'conferences'], ['map_recommended', 'recommended_sites']]
       .map(([key, type]) => publicAPI.getMapLocations(type).then(r => ({ key, locations: Array.isArray(r.data) ? r.data : [] })).catch(() => ({ key, locations: [] }))))
       .then(setMapTabs);
@@ -93,6 +96,33 @@ export default function Gem2iHome() {
     publicAPI.getTestimonials().then(r => setTestimonials(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.active_theme]);
+
+  // Arriving at /#contact (any "Contact us" from another page): the route's
+  // scroll-to-top and late-loading sections move things around, so keep
+  // re-aligning #contact under the header for a few seconds, and stop as soon
+  // as the visitor scrolls on their own.
+  useEffect(() => {
+    if (window.location.hash !== '#contact' || !content || !layout) return undefined;
+    let ticks = 0;
+    let stopped = false;
+    const stop = () => { stopped = true; };
+    window.addEventListener('wheel', stop, { passive: true });
+    window.addEventListener('touchmove', stop, { passive: true });
+    window.addEventListener('keydown', stop);
+    const id = setInterval(() => {
+      const el = document.getElementById('contact');
+      if (stopped || ++ticks > 25) { clearInterval(id); return; }
+      if (el && Math.abs(el.getBoundingClientRect().top - 72) > 4) {
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 72, behavior: 'instant' }); // 'auto' inherits html smooth-scroll and each tick cancels the last
+      }
+    }, 200);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchmove', stop);
+      window.removeEventListener('keydown', stop);
+    };
+  }, [content, layout]);
 
   if (!content || !layout) {
     return <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }} />;
@@ -110,15 +140,17 @@ export default function Gem2iHome() {
   };
   const limitOf = (k, d = 12) => parseInt(smCfg(k).max_items, 10) || d;
   const methodologyItems = sm.gem_methodology?.items || [];
-  const isTpl01 = !['gem2i_02', 'gem2i_03'].includes(settings.active_theme);
+  // All three gem2i templates share the approved section designs (2026-10-17,
+  // "copy everything from 01 to 02 and 03"); templates differ by their hero.
+  const isTpl01 = true;
 
   const renderers = {
     hero: () => {
       const tpl = settings.active_theme;
       const slide = heroSlides[0];
-      if (tpl === 'gem2i_02') return <GemHeroB slide={slide} event={events[0]} />;
-      if (tpl === 'gem2i_03') return <GemHeroC slide={slide} events={events} />;
-      return <GemHeroA slide={slide} />;
+      if (tpl === 'gem2i_02') return <GemHeroB slide={slide} slides={heroSlides} event={events[0]} />;
+      if (tpl === 'gem2i_03') return <GemHeroC slide={slide} slides={heroSlides} events={events} />;
+      return <GemHeroA slide={slide} slides={heroSlides} />;
     },
     legacy_hero: () => (<>
       {/* HERO — CMS hero-canvas slides; branded static fallback until slides are entered */}
@@ -164,7 +196,7 @@ export default function Gem2iHome() {
               <div key={i} className="md:px-2">
                 <p className="text-xs font-medium uppercase tracking-[0.25em] mb-2" style={{ color: 'var(--color-accent, #3287B7)' }}>{tt(f.kicker)}</p>
                 <h3 className="text-white text-2xl font-bold tracking-wide mb-4">{tt(f.title)}</h3>
-                <p className="text-sm leading-[1.85] mb-5" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{tt(f.text)}</p>
+                <p className="text-[15px] md:text-base leading-[1.7] mb-5" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{tt(f.text)}</p>
                 {f.url && (
                   <Link to={f.url} className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-white" style={{ color: 'var(--color-link, #5FB2E0)' }}>
                     {tt({ en: 'Explore', es: 'Explorar' })} <ArrowRight className="w-3.5 h-3.5" />
@@ -184,7 +216,7 @@ export default function Gem2iHome() {
           <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
             <p className="text-white text-lg md:text-xl font-medium" style={{ textWrap: 'balance' }}>{tt(c.services_banner.text)}</p>
             <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('gem2i:open-contact'))}
-              className="shrink-0 px-6 py-2.5 text-sm font-semibold uppercase tracking-wider rounded-sm bg-white transition-opacity hover:opacity-85"
+              className="shrink-0 px-6 py-2.5 text-[15px] font-semibold rounded-sm bg-white transition-opacity hover:opacity-85"
               style={{ color: 'var(--color-accent, #3287B7)' }} data-testid="gem2i-banner-contact">
               {tt({ en: 'Contact Us', es: 'Contáctanos' })}
             </button>
@@ -226,7 +258,7 @@ export default function Gem2iHome() {
                 <div key={i}>
                   <span className="block text-5xl font-bold leading-none mb-5" style={{ color: 'var(--color-accent, #3287B7)', opacity: 0.9 }}>{i + 1}</span>
                   <h3 className="text-white text-lg font-semibold mb-3">{tt(s.title)}</h3>
-                  <p className="text-sm leading-[1.85]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{tt(s.text)}</p>
+                  <p className="text-[15px] md:text-base leading-[1.7]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{tt(s.text)}</p>
                 </div>
               ))}
             </div>
@@ -288,7 +320,7 @@ export default function Gem2iHome() {
       {override(c.clients, 'gem_clients_cfg') && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-clients">
           <SectionHeading kicker={tt(override(c.clients, 'gem_clients_cfg').kicker)} title={tt(override(c.clients, 'gem_clients_cfg').title)} />
-          <p className="mt-6 max-w-3xl text-sm md:text-[15px] leading-[1.85]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
+          <p className="mt-6 max-w-3xl text-base md:text-[17px] leading-[1.7]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
             {tt(override(c.clients, 'gem_clients_cfg').text)}
           </p>
           {(override(c.clients, 'gem_clients_cfg').logos?.length > 0 ? override(c.clients, 'gem_clients_cfg').logos : clientLogos).length > 0 && (
@@ -320,7 +352,7 @@ export default function Gem2iHome() {
         }))} />
     ),
     gem_venues: () => (isTpl01
-      ? <GemVenueCards config={smCfg('gem_venues_cfg')} items={venues} limit={Math.min(limitOf('gem_venues_cfg', 3), 6)} />
+      ? <GemVenueGrid config={smCfg('gem_venues_cfg')} items={venues} limit={Math.min(limitOf('gem_venues_cfg', 12), 12)} />
       : <GemCatalogStrip config={smCfg('gem_venues_cfg')} fallbackTitle={{ en: 'Venues', es: 'Venues' }} testid="gem2i-venues" square
         items={venues.slice(0, limitOf('gem_venues_cfg')).map(v => ({
           title: v.name || v.title, url: `/venues/${v.slug}`, meta: [v.city, v.country].filter(Boolean).join(', '), metaIcon: 'place',
@@ -336,7 +368,7 @@ export default function Gem2iHome() {
     aurex_partners: () => (isTpl01 ? <GemLogoMarquee {...(sm.aurex_partners || {})} testid="gem2i-partners" /> : <GemLogos {...(sm.aurex_partners || {})} testid="gem2i-partners" />),
     aurex_clients: () => <GemLogos {...(sm.aurex_clients || {})} testid="gem2i-aurex-clients" />,
     testimonials: () => (isTpl01 ? <GemTestimonialSpotlight config={smCfg('aurex_testimonials_cfg')} items={testimonials} /> : <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />),
-    contact: () => <GemContactBand />,
+    contact: () => <GemContactSection />,
     news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
     map: () => (isTpl01
       ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
@@ -349,13 +381,21 @@ export default function Gem2iHome() {
   const visibility = layout.sections || {};
   const sectionCfg = layout.section_configs || {};
 
+  // Lighting preview (?look=l1|l2|l3) overrides the Page Builder colours for
+  // its sections; otherwise each section uses its Page Builder bg_color.
+  const look = LOOKS[readLook()] || null;
   return (
-    <div style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-home">
+    <div className={`${look?.root || ''}${settings.active_theme === 'gem2i_02' ? ' gem-tpl-wide' : ''}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-home" data-look={readLook() || 'off'}>
       {order.filter(k => renderers[k] && visibility[k]?.enabled !== false).map(k => {
         const cfg = sectionCfg[k] || {};
         const font = AUREX_FONTS.find(f => f.key === cfg.font_family)?.css;
-        const style = (cfg.bg_color || font) ? { ...(cfg.bg_color ? { backgroundColor: cfg.bg_color } : {}), ...(font ? { fontFamily: font } : {}) } : undefined;
-        return <div key={k} style={style} data-section={k}>{renderers[k]()}</div>;
+        // hero / ticker / video carry their own imagery: never repainted
+        const paintable = !['hero', 'legacy_hero', 'news_ticker', 'aurex_video'].includes(k);
+        const bg = paintable ? ((look && look.bg[k]) || cfg.bg_color || null) : null;
+        const tone = toneOf(bg);
+        const style = (bg || font) ? { ...(bg ? { background: bg } : {}), ...(font ? { fontFamily: font } : {}) } : undefined;
+        const cls = bg ? `gem-has-bg gem-tone-${tone || 'dark'}` : undefined;
+        return <div key={k} className={cls} style={style} data-section={k}>{renderers[k]()}</div>;
       })}
     </div>
   );
@@ -373,8 +413,8 @@ function withCatalogItems(section, docs, toItem) {
 function SectionHeading({ kicker, title }) {
   return (
     <div>
-      {kicker && <p className="text-xs font-medium uppercase tracking-[0.3em] mb-1.5" style={{ color: 'var(--color-accent, #3287B7)' }}>{kicker}</p>}
-      <h2 className="text-white font-bold" style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.5rem)' }}>{title}</h2>
+      {kicker && <p className="gem-eyebrow mb-3" style={{ color: 'var(--color-accent, #3287B7)' }}>{kicker}</p>}
+      <h2 className="text-white font-bold leading-[1.08]" style={{ fontSize: 'clamp(1.9rem, 3.6vw, 2.9rem)' }}><AccentTitle text={title} /></h2>
     </div>
   );
 }

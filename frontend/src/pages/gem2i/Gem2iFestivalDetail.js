@@ -7,7 +7,7 @@ import { normalizeRichText } from '../../lib/richText';
 import { gemImg, CardImage, SocialLinks, SkeletonGrid, ArtistCard } from '../../components/gem2i/GemCatalogBits';
 import { NotFoundShell } from './Gem2iArtistDetail';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Shared detail page for festivals AND conferences (same document shape).
  *  `kind` prop switches the API call + back link. */

@@ -7,7 +7,7 @@ import { normalizeRichText } from '../../lib/richText';
 import { gemImg, CardImage, FollowButton, SocialLinks, SkeletonGrid, TypeBadge } from '../../components/gem2i/GemCatalogBits';
 import { NotFoundShell } from './Gem2iArtistDetail';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 export default function Gem2iVenueDetail() {
   const { slug } = useParams();

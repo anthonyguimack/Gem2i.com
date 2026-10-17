@@ -6,7 +6,7 @@ import {
   EmptyState, ArtistCard,
 } from '../../components/gem2i/GemCatalogBits';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Artists catalog (plan A6): three rosters (GEM / DJ Mag Top 100 / Residents)
  *  + continent / genre / name filters. Roster tabs sort by that roster's rank. */

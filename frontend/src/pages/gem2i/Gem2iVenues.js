@@ -7,7 +7,7 @@ import {
   EmptyState, CardImage, gemImg,
 } from '../../components/gem2i/GemCatalogBits';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Venues catalog (plan A7): continent tabs + name search + logo wall grid. */
 export default function Gem2iVenues() {

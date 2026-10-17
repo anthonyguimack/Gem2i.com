@@ -7,7 +7,7 @@ import { useT } from '../../lib/i18n';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iCookieNotice from './Gem2iCookieNotice';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /**
  * gem2i public footer — brand blurb + HQ contact block (from gem_config

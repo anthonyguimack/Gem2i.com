@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-10-17 (session 8, part 2) — partners, Contact section, typography T-2, hero carousel, lighting, contrast, legacy content, venues grid, all templates, 02 wide (all DEPLOYED to beta)
+
+**Shipped (beta, health 200 after each deploy; verified in the browser):**
+- **Partners:** 11 real legacy sponsors (images_sponsors + gem2ica `sponsors` table names) in `/opt/beta.gem2i.com/backend/uploads/gem2i/partners/`, replacing the 3 placeholders (backup `/opt/_port_backups/partners_before_*.json`); marquee shows them as white silhouettes.
+- **Contact Us = homepage section** (`GemContactSection.js`, port of A Capital ModernContact). Every contact button / tab / side-menu / `gem2i:open-contact` / `/contact` route → `/#contact` (window.scrollTo, re-aligns for late-loading sections). Slide-in panel no longer mounted.
+- **Typography T-2** (bocetos/tipografia.html): Manrope text (all public gem2i files), Playfair titles with last word in italic accent (`AccentTitle.js`, `.gem-accent`), `.gem-eyebrow` with rule, bigger scale (15-17px body), sentence-case buttons/menu.
+- **Header hover H-3** (bocetos/menu-hover.html): blue + rising dot; `.gem-nav-link` / `.gem-nav-pill` (inline colours removed).
+- **Hero:** carousel for A, B and C (`useHeroCarousel`, 7s, dots/arrows/keys, pause); fits `100svh - 130px`, controls in content flow; Aurex fill button on "More information"; CMS slide HTML stripped. 02 keeps the featured-event card, 03 the upcoming strip.
+- **Lighting** (bocetos/home-luz.html): Page Builder colours now win (inner section bg cleared), light backgrounds flip text to dark automatically (`.gem-tone-light`), blue bands (`.gem-tone-blue`). Preview flag `?look=l1|l2|l3|off` (`lib/gemLook.js`); L-3 bands use the legacy brand gradient `#002444 → #0068b3`. **No look chosen as definitive yet.**
+- **Contrast WCAG AA:** audit script (text on colour + text on photos) → 0 issues in off/L-1/L-2/L-3. Text-safe link tints per surface; CMS `theme_colors.website.accent/button_bg = #0068b3` (backup `/opt/_port_backups/theme_colors_before_accent_*.json`). button_hover_bg/link_color/tab/icon still `#4894ca`.
+- **Page Builder editor:** unset section shows the theme default (gem2i `#04080C`, not white) + "Default" swatch to clear.
+- **nginx cache policy** (live + `scripts/gem2i_nginx.conf`): index.html no-cache, /static immutable, /api no-store, /api/uploads 7d. Backup `/opt/_port_backups/nginx_beta.gem2i.com_*.conf`.
+- **Legacy home content** (`scripts/gem2i_load_legacy_home_content.js`): methodology Goal definition/Analysis/Implementation, Marketing banner, Media video vy-k0FopsmY, real offices on the map (NY, Spain, Lima, Buenos Aires, Santo Domingo), real team (6, initials until photos). Backup `legacy_home_content_before_*.json`.
+- **Venues = legacy venues.php grid** (`GemVenueGrid`): full-bleed numbered photo tiles, logo circle (grey→colour), hover veil with name/location/View details; venues fetch 150.
+- **01 designs on all templates** (`isTpl01 = true`); Page Builder configs/order copied gem2i → gem2i_02/03 (backup `pagebuilder_before_tpl_copy_*.json`). **Template 02 = wide layout** (`.gem-tpl-wide`: full width, fluid margins, more grid columns ≥1536px). Active theme on beta: **gem2i_02**.
+
+**Open / human:** pick the definitive lighting look (then write it into Page Builder colours); Testimonials still fork text; team photos; SoundCloud track not added; points e2e; hover of hero/venue not mouse-tested in the browser.
+
 ## 2026-10-17 (session 8, Anthony's machine) — B3/B5 points, real Site Content photos, template-01 home redesign (all DEPLOYED to beta)
 
 **Shipped (beta.gem2i.com, health 200 after every deploy, verified in the browser at 1280px):**

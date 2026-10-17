@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Menú hover</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bar:#05090d; --accent:#3287B7; --link:#5FB2E0; --muted:#7f8e9b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  .group { max-width:1400px; margin:0 auto; padding:52px 24px 12px; }
+  .group h2 { margin:0; font-size:22px; font-weight:700; }
+  .group p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.6; max-width:900px; }
+  .bar { max-width:1400px; margin:0 auto; background:var(--bar); border-radius:14px; height:84px; display:flex; align-items:center; padding:0 36px; gap:28px; }
+  .logo { font-weight:800; font-style:italic; letter-spacing:.02em; font-size:22px; margin-right:auto; }
+  nav { display:flex; gap:6px; align-items:center; }
+  nav a, .acct a { color:rgba(255,255,255,.88); text-decoration:none; font-size:14px; font-weight:600; white-space:nowrap; position:relative; }
+  nav a.on { color:var(--link); }
+  .acct { display:flex; gap:10px; align-items:center; margin-left:18px; }
+  .admin { border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:9px 16px !important; }
+  .hint { max-width:1400px; margin:10px auto 0; padding:0 24px; font-size:13px; color:var(--muted); }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+
+  /* H-1 underline grows from the centre */
+  .h1 nav a, .h1 .acct a:not(.admin) { padding:10px 12px; transition:color .2s; }
+  .h1 nav a::after, .h1 .acct a:not(.admin)::after { content:''; position:absolute; left:12px; right:12px; bottom:2px; height:2px; border-radius:2px; background:var(--link); transform:scaleX(0); transition:transform .3s cubic-bezier(.23,1,.32,1); }
+  .h1 nav a:hover, .h1 .acct a:hover { color:#fff; }
+  .h1 nav a:hover::after, .h1 nav a.on::after, .h1 .acct a:not(.admin):hover::after { transform:scaleX(1); }
+  .h1 .admin { transition:background-color .2s, border-color .2s; }
+  .h1 .admin:hover { border-color:var(--link); background:rgba(95,178,224,.1); }
+
+  /* H-2 soft pill behind the item */
+  .h2 nav a, .h2 .acct a { padding:10px 14px; border-radius:999px; transition:background-color .2s, color .2s; }
+  .h2 nav a:hover, .h2 .acct a:hover { background:rgba(255,255,255,.08); color:#fff; }
+  .h2 nav a.on { background:rgba(95,178,224,.14); }
+  .h2 .admin:hover { background:var(--accent); border-color:var(--accent); }
+
+  /* H-3 colour + small dot above */
+  .h3 nav a, .h3 .acct a:not(.admin) { padding:10px 12px; transition:color .2s; }
+  .h3 nav a::before, .h3 .acct a:not(.admin)::before { content:''; position:absolute; left:50%; top:-2px; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:var(--link); opacity:0; transform:translateY(5px); transition:opacity .2s, transform .25s cubic-bezier(.23,1,.32,1); }
+  .h3 nav a:hover, .h3 .acct a:not(.admin):hover { color:var(--link); }
+  .h3 nav a:hover::before, .h3 nav a.on::before, .h3 .acct a:not(.admin):hover::before { opacity:1; transform:none; }
+  .h3 .admin { transition:color .2s, border-color .2s; }
+  .h3 .admin:hover { color:var(--link); border-color:var(--link); }
+
+  /* H-4 one indicator that slides to the hovered item (JS below) */
+  .h4 nav { position:relative; }
+  .h4 nav a, .h4 .acct a { padding:10px 12px; transition:color .2s; }
+  .h4 nav a:hover, .h4 .acct a:hover { color:#fff; }
+  .h4 .ind { position:absolute; left:0; bottom:2px; width:100px; height:2px; border-radius:2px; background:var(--link); transform-origin:left; transition:transform .35s cubic-bezier(.23,1,.32,1); pointer-events:none; }
+  .h4 .admin { overflow:hidden; isolation:isolate; }
+  .h4 .admin::before { content:''; position:absolute; inset:0; border-radius:999px; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .45s ease-out; z-index:-1; }
+  .h4 .admin:hover::before { transform:scaleX(1); }
+  .h4 .admin:hover { border-color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="group"><h2>Bocetos: efecto al pasar el mouse en el menú</h2>
+<p>Pasa el mouse por cada barra. Todas son réplicas del header actual (Manrope 14 px, Home activo en azul). El mismo efecto se aplica a «My Account»; «Admin» (la píldora) tiene su propia versión. Elige H-1, H-2, H-3 o H-4.</p></div>
+
+<div class="group"><h2>H-1 · Subrayado que crece desde el centro</h2><p>Línea azul que se abre desde el centro bajo el ítem. El activo (Home) la tiene fija. Clásico y limpio. Admin: borde y fondo azul suave.</p></div>
+<div class="bar h1"><div class="logo">GEM2i</div><nav><a class="on">Home</a><a>About Us</a><a>Events</a><a>Festivals</a><a>Artists</a><a>Venues</a><a>Travels</a><a>Services</a><a>Partners</a></nav><div class="acct"><a>My Account</a><a class="admin">Admin</a></div></div>
+
+<div class="group"><h2>H-2 · Píldora suave detrás</h2><p>Aparece un fondo redondeado translúcido detrás del ítem; el activo tiene una píldora azul tenue fija. Muy visible, estilo app. Admin: se rellena de azul.</p></div>
+<div class="bar h2"><div class="logo">GEM2i</div><nav><a class="on">Home</a><a>About Us</a><a>Events</a><a>Festivals</a><a>Artists</a><a>Venues</a><a>Travels</a><a>Services</a><a>Partners</a></nav><div class="acct"><a>My Account</a><a class="admin">Admin</a></div></div>
+
+<div class="group"><h2>H-3 · Color azul + punto arriba</h2><p>El texto pasa a azul y un punto pequeño sube encima. Más discreto, encaja con los puntos de la franja de noticias. Admin: texto y borde azul.</p></div>
+<div class="bar h3"><div class="logo">GEM2i</div><nav><a class="on">Home</a><a>About Us</a><a>Events</a><a>Festivals</a><a>Artists</a><a>Venues</a><a>Travels</a><a>Services</a><a>Partners</a></nav><div class="acct"><a>My Account</a><a class="admin">Admin</a></div></div>
+
+<div class="group"><h2>H-4 · Indicador que se desliza (estilo Aurex)</h2><p>Una sola línea azul que viaja de un ítem a otro siguiendo el mouse y vuelve al activo al salir. El más «vivo». Admin: se rellena de izquierda a derecha como el botón «More information» del hero.</p></div>
+<div class="bar h4"><div class="logo">GEM2i</div><nav id="n4"><a class="on">Home</a><a>About Us</a><a>Events</a><a>Festivals</a><a>Artists</a><a>Venues</a><a>Travels</a><a>Services</a><a>Partners</a><span class="ind"></span></nav><div class="acct"><a>My Account</a><a class="admin">Admin</a></div></div>
+<p class="hint">Recomendación: <b>H-4</b> si quieres el mismo lenguaje que el botón del hero (relleno + movimiento); <b>H-1</b> si prefieres algo sobrio. Todas respetan «reducir movimiento» y funcionan también con teclado (foco).</p>
+<div style="height:80px"></div>
+
+<script>
+  const nav = document.getElementById('n4'), ind = nav.querySelector('.ind'), links = [...nav.querySelectorAll('a')];
+  const place = (a) => { const r = a.getBoundingClientRect(), n = nav.getBoundingClientRect(); ind.style.transform = `translateX(${r.left - n.left + 12}px) scaleX(${(r.width - 24) / 100})`; };
+  const home = () => place(nav.querySelector('.on'));
+  links.forEach(a => a.addEventListener('mouseenter', () => place(a)));
+  nav.addEventListener('mouseleave', home);
+  window.addEventListener('resize', home);
+  document.fonts.ready.then(home);
+</script>
+</body>
+</html>

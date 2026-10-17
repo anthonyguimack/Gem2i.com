@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Tipografía</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bg2:#0A121A; --card:#0D1721; --line:rgba(255,255,255,.09); --accent:#3287B7; --link:#5FB2E0; --body:#a9b6c2; --muted:#7f8e9b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  .group { max-width:1440px; margin:0 auto; padding:56px 24px 10px; }
+  .group h2 { margin:0; font-size:22px; font-weight:700; }
+  .group p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.6; max-width:900px; }
+  .frame { max-width:1440px; margin:0 auto; border-radius:14px; overflow:hidden; background:var(--bg); }
+  .wrap { padding:72px 64px; display:grid; grid-template-columns:1.1fr 1fr; gap:56px; align-items:start; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .img { background-size:cover; background-position:center; }
+  .spec { max-width:1440px; margin:0 auto; padding:14px 24px 0; font-size:13px; color:var(--muted); line-height:1.7; }
+  .spec b { color:#dfe7ee; font-weight:600; }
+  .btn { display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:13px 24px; background:var(--accent); color:#fff; font-weight:600; }
+  .ghost { display:inline-flex; border:1px solid rgba(255,255,255,.4); border-radius:999px; padding:12px 22px; color:#fff; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td, th { text-align:left; padding:10px 12px; border-top:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  @media (max-width:900px){ .wrap{grid-template-columns:1fr; padding:48px 20px} }
+
+  /* ACTUAL */
+  .now .eyebrow { font-family:'Poppins'; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--accent); }
+  .now .h1 { font-family:'Playfair Display'; font-weight:700; font-size:64px; line-height:.95; letter-spacing:-.03em; margin:14px 0 0; }
+  .now .h2 { font-family:'Playfair Display'; font-weight:700; font-size:40px; line-height:1.1; margin:0; }
+  .now .lead { font-family:'Poppins'; font-size:15px; line-height:1.85; color:var(--body); }
+  .now .small { font-family:'Poppins'; font-size:13px; color:var(--body); }
+  .now .card-t { font-family:'Playfair Display'; font-weight:600; font-size:16px; }
+  .now .btn, .now .ghost { font-family:'Poppins'; font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+
+  /* T-1 AUREX: Sora + Manrope */
+  .t1 .eyebrow { font-family:'Manrope'; font-weight:700; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--link); }
+  .t1 .h1 { font-family:'Sora'; font-weight:800; font-size:72px; line-height:.92; letter-spacing:-.04em; margin:16px 0 0; }
+  .t1 .h2 { font-family:'Sora'; font-weight:800; font-size:44px; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  .t1 .lead { font-family:'Manrope'; font-size:18px; line-height:1.7; color:#c3ced8; }
+  .t1 .small { font-family:'Manrope'; font-size:15px; color:#b4c0cb; }
+  .t1 .card-t { font-family:'Sora'; font-weight:700; font-size:19px; letter-spacing:-.01em; }
+  .t1 .btn, .t1 .ghost { font-family:'Manrope'; font-size:15px; font-weight:700; }
+
+  /* T-2 A CAPITAL: Playfair (italic accent) + Manrope */
+  .t2 .eyebrow { font-family:'Manrope'; font-weight:700; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--link); display:inline-flex; align-items:center; gap:12px; }
+  .t2 .eyebrow::before { content:''; width:32px; height:2px; background:var(--accent); }
+  .t2 .h1 { font-family:'Playfair Display'; font-weight:700; font-size:72px; line-height:1.02; letter-spacing:-.01em; margin:16px 0 0; }
+  .t2 .h2 { font-family:'Playfair Display'; font-weight:700; font-size:46px; line-height:1.08; margin:0; }
+  .t2 em { font-style:italic; font-weight:500; color:var(--link); }
+  .t2 .lead { font-family:'Manrope'; font-size:18px; line-height:1.7; color:#c3ced8; }
+  .t2 .small { font-family:'Manrope'; font-size:15px; color:#b4c0cb; }
+  .t2 .card-t { font-family:'Playfair Display'; font-weight:700; font-size:21px; }
+  .t2 .btn, .t2 .ghost { font-family:'Manrope'; font-size:15px; font-weight:600; }
+
+  /* T-3 MIX: Sora titles + Playfair italic accent + Manrope */
+  .t3 .eyebrow { font-family:'Manrope'; font-weight:700; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--link); }
+  .t3 .h1 { font-family:'Sora'; font-weight:800; font-size:72px; line-height:.95; letter-spacing:-.04em; margin:16px 0 0; }
+  .t3 .h2 { font-family:'Sora'; font-weight:800; font-size:44px; line-height:1.05; letter-spacing:-.02em; margin:0; }
+  .t3 em { font-family:'Playfair Display'; font-style:italic; font-weight:600; letter-spacing:-.01em; color:var(--link); }
+  .t3 .lead { font-family:'Manrope'; font-size:18px; line-height:1.7; color:#c3ced8; }
+  .t3 .small { font-family:'Manrope'; font-size:15px; color:#b4c0cb; }
+  .t3 .card-t { font-family:'Sora'; font-weight:700; font-size:19px; letter-spacing:-.01em; }
+  .t3 .btn, .t3 .ghost { font-family:'Manrope'; font-size:15px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="group"><h2>Bocetos: Tipografía GEM2i</h2>
+<p>Mismas piezas reales del home (hero, encabezado de sección, tarjeta de evento, texto y botones) con la tipografía actual y tres propuestas tomadas de <b>aurexnetwork.com</b> (Sora + Manrope) y <b>beta.acapitalgroup.com</b> (Playfair Display + Manrope). En las tres, el texto corrido sube de 13-15 px a 15-18 px y los botones dejan las MAYÚSCULAS espaciadas, que es lo que hoy se ve rígido. Elige T-1, T-2 o T-3.</p></div>
+
+<!-- ACTUAL -->
+<div class="group"><h2>Actual (hoy en beta)</h2><p>Playfair Display en títulos + Poppins en textos. Textos de 13-15 px, botones en mayúsculas pequeñas con mucho espaciado.</p></div>
+<section class="frame now"><div class="wrap">
+  <div>
+    <div class="eyebrow">Who we are</div>
+    <div class="h1">GEM2i<br>Network</div>
+    <p class="lead" style="margin:24px 0 28px; max-width:520px">A private membership network for the entertainment industry: guest lists, QR e-passes and e-tickets for the best events, festivals and conferences in the world.</p>
+    <span class="btn">More information</span> <span class="ghost" style="margin-left:8px">Join with an invite</span>
+  </div>
+  <div>
+    <div class="eyebrow">Calendar</div>
+    <div class="h2" style="margin-top:8px">Upcoming events</div>
+    <div class="card" style="margin-top:22px; display:grid; grid-template-columns:120px 1fr"><div class="img" style="min-height:150px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1555028843.png')"></div>
+      <div style="padding:18px"><div class="card-t">Party: Analog Soul and Joey Anderson</div><p class="small" style="margin:6px 0 0">Saturday, April 19 · Guest list</p><p class="small" style="margin:10px 0 0; line-height:1.7">Publish it on GEM2i with guest list, QR e-passes and e-tickets.</p></div></div>
+  </div>
+</div></section>
+
+<!-- T-1 -->
+<div class="group"><h2>T-1 · Aurex: Sora + Manrope</h2><p>Títulos en <b>Sora 800</b>, apretados (-0.04em), modernos y con mucha presencia; textos y botones en <b>Manrope</b>. Más tecnológico, menos «revista». Es la de aurexnetwork.com.</p></div>
+<section class="frame t1"><div class="wrap">
+  <div>
+    <div class="eyebrow">Who we are</div>
+    <div class="h1">GEM2i<br>Network</div>
+    <p class="lead" style="margin:24px 0 30px; max-width:540px">A private membership network for the entertainment industry: guest lists, QR e-passes and e-tickets for the best events, festivals and conferences in the world.</p>
+    <span class="btn">More information</span> <span class="ghost" style="margin-left:8px">Join with an invite</span>
+  </div>
+  <div>
+    <div class="eyebrow">Calendar</div>
+    <div class="h2" style="margin-top:10px">Upcoming events</div>
+    <div class="card" style="margin-top:22px; display:grid; grid-template-columns:120px 1fr"><div class="img" style="min-height:160px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1555028843.png')"></div>
+      <div style="padding:20px"><div class="card-t">Party: Analog Soul and Joey Anderson</div><p class="small" style="margin:8px 0 0">Saturday, April 19 · Guest list</p><p class="small" style="margin:10px 0 0; line-height:1.65">Publish it on GEM2i with guest list, QR e-passes and e-tickets.</p></div></div>
+  </div>
+</div></section>
+
+<!-- T-2 -->
+<div class="group"><h2>T-2 · A Capital: Playfair Display + Manrope</h2><p>Se mantiene <b>Playfair Display</b> en títulos (ya la usa GEM2i) pero con la última palabra en <b>cursiva de color</b> como A Capital, y el eyebrow con línea; textos y botones en <b>Manrope</b>. Más editorial y elegante, cambio más suave respecto a hoy.</p></div>
+<section class="frame t2"><div class="wrap">
+  <div>
+    <div class="eyebrow">Who we are</div>
+    <div class="h1">GEM2i <em>Network</em></div>
+    <p class="lead" style="margin:24px 0 30px; max-width:540px">A private membership network for the entertainment industry: guest lists, QR e-passes and e-tickets for the best events, festivals and conferences in the world.</p>
+    <span class="btn">More information</span> <span class="ghost" style="margin-left:8px">Join with an invite</span>
+  </div>
+  <div>
+    <div class="eyebrow">Calendar</div>
+    <div class="h2" style="margin-top:12px">Upcoming <em>events</em></div>
+    <div class="card" style="margin-top:22px; display:grid; grid-template-columns:120px 1fr"><div class="img" style="min-height:160px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1555028843.png')"></div>
+      <div style="padding:20px"><div class="card-t">Party: Analog Soul and Joey Anderson</div><p class="small" style="margin:8px 0 0">Saturday, April 19 · Guest list</p><p class="small" style="margin:10px 0 0; line-height:1.65">Publish it on GEM2i with guest list, QR e-passes and e-tickets.</p></div></div>
+  </div>
+</div></section>
+
+<!-- T-3 -->
+<div class="group"><h2>T-3 · Mezcla: Sora + acento Playfair + Manrope</h2><p>La fuerza de <b>Sora</b> en títulos (Aurex) con la palabra final en <b>Playfair cursiva</b> (A Capital) y <b>Manrope</b> en textos. Lo nocturno y moderno de Aurex con el toque editorial de A Capital.</p></div>
+<section class="frame t3"><div class="wrap">
+  <div>
+    <div class="eyebrow">Who we are</div>
+    <div class="h1">GEM2i <em>Network</em></div>
+    <p class="lead" style="margin:24px 0 30px; max-width:540px">A private membership network for the entertainment industry: guest lists, QR e-passes and e-tickets for the best events, festivals and conferences in the world.</p>
+    <span class="btn">More information</span> <span class="ghost" style="margin-left:8px">Join with an invite</span>
+  </div>
+  <div>
+    <div class="eyebrow">Calendar</div>
+    <div class="h2" style="margin-top:10px">Upcoming <em>events</em></div>
+    <div class="card" style="margin-top:22px; display:grid; grid-template-columns:120px 1fr"><div class="img" style="min-height:160px; background-image:url('https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1555028843.png')"></div>
+      <div style="padding:20px"><div class="card-t">Party: Analog Soul and Joey Anderson</div><p class="small" style="margin:8px 0 0">Saturday, April 19 · Guest list</p><p class="small" style="margin:10px 0 0; line-height:1.65">Publish it on GEM2i with guest list, QR e-passes and e-tickets.</p></div></div>
+  </div>
+</div></section>
+
+<!-- SCALE -->
+<div class="group"><h2>Escala de tamaños (igual para T-1, T-2 y T-3)</h2><p>Lo que hace que hoy se vea pequeño es la escala, no solo la fuente. Esta es la escala nueva que aplicaría a todo el sitio público (no al CMS ni a My Account):</p></div>
+<div class="group" style="padding-top:12px"><table>
+  <tr><th>Elemento</th><th>Hoy</th><th>Propuesta</th></tr>
+  <tr><td>Texto de párrafo / descripción de sección</td><td>14-15 px, interlineado 1.85</td><td><b>17-18 px</b>, interlineado 1.7</td></tr>
+  <tr><td>Texto en tarjetas (fechas, país, descripción)</td><td>12-13 px</td><td><b>15 px</b></td></tr>
+  <tr><td>Títulos de tarjeta</td><td>16 px</td><td><b>19-21 px</b></td></tr>
+  <tr><td>Eyebrow (etiqueta sobre títulos)</td><td>12 px, espaciado 0.3em</td><td><b>12-13 px</b>, espaciado 0.18em (menos estirado)</td></tr>
+  <tr><td>Botones</td><td>12 px MAYÚSCULAS, espaciado 0.12em</td><td><b>15 px</b> en tipo oración, peso 600-700</td></tr>
+  <tr><td>Títulos de sección</td><td>hasta 40 px</td><td><b>hasta 44-46 px</b></td></tr>
+  <tr><td>Menú superior</td><td>11-12 px MAYÚSCULAS</td><td><b>14 px</b> tipo oración (Manrope 600)</td></tr>
+</table></div>
+
+<p class="spec" style="padding-bottom:80px; padding-top:24px"><b>Mi recomendación: T-3.</b> Sora le da a GEM2i un carácter propio de entretenimiento nocturno (más que Playfair sola), la cursiva Playfair conserva el vínculo con A Capital, y Manrope se lee mucho mejor que Poppins en tamaños de texto. Si prefieres un cambio más suave, T-2 es la menos disruptiva. Al implementar, las fuentes se definen como variables (títulos / acento / texto) para poder cambiarlas desde el CMS más adelante.</p>
+</body>
+</html>

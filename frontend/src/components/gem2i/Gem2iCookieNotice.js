@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useT } from '../../lib/i18n';
 
 const STORAGE_KEY = 'gem2i_cookies_accepted';
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Legacy gem2i cookie notice → bottom bar, acceptance persisted locally. */
 export default function Gem2iCookieNotice() {
@@ -29,7 +29,7 @@ export default function Gem2iCookieNotice() {
           })}
         </p>
         <button onClick={accept}
-          className="shrink-0 px-6 py-2 text-xs font-semibold uppercase tracking-wider rounded-sm transition-colors"
+          className="shrink-0 px-6 py-2 text-[15px] font-semibold rounded-sm transition-colors"
           style={{ backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)' }}
           data-testid="gem2i-cookie-accept">
           {tt({ en: 'Accept', es: 'Aceptar' })}

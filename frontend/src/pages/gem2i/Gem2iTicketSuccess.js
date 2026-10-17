@@ -5,7 +5,7 @@ import { gemAPI } from '../../lib/api';
 import { useT } from '../../lib/i18n';
 import { gemImg } from '../../components/gem2i/GemCatalogBits';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Stripe return page (Phase 5). Polls the verified checkout-status endpoint —
  *  the backend re-checks payment state with Stripe's API before completing,

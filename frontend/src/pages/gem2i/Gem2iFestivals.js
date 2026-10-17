@@ -6,7 +6,7 @@ import {
   CatalogHero, CatalogSearch, Paginator, SkeletonGrid, EmptyState, CardImage, gemImg,
 } from '../../components/gem2i/GemCatalogBits';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Festivals catalog (plan A5) + music conferences strip. */
 export default function Gem2iFestivals() {
@@ -62,7 +62,7 @@ export default function Gem2iFestivals() {
 
       {conferences.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 md:px-10 pb-24" data-testid="gem2i-conferences-strip">
-          <p className="text-xs font-medium uppercase tracking-[0.3em] mb-1.5" style={{ color: 'var(--color-accent, #3287B7)' }}>
+          <p className="gem-eyebrow mb-3" style={{ color: 'var(--color-accent, #3287B7)' }}>
             {tt({ en: 'MUSIC', es: 'CONFERENCIAS' })}
           </p>
           <h2 className="text-white font-bold mb-8" style={{ fontSize: 'clamp(1.4rem, 2.6vw, 2rem)' }}>

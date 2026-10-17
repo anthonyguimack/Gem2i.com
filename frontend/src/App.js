@@ -504,6 +504,8 @@ function AppRouter() {
             <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              {/* gem2i: every "Contact us" lands on the homepage Contact section */}
+              <Route path="/contact" element={<Navigate to="/#contact" replace />} />
               {/* gem2i catalogs take over these URLs when the theme is active;
                   other themes fall through to the CMS placeholder pages. */}
               {isGem2iTheme(settings.active_theme) && <>

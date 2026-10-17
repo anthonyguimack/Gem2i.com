@@ -6,7 +6,7 @@ import { useT } from '../../lib/i18n';
 import CaptchaWidget from '../CaptchaWidget';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const L = {
@@ -120,7 +120,7 @@ export default function Gem2iWaitingListModal() {
     </div>
   );
 
-  const primaryBtn = 'w-full py-3 rounded-sm text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+  const primaryBtn = 'w-full py-3 rounded-sm text-[15px] font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
   const primaryStyle = { backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)', outlineColor: 'var(--color-accent, #3287B7)' };
 
   return (

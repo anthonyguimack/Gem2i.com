@@ -44,5 +44,8 @@ Ported only the 4 point rules the legacy PHP actually awards (purchase_for_self,
 ## D-GEM-2026-07 — Home designs per template (2026-10-17, Anthony)
 Each gem2i template gets its own section designs, approved from HTML bocetos in `work-plans-MD/bocetos/`. Template 01 = M-3, A-3, P-1, E-2, R-2, V-1, F-2, C-1, W-1, P-1(plans), T-1, Q-1, G-2, B-1, K-1 + A Capital's map. Reserved for 02/03: How-it-works P-2, Festivals F-1. Unchosen templates keep the previous renderers.
 
+## D-GEM-2026-08 — Session-8 design rulings (2026-10-17, Anthony)
+Typography T-2 (Playfair + italic accent + Manrope); header hover H-3; Contact Us is a homepage section and every contact link goes to `/#contact`; brand blue `#0068b3` is the site accent (fills), text uses accessible tints; all three gem2i templates share the approved section designs and differ by hero (A static/carousel, B + featured event, C + upcoming strip); template 02 = full-width layout. Lighting look still to be chosen via `?look=`.
+
 ## Standing security note
 The legacy PHP source carries live secrets (SES SMTP, MySQL, Facebook, reCAPTCHA). Rotate them at cutover time; NEVER copy any into repo/plan/memory.

@@ -82,12 +82,12 @@ function Header({ cmsConfig, dark, count }) {
   const title = tt(cmsConfig.title) || (lang === 'es' ? 'Dónde suena GEM2i' : 'Where GEM2i plays');
   const words = title.trim().split(/\s+/);
   const last = words.length > 1 ? words.pop() : null;
-  const accent = dark ? 'var(--color-accent, #3287B7)' : 'var(--color-accent, #3287B7)';
+  const accent = 'var(--color-link, #5AAFEA)'; // text-safe blue (WCAG AA); raw accent only for fills
   return (
     <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 lg:mb-10">
       <div className="flex flex-col gap-4 max-w-2xl">
         {tt(cmsConfig.eyebrow) && (
-          <div className="inline-flex items-center gap-3 text-[11px] font-bold uppercase" style={{ letterSpacing: '.2em', color: accent }}>
+          <div className="inline-flex items-center gap-3 text-xs font-bold uppercase" style={{ letterSpacing: '.2em', color: accent }}>
             <span style={{ width: 32, height: 2, background: 'var(--color-accent, #3287B7)' }} />{tt(cmsConfig.eyebrow)}
           </div>
         )}
@@ -130,7 +130,7 @@ function PlaceRow({ p, i, active, onPick, dark }) {
     <li className="border-b" style={{ borderColor: dark ? 'rgba(255,255,255,.1)' : 'rgba(20,26,58,.1)' }}>
       <div className="flex items-start gap-4 py-4">
         <button type="button" onClick={() => onPick(i)} className="flex items-start gap-4 flex-1 min-w-0 text-left" data-testid={`map-place-${i}`}>
-          <span className="w-7 h-7 flex-none rounded-full flex items-center justify-center text-[12px] font-bold tabular-nums transition-colors duration-150"
+          <span className="w-7 h-7 flex-none rounded-full flex items-center justify-center text-[13px] font-bold tabular-nums transition-colors duration-150"
             style={{ background: active ? 'var(--color-accent, #3287B7)' : 'transparent', color: active ? '#fff' : (dark ? 'rgba(255,255,255,.7)' : 'rgba(20,26,58,.55)'), border: active ? 'none' : `1px solid ${dark ? 'rgba(255,255,255,.25)' : 'rgba(20,26,58,.2)'}` }}>{i + 1}</span>
           <span className="flex flex-col gap-1 min-w-0">
             <span className="font-semibold" style={{ fontFamily: SERIF, fontSize: '1.15rem', lineHeight: 1.25, color: active ? (dark ? 'var(--color-accent, #3287B7)' : 'var(--color-accent, #3287B7)') : heading }}>{tt(p.title) || tt(p.name)}</span>

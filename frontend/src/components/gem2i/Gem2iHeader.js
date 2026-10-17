@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, LogIn, LogOut } from 'lucide-react';
 import LoginModal from '../LoginModal';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useT } from '../../lib/i18n';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
-import Gem2iContactPanel, { Gem2iContactTab } from './Gem2iContactPanel';
+import { Gem2iContactTab } from './Gem2iContactPanel';
 import Gem2iWaitingListModal from './Gem2iWaitingListModal';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /**
  * gem2i public header — dark entertainment register (legacy gem2i.com look):
@@ -25,7 +25,6 @@ export default function Gem2iHeader({ nav }) {
     isExternal, isAdmin, location, loginOpen, setLoginOpen, hasCmsAccess, hasMyAccount,
   } = nav;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hasHero, setHasHero] = useState(true);
   const API = process.env.REACT_APP_BACKEND_URL;
@@ -43,13 +42,26 @@ export default function Gem2iHeader({ nav }) {
   // Close the side menu on navigation
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  // Anywhere on the site can open the contact panel (e.g. the homepage
-  // services banner) without prop-drilling through the router.
+  // Every "Contact us" (tab, side menu, banners, `gem2i:open-contact` events)
+  // goes to the homepage Contact section (#contact): scroll when it is on the
+  // page, otherwise navigate home and let the homepage scroll to the hash.
+  const navigate = useNavigate();
+  const goToContact = React.useCallback(() => {
+    setMenuOpen(false);
+    const el = document.getElementById('contact');
+    if (window.location.pathname === '/' && el) {
+      // window.scrollTo, not scrollIntoView: a wrapper on the home page swallows scrollIntoView.
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 72,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      window.history.replaceState(null, '', '#contact');
+    } else {
+      navigate('/#contact');
+    }
+  }, [navigate]);
   useEffect(() => {
-    const open = () => setContactOpen(true);
-    window.addEventListener('gem2i:open-contact', open);
-    return () => window.removeEventListener('gem2i:open-contact', open);
-  }, []);
+    window.addEventListener('gem2i:open-contact', goToContact);
+    return () => window.removeEventListener('gem2i:open-contact', goToContact);
+  }, [goToContact]);
 
   // Catalog pages open the login modal for gated interactions (follow, and
   // later guest-list/ticket actions) via the same window-event pattern.
@@ -107,11 +119,9 @@ export default function Gem2iHeader({ nav }) {
               return (
                 <Comp key={page.id} {...props}
                   aria-current={active ? 'page' : undefined}
-                  className="relative whitespace-nowrap py-2 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors hover:text-white"
-                  style={{ color: active ? 'var(--color-link, #5FB2E0)' : 'rgba(255,255,255,0.88)' }}
+                  className={`gem-nav-link whitespace-nowrap py-2 text-[14px] font-semibold${active ? ' is-active' : ''}`}
                   data-testid={`nav-${page.title.toLowerCase().replace(/\s/g, '-')}`}>
                   {page.title}
-                  {active && <span aria-hidden="true" className="absolute left-0 right-0 -bottom-0.5 h-[2px] rounded-full" style={{ backgroundColor: 'var(--color-link, #5FB2E0)' }} />}
                 </Comp>
               );
             })}
@@ -120,13 +130,13 @@ export default function Gem2iHeader({ nav }) {
           <div className="flex items-center justify-end gap-1.5 2xl:gap-3 justify-self-end">
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
-                {hasMyAccount && <Link to="/my-account/membership-profile" className="whitespace-nowrap text-[13px] font-medium text-white/85 hover:text-white px-2 py-1.5" data-testid="nav-my-account">{tt({ en: 'My Account', es: 'Mi Cuenta' })}</Link>}
-                {hasCmsAccess && <Link to="/admin" className="gem-press text-[13px] font-medium px-4 py-2 rounded-full border border-white/10 hover:border-white/30 transition-colors" style={{ backgroundColor: 'rgba(4,8,12,0.85)', color: '#fff' }} data-testid="nav-admin-btn">Admin</Link>}
+                {hasMyAccount && <Link to="/my-account/membership-profile" className={`gem-nav-link whitespace-nowrap text-[15px] font-medium px-2 py-1.5${location.pathname.startsWith('/my-account') ? ' is-active' : ''}`} data-testid="nav-my-account">{tt({ en: 'My Account', es: 'Mi Cuenta' })}</Link>}
+                {hasCmsAccess && <Link to="/admin" className="gem-press gem-nav-pill text-[15px] font-medium px-4 py-2 rounded-full" data-testid="nav-admin-btn">Admin</Link>}
                 <button onClick={logout} aria-label={tt({ en: 'Log out', es: 'Cerrar sesión' })} className="p-2 text-white/70 hover:text-white transition-colors"><LogOut className="w-4 h-4" /></button>
               </div>
             ) : (
               <button onClick={() => setLoginOpen(true)}
-                className="gem-press whitespace-nowrap text-[13px] font-medium px-5 py-2 rounded-full flex items-center gap-1.5 transition-colors"
+                className="gem-press whitespace-nowrap text-[15px] font-medium px-5 py-2 rounded-full flex items-center gap-1.5 transition-colors"
                 style={{ backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)' }}
                 onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-button-hover-bg, #4DA3D4)'; e.currentTarget.style.color = 'var(--color-button-hover-text, #04080C)'; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--color-button-bg, #3287B7)'; e.currentTarget.style.color = 'var(--color-button-text, #fff)'; }}
@@ -170,15 +180,15 @@ export default function Gem2iHeader({ nav }) {
               : { to: href, onClick: e => { handlePageClick(page, e); setMenuOpen(false); } };
             return (
               <Comp key={page.id} {...props}
-                className="block py-2.5 text-sm font-medium uppercase tracking-[0.12em] transition-colors hover:text-white"
+                className="block py-2.5 text-sm font-semibold transition-colors hover:text-white"
                 style={{ color: active ? 'var(--color-accent, #3287B7)' : 'rgba(255,255,255,0.75)' }}
                 data-testid={`side-nav-${page.title.toLowerCase().replace(/\s/g, '-')}`}>
                 {page.title}
               </Comp>
             );
           })}
-          <button onClick={() => { setMenuOpen(false); setContactOpen(true); }}
-            className="block w-full text-left py-2.5 text-sm font-medium uppercase tracking-[0.12em] text-white/75 hover:text-white transition-colors"
+          <button onClick={goToContact}
+            className="block w-full text-left py-2.5 text-sm font-semibold text-white/75 hover:text-white transition-colors"
             data-testid="side-nav-contact">
             {tt({ en: 'Contact Us', es: 'Contáctanos' })}
           </button>
@@ -206,8 +216,7 @@ export default function Gem2iHeader({ nav }) {
         )}
       </aside>
 
-      <Gem2iContactTab onOpen={() => setContactOpen(true)} />
-      <Gem2iContactPanel open={contactOpen} onClose={() => setContactOpen(false)} />
+      <Gem2iContactTab onOpen={goToContact} />
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
       <Gem2iWaitingListModal />
     </>

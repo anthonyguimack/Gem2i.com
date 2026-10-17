@@ -251,7 +251,7 @@ export default function GemTicketWidget({ event }) {
           {shareMsg && <p className="mt-2 text-xs" style={mutedText} role="status">{shareMsg}</p>}
         </div>
       )}
-      <p className="mt-4 text-[11px]" style={mutedText}>
+      <p className="mt-4 text-xs" style={mutedText}>
         {tt({ en: 'Secure payment via Stripe. Tickets arrive by email and appear here after payment.',
               es: 'Pago seguro con Stripe. Los tickets llegan por email y aparecen aquí tras el pago.' })}
       </p>

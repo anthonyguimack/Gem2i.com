@@ -1,3 +1,4 @@
+import AccentTitle from './AccentTitle';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MapPin } from 'lucide-react';
@@ -62,19 +63,24 @@ function Btn({ b, variant }) {
   const { user } = useAuth();
   const common = { href: b.href, target: b.target, rel: b.target === '_blank' ? 'noopener noreferrer' : undefined, onClick: onCta(b, !!user) };
   if (variant === 'round') {
+    // Port of aurexnetwork.com's hero CTA: the accent circle (56/64px) fills the
+    // whole pill on hover/focus (width transition, 500ms), the arrow nudges
+    // right and the label stays white on the gem2i blue.
     return (
-      <a {...common} className="gem-press inline-flex items-center gap-4 text-[13px] font-semibold uppercase tracking-[0.18em] text-white group">
-        <span className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5" style={{ backgroundColor: ACCENT }}>
-          <ArrowRight className="w-5 h-5" />
+      <a {...common} className="group relative inline-flex items-center flex-none rounded-full overflow-hidden h-14 md:h-16 outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+        <span aria-hidden="true" className="absolute left-0 top-0 h-full w-14 md:w-16 group-hover:w-full group-focus-visible:w-full rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none"
+          style={{ backgroundColor: ACCENT, boxShadow: '0 10px 24px -12px rgba(0,0,0,.5)' }} />
+        <span className="relative z-10 inline-flex items-center justify-center flex-none w-14 h-14 md:w-16 md:h-16 text-white">
+          <ArrowRight className="w-5 h-5 transition-transform duration-500 group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
         </span>
-        {b.label}
+        <span className="relative z-10 text-[15px] font-semibold whitespace-nowrap text-white pl-1 pr-7">{b.label}</span>
       </a>
     );
   }
   if (variant === 'solid') {
     return <a {...common} className="gem-press inline-flex px-7 py-3.5 rounded-full text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: ACCENT }}>{b.label}</a>;
   }
-  return <a {...common} className="gem-press inline-flex px-6 py-3 rounded-full text-[13px] font-medium text-white border border-white/60 transition-colors hover:bg-white/10">{b.label}</a>;
+  return <a {...common} className="gem-press inline-flex px-6 py-3 rounded-full text-[15px] font-medium text-white border border-white/60 transition-colors hover:bg-white/10">{b.label}</a>;
 }
 
 function Background({ slide, veil }) {
@@ -99,90 +105,167 @@ const Scroll = () => <div aria-hidden="true" className="hidden md:block absolute
 
 function Title({ text, className, style }) {
   const lines = String(text || '').split('\n');
-  return <h1 className={`text-white font-extrabold leading-[0.95] tracking-[-0.03em] ${className}`} style={style}>{lines.map((l, i) => <React.Fragment key={i}>{i > 0 && <br />}{l}</React.Fragment>)}</h1>;
+  return <h1 className={`text-white font-bold leading-[1.02] tracking-[-0.01em] ${className}`} style={style}><AccentTitle text={text} /></h1>;
+}
+
+// ── Shared hero carousel (A, B and C) ───────────────────────────────────────
+// With 2+ CMS slides: backgrounds cross-fade, copy fades in, auto-advance every
+// 7s (paused on hover/focus, hidden tab, or reduced motion), dots + arrows +
+// ←/→. 0-1 slides → a single static hero. Every hero fits the visible viewport
+// under the fixed header (88px) + ticker (42px): height = 100svh - 130px, and
+// the controls sit in the content flow so they are never below the fold.
+const ROTATE_MS = 7000;
+const noHtml = (v) => String(v || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ').trim();
+const HERO_IN_CSS = '@media (prefers-reduced-motion: no-preference){.gem-hero-in{animation:gemHeroIn .8s cubic-bezier(.16,1,.3,1)}}@keyframes gemHeroIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}';
+
+function useHeroCarousel(slide, slides) {
+  const list = (slides && slides.length ? slides : [slide]).filter((x, i) => x || i === 0);
+  const many = list.length > 1;
+  const [at, setAt] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const cur = list[Math.min(at, list.length - 1)];
+  const go = React.useCallback((d) => setAt(i => (i + d + list.length) % list.length), [list.length]);
+  React.useEffect(() => {
+    if (!many || paused) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const id = setInterval(() => { if (!document.hidden) go(1); }, ROTATE_MS);
+    return () => clearInterval(id);
+  }, [many, paused, go, at]);
+  const sectionProps = {
+    'aria-roledescription': many ? 'carousel' : undefined,
+    onMouseEnter: () => setPaused(true), onMouseLeave: () => setPaused(false),
+    onFocus: () => setPaused(true), onBlur: () => setPaused(false),
+    onKeyDown: many ? (e => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); }) : undefined,
+  };
+  return { list, many, at, setAt, cur, go, sectionProps };
+}
+
+function HeroBackgrounds({ list, at, veil }) {
+  return list.map((sl, i) => (
+    <div key={i} aria-hidden={i !== at} className="absolute inset-0 transition-opacity duration-[1200ms] ease-out motion-reduce:transition-none"
+      style={{ opacity: i === at ? 1 : 0 }}>
+      <Background slide={sl} veil={veil} />
+    </div>
+  ));
+}
+
+function HeroControls({ c, center }) {
+  const tt = useT();
+  if (!c.many) return null;
+  return (
+    <div className={`mt-7 md:mt-8 flex items-center gap-4 ${center ? 'justify-center' : ''}`} data-testid="gem2i-hero-controls">
+      <div className="flex gap-2">
+        {c.list.map((_, i) => (
+          <button key={i} type="button" onClick={() => c.setAt(i)} aria-label={`${tt({ en: 'Slide', es: 'Diapositiva' })} ${i + 1}`} aria-current={i === c.at}
+            className="h-1.5 rounded-full transition-[width,background-color] duration-300"
+            style={{ width: i === c.at ? 28 : 10, backgroundColor: i === c.at ? ACCENT : 'rgba(255,255,255,0.35)' }} />
+        ))}
+      </div>
+      {[-1, 1].map(d => (
+        <button key={d} type="button" onClick={() => c.go(d)} aria-label={d < 0 ? tt({ en: 'Previous slide', es: 'Diapositiva anterior' }) : tt({ en: 'Next slide', es: 'Diapositiva siguiente' })}
+          className="w-11 h-11 rounded-full inline-flex items-center justify-center text-white border border-white/30 transition-[background-color,transform] hover:bg-white/10 active:scale-95">
+          <ArrowRight className={`w-4 h-4 ${d < 0 ? 'rotate-180' : ''}`} />
+        </button>
+      ))}
+    </div>
+  );
 }
 
 // ── A · Fiel a Aurex ────────────────────────────────────────────────────────
-export function GemHeroA({ slide }) {
+export function GemHeroA({ slide, slides }) {
   const tt = useT();
-  const btns = useSlideButtons(slide);
+  const c = useHeroCarousel(slide, slides);
+  const btns = useSlideButtons(c.cur);
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden" data-testid="gem2i-hero-a">
-      <Background slide={slide} veil={LEFT_VEIL} />
+    <section className="relative min-h-[calc(100svh-8.25rem)] flex items-center overflow-hidden" data-testid="gem2i-hero-a" {...c.sectionProps}>
+      <HeroBackgrounds list={c.list} at={c.at} veil={LEFT_VEIL} />
       <Glow />
       <div aria-hidden="true" className="hidden lg:block absolute left-[44%] top-[30%] w-64 h-64 rounded-full border border-white/25" />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 pt-32 pb-20">
-        <div className="max-w-xl">
-          {tt(slide?.subtitle) && <p className="text-xs uppercase tracking-[0.35em] mb-5" style={{ color: LINK }}>{tt(slide.subtitle)}</p>}
-          <Title text={tt(slide?.title) || tt(DEFAULTS.title)} style={{ fontSize: 'clamp(3.4rem, 7.4vw, 6.75rem)' }} />
-          <p className="mt-7 mb-9 text-base leading-[1.75]" style={{ color: BODY, textWrap: 'pretty' }}>{tt(slide?.description) || tt(DEFAULTS.description)}</p>
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 py-10 md:py-12">
+        <div key={c.at} className="max-w-3xl gem-hero-in" aria-live={c.many ? 'polite' : undefined}>
+          {noHtml(tt(c.cur?.subtitle)) && <p className="gem-eyebrow mb-5" style={{ color: LINK }}>{noHtml(tt(c.cur.subtitle))}</p>}
+          <Title text={noHtml(tt(c.cur?.title)) || tt(DEFAULTS.title)} style={{ fontSize: 'clamp(2.6rem, min(7.4vw, 10.5vh), 6.75rem)' }} />
+          <p className="max-w-xl mt-5 mb-7 md:mt-6 md:mb-8 text-base md:text-[17px] leading-[1.7]" style={{ color: BODY, textWrap: 'pretty' }}>{noHtml(tt(c.cur?.description)) || tt(DEFAULTS.description)}</p>
           <div className="flex flex-wrap items-center gap-4">
             {btns[0] && <Btn b={btns[0]} variant="round" />}
             {btns[1] && <Btn b={btns[1]} variant="pill" />}
+            {btns[2] && <Btn b={btns[2]} variant="pill" />}
           </div>
-          {btns[2] && <div className="mt-4"><Btn b={btns[2]} variant="pill" /></div>}
         </div>
+        <HeroControls c={c} />
       </div>
       <Scroll />
+      <style>{HERO_IN_CSS}</style>
     </section>
   );
 }
 
 // ── B · Aurex + evento destacado ────────────────────────────────────────────
-export function GemHeroB({ slide, event }) {
+// The slide copy rotates; the featured-event card stays put on the right.
+export function GemHeroB({ slide, slides, event }) {
   const tt = useT();
-  const btns = useSlideButtons(slide);
+  const c = useHeroCarousel(slide, slides);
+  const btns = useSlideButtons(c.cur);
   const flyer = event ? (gemImg(event.image_urls?.flyer) || gemImg(event.image_urls?.logo)) : null;
   const when = event?.event_date ? new Date(`${event.event_date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '';
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden" data-testid="gem2i-hero-b">
-      <Background slide={slide} veil={LEFT_VEIL} />
+    <section className="relative min-h-[calc(100svh-8.25rem)] flex items-center overflow-hidden" data-testid="gem2i-hero-b" {...c.sectionProps}>
+      <HeroBackgrounds list={c.list} at={c.at} veil={LEFT_VEIL} />
       <Glow />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 pt-32 pb-20 grid lg:grid-cols-[1fr_320px] gap-12 items-end">
-        <div className="max-w-xl">
-          <p className="text-xs uppercase tracking-[0.35em] mb-4" style={{ color: LINK }}>{tt(slide?.subtitle) || tt(DEFAULTS.kicker)}</p>
-          <Title text={tt(slide?.title) || tt({ en: 'Live the night\nwithout lines', es: 'Vive la noche\nsin filas' })} style={{ fontSize: 'clamp(3rem, 6.2vw, 5.75rem)' }} />
-          <p className="mt-6 mb-9 text-base leading-[1.75]" style={{ color: BODY, textWrap: 'pretty' }}>{tt(slide?.description) || tt({ en: 'Your QR pass for parties, festivals and conferences in one place.', es: 'Tu pase QR para fiestas, festivales y conferencias en un solo lugar.' })}</p>
-          <div className="flex flex-wrap items-center gap-4">
-            {btns[0] && <Btn b={btns[0]} variant="round" />}
-            {btns.slice(1).map((b, i) => <Btn key={i} b={b} variant="pill" />)}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 py-10 md:py-12 grid lg:grid-cols-[1fr_320px] gap-12 items-center">
+        <div>
+          <div key={c.at} className="max-w-3xl gem-hero-in" aria-live={c.many ? 'polite' : undefined}>
+            <p className="gem-eyebrow mb-4" style={{ color: LINK }}>{noHtml(tt(c.cur?.subtitle)) || tt(DEFAULTS.kicker)}</p>
+            <Title text={noHtml(tt(c.cur?.title)) || tt({ en: 'Live the night\nwithout lines', es: 'Vive la noche\nsin filas' })} style={{ fontSize: 'clamp(2.6rem, min(6.2vw, 10vh), 5.75rem)' }} />
+            <p className="max-w-xl mt-5 mb-7 md:mt-6 md:mb-8 text-base md:text-[17px] leading-[1.7]" style={{ color: BODY, textWrap: 'pretty' }}>{noHtml(tt(c.cur?.description)) || tt({ en: 'Your QR pass for parties, festivals and conferences in one place.', es: 'Tu pase QR para fiestas, festivales y conferencias en un solo lugar.' })}</p>
+            <div className="flex flex-wrap items-center gap-4">
+              {btns[0] && <Btn b={btns[0]} variant="round" />}
+              {btns.slice(1).map((b, i) => <Btn key={i} b={b} variant="pill" />)}
+            </div>
           </div>
+          <HeroControls c={c} />
         </div>
         {event && (
           <Link to={`/events/${event.slug}`} className="hidden lg:block rounded-2xl p-3.5 border border-white/10 transition-transform duration-200 hover:-translate-y-1" style={{ backgroundColor: 'rgba(8,13,19,.88)' }} data-testid="gem2i-hero-event">
             <div className="h-40 rounded-xl bg-cover bg-center" style={{ backgroundImage: flyer ? `url(${flyer})` : 'none', backgroundColor: '#16202a' }} />
-            <p className="mt-3 text-[11px] uppercase tracking-[0.2em]" style={{ color: LINK }}>{tt({ en: 'Next', es: 'Próximo' })} · {when}</p>
-            <p className="text-white text-base font-semibold mt-1 line-clamp-2">{tt(event.title)}</p>
-            {event.venue?.name && <p className="text-xs mt-1 inline-flex items-center gap-1" style={{ color: '#8fa0ae' }}><MapPin className="w-3 h-3" />{event.venue.name}{event.venue.city ? ` · ${event.venue.city}` : ''}</p>}
+            <p className="mt-3 text-xs uppercase tracking-[0.2em]" style={{ color: LINK }}>{tt({ en: 'Next', es: 'Próximo' })} · {when}</p>
+            <p className="text-white text-lg font-semibold mt-1 line-clamp-2">{tt(event.title)}</p>
+            {event.venue?.name && <p className="text-xs mt-1 inline-flex items-center gap-1" style={{ color: '#b9c6d2' }}><MapPin className="w-3 h-3" />{event.venue.name}{event.venue.city ? ` · ${event.venue.city}` : ''}</p>}
             <span className="mt-3 block text-center rounded-full py-2.5 text-sm font-semibold text-white" style={{ backgroundColor: ACCENT }}>{tt({ en: 'Join the guest list', es: 'Unirme a la lista' })}</span>
           </Link>
         )}
       </div>
       <Scroll />
+      <style>{HERO_IN_CSS}</style>
     </section>
   );
 }
 
 // ── C · Cinematográfico centrado ────────────────────────────────────────────
-export function GemHeroC({ slide, events = [] }) {
+// The centred copy rotates; the upcoming-events strip stays at the bottom.
+export function GemHeroC({ slide, slides, events = [] }) {
   const tt = useT();
-  const btns = useSlideButtons(slide);
+  const c = useHeroCarousel(slide, slides);
+  const btns = useSlideButtons(c.cur);
   const fmt = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }).toUpperCase() : '');
   return (
-    <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden" data-testid="gem2i-hero-c">
-      <Background slide={slide} veil={FULL_VEIL} />
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 pt-28 pb-36 text-center">
-        <p className="text-xs uppercase tracking-[0.35em]" style={{ color: LINK }}>{tt(slide?.subtitle) || tt({ en: 'Global Entertainment Management & Marketing', es: 'Global Entertainment Management & Marketing' })}</p>
-        <Title text={tt(slide?.title) || 'GEM2i'} className="mt-4 mb-5" style={{ fontSize: 'clamp(4rem, 9vw, 8.75rem)' }} />
-        <p className="max-w-2xl mx-auto mb-9 text-base leading-[1.75]" style={{ color: BODY, textWrap: 'pretty' }}>{tt(slide?.description) || tt({ en: 'Guest lists, QR e-passes and e-tickets for the community that moves the night.', es: 'Listas de invitados, pases QR y e-tickets para la comunidad que mueve la noche.' })}</p>
-        <div className="flex flex-wrap justify-center items-center gap-4">
-          {btns[0] && <Btn b={btns[0]} variant="solid" />}
-          {btns.slice(1).map((b, i) => <Btn key={i} b={b} variant="pill" />)}
+    <section className="relative min-h-[calc(100svh-8.25rem)] flex items-center justify-center overflow-hidden" data-testid="gem2i-hero-c" {...c.sectionProps}>
+      <HeroBackgrounds list={c.list} at={c.at} veil={FULL_VEIL} />
+      <div className={`relative z-10 w-full max-w-4xl mx-auto px-6 pt-10 ${events.length ? 'pb-28' : 'pb-12'} text-center`}>
+        <div key={c.at} className="gem-hero-in" aria-live={c.many ? 'polite' : undefined}>
+          <p className="gem-eyebrow" style={{ color: LINK }}>{noHtml(tt(c.cur?.subtitle)) || tt({ en: 'Global Entertainment Management & Marketing', es: 'Global Entertainment Management & Marketing' })}</p>
+          <Title text={noHtml(tt(c.cur?.title)) || 'GEM2i'} className="mt-4 mb-5" style={{ fontSize: 'clamp(3rem, min(9vw, 13vh), 8.75rem)' }} />
+          <p className="max-w-2xl mx-auto mb-8 text-base md:text-[17px] leading-[1.7]" style={{ color: BODY, textWrap: 'pretty' }}>{noHtml(tt(c.cur?.description)) || tt({ en: 'Guest lists, QR e-passes and e-tickets for the community that moves the night.', es: 'Listas de invitados, pases QR y e-tickets para la comunidad que mueve la noche.' })}</p>
+          <div className="flex flex-wrap justify-center items-center gap-4">
+            {btns[0] && <Btn b={btns[0]} variant="solid" />}
+            {btns.slice(1).map((b, i) => <Btn key={i} b={b} variant="pill" />)}
+          </div>
         </div>
+        <HeroControls c={c} center />
       </div>
       {events.length > 0 && (
         <div className="absolute left-0 right-0 bottom-0 z-10 border-t border-white/10 overflow-hidden" style={{ backgroundColor: 'rgba(8,13,19,.88)' }} data-testid="gem2i-hero-ticker">
-          <div className="flex items-center gap-8 px-6 md:px-12 py-4 overflow-x-auto whitespace-nowrap text-[13px]" style={{ color: BODY }}>
+          <div className="flex items-center gap-8 px-6 md:px-12 py-4 overflow-x-auto whitespace-nowrap text-[15px]" style={{ color: BODY }}>
             <span className="text-xs font-semibold tracking-[0.25em]" style={{ color: LINK }}>{tt({ en: 'UPCOMING', es: 'PRÓXIMOS' })}</span>
             {events.slice(0, 8).map(e => (
               <Link key={e.id} to={`/events/${e.slug}`} className="hover:text-white transition-colors">
@@ -192,6 +275,7 @@ export function GemHeroC({ slide, events = [] }) {
           </div>
         </div>
       )}
+      <style>{HERO_IN_CSS}</style>
     </section>
   );
 }

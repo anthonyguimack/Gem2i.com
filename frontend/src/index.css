@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500;1,600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -669,3 +669,67 @@ body:has([data-testid="membership-enrollment"]) [role="dialog"][data-state="open
 .modern-map--dark .mm-pin { background: #fff; color: #16171a; border-color: #16171a; }
 .mm-pin.is-active { transform: scale(1.08); background: var(--color-accent, #3287B7); color: #fff; border-color: #fff; }
 @media (prefers-reduced-motion: reduce) { .mm-pin { transition: none; } }
+
+/* gem2i typography T-2 (A Capital style, 2026-10-17): Manrope text, Playfair
+   headings with an italic accent word, eyebrow with a short accent rule. */
+.gem-eyebrow { display:inline-flex; align-items:center; gap:12px; font-family:'Manrope',sans-serif; font-weight:700;
+  font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--color-link,#5FB2E0); }
+.gem-eyebrow::before { content:''; width:32px; height:2px; flex:none; background:var(--color-accent,#3287B7); }
+.gem-accent { font-family:'Playfair Display',Georgia,serif; font-style:italic; font-weight:500; color:var(--color-link,#5FB2E0); }
+
+/* gem2i header hover H-3 (approved 2026-10-17): link turns blue and a small dot
+   rises above it; the active page keeps the dot. Admin pill: blue text + border. */
+.gem-nav-link { position:relative; color:rgba(255,255,255,.88); transition:color .2s ease; outline:none; }
+.gem-nav-link::before { content:''; position:absolute; left:50%; top:-3px; width:5px; height:5px; margin-left:-2.5px; border-radius:50%;
+  background:var(--color-link,#5FB2E0); opacity:0; transform:translateY(5px); transition:opacity .2s ease, transform .25s cubic-bezier(.23,1,.32,1); pointer-events:none; }
+.gem-nav-link:hover, .gem-nav-link:focus-visible, .gem-nav-link.is-active { color:var(--color-link,#5FB2E0); }
+.gem-nav-link:hover::before, .gem-nav-link:focus-visible::before, .gem-nav-link.is-active::before { opacity:1; transform:none; }
+.gem-nav-pill { color:#fff; background-color:rgba(4,8,12,.85); border:1px solid rgba(255,255,255,.12); transition:color .2s ease, border-color .2s ease; outline:none; }
+.gem-nav-pill:hover, .gem-nav-pill:focus-visible { color:var(--color-link,#5FB2E0); border-color:var(--color-link,#5FB2E0); }
+@media (prefers-reduced-motion: reduce) { .gem-nav-link, .gem-nav-link::before, .gem-nav-pill { transition:none; } }
+
+/* ── gem2i home lighting (2026-10-17, bocetos/home-luz.html) ─────────────────
+   1) A Page Builder colour wins: the section's own painted background is cleared.
+   2) Light backgrounds flip text to dark automatically; text on photos, posters,
+      badges and coloured cards (any element with its own non-card background,
+      or absolutely positioned overlays) keeps its colours.
+   3) Palettes as variables: .gem-look-navy = midnight navy base (L-1 / L-3). */
+.gem-look-navy { --color-page-bg:#0E1B2A; --color-section-bg:#132538; --color-card-bg:#1A3049;
+  --color-card-border:rgba(255,255,255,.1); --color-body-text:#b6c4d1; }
+.gem-has-bg > section[style*="background"], .gem-has-bg > div[style*="background"],
+.gem-has-bg > section > div[style*="section-bg"] { background:transparent !important; }
+.gem-tone-light { --color-body-text:#4A5866; --color-card-bg:#ffffff; --color-card-border:rgba(11,22,34,.1);
+  --color-link:#1F6390; --color-section-bg:transparent; color:#0B1622; }
+.gem-tone-light :is(.text-white, [class*="text-white/"], h1, h2, h3, h4, blockquote, figcaption, [style*="color: rgb(255, 255, 255)"], [style*="color: rgba(255, 255, 255"]):not(.gem-tone-light :is([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg):not(.gem-has-bg > *):not(.gem-has-bg > section > div), .absolute, [class^="bg-"]:not([class*="bg-transparent"]), [class*=" bg-"]:not([class*="bg-transparent"])) *):not(.absolute):not([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg > *)) {
+  color:#0B1622 !important; }
+.gem-tone-light :is([class*="border-white"]):not(.gem-tone-light :is([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg):not(.gem-has-bg > *):not(.gem-has-bg > section > div), .absolute) *) { border-color:rgba(11,22,34,.22) !important; }
+.gem-tone-light [style*="--color-card-bg"] { box-shadow:0 10px 28px -16px rgba(11,22,34,.25); }
+.gem-tone-blue { --color-card-bg:rgba(255,255,255,.1); --color-card-border:rgba(255,255,255,.22);
+  --color-body-text:#e3f1fa; --color-link:#ffffff; --color-section-bg:transparent; }
+
+/* ── Text contrast (WCAG AA audit 2026-10-17) ────────────────────────────────
+   The brand blue (#0068b3, CMS link colour) is kept for fills (buttons, bands,
+   badges) but is too dark for TEXT on the night background (3.1:1). Text that
+   uses the link colour gets an accessible tint per surface: light tint on dark
+   sections, deeper blue on light sections (both ≥ 4.5:1). Eyebrows always use
+   the text-safe link colour, never the raw accent. */
+[data-testid="gem2i-home"], .gem-tone-dark { --color-link:#5AAFEA; }
+.gem-tone-light { --color-link:#1F6390; }
+.gem-tone-blue { --color-link:#ffffff; }
+.gem-eyebrow { color:var(--color-link,#5AAFEA) !important; }
+
+/* ── Template 02 · wide layout (2026-10-17) ──────────────────────────────────
+   Every home section spans the full screen width (like the Venues grid) with
+   fluid side margins instead of the 1280px centre column; grids gain columns
+   on large screens so cards keep good proportions. Templates 01/03 untouched. */
+.gem-tpl-wide [data-section] .max-w-7xl,
+.gem-tpl-wide [data-section] .max-w-5xl:not(.aspect-video),
+.gem-tpl-wide [data-section] .max-w-\[1440px\] {
+  max-width:none !important; padding-left:clamp(24px,5vw,96px) !important; padding-right:clamp(24px,5vw,96px) !important; }
+@media (min-width:1536px) {
+  .gem-tpl-wide [data-testid="gem2i-team"] .lg\:grid-cols-4 { grid-template-columns:repeat(6,minmax(0,1fr)); }
+  .gem-tpl-wide [data-testid="gem2i-conferences"] .lg\:grid-cols-4 { grid-template-columns:repeat(8,minmax(0,1fr)); }
+  .gem-tpl-wide [data-testid="gem2i-services"] .lg\:grid-cols-4 { grid-template-columns:repeat(5,minmax(0,1fr)); }
+  .gem-tpl-wide [data-testid="gem2i-clients"] .lg\:grid-cols-6 { grid-template-columns:repeat(8,minmax(0,1fr)); }
+  .gem-tpl-wide [data-testid="gem2i-venues"] .lg\:grid-cols-4 { grid-template-columns:repeat(6,minmax(0,1fr)); }
+}

@@ -5,6 +5,7 @@ import { ArrowRight, Check, Quote, Linkedin, Twitter, Instagram, Globe, Calendar
 import { useT, useLang } from '../../lib/i18n';
 import { normalizeRichText } from '../../lib/richText';
 import { gemImg } from './GemCatalogBits';
+import AccentTitle from './AccentTitle';
 
 /**
  * gem2i template — renderers for the Section Manager sections (ported in
@@ -19,6 +20,9 @@ const ACCENT = 'var(--color-accent, #3287B7)';
 const BODY = 'var(--color-body-text, #9AA6B2)';
 const CARD = 'var(--color-card-bg, #0D1721)';
 const BORDER = 'var(--color-card-border, rgba(255,255,255,0.08))';
+// Text laid over photos: never the grey body colour (contrast depends on the
+// picture); near-white on a dark scrim keeps ≥ 4.5:1 on any image.
+const ON_PHOTO = 'rgba(255,255,255,0.9)';
 
 export function GemIcon({ name, className = 'w-6 h-6' }) {
   if (!name) return null;
@@ -34,9 +38,9 @@ export function GemHeading({ eyebrow, title, subtitle, action }) {
   return (
     <div className="flex items-end justify-between gap-6 flex-wrap">
       <div className="max-w-3xl">
-        {e && <p className="text-xs font-medium uppercase tracking-[0.3em] mb-1.5" style={{ color: ACCENT }}>{e}</p>}
-        {t && <h2 className="text-white font-bold" style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.5rem)', textWrap: 'balance' }}>{t}</h2>}
-        {s && <p className="mt-4 text-sm md:text-[15px] leading-[1.85]" style={{ color: BODY, textWrap: 'pretty' }}>{s}</p>}
+        {e && <p className="gem-eyebrow mb-3" style={{ color: ACCENT }}>{e}</p>}
+        {t && <h2 className="text-white font-bold leading-[1.08]" style={{ fontSize: 'clamp(1.9rem, 3.6vw, 2.9rem)', textWrap: 'balance' }}><AccentTitle text={t} /></h2>}
+        {s && <p className="mt-4 text-base md:text-[17px] leading-[1.7]" style={{ color: BODY, textWrap: 'pretty' }}>{s}</p>}
       </div>
       {action}
     </div>
@@ -47,7 +51,7 @@ export function GemCta({ text, url, newTab, className = '' }) {
   const tt = useT();
   const label = tt(text);
   if (!label || !url) return null;
-  const cls = `inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-white ${className}`;
+  const cls = `inline-flex items-center gap-1.5 text-[15px] font-medium transition-colors hover:text-white ${className}`;
   const style = { color: 'var(--color-link, #5FB2E0)' };
   const inner = <>{label} <ArrowRight className="w-3.5 h-3.5" /></>;
   if (newTab || /^https?:\/\//.test(url)) {
@@ -60,7 +64,7 @@ function Rich({ html, className = '' }) {
   const tt = useT();
   const v = tt(html);
   if (!v) return null;
-  return <div className={`rich-text-content text-sm leading-[1.85] ${className}`} style={{ color: BODY }}
+  return <div className={`rich-text-content text-[15px] md:text-base leading-[1.7] ${className}`} style={{ color: BODY }}
     dangerouslySetInnerHTML={{ __html: normalizeRichText ? normalizeRichText(v) : v }} />;
 }
 
@@ -81,7 +85,7 @@ export function GemAudience({ config = {}, items = [] }) {
             <span className="inline-flex w-11 h-11 items-center justify-center rounded-sm mb-5" style={{ backgroundColor: 'rgba(50,135,183,0.12)', color: ACCENT }}>
               <GemIcon name={it.icon || 'sparkles'} className="w-5 h-5" />
             </span>
-            {tt(it.eyebrow) && <p className="text-[11px] uppercase tracking-[0.25em] mb-1" style={{ color: ACCENT }}>{tt(it.eyebrow)}</p>}
+            {tt(it.eyebrow) && <p className="text-xs uppercase tracking-[0.25em] mb-1" style={{ color: ACCENT }}>{tt(it.eyebrow)}</p>}
             <h3 className="text-white text-lg font-semibold mb-2">{tt(it.title)}</h3>
             <Rich html={it.description} />
           </div>
@@ -129,12 +133,12 @@ export function GemMethodCycle({ config = {}, items = [], brand = 'GEM2i', testi
         <GemIcon name={s.icon || 'sparkles'} className="w-5 h-5" />
       </span>
       <h3 className="text-white text-lg font-semibold mt-3 mb-1">{tt(s.title)}</h3>
-      <Rich html={s.description} className="!text-[13px]" />
+      <Rich html={s.description} className="!text-[15px]" />
     </div>
   );
   return (
     <Wrap testid={testid}>
-      <div className="text-center"><GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle} /></div>
+      <GemHeading eyebrow={config.eyebrow} title={config.title} subtitle={config.subtitle} />
       <ol className="md:hidden mt-10 grid gap-8">
         {items.map((s, i) => <li key={s.id || i}><Step s={s} /></li>)}
       </ol>
@@ -213,7 +217,7 @@ export function GemTimeline({ config = {}, items = [], testid = 'gem2i-process' 
             <li key={s.id || i} className="relative pl-12 md:pl-0">
               <span className="absolute md:static left-0 block w-6 h-6 rounded-full transition-colors duration-500 motion-reduce:transition-none"
                 style={{ backgroundColor: seen ? ACCENT : 'var(--color-bg, #04080C)', border: `2px solid ${seen ? ACCENT : BORDER}`, boxShadow: seen ? '0 0 0 6px rgba(50,135,183,0.2)' : 'none', transitionDelay: `${i * 250}ms` }} aria-hidden="true" />
-              <p className="md:mt-7 mb-1.5 text-[13px] tabular-nums" style={{ color: 'var(--color-link, #5FB2E0)' }}>{String(s.step_number || i + 1).padStart(2, '0')}</p>
+              <p className="md:mt-7 mb-1.5 text-[15px] tabular-nums" style={{ color: 'var(--color-link, #5FB2E0)' }}>{String(s.step_number || i + 1).padStart(2, '0')}</p>
               <h3 className="text-white text-lg font-semibold mb-2">{tt(s.title)}</h3>
               <Rich html={s.description} />
             </li>
@@ -241,7 +245,7 @@ export function GemPricing({ config = {}, items = [] }) {
           <div className="inline-flex rounded-sm overflow-hidden" style={{ border: `1px solid ${BORDER}` }} role="group">
             {[false, true].map(a => (
               <button key={String(a)} type="button" onClick={() => setAnnual(a)} aria-pressed={annual === a}
-                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors"
+                className="px-4 py-2 text-[15px] font-semibold transition-colors"
                 style={annual === a ? { backgroundColor: ACCENT, color: '#fff' } : { color: BODY }}>
                 {a ? tt({ en: 'Annual', es: 'Anual' }) : tt({ en: 'Monthly', es: 'Mensual' })}
               </button>
@@ -260,17 +264,17 @@ export function GemPricing({ config = {}, items = [] }) {
               </div>
               <p className="mt-4 text-white tabular-nums">
                 <span className="text-4xl font-bold">{price}</span>
-                <span className="ml-1 text-sm" style={{ color: BODY }}>{p.currency} {tt(p.period)}</span>
+                <span className="ml-1 text-[15px]" style={{ color: BODY }}>{p.currency} {tt(p.period)}</span>
               </p>
-              {tt(p.description) && <p className="mt-2 text-sm" style={{ color: BODY }}>{tt(p.description)}</p>}
+              {tt(p.description) && <p className="mt-2 text-[15px]" style={{ color: BODY }}>{tt(p.description)}</p>}
               <ul className="mt-6 space-y-2.5 flex-1">
                 {features(tt(p.features)).map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-white/85"><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT }} />{f}</li>
+                  <li key={i} className="flex items-start gap-2 text-[15px] text-white/85"><Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: ACCENT }} />{f}</li>
                 ))}
               </ul>
               {tt(p.cta_text) && p.cta_url && (
                 <a href={p.cta_url} target={p.cta_new_tab ? '_blank' : '_self'} rel={p.cta_new_tab ? 'noopener noreferrer' : undefined}
-                  className="mt-7 text-center px-5 py-2.5 text-sm font-semibold rounded-sm transition-opacity hover:opacity-85"
+                  className="mt-7 text-center px-5 py-2.5 text-[15px] font-semibold rounded-sm transition-opacity hover:opacity-85"
                   style={p.is_featured ? { backgroundColor: ACCENT, color: '#fff' } : { border: `1px solid ${ACCENT}`, color: '#fff' }}>
                   {tt(p.cta_text)}
                 </a>
@@ -393,7 +397,7 @@ export function GemTestimonials({ config = {}, items = [] }) {
               <blockquote className="text-white/85 text-[15px] leading-[1.8] flex-1">{tt(t.content)}</blockquote>
               <figcaption className="mt-6 flex items-center gap-3">
                 {t.image && <img src={gemImg(t.image)} alt="" className="w-10 h-10 rounded-full object-cover" loading="lazy" />}
-                <span><span className="block text-white text-sm font-semibold">{tt(t.name)}</span>
+                <span><span className="block text-white text-[15px] font-semibold">{tt(t.name)}</span>
                   <span className="block text-xs" style={{ color: BODY }}>{tt(t.title)}</span></span>
               </figcaption>
             </figure>
@@ -419,7 +423,7 @@ export function GemCatalogStrip({ config = {}, items = [], fallbackTitle, testid
             <div className={`${square ? 'aspect-square' : 'aspect-[3/4]'} rounded-sm overflow-hidden mb-3`} style={{ backgroundColor: CARD }}>
               {it.image && <img src={it.image} alt={tt(it.title) || ''} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:transition-none" />}
             </div>
-            <p className="text-white/85 text-sm font-medium group-hover:text-white transition-colors line-clamp-2">{tt(it.title)}</p>
+            <p className="text-white/85 text-[15px] font-medium group-hover:text-white transition-colors line-clamp-2">{tt(it.title)}</p>
             {it.meta && (
               <p className="text-xs mt-0.5 inline-flex items-center gap-1" style={{ color: BODY }}>
                 {it.metaIcon === 'date' ? <Calendar className="w-3 h-3" /> : it.metaIcon === 'place' ? <MapPin className="w-3 h-3" /> : null}{it.meta}
@@ -454,7 +458,7 @@ function useDateParts() {
 
 const DateBadge = ({ parts, className = '' }) => (parts ? (
   <span className={`inline-flex flex-col items-center justify-center w-16 h-[68px] rounded-xl text-white leading-none ${className}`} style={{ backgroundColor: ACCENT }}>
-    <b className="text-2xl tabular-nums">{parts.day}</b><span className="text-[11px] tracking-[0.2em] mt-1">{parts.month}</span>
+    <b className="text-2xl tabular-nums">{parts.day}</b><span className="text-xs tracking-[0.2em] mt-1">{parts.month}</span>
   </span>
 ) : null);
 
@@ -484,8 +488,8 @@ export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-event
         )}
         <DateBadge parts={parts(e.event_date)} className="absolute left-3.5 top-3.5" />
       </div>
-      <h3 className="mt-4 text-white text-base font-semibold leading-snug line-clamp-2 group-hover:text-[color:var(--color-link,#5FB2E0)] transition-colors">{tt(e.title)}</h3>
-      {ACCESS[e.type] && <p className="mt-1 text-[13px]" style={{ color: BODY }}>{tt(ACCESS[e.type])}</p>}
+      <h3 className="mt-4 text-white text-lg font-semibold leading-snug line-clamp-2 group-hover:text-[color:var(--color-link,#5FB2E0)] transition-colors">{tt(e.title)}</h3>
+      {ACCESS[e.type] && <p className="mt-1 text-[15px]" style={{ color: BODY }}>{tt(ACCESS[e.type])}</p>}
     </Link>
   );
   const arrows = carousel ? (
@@ -514,9 +518,9 @@ export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-event
           {items.map(e => <Poster key={e.id} e={e} />)}
           <div className="col-span-2 rounded-2xl p-8 md:p-10 flex flex-col justify-center" style={{ border: `1px dashed ${BORDER}` }}>
             <h3 className="text-white text-2xl font-semibold mb-2.5">{tt({ en: 'Promoting an event?', es: '¿Organizas un evento?' })}</h3>
-            <p className="text-sm leading-[1.8]" style={{ color: BODY }}>{tt({ en: 'Publish it on GEM2i with guest list, QR e-passes and e-tickets.', es: 'Publícalo en GEM2i con guest list, e-passes QR y e-tickets.' })}</p>
+            <p className="text-[15px] leading-[1.8]" style={{ color: BODY }}>{tt({ en: 'Publish it on GEM2i with guest list, QR e-passes and e-tickets.', es: 'Publícalo en GEM2i con guest list, e-passes QR y e-tickets.' })}</p>
             <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('gem2i:open-contact'))}
-              className="mt-5 self-start inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-white" style={{ color: 'var(--color-link, #5FB2E0)' }}>
+              className="mt-5 self-start inline-flex items-center gap-1.5 text-[15px] font-medium transition-colors hover:text-white" style={{ color: 'var(--color-link, #5FB2E0)' }}>
               {tt({ en: 'List your event', es: 'Publica tu evento' })} <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -544,7 +548,7 @@ export function GemArtistMosaic({ config = {}, items = [] }) {
           <img src={artistImg(lead, true)} alt={name(lead)} loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 55%, rgba(4,8,12,0.92))' }} />
           <div className="absolute left-7 bottom-6">
-            {lead.country && <p className="text-[12px] tracking-[0.2em] uppercase" style={{ color: BODY }}>{tt(lead.country)}</p>}
+            {lead.country && <p className="text-[13px] font-semibold tracking-[0.2em] uppercase" style={{ color: ON_PHOTO }}>{tt(lead.country)}</p>}
             <h3 className="text-white font-bold mt-1" style={{ fontSize: 'clamp(1.8rem, 3.4vw, 2.6rem)' }}>{name(lead)}</h3>
           </div>
         </Link>
@@ -552,7 +556,7 @@ export function GemArtistMosaic({ config = {}, items = [] }) {
           {rest.slice(0, 6).map(a => (
             <Link key={a.id} to={`/artists/${a.slug}`} className="group relative block aspect-square rounded-xl overflow-hidden" style={{ backgroundColor: CARD }} title={name(a)}>
               <img src={artistImg(a)} alt={name(a)} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none" />
-              <span className="absolute inset-x-0 bottom-0 px-2.5 py-2 text-[12px] font-medium text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
+              <span className="absolute inset-x-0 bottom-0 px-2.5 py-2 text-[13px] font-medium text-white opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"
                 style={{ background: 'linear-gradient(180deg, transparent, rgba(4,8,12,0.9))' }}>{name(a)}</span>
             </Link>
           ))}
@@ -585,13 +589,62 @@ export function GemVenueCards({ config = {}, items = [], limit = 3 }) {
               {logo(v) && <img src={logo(v)} alt="" className="w-12 h-12 rounded-[10px] object-contain bg-white p-1" loading="lazy" />}
               <div>
                 <p className="text-white font-semibold">{tt(v.name)}</p>
-                {(v.city || v.country) && <p className="text-[13px]" style={{ color: BODY }}>{[tt(v.city), tt(v.country)].filter(Boolean).join(', ')}</p>}
+                {(v.city || v.country) && <p className="text-[15px]" style={{ color: BODY }}>{[tt(v.city), tt(v.country)].filter(Boolean).join(', ')}</p>}
               </div>
             </div>
           </Link>
         ))}
       </div>
     </Wrap>
+  );
+}
+
+// ── Venues · legacy venues.php grid (approved 2026-10-17) ──────────────────
+// Numbered photo tiles (4 across on desktop) with the venue logo in a white
+// circle (grey logo, colour on hover). Hover / keyboard focus reveals a dark
+// veil with name, location and "View details" — same as gem2i.com/venues.php.
+export function GemVenueGrid({ config = {}, items = [], limit = 12 }) {
+  const tt = useT();
+  const view = (v) => gemImg(v.image_urls?.view);
+  const logo = (v, on) => gemImg((on ? v.image_urls?.logo : v.image_urls?.logo_off) || v.image_urls?.logo);
+  const list = items.filter(v => view(v)).slice(0, limit);
+  if (!list.length) return null;
+  return (
+    // Full-bleed like gem2i.com/venues.php: heading aligned with the other
+    // sections, photo grid edge to edge.
+    <section className="py-20 md:py-28" data-testid="gem2i-venues">
+      <div className="max-w-7xl mx-auto px-6 md:px-10">
+        <CatalogHead config={config} fallbackTitle={{ en: 'Venues', es: 'Venues' }} allText={{ en: 'All venues', es: 'Todos los venues' }} allUrl="/venues" />
+      </div>
+      <ol className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
+        {list.map((v, i) => {
+          const where = [tt(v.city), tt(v.country)].filter(Boolean).join(', ');
+          return (
+            <li key={v.id}>
+              <Link to={`/venues/${v.slug}`} className="group relative block aspect-[2/1] overflow-hidden outline-none" style={{ backgroundColor: CARD }}
+                aria-label={`${tt(v.name)}${where ? ` · ${where}` : ''}`}>
+                <img src={view(v)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-visible:scale-105 motion-reduce:transition-none" />
+                <span className="absolute left-3 top-3 z-10 min-w-[38px] h-[38px] px-2 inline-flex items-center justify-center text-white text-[17px] font-semibold tabular-nums" style={{ backgroundColor: 'var(--color-accent, #0068b3)' }}>{i + 1}</span>
+                {logo(v) && (
+                  <span className="absolute right-3 top-3 z-10 w-[84px] h-[84px] rounded-full bg-white flex items-center justify-center p-3 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]">
+                    <img src={logo(v)} alt="" loading="lazy" className="max-w-full max-h-full object-contain transition-opacity duration-300 group-hover:opacity-0 group-focus-visible:opacity-0" />
+                    <img src={logo(v, true)} alt="" loading="lazy" className="absolute inset-3 m-auto max-w-[calc(100%-1.5rem)] max-h-[calc(100%-1.5rem)] object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
+                  </span>
+                )}
+                <span className="absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                  style={{ background: 'linear-gradient(180deg, rgba(4,8,12,.35) 0%, rgba(4,8,12,.9) 70%)' }}>
+                  <span className="text-white text-[22px] font-semibold leading-tight">{tt(v.name)}</span>
+                  {where && <span className="mt-1.5 inline-flex items-center gap-1.5 text-[15px]" style={{ color: ON_PHOTO }}><MapPin className="w-4 h-4" aria-hidden="true" />{where}</span>}
+                  <span className="mt-3 self-start inline-flex items-center gap-2 border border-white/80 px-4 py-1.5 text-[15px] font-medium text-white">
+                    {tt({ en: 'View details', es: 'Ver detalles' })} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
 
@@ -616,7 +669,7 @@ export function GemFestivalBento({ config = {}, items = [] }) {
             <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(4,8,12,0.92))' }} />
             <div className="absolute left-5 right-5 bottom-4">
               <h3 className={`text-white font-semibold ${sizes[i]}`}>{tt(f.title)}</h3>
-              {i < 2 && (f.range_dates || f.event_date) && <p className="text-[13px] mt-0.5" style={{ color: BODY }}>{tt(f.range_dates) || f.event_date}</p>}
+              {i < 2 && (f.range_dates || f.event_date) && <p className="text-[15px] mt-0.5" style={{ color: ON_PHOTO }}>{tt(f.range_dates) || f.event_date}</p>}
             </div>
           </Link>
         ))}
@@ -642,7 +695,7 @@ export function GemConferenceCards({ config = {}, items = [], limit = 4 }) {
               <img src={logo(c)} alt={tt(c.title)} loading="lazy" className="max-w-full max-h-[72px] object-contain transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
             </div>
             <p className="text-white font-semibold mt-4">{tt(c.title)}</p>
-            {(c.range_dates || c.event_date) && <p className="text-[13px] mt-0.5" style={{ color: BODY }}>{tt(c.range_dates) || c.event_date}</p>}
+            {(c.range_dates || c.event_date) && <p className="text-[15px] mt-0.5" style={{ color: BODY }}>{tt(c.range_dates) || c.event_date}</p>}
           </Link>
         ))}
       </div>
@@ -689,7 +742,7 @@ export function GemVideoCover({ config = {} }) {
           <lucide.Play className="w-8 h-8 ml-1" fill="currentColor" />
         </button>
         {tt(config.title) && <h2 className="text-white font-bold max-w-3xl" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', textWrap: 'balance' }}>{tt(config.title)}</h2>}
-        {tt(config.subtitle) && <p className="max-w-xl text-sm md:text-[15px]" style={{ color: 'rgba(255,255,255,0.75)' }}>{tt(config.subtitle)}</p>}
+        {tt(config.subtitle) && <p className="max-w-xl text-base md:text-[17px]" style={{ color: 'rgba(255,255,255,0.75)' }}>{tt(config.subtitle)}</p>}
       </div>
       {open && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10" style={{ backgroundColor: 'rgba(0,0,0,0.92)' }}
@@ -720,7 +773,7 @@ export function GemPricingTiers({ config = {}, items = [] }) {
           <div className="inline-flex gap-1 p-1 rounded-full" style={{ border: `1px solid ${BORDER}` }} role="group">
             {[false, true].map(a => (
               <button key={String(a)} type="button" onClick={() => setAnnual(a)} aria-pressed={annual === a}
-                className="px-4 py-2 rounded-full text-[13px] font-semibold transition-colors"
+                className="px-4 py-2 rounded-full text-[15px] font-semibold transition-colors"
                 style={annual === a ? { backgroundColor: ACCENT, color: '#fff' } : { color: BODY }}>
                 {a ? tt({ en: 'Annual', es: 'Anual' }) : tt({ en: 'Monthly', es: 'Mensual' })}
               </button>
@@ -731,29 +784,29 @@ export function GemPricingTiers({ config = {}, items = [] }) {
         {items.map(p => {
           const hot = !!p.is_featured;
           const price = annual && p.price_annual ? p.price_annual : p.price;
-          const sub = hot ? 'rgba(255,255,255,0.82)' : BODY;
+          const sub = hot ? 'rgba(255,255,255,0.94)' : BODY;
           return (
             <div key={p.id} className={`rounded-2xl flex flex-col ${hot ? 'px-8 py-11 md:-my-3' : 'p-8'}`}
               style={hot ? { backgroundColor: ACCENT, boxShadow: '0 30px 60px rgba(50,135,183,0.22)' } : { backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-white text-lg font-semibold">{tt(p.name)}</h3>
-                {tt(p.badge) && <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ backgroundColor: hot ? 'rgba(255,255,255,0.18)' : ACCENT, color: '#fff' }}>{tt(p.badge)}</span>}
+                {tt(p.badge) && <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ backgroundColor: hot ? 'rgba(0,0,0,0.28)' : ACCENT, color: '#fff' }}>{tt(p.badge)}</span>}
               </div>
-              {tt(p.description) && <p className="mt-1 text-sm" style={{ color: sub }}>{tt(p.description)}</p>}
+              {tt(p.description) && <p className="mt-1 text-[15px]" style={{ color: sub }}>{tt(p.description)}</p>}
               <p className="mt-5 text-white tabular-nums">
                 <span className={`${hot ? 'text-[52px]' : 'text-[44px]'} font-bold leading-none`}>{price}</span>
-                <span className="ml-1.5 text-sm" style={{ color: sub }}>{p.currency} {tt(p.period)}</span>
+                <span className="ml-1.5 text-[15px]" style={{ color: sub }}>{p.currency} {tt(p.period)}</span>
               </p>
               <ul className="mt-6 space-y-2.5 flex-1">
                 {features(tt(p.features)).map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: hot ? '#fff' : 'rgba(255,255,255,0.85)' }}>
+                  <li key={i} className="flex items-start gap-2 text-[15px]" style={{ color: hot ? '#fff' : 'rgba(255,255,255,0.85)' }}>
                     <Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color: hot ? '#fff' : ACCENT }} />{f}
                   </li>
                 ))}
               </ul>
               {tt(p.cta_text) && p.cta_url && (
                 <a href={p.cta_url} target={p.cta_new_tab ? '_blank' : '_self'} rel={p.cta_new_tab ? 'noopener noreferrer' : undefined}
-                  className="mt-7 text-center px-5 py-3 text-sm font-semibold rounded-full transition-[opacity,transform] hover:opacity-90 active:scale-[0.98]"
+                  className="mt-7 text-center px-5 py-3 text-[15px] font-semibold rounded-full transition-[opacity,transform] hover:opacity-90 active:scale-[0.98]"
                   style={hot ? { backgroundColor: '#fff', color: '#0b2233' } : { border: '1px solid rgba(255,255,255,0.4)', color: '#fff' }}>
                   {tt(p.cta_text)}
                 </a>
@@ -781,6 +834,13 @@ export function GemTeamPortraits({ config = {}, items = [] }) {
           return (
             <div key={m.id} className="group" tabIndex={0}>
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden" style={{ backgroundColor: CARD }}>
+                {!m.photo_url && (
+                  // No photo yet: initials on a brand gradient instead of a stranger's stock portrait.
+                  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-bold text-white/90 select-none"
+                    style={{ background: 'linear-gradient(160deg, #002444 0%, #0068b3 100%)', fontSize: 'clamp(2.4rem, 5vw, 3.6rem)', fontFamily: "'Playfair Display', Georgia, serif" }}>
+                    {tt(m.name).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')}
+                  </span>
+                )}
                 {m.photo_url && <img src={gemImg(m.photo_url)} alt={tt(m.name)} loading="lazy"
                   className="w-full h-full object-cover grayscale transition-[filter,transform] duration-500 group-hover:grayscale-0 group-focus-within:grayscale-0 group-hover:scale-[1.03] motion-reduce:transition-none" />}
                 {socials.length > 0 && (
@@ -794,7 +854,7 @@ export function GemTeamPortraits({ config = {}, items = [] }) {
                 )}
               </div>
               <h3 className="text-white font-semibold mt-4">{tt(m.name)}</h3>
-              <p className="text-[13px] mt-0.5" style={{ color: BODY }}>{tt(m.role)}</p>
+              <p className="text-[15px] mt-0.5" style={{ color: BODY }}>{tt(m.role)}</p>
             </div>
           );
         })}
@@ -815,7 +875,7 @@ export function GemTestimonialSpotlight({ config = {}, items = [] }) {
     <div style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }}>
       <Wrap testid="gem2i-testimonials" narrow>
         <div className="text-center">
-          {(tt(config.eyebrow) || tt(config.title)) && <p className="text-xs font-medium uppercase tracking-[0.3em]" style={{ color: ACCENT }}>{tt(config.eyebrow) || tt(config.title)}</p>}
+          {(tt(config.eyebrow) || tt(config.title)) && <p className="gem-eyebrow" style={{ color: ACCENT }}>{tt(config.eyebrow) || tt(config.title)}</p>}
           <figure key={t.id} className="mt-8 gem-fade-in">
             <blockquote className="text-white font-medium mx-auto max-w-4xl" style={{ fontSize: 'clamp(1.4rem, 3vw, 2.15rem)', lineHeight: 1.4, textWrap: 'balance' }}>
               “{tt(t.content)}”
@@ -823,7 +883,7 @@ export function GemTestimonialSpotlight({ config = {}, items = [] }) {
             <figcaption className="mt-9 inline-flex items-center gap-3.5 text-left">
               {t.image && <img src={gemImg(t.image)} alt="" className="w-[52px] h-[52px] rounded-full object-cover" loading="lazy" />}
               <span><span className="block text-white font-semibold">{tt(t.name)}</span>
-                <span className="block text-[13px]" style={{ color: BODY }}>{tt(t.title)}</span></span>
+                <span className="block text-[15px]" style={{ color: BODY }}>{tt(t.title)}</span></span>
             </figcaption>
           </figure>
           {list.length > 1 && (
@@ -896,7 +956,7 @@ export function GemGalleryMarquee({ config = {}, items = [] }) {
             <button type="button" onClick={e => { e.stopPropagation(); step(1); }} aria-label={tt({ en: 'Next', es: 'Siguiente' })} className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.ChevronRight className="w-7 h-7" /></button>
           </>}
           <img key={open} src={gemImg(cur.image)} alt={tt(cur.title) || ''} onClick={e => e.stopPropagation()} className="max-w-full max-h-[80vh] object-contain rounded-lg gem-fade-in" />
-          <p className="mt-4 text-sm text-white/80 tabular-nums" onClick={e => e.stopPropagation()}>{tt(cur.title) ? `${tt(cur.title)} · ` : ''}{open + 1} / {pics.length}</p>
+          <p className="mt-4 text-[15px] text-white/80 tabular-nums" onClick={e => e.stopPropagation()}>{tt(cur.title) ? `${tt(cur.title)} · ` : ''}{open + 1} / {pics.length}</p>
         </div>
       )}
       <style>{MARQUEE_CSS}{`@media (prefers-reduced-motion: no-preference){.gem-fade-in{animation:gemFade .35s cubic-bezier(.16,1,.3,1)}}@keyframes gemFade{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}`}</style>
@@ -909,7 +969,9 @@ export function GemLogoMarquee({ config = {}, items = [], testid }) {
   const tt = useT();
   if (!items.length) return null;
   const Logo = ({ l, hidden }) => {
-    const img = <img src={gemImg(l.logo_url || l.image)} alt={hidden ? '' : (tt(l.name) || '')} loading="lazy" className="h-10 md:h-12 w-auto max-w-[180px] object-contain opacity-60 grayscale transition-[opacity,filter] hover:opacity-100 hover:grayscale-0" />;
+    const img = <img src={gemImg(l.logo_url || l.image)} alt={hidden ? '' : (tt(l.name) || '')} loading="lazy" className="h-10 md:h-12 w-auto max-w-[180px] object-contain opacity-60 transition-opacity hover:opacity-100"
+      // Mixed legacy logos (navy, black, colour): one white silhouette keeps them all legible on the dark band.
+      style={{ filter: 'brightness(0) invert(1)' }} />;
     return l.link_url
       ? <a href={l.link_url} target={l.link_target || '_blank'} rel="noopener noreferrer" tabIndex={hidden ? -1 : 0} aria-hidden={hidden || undefined} className="shrink-0 mx-8 md:mx-12">{img}</a>
       : <span className="shrink-0 mx-8 md:mx-12" aria-hidden={hidden || undefined}>{img}</span>;
@@ -934,9 +996,9 @@ export function GemClientsGrid({ title, kicker, text, logos = [] }) {
   return (
     <Wrap testid="gem2i-clients">
       <div className="text-center">
-        {kicker && <p className="text-xs font-medium uppercase tracking-[0.3em] mb-1.5" style={{ color: ACCENT }}>{kicker}</p>}
+        {kicker && <p className="gem-eyebrow mb-3" style={{ color: ACCENT }}>{kicker}</p>}
         {title && <h2 className="text-white font-bold" style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.5rem)' }}>{title}</h2>}
-        {text && <p className="mt-4 mx-auto max-w-2xl text-sm md:text-[15px] leading-[1.85]" style={{ color: BODY }}>{text}</p>}
+        {text && <p className="mt-4 mx-auto max-w-2xl text-base md:text-[17px] leading-[1.7]" style={{ color: BODY }}>{text}</p>}
       </div>
       {logos.length > 0 && (
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
@@ -964,7 +1026,7 @@ export function GemContactBand() {
           {tt({ en: "Let's build your next event together", es: 'Construyamos juntos tu próximo evento' })}
         </h2>
         <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('gem2i:open-contact'))}
-          className="shrink-0 px-6 py-3 text-sm font-semibold uppercase tracking-wider rounded-sm transition-opacity hover:opacity-85"
+          className="shrink-0 px-6 py-3 text-[15px] font-semibold rounded-sm transition-opacity hover:opacity-85"
           style={{ backgroundColor: ACCENT, color: '#fff' }}>
           {tt({ en: 'Contact Us', es: 'Contáctanos' })}
         </button>
@@ -1070,19 +1132,19 @@ export function GemIntroPhoto({ intro }) {
           </div>
           <div className="absolute -right-3 sm:-right-7 bottom-8 w-28 h-28 sm:w-32 sm:h-32 rounded-full flex flex-col items-center justify-center text-center text-white"
             style={{ backgroundColor: ACCENT }} aria-label={`${tt({ en: 'Since', es: 'Desde' })} ${since}`}>
-            <span className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase">{tt({ en: 'Since', es: 'Desde' })}</span>
+            <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase">{tt({ en: 'Since', es: 'Desde' })}</span>
             <span className="text-2xl sm:text-3xl font-bold tabular-nums">{since}</span>
           </div>
         </div>
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.32em]" style={{ color: 'var(--color-link, #5FB2E0)' }}>{tt(intro.kicker) || tt({ en: 'Who we are', es: 'Quiénes somos' })}</p>
           <h2 className="text-white font-bold leading-[1.08] tracking-[-0.02em] mt-4 mb-6" style={{ fontSize: 'clamp(1.9rem, 3.4vw, 2.85rem)', textWrap: 'balance' }}>{tt(intro.heading)}</h2>
-          <p className="text-[15px] leading-[1.85]" style={{ color: BODY, textWrap: 'pretty' }}>{tt(intro.text)}</p>
+          <p className="text-[15px] leading-[1.7]" style={{ color: BODY, textWrap: 'pretty' }}>{tt(intro.text)}</p>
           <div className="mt-8 flex flex-wrap gap-3.5">
-            <Link to={intro.cta_url || '/membership-enrollment'} className="gem-press inline-flex px-6 py-3 rounded-full text-sm font-semibold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: ACCENT }}>
+            <Link to={intro.cta_url || '/membership-enrollment'} className="gem-press inline-flex px-6 py-3 rounded-full text-[15px] font-semibold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: ACCENT }}>
               {tt(intro.cta_text) || tt({ en: 'Join GEM2i', es: 'Únete a GEM2i' })}
             </Link>
-            <a href="#services" className="gem-press inline-flex px-6 py-3 rounded-full text-sm font-medium text-white border border-white/55 transition-colors hover:bg-white/10">
+            <a href="#services" className="gem-press inline-flex px-6 py-3 rounded-full text-[15px] font-medium text-white border border-white/55 transition-colors hover:bg-white/10">
               {tt({ en: 'Our services', es: 'Nuestros servicios' })}
             </a>
           </div>
@@ -1109,9 +1171,9 @@ export function GemFeaturedCards({ items = [], heading }) {
               <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(4,8,12,0) 30%, rgba(4,8,12,.94) 100%)' }} />
               <div className="absolute left-6 right-6 bottom-6 lg:left-7 lg:right-7 lg:bottom-7">
                 <h3 className="text-white font-bold tracking-[-0.01em] capitalize" style={{ fontSize: 'clamp(1.6rem, 2.4vw, 2.1rem)' }}>{String(tt(f.title) || '').toLowerCase()}</h3>
-                <p className="mt-2 text-sm leading-[1.7] line-clamp-3" style={{ color: BODY }}>{tt(f.text)}</p>
+                <p className="mt-2 text-[15px] leading-[1.7] line-clamp-3" style={{ color: ON_PHOTO }}>{tt(f.text)}</p>
                 {f.url && (
-                  <span className="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] transition-transform duration-200 group-hover:translate-x-1" style={{ color: 'var(--color-link, #5FB2E0)' }}>
+                  <span className="mt-4 inline-flex items-center gap-2 text-[15px] font-semibold uppercase tracking-[0.14em] transition-transform duration-200 group-hover:translate-x-1" style={{ color: 'var(--color-link, #5FB2E0)' }}>
                     {tt({ en: 'Explore', es: 'Explorar' })} <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 )}
@@ -1151,7 +1213,7 @@ export function GemServicesGrid({ services, banner }) {
           {slots.map((c, i) => c.contact ? (
             <li key="contact" className="rounded-2xl p-7 flex flex-col justify-between gap-6 min-h-[220px]" style={{ backgroundColor: ACCENT }}>
               <p className="text-white text-xl font-bold leading-snug" style={{ textWrap: 'balance' }}>{ctaText}</p>
-              <a href="#contact" onClick={openContact} className="gem-press self-start inline-flex items-center gap-2 bg-white rounded-full px-5 py-2.5 text-[13px] font-semibold" style={{ color: '#04080C' }} data-testid="gem2i-services-contact">
+              <a href="#contact" onClick={openContact} className="gem-press self-start inline-flex items-center gap-2 bg-white rounded-full px-5 py-2.5 text-[15px] font-semibold" style={{ color: '#04080C' }} data-testid="gem2i-services-contact">
                 {tt({ en: 'Contact us', es: 'Contáctanos' })} <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </li>
@@ -1161,7 +1223,7 @@ export function GemServicesGrid({ services, banner }) {
                 <GemIcon name={c.icon} className="w-5 h-5" />
               </span>
               <h3 className="text-white text-[17px] font-semibold leading-snug mt-5" style={{ textWrap: 'balance' }}>{tt(c.title)}</h3>
-              {tt(c.text) && <p className="mt-2 text-[13px] leading-[1.7]" style={{ color: BODY }}>{tt(c.text)}</p>}
+              {tt(c.text) && <p className="mt-2 text-[15px] leading-[1.7]" style={{ color: BODY }}>{tt(c.text)}</p>}
             </li>
           ))}
         </ul>

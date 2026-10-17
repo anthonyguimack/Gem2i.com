@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AccentTitle from './AccentTitle';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { gemAPI } from '../../lib/api';
@@ -23,10 +24,10 @@ export function CatalogHero({ kicker, title, children }) {
       style={{ background: 'linear-gradient(180deg, rgba(50,135,183,0.14), transparent 70%)' }}>
       <div className="max-w-7xl mx-auto px-6 md:px-10 pt-16 pb-10">
         {kicker && (
-          <p className="text-xs font-medium uppercase tracking-[0.3em] mb-1.5"
+          <p className="gem-eyebrow mb-3"
             style={{ color: 'var(--color-accent, #3287B7)' }}>{kicker}</p>
         )}
-        <h1 className="text-white font-bold" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>{title}</h1>
+        <h1 className="text-white font-bold leading-[1.05]" style={{ fontSize: 'clamp(2.2rem, 4.6vw, 3.6rem)' }}>{typeof title === 'string' ? <AccentTitle text={title} /> : title}</h1>
         {children}
       </div>
     </section>
@@ -43,7 +44,7 @@ export function FilterPills({ options, value, onChange, allLabel }) {
         return (
           <button key={o.value || '_all'} type="button" role="tab" aria-selected={active}
             onClick={() => onChange(o.value)}
-            className="px-4 py-1.5 text-[13px] font-medium rounded-sm border transition-colors"
+            className="px-4 py-1.5 text-[15px] font-medium rounded-sm border transition-colors"
             style={active
               ? { backgroundColor: 'var(--color-accent, #3287B7)', borderColor: 'var(--color-accent, #3287B7)', color: '#fff' }
               : { borderColor: 'var(--color-card-border, rgba(255,255,255,0.08))', color: 'var(--color-body-text, #9AA6B2)' }}>
@@ -190,7 +191,7 @@ export function SocialLinks({ socials }) {
     <div className="flex flex-wrap gap-x-5 gap-y-2">
       {entries.map(([k, v]) => (
         <a key={k} href={v} target="_blank" rel="noreferrer"
-          className="text-[13px] capitalize transition-colors hover:text-white"
+          className="text-[15px] capitalize transition-colors hover:text-white"
           style={{ color: 'var(--color-link, #5FB2E0)' }}>
           {k}
         </a>

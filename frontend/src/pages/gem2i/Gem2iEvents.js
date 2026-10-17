@@ -8,7 +8,7 @@ import {
   EmptyState, CardImage, TypeBadge, gemImg,
 } from '../../components/gem2i/GemCatalogBits';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 const FILTER_BORDER = { borderColor: 'var(--color-card-border, rgba(255,255,255,0.08))' };
 const MUTED = { color: 'var(--color-body-text, #9AA6B2)' };
 

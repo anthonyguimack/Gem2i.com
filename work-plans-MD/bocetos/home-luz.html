@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Home menos oscuro</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#1a1d22; color:#fff; font-family:'Manrope',sans-serif; }
+  .group { max-width:1440px; margin:0 auto; padding:52px 24px 8px; }
+  .group h2 { margin:0; font-size:22px; font-weight:700; }
+  .group p { margin:8px 0 0; color:#9aa6b2; font-size:15px; line-height:1.6; max-width:980px; }
+  .cols { max-width:1440px; margin:24px auto 0; padding:0 24px; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .col h3 { font-size:16px; margin:0 0 4px; } .col small { color:#9aa6b2; font-size:13px; display:block; margin-bottom:12px; line-height:1.5; }
+  .page { border-radius:12px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.35); }
+  .s { padding:22px 18px; }
+  .k { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; display:flex; align-items:center; gap:6px; }
+  .k::before { content:''; width:14px; height:2px; background:#3287B7; }
+  .t { font-family:'Playfair Display',serif; font-weight:700; font-size:19px; margin:6px 0 4px; line-height:1.1; }
+  .t em { font-style:italic; font-weight:500; color:#3287B7; }
+  .b { font-size:10px; line-height:1.5; }
+  .row { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+  .card { height:46px; border-radius:6px; }
+  .img { background-size:cover; background-position:center; }
+  .hero { height:150px; display:flex; align-items:flex-end; }
+  .btn { display:inline-block; margin-top:8px; font-size:9px; font-weight:700; padding:5px 10px; border-radius:999px; background:#3287B7; color:#fff; }
+  /* palettes */
+  .dark { background:#04080C; color:#fff; } .dark2 { background:#0A121A; color:#fff; } .dark .b, .dark2 .b { color:#9aa6b2; } .dark .k, .dark2 .k { color:#5FB2E0; }
+  .card.d { background:#0D1721; border:1px solid rgba(255,255,255,.08); }
+  .navy { background:#0E1B2A; color:#fff; } .navy2 { background:#132538; color:#fff; } .navy .b, .navy2 .b { color:#b6c4d1; } .navy .k, .navy2 .k { color:#7cc3ea; }
+  .card.n { background:#1A3049; border:1px solid rgba(255,255,255,.1); }
+  .light { background:#F4F6F8; color:#0B1622; } .light2 { background:#E8EDF2; color:#0B1622; } .light .b, .light2 .b { color:#4A5866; } .light .k, .light2 .k { color:#2A79A6; }
+  .light .t em, .light2 .t em { color:#2A79A6; }
+  .card.l { background:#fff; border:1px solid rgba(11,22,34,.08); box-shadow:0 6px 14px rgba(11,22,34,.06); }
+  .blue { background:linear-gradient(135deg,#1F5F86,#3287B7); color:#fff; } .blue .b { color:#e3f1fa; } .blue .k { color:#fff; } .blue .k::before { background:#fff; } .blue .t em { color:#cfe9f8; }
+  .bad .t { color:#fff; } .bad .b { color:#fff; opacity:.9; }
+  .tag { display:inline-block; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; margin-top:6px; }
+  .ok { background:#1f6f43; } .ko { background:#8a2a2a; }
+  table { width:100%; border-collapse:collapse; font-size:14px; } td,th { text-align:left; padding:10px 12px; border-top:1px solid rgba(255,255,255,.09); vertical-align:top; } th { color:#9aa6b2; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  @media (max-width:1000px){ .cols{grid-template-columns:1fr 1fr} }
+</style>
+</head>
+<body>
+<div class="group"><h2>Bocetos: cómo hacer el home menos oscuro</h2>
+<p>Cada columna es el home completo en miniatura (Hero → Intro → Featured → Services → Events → Plans → Testimonials → Contact). La primera es lo que hay hoy en beta con tus cambios de color.</p></div>
+
+<div class="cols">
+  <!-- HOY -->
+  <div class="col"><h3>Hoy</h3><small>Todo casi negro. Tus fondos claros no funcionan: Intro no cambia y en Featured el texto blanco desaparece.</small>
+  <div class="page">
+    <div class="s hero img dark" style="background-image:linear-gradient(90deg,#04080Cee,#04080C55),url('https://beta.gem2i.com/api/uploads/ee936985a8844513b2d5e816b78e4e63.jpeg')"><div><div class="t">Gem2i</div><span class="btn">More information</span></div></div>
+    <div class="s dark2"><div class="k">Who we are</div><div class="t">Global <em>Entertainment</em></div><div class="b">Fondo #E5E7EB elegido, pero se pinta oscuro encima.</div><span class="tag ko">color ignorado</span></div>
+    <div class="s light bad"><div class="k">Featured</div><div class="t">Explore the <em>scene</em></div><div class="b">Texto blanco sobre claro</div><div class="row"><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_venues.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg')"></div></div><span class="tag ko">ilegible</span></div>
+    <div class="s dark2"><div class="k">Services</div><div class="t">Everything an <em>event</em></div><div class="row"><div class="card d"></div><div class="card d"></div><div class="card d"></div></div></div>
+    <div class="s dark"><div class="k">Calendar</div><div class="t">Upcoming <em>events</em></div><div class="row"><div class="card d"></div><div class="card d"></div><div class="card d"></div></div></div>
+    <div class="s dark"><div class="k">Plans</div><div class="t">Pick your <em>membership</em></div><div class="row"><div class="card d"></div><div class="card" style="background:#3287B7"></div><div class="card d"></div></div></div>
+    <div class="s dark2"><div class="k">Testimonials</div><div class="t">“The guest list…”</div></div>
+    <div class="s dark2"><div class="k">Contact</div><div class="t">Let's <em>talk</em></div></div>
+  </div></div>
+
+  <!-- L-1 -->
+  <div class="col"><h3>L-1 · Azul medianoche</h3><small>Mismo look nocturno, pero el negro pasa a un azul marino profundo, tarjetas más claras y textos con más contraste. Cambio global, cero trabajo de contenido.</small>
+  <div class="page">
+    <div class="s hero img navy" style="background-image:linear-gradient(90deg,#0E1B2Aee,#0E1B2A44),url('https://beta.gem2i.com/api/uploads/ee936985a8844513b2d5e816b78e4e63.jpeg')"><div><div class="t">Gem2i</div><span class="btn">More information</span></div></div>
+    <div class="s navy2"><div class="k">Who we are</div><div class="t">Global <em>Entertainment</em></div><div class="b">GEM2i is the leading full service marketing, media and business integration company.</div></div>
+    <div class="s navy"><div class="k">Featured</div><div class="t">Explore the <em>scene</em></div><div class="row"><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_venues.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg')"></div></div></div>
+    <div class="s navy2"><div class="k">Services</div><div class="t">Everything an <em>event</em></div><div class="row"><div class="card n"></div><div class="card n"></div><div class="card n"></div></div></div>
+    <div class="s navy"><div class="k">Calendar</div><div class="t">Upcoming <em>events</em></div><div class="row"><div class="card n"></div><div class="card n"></div><div class="card n"></div></div></div>
+    <div class="s navy2"><div class="k">Plans</div><div class="t">Pick your <em>membership</em></div><div class="row"><div class="card n"></div><div class="card" style="background:#3287B7"></div><div class="card n"></div></div></div>
+    <div class="s navy"><div class="k">Testimonials</div><div class="t">“The guest list…”</div></div>
+    <div class="s navy2"><div class="k">Contact</div><div class="t">Let's <em>talk</em></div></div>
+  </div></div>
+
+  <!-- L-2 -->
+  <div class="col"><h3>L-2 · Alternar claro / oscuro</h3><small>Como A Capital: secciones informativas en claro (Intro, Featured, Services, Plans, Contact) y las de fotos/noche en oscuro. Los textos cambian solos a oscuro en fondo claro.</small>
+  <div class="page">
+    <div class="s hero img dark" style="background-image:linear-gradient(90deg,#04080Cee,#04080C55),url('https://beta.gem2i.com/api/uploads/ee936985a8844513b2d5e816b78e4e63.jpeg')"><div><div class="t">Gem2i</div><span class="btn">More information</span></div></div>
+    <div class="s light2"><div class="k">Who we are</div><div class="t">Global <em>Entertainment</em></div><div class="b">GEM2i is the leading full service marketing, media and business integration company.</div><span class="tag ok">tu color, legible</span></div>
+    <div class="s light"><div class="k">Featured</div><div class="t">Explore the <em>scene</em></div><div class="row"><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_venues.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg')"></div></div><span class="tag ok">legible</span></div>
+    <div class="s light2"><div class="k">Services</div><div class="t">Everything an <em>event</em></div><div class="row"><div class="card l"></div><div class="card l"></div><div class="card l"></div></div></div>
+    <div class="s dark"><div class="k">Calendar</div><div class="t">Upcoming <em>events</em></div><div class="row"><div class="card d"></div><div class="card d"></div><div class="card d"></div></div></div>
+    <div class="s light"><div class="k">Plans</div><div class="t">Pick your <em>membership</em></div><div class="row"><div class="card l"></div><div class="card" style="background:#3287B7"></div><div class="card l"></div></div></div>
+    <div class="s dark2"><div class="k">Testimonials</div><div class="t">“The guest list…”</div></div>
+    <div class="s light2"><div class="k">Contact</div><div class="t">Let's <em>talk</em></div></div>
+  </div></div>
+
+  <!-- L-3 -->
+  <div class="col"><h3>L-3 · L-1 + L-2 + bandas azules</h3><small>Base azul medianoche, algunas secciones claras y 1-2 bandas en azul GEM2i (Services banner, Contact) que dan color y ritmo. La más luminosa sin perder la noche.</small>
+  <div class="page">
+    <div class="s hero img navy" style="background-image:linear-gradient(90deg,#0E1B2Aee,#0E1B2A44),url('https://beta.gem2i.com/api/uploads/ee936985a8844513b2d5e816b78e4e63.jpeg')"><div><div class="t">Gem2i</div><span class="btn">More information</span></div></div>
+    <div class="s light2"><div class="k">Who we are</div><div class="t">Global <em>Entertainment</em></div><div class="b">GEM2i is the leading full service marketing, media and business integration company.</div></div>
+    <div class="s light"><div class="k">Featured</div><div class="t">Explore the <em>scene</em></div><div class="row"><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_venues.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg')"></div><div class="card img" style="background-image:url('https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg')"></div></div></div>
+    <div class="s blue"><div class="k">Services</div><div class="t">Everything an <em>event</em></div><div class="b">Banda azul GEM2i</div></div>
+    <div class="s navy"><div class="k">Calendar</div><div class="t">Upcoming <em>events</em></div><div class="row"><div class="card n"></div><div class="card n"></div><div class="card n"></div></div></div>
+    <div class="s light"><div class="k">Plans</div><div class="t">Pick your <em>membership</em></div><div class="row"><div class="card l"></div><div class="card" style="background:#3287B7"></div><div class="card l"></div></div></div>
+    <div class="s navy2"><div class="k">Testimonials</div><div class="t">“The guest list…”</div></div>
+    <div class="s blue"><div class="k">Contact</div><div class="t">Let's <em>talk</em></div></div>
+  </div></div>
+</div>
+
+<div class="group"><h2>Qué haría en el código (para cualquier opción)</h2></div>
+<div class="group" style="padding-top:10px"><table>
+  <tr><th>Arreglo</th><th>Para qué</th></tr>
+  <tr><td><b>Texto automático según el fondo</b></td><td>Cuando eliges un fondo claro en Page Builder, la sección cambia sola a textos oscuros (títulos, párrafos, eyebrows, tarjetas). Hoy el texto es blanco fijo y por eso Featured se vuelve ilegible.</td></tr>
+  <tr><td><b>Respetar el color elegido en todas las secciones</b></td><td>Intro (y otras) pintan su propio fondo oscuro encima del tuyo; quito ese fondo fijo para que manden tus colores del Page Builder.</td></tr>
+  <tr><td><b>Paleta base editable</b></td><td>Los tonos oscuros (fondo, sección, tarjetas) pasan a variables del CMS (Colors → website), así se puede aclarar todo el sitio sin tocar código.</td></tr>
+</table>
+<p style="color:#9aa6b2; font-size:14px; margin-top:22px; padding-bottom:70px"><b style="color:#fff">Mi recomendación: L-3.</b> Las tres correcciones de la tabla son necesarias en cualquier caso (sin ellas, cambiar colores en Page Builder seguirá rompiendo secciones). Con eso hecho, L-3 da el mayor cambio de luz: base azul medianoche en vez de negro, secciones claras donde hay texto para leer, y bandas azules para dar ritmo.</p></div>
+</body>
+</html>

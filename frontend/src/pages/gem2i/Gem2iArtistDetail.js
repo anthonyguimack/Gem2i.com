@@ -6,7 +6,7 @@ import { useT } from '../../lib/i18n';
 import { normalizeRichText } from '../../lib/richText';
 import { gemImg, CardImage, FollowButton, SocialLinks, SkeletonGrid } from '../../components/gem2i/GemCatalogBits';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 export default function Gem2iArtistDetail() {
   const { slug } = useParams();
@@ -78,7 +78,7 @@ export default function Gem2iArtistDetail() {
             )}
 
             {Array.isArray(artist.genres) && artist.genres.length > 0 && (
-              <p className="mt-4 text-[13px]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
+              <p className="mt-4 text-[15px]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
                 {artist.genres.join(' / ')}
               </p>
             )}

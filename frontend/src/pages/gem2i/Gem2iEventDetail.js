@@ -11,7 +11,7 @@ import GemGuestListWidget from '../../components/gem2i/GemGuestListWidget';
 import GemTicketWidget from '../../components/gem2i/GemTicketWidget';
 import { NotFoundShell } from './Gem2iArtistDetail';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /** Event detail (plan A4) — description, socials, line-up, venue block, follow.
  *  Purchase / guest-list widgets arrive in Phases 4-5. */

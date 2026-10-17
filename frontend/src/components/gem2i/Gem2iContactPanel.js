@@ -5,7 +5,7 @@ import { contactAPI } from '../../lib/api';
 import { useSettings } from '../../App';
 import { useT } from '../../lib/i18n';
 
-const GEM_FONT = "'Poppins', sans-serif";
+const GEM_FONT = "'Manrope', sans-serif";
 
 /**
  * gem2i side contact panel — port of the legacy site's fixed right-edge
@@ -53,7 +53,7 @@ export default function Gem2iContactPanel({ open, onClose }) {
         <div className="flex items-center justify-between px-6 py-5 border-b" style={{ borderColor: 'var(--color-card-border, rgba(255,255,255,0.08))' }}>
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4" style={{ color: 'var(--color-accent, #3287B7)' }} />
-            <h2 className="text-white text-base font-semibold tracking-wide uppercase">{tt(cs.title) || 'Contact Us'}</h2>
+            <h2 className="text-white text-lg font-semibold tracking-wide uppercase">{tt(cs.title) || 'Contact Us'}</h2>
           </div>
           <button onClick={onClose} aria-label={tt({ en: 'Close', es: 'Cerrar' })} className="p-2 text-white/60 hover:text-white transition-colors" data-testid="gem2i-contact-close">
             <X className="w-5 h-5" />
@@ -87,7 +87,7 @@ export default function Gem2iContactPanel({ open, onClose }) {
                 data-testid="gem2i-contact-message" />
             </div>
             <button type="submit" disabled={sending}
-              className="w-full py-3 rounded-sm text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              className="w-full py-3 rounded-sm text-[15px] font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               style={{ backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)' }}
               onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-button-hover-bg, #4DA3D4)'; e.currentTarget.style.color = 'var(--color-button-hover-text, #04080C)'; }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--color-button-bg, #3287B7)'; e.currentTarget.style.color = 'var(--color-button-text, #fff)'; }}
@@ -108,7 +108,7 @@ export function Gem2iContactTab({ onOpen }) {
   return (
     <button
       onClick={onOpen}
-      className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-[60] items-center gap-2 px-3 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-white transition-colors"
+      className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-[60] items-center gap-2 px-3 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors"
       style={{ backgroundColor: 'var(--color-accent, #3287B7)', writingMode: 'vertical-rl', fontFamily: GEM_FONT, borderRadius: '4px 0 0 4px' }}
       data-testid="gem2i-contact-tab"
       aria-label={tt({ en: 'Open contact panel', es: 'Abrir panel de contacto' })}

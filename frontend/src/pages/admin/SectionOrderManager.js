@@ -57,11 +57,15 @@ const sectionLabels = {
   // entry in HomePage.js if they are ever built as real standalone sections.
 };
 
-function SortableItem({ id, label, enabled, loginRequired, config, onToggle, onToggleLogin, onConfigChange, showAurexControls, isPB }) {
+function SortableItem({ id, label, enabled, loginRequired, config, onToggle, onToggleLogin, onConfigChange, showAurexControls, isPB, themeKey }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const dndStyle = { transform: CSS.Transform.toString(transform), transition };
-  // Default to white when Aurex controls are shown; null for non-Aurex (no bg override)
-  const bgHex = config?.bg_color || (showAurexControls ? '#FFFFFF' : null);
+  // No saved colour = the theme's own background. gem2i is a night theme
+  // (#04080C); the Aurex themes are light (#FFFFFF). Showing white for an unset
+  // gem2i section made it look white here while the site painted it dark.
+  const themeDefault = isGem2iTheme(themeKey) ? '#04080C' : '#FFFFFF';
+  const hasOwnBg = !!config?.bg_color;
+  const bgHex = config?.bg_color || (showAurexControls ? themeDefault : null);
   const textScheme = bgHex ? aurexContrastFor(bgHex) : 'dark';
   const isLight = textScheme === 'light';
   const selectedFont = AUREX_FONTS.find(f => f.key === config?.font_family)?.css;
@@ -121,9 +125,13 @@ function SortableItem({ id, label, enabled, loginRequired, config, onToggle, onT
           <div>
             <p className={`text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1 ${isLight ? 'text-white/50' : 'text-slate-500'}`}><Palette className="w-3 h-3" /> Background</p>
             <div className="flex gap-1.5 items-center">
+              <button type="button" onClick={() => onConfigChange(id, { ...config, bg_color: '' })}
+                title="Theme default (no colour override)"
+                className={`h-6 px-2 rounded text-[10px] font-semibold transition-all ${!hasOwnBg ? 'ring-2 ring-[#0D9488] ring-offset-1' : 'ring-1 ring-slate-200 hover:ring-slate-400'} ${isLight ? 'text-white bg-white/10' : 'text-slate-600 bg-white'}`}
+                data-testid={`swatch-${id}-default`}>Default</button>
               {AUREX_PALETTE.map(sw => (
                 <button key={sw.key} type="button" onClick={() => onConfigChange(id, { ...config, bg_color: sw.hex })}
-                  className={`w-6 h-6 rounded transition-all ${bgHex === sw.hex ? 'ring-2 ring-[#0D9488] ring-offset-1' : 'ring-1 ring-slate-200 hover:ring-slate-400'}`}
+                  className={`w-6 h-6 rounded transition-all ${hasOwnBg && bgHex === sw.hex ? 'ring-2 ring-[#0D9488] ring-offset-1' : 'ring-1 ring-slate-200 hover:ring-slate-400'}`}
                   style={{ backgroundColor: sw.hex }}
                   title={sw.label}
                   data-testid={`swatch-${id}-${sw.key}`}
@@ -141,7 +149,7 @@ function SortableItem({ id, label, enabled, loginRequired, config, onToggle, onT
                 />
                 <input
                   type="text"
-                  value={bgHex || ''}
+                  value={hasOwnBg ? bgHex : ''}
                   onChange={(e) => {
                     const v = e.target.value;
                     // Accept partial/typing input, only commit if it matches #RRGGBB
@@ -155,7 +163,7 @@ function SortableItem({ id, label, enabled, loginRequired, config, onToggle, onT
                       onConfigChange(id, { ...config, bg_color: hex.toUpperCase() });
                     }
                   }}
-                  placeholder="#RRGGBB"
+                  placeholder={hasOwnBg ? '#RRGGBB' : 'Default'}
                   className="w-[74px] text-[11px] font-mono border-0 focus:outline-none bg-transparent text-slate-600"
                   data-testid={`hex-input-${id}`}
                 />
@@ -635,6 +643,7 @@ export default function SectionOrderManager() {
           {order.map(key => (
             <SortableItem
               key={key}
+              themeKey={theme}
               id={key}
               label={sectionLabels[key] || key}
               enabled={getEnabled(key)}
