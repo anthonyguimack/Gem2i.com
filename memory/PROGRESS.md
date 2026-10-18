@@ -2,6 +2,12 @@
 
 ---
 
+## 2026-10-17 (session 8, part 4) — Page Builder per-section background image (DEPLOYED to beta)
+- `SectionOrderManager.js`: gem2i themes get a "Background image" upload (`section_configs[theme][key].bg_image`), "Remove image (use colour)" link and a "Colour veil" slider (`bg_overlay`, 0–95, default 70).
+- `Gem2iHome.js` wrapper: with an image paints `linear-gradient(veil,veil), url(img)` where veil = `color-mix(section colour | #04080C, overlay%)`; tone (light/dark text) follows the veil colour; no image → the section colour as before (`gem-has-img` class added).
+- Demo backgrounds (gem2i, gem2i_02, gem2i_03): Methodology `bg_crowd.jpg` 55 %, Who it is for `bg_ushuaia_v2.jpg` (blur 32) 65 %, Contact `bg_mirage_v2.jpg` (blur 14) 75 % — in `/api/uploads/gem2i/backgrounds/`. Club logos blurred out; renamed `_v2` because uploads are cached 7 days. Backup: `/opt/_port_backups/section_configs_before_bg_demo_*`.
+- Not tested: the admin upload field with a real login.
+
 ## 2026-10-17 (session 8, part 3) — Venues/Conferences/Team polish, Gallery GA-3, Footer FT-1 (DEPLOYED to beta)
 
 - **Venues** tiles 4:3 (472×354 at 1920), bigger number/logo/text; 02-wide 6-col override removed.

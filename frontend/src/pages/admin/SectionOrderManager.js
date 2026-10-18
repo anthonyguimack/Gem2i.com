@@ -4,10 +4,11 @@ import { toast } from 'sonner';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Save, Loader2, Eye, EyeOff, Palette, Type, Sparkles, Lock, LockOpen, Home } from 'lucide-react';
+import { GripVertical, Save, Loader2, Eye, EyeOff, Palette, Type, Sparkles, Lock, LockOpen, Home, Image as ImageIcon } from 'lucide-react';
 import { Switch } from '../../components/ui/switch';
 import { AUREX_PALETTE, AUREX_FONTS, aurexContrastFor, THEMES, isGem2iTheme } from '../../lib/themeColors';
 import { getPersonalityOrder } from '../../lib/pbPersonality';
+import ImageUpload from '../../components/ImageUpload';
 
 // Map a theme id ('aurex', 'personalbrand'…) to its operator-facing display
 // name ('One-page Pro'…). Falls back to the raw id for unknown themes.
@@ -184,6 +185,30 @@ function SortableItem({ id, label, enabled, loginRequired, config, onToggle, onT
               ))}
             </select>
           </div>
+          {/* gem2i: optional background image per section. With an image the
+              site paints it under a veil of the section colour (opacity below)
+              so text stays legible; without one, the colour above is used. */}
+          {isGem2iTheme(themeKey) && (
+            <div className="w-full flex items-start gap-4 flex-wrap" data-testid={`bg-image-${id}`}>
+              <div className="w-[220px]">
+                <p className={`text-[10px] uppercase tracking-wider mb-1 flex items-center gap-1 ${isLight ? 'text-white/50' : 'text-slate-500'}`}><ImageIcon className="w-3 h-3" /> Background image</p>
+                <ImageUpload value={config?.bg_image || ''} onChange={(url) => onConfigChange(id, { ...config, bg_image: url })} className="max-w-[220px]" />
+                {config?.bg_image && (
+                  <button type="button" onClick={() => onConfigChange(id, { ...config, bg_image: '' })}
+                    className={`mt-1 text-[11px] underline ${isLight ? 'text-white/70' : 'text-slate-500'}`}>Remove image (use colour)</button>
+                )}
+              </div>
+              {config?.bg_image && (
+                <div className="min-w-[200px]">
+                  <p className={`text-[10px] uppercase tracking-wider mb-1 ${isLight ? 'text-white/50' : 'text-slate-500'}`}>Colour veil over the image · {config?.bg_overlay ?? 70}%</p>
+                  <input type="range" min="0" max="95" step="5" value={config?.bg_overlay ?? 70}
+                    onChange={(e) => onConfigChange(id, { ...config, bg_overlay: Number(e.target.value) })}
+                    className="w-full accent-[#0D9488]" data-testid={`bg-overlay-${id}`} />
+                  <p className={`text-[11px] mt-1 max-w-[260px] ${isLight ? 'text-white/60' : 'text-slate-500'}`}>The section colour is laid over the photo so text stays readable. 60–80% is a good range.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

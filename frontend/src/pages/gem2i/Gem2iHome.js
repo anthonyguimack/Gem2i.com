@@ -392,9 +392,18 @@ export default function Gem2iHome() {
         // hero / ticker / video carry their own imagery: never repainted
         const paintable = !['hero', 'legacy_hero', 'news_ticker', 'aurex_video'].includes(k);
         const bg = paintable ? ((look && look.bg[k]) || cfg.bg_color || null) : null;
-        const tone = toneOf(bg);
-        const style = (bg || font) ? { ...(bg ? { background: bg } : {}), ...(font ? { fontFamily: font } : {}) } : undefined;
-        const cls = bg ? `gem-has-bg gem-tone-${tone || 'dark'}` : undefined;
+        // Optional background image (Page Builder): painted under a veil of the
+        // section colour (or the night default) at bg_overlay %, so the text
+        // tone still follows that colour. No image → plain colour as before.
+        const img = paintable && cfg.bg_image ? gemImg(cfg.bg_image) : null;
+        const veilBase = bg && !String(bg).startsWith('linear') ? bg : '#04080C';
+        const tone = toneOf(img ? veilBase : bg);
+        const veil = img ? `color-mix(in srgb, ${veilBase} ${Math.min(95, Math.max(0, Number(cfg.bg_overlay ?? 70)))}%, transparent)` : null;
+        const paint = img
+          ? { backgroundImage: `linear-gradient(${veil}, ${veil}), url("${img}")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundColor: veilBase }
+          : (bg ? { background: bg } : {});
+        const style = (img || bg || font) ? { ...paint, ...(font ? { fontFamily: font } : {}) } : undefined;
+        const cls = (img || bg) ? `gem-has-bg gem-tone-${tone || 'dark'}${img ? ' gem-has-img' : ''}` : undefined;
         return <div key={k} className={cls} style={style} data-section={k}>{renderers[k]()}</div>;
       })}
     </div>
