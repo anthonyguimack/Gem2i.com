@@ -70,3 +70,6 @@ __bases_de_datos/
 
 # Word/Office lock files
 ~$*
+
+# ETL output (regenerable from the legacy dump; may hold large/personal data)
+scripts/out/

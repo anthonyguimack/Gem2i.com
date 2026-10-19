@@ -1,3 +1,4 @@
+import { adminText } from '../../lib/i18n';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '../../lib/api';
@@ -32,6 +33,9 @@ function AudienceBadge({ audience }) {
   const meta = HERO_AUDIENCES.find(o => o.value === a) || HERO_AUDIENCES[0];
   return <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium ${AUDIENCE_CLS[a] || AUDIENCE_CLS['']}`}>{meta.label}</span>;
 }
+
+// Localized/HTML slide text → one plain line for the table.
+const plainText = (v) => adminText(v).replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 
 export default function HeroManager() {
   const [slides, setSlides] = useState([]);
@@ -71,7 +75,7 @@ export default function HeroManager() {
   };
 
   const dt = useDataTable(slides, {
-    searchAccessor: s => `${s.title || ''} ${s.subtitle || ''} ${s.slide_type || ''} ${s.pb_personality || 'business'}`,
+    searchAccessor: s => `${s.name || ''} ${adminText(s.title)} ${adminText(s.subtitle)} ${s.slide_type || ''} ${s.pb_personality || 'business'}`,
     defaultSort: { key: 'date_start', dir: 'desc' },
     storageKey: 'hero',
   });
@@ -101,7 +105,7 @@ export default function HeroManager() {
           <table className="w-full text-sm" data-testid="hero-slides-table">
             <thead>
               <tr className="border-b border-slate-100 text-slate-500 text-xs uppercase">
-                <SortableTh dt={dt} field="title">Title</SortableTh>
+                <SortableTh dt={dt} field="name">Name Slide</SortableTh>
                 <SortableTh dt={dt} field="subtitle">Subtitle</SortableTh>
                 <SortableTh dt={dt} field="slide_type" align="center">Type</SortableTh>
                 <SortableTh dt={dt} field="pb_personality" align="center">Scope</SortableTh>
@@ -114,8 +118,11 @@ export default function HeroManager() {
             <tbody>
               {dt.visibleItems.map(s => (
                 <tr key={s.id} className="border-b border-slate-50 hover:bg-slate-50/50" data-testid={`hero-slide-row-${s.id}`}>
-                  <td className="p-3 font-medium text-[#1a2332] max-w-[200px] truncate" dangerouslySetInnerHTML={{ __html: s.title || '-' }} />
-                  <td className="p-3 text-slate-500 max-w-[180px] truncate" dangerouslySetInnerHTML={{ __html: s.subtitle || '-' }} />
+                  <td className="p-3 max-w-[220px]">
+                    <span className="block font-medium text-[#1a2332] truncate">{s.name || <span className="text-slate-400 font-normal italic">No name</span>}</span>
+                    {plainText(s.title) && <span className="block text-xs text-slate-400 truncate">{plainText(s.title)}</span>}
+                  </td>
+                  <td className="p-3 text-slate-500 max-w-[180px] truncate">{plainText(s.subtitle) || '-'}</td>
                   <td className="p-3 text-center">
                     {s.slide_type === 'video' ? (
                       <span className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded"><Video className="w-3 h-3" /> Video</span>

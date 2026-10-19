@@ -1,0 +1,180 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% set cur_space = editing.ad_space if editing else preset_space %}
+
+<form method="post" action="/admin/ads-toggle" class="ads-master {{ 'is-off' if not ads_on }}">
+  <input type="hidden" name="enabled" value="{{ '0' if ads_on else '1' }}">
+  <div class="ads-master-text">
+    <strong>{{ 'Advertising is on' if ads_on else 'Advertising is off' }}</strong>
+    <span>{{ 'Active ad spaces are shown on the public KMS.' if ads_on
+             else 'No ad is shown anywhere on the KMS. Your ad spaces are kept and come back when you turn it on.' }}</span>
+  </div>
+  <label class="switch" title="{{ 'Turn advertising off' if ads_on else 'Turn advertising on' }}">
+    <input type="checkbox" {{ 'checked' if ads_on }} onchange="this.form.submit()" aria-label="Show ads on the KMS">
+    <span class="slider-sw"></span>
+  </label>
+</form>
+
+<div class="form-grid ads-grid">
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Edit Ad Space' if editing else 'Add Ad Space' }}</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/ad-space-save">
+          <input type="hidden" name="id" value="{{ editing.id if editing else 0 }}">
+          <input type="hidden" name="lang_id" value="{{ editing.lang_id if editing else 1 }}">
+          <div class="form-group">
+            <label class="control-label">Ad Space</label>
+            <select name="ad_space" class="form-input" id="adSpaceSel">
+              {% for n in space_names %}
+              <option value="{{ n }}" {{ 'selected' if cur_space == n }}>{{ n.replace('_', ' ')|title }}{% if n in used_spaces and n != cur_space %} (in use){% endif %}</option>
+              {% endfor %}
+            </select>
+            <p class="text-muted ads-hint" id="adSpaceHint">{{ hints.get(cur_space or space_names[0], '') }}</p>
+          </div>
+
+          <fieldset class="ads-fieldset">
+            <legend>Desktop <small>shown at 768px and wider</small></legend>
+            <div class="form-group">
+              <label class="control-label">Ad code <small>HTML: image, link or ad-network script</small></label>
+              <textarea name="ad_code_desktop" class="form-input ads-code" rows="4" spellcheck="false">{{ editing.ad_code_desktop or '' if editing else '' }}</textarea>
+            </div>
+            <div class="form-group half-row">
+              <span><label class="control-label">Width <small>px</small></label>
+                <input type="number" min="0" name="desktop_width" class="form-input" placeholder="728" value="{{ editing.desktop_width or '' if editing else '' }}"></span>
+              <span><label class="control-label">Height <small>px</small></label>
+                <input type="number" min="0" name="desktop_height" class="form-input" placeholder="90" value="{{ editing.desktop_height or '' if editing else '' }}"></span>
+            </div>
+          </fieldset>
+
+          <fieldset class="ads-fieldset">
+            <legend>Mobile <small>shown below 768px</small></legend>
+            <div class="form-group">
+              <label class="control-label">Ad code</label>
+              <textarea name="ad_code_mobile" class="form-input ads-code" rows="4" spellcheck="false">{{ editing.ad_code_mobile or '' if editing else '' }}</textarea>
+            </div>
+            <div class="form-group half-row">
+              <span><label class="control-label">Width <small>px</small></label>
+                <input type="number" min="0" name="mobile_width" class="form-input" placeholder="300" value="{{ editing.mobile_width or '' if editing else '' }}"></span>
+              <span><label class="control-label">Height <small>px</small></label>
+                <input type="number" min="0" name="mobile_height" class="form-input" placeholder="250" value="{{ editing.mobile_height or '' if editing else '' }}"></span>
+            </div>
+          </fieldset>
+
+          <div class="form-group half-row">
+            <span><label class="control-label">Only in category <small>article slots</small></label>
+              <select name="display_category_id" class="form-input">
+                <option value="">All categories</option>
+                {% for c in categories %}
+                <option value="{{ c.id }}" {{ 'selected' if editing and editing.display_category_id == c.id }}>{{ c.name }}</option>
+                {% endfor %}
+              </select></span>
+            <span id="paraWrap" {% if cur_space != 'post_content' %}hidden{% endif %}>
+              <label class="control-label">After paragraph #</label>
+              <input type="number" min="1" name="paragraph_number" class="form-input" placeholder="3" value="{{ editing.paragraph_number or '' if editing else '' }}"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="control-label">Show to</label>
+            <select name="audience" class="form-input">
+              <option value="all" {{ 'selected' if not editing or editing.audience != 'kms_paid' }}>Everyone</option>
+              <option value="kms_paid" {{ 'selected' if editing and editing.audience == 'kms_paid' }}>Only paid KMS subscribers</option>
+            </select>
+            <small class="text-muted">“Only paid KMS subscribers” replaces this slot’s general ad for them (e.g. the membership banner).</small>
+          </div>
+
+          <label class="ads-active-row">
+            <span class="switch">
+              <input type="checkbox" name="enabled" value="1" {{ 'checked' if not editing or editing.enabled != false }}>
+              <span class="slider-sw"></span>
+            </span>
+            <span>Active <small class="text-muted">— paused spaces keep their code but are not shown</small></span>
+          </label>
+
+          <div class="ads-actions">
+            <button class="btn btn-primary" type="submit">{{ 'Save Changes' if editing else 'Add Ad Space' }}</button>
+            {% if editing or preset_space %}<a href="/admin/ad-spaces" class="btn btn-default">Cancel</a>{% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Ad Spaces</h3></div>
+      <ul class="ads-list">
+        {% for s in slots %}
+        {% set a = s.ad %}
+        {% set live = a and a.enabled != false and (a.ad_code_desktop or a.ad_code_mobile) %}
+        <li class="ads-item {{ 'is-editing' if editing and a and editing.id == a.id }} {{ 'is-empty' if not a }}">
+          <div class="ads-item-main">
+            <div class="ads-item-head">
+              <span class="ads-name">{{ s.name.replace('_', ' ')|title }}</span>
+              {% if not a %}<span class="ads-pill pill-empty">Empty</span>
+              {% elif a.enabled == false %}<span class="ads-pill pill-paused">Paused</span>
+              {% elif not ads_on %}<span class="ads-pill pill-paused">Off</span>
+              {% elif live %}<span class="ads-pill pill-live">Live</span>
+              {% else %}<span class="ads-pill pill-empty">No code</span>{% endif %}
+            </div>
+            <div class="ads-meta">
+              {% if a %}
+                {% if a.audience == 'kms_paid' %}<span class="ads-pill pill-paused">Paid KMS only</span> · {% endif %}{% if a.ad_code_desktop %}Desktop{% if a.desktop_width %} {{ a.desktop_width }}×{{ a.desktop_height or '?' }}{% endif %}{% else %}No desktop{% endif %}
+                · {% if a.ad_code_mobile %}Mobile{% if a.mobile_width %} {{ a.mobile_width }}×{{ a.mobile_height or '?' }}{% endif %}{% else %}No mobile{% endif %}
+              {% else %}{{ s.hint }}{% endif %}
+            </div>
+          </div>
+          <div class="ads-item-actions">
+            {% if a %}
+            <form method="post" action="/admin/ad-space-toggle" class="inline-form">
+              <input type="hidden" name="ad_id" value="{{ a.id }}">
+              <input type="hidden" name="enabled" value="{{ '0' if a.enabled != false else '1' }}">
+              <label class="switch switch-sm" title="{{ 'Pause' if a.enabled != false else 'Resume' }}">
+                <input type="checkbox" {{ 'checked' if a.enabled != false }} onchange="this.form.submit()" aria-label="Active: {{ s.name }}">
+                <span class="slider-sw"></span>
+              </label>
+            </form>
+            <a href="/admin/ad-spaces?edit={{ a.id }}" class="btn btn-sm btn-default">Edit</a>
+            <form method="post" action="/admin/ad-space-delete" class="inline-form js-confirm" data-confirm="Delete this ad space and its code?">
+              <input type="hidden" name="ad_id" value="{{ a.id }}">
+              <button class="ads-del" type="submit" title="Delete" aria-label="Delete {{ s.name }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+              </button>
+            </form>
+            {% else %}
+            <a href="/admin/ad-spaces?space={{ s.name }}" class="btn btn-sm btn-default">Set up</a>
+            {% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if extra_ads %}
+      <div class="box-body ads-extra">
+        <p class="text-muted">Duplicate entries (only the first per space is shown on the site):</p>
+        {% for a in extra_ads %}
+        <div class="ads-extra-row">#{{ a.id }} {{ (a.ad_space or '').replace('_', ' ')|title }}
+          <a href="/admin/ad-spaces?edit={{ a.id }}">Edit</a>
+          <form method="post" action="/admin/ad-space-delete" class="inline-form js-confirm" data-confirm="Delete this duplicate?">
+            <input type="hidden" name="ad_id" value="{{ a.id }}"><button class="ads-del" type="submit">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var sel = document.getElementById("adSpaceSel"), hint = document.getElementById("adSpaceHint"),
+      para = document.getElementById("paraWrap"), hints = {{ hints|tojson }};
+  if (!sel) return;
+  sel.addEventListener("change", function () {
+    hint.textContent = hints[sel.value] || "";
+    para.hidden = sel.value !== "post_content";
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">Quiz Analytics</h3>
+    <div class="pull-right"><span class="text-muted">{{ total_attempts }} total attempt(s)</span></div>
+  </div>
+  <div class="box-body">
+    <p class="text-muted" style="margin-top:0">Reading-comprehension quiz results per article. Click a row to see the per-question breakdown.</p>
+    <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th style="text-align:right">Attempts</th>
+          <th style="text-align:right">Members</th>
+          <th style="text-align:right">First&nbsp;time</th>
+          <th style="text-align:right">Average</th>
+          <th style="text-align:right">Average&nbsp;%</th>
+          <th style="text-align:right">Passed&nbsp;≥70%</th>
+          <th>Last</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td class="td-title"><a href="/admin/quiz-analytics/{{ r.post_id }}">{{ r.title }}</a></td>
+          <td style="text-align:right">{{ r.attempts }}</td>
+          <td style="text-align:right">{{ r.members }}</td>
+          <td style="text-align:right">{{ r.first }}</td>
+          <td style="text-align:right">{{ r.avg_score }}{% if r.total %}/{{ r.total }}{% endif %}</td>
+          <td style="text-align:right">{{ r.avg_pct }}%</td>
+          <td style="text-align:right">{{ r.pass_pct }}%</td>
+          <td>{{ (r.last[:16]) if r.last else '—' }}</td>
+          <td style="text-align:right"><a href="/admin/quiz-analytics/{{ r.post_id }}" class="btn btn-default btn-sm">Detail</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="td-empty">No quizzes or attempts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Settings saved.</div>{% endif %}
+<div class="box box-settings">
+  <div class="box-header"><h3 class="box-title">{{ title }}</h3></div>
+  <div class="box-body">
+    {% if section == 'route-settings' %}
+    <p class="text-muted">Public URL slug overrides (Varient route settings). Changes take effect at the Phase-6 cutover route wiring.</p>
+    {% elif section == 'seo-tools' %}
+    <p class="text-muted">Sitemap: <a href="/sitemap.xml" target="_blank" rel="noopener">/sitemap.xml</a> (generated on the fly). RSS: <a href="/rss/latest-posts" target="_blank" rel="noopener">/rss/latest-posts</a></p>
+    {% elif section == 'google-news' %}
+    <p class="text-muted">When enabled, the Google News sitemap serves at <a href="/gnews/feed" target="_blank" rel="noopener">/gnews/feed</a> (published posts from the last 48 hours). Submit it in Google Publisher Center.</p>
+    {% elif section == 'cache-system' %}
+    <p class="text-muted">The rebuild caches settings/translations in-process for 30 seconds; these Varient flags are stored for parity.</p>
+    <form method="post" action="/admin/clear-cache" class="inline-form"><button class="btn btn-default btn-sm" type="submit">Clear Cache Now</button></form>
+    {% elif section == 'storage' %}
+    <p class="text-muted">S3 upload switching activates in a later Phase-4 pass — credentials save now and are masked.</p>
+    {% elif section == 'theme-colors' %}
+    <p class="text-muted">Semantic color tokens driving the public site (both themes) as <code>--kms-*</code> CSS variables. Blank = the active theme's built-in default (currently: <b>{{ active_theme|title }}</b>). Changes propagate within ~30 seconds.</p>
+    <form method="post" action="/admin/theme-colors-import" class="inline-form" onsubmit="return confirm('Overwrite band/heading/accent/kicker/box tokens from the CMS website palette?')"><button class="btn btn-default btn-sm" type="submit">Import from CMS website palette</button></form>
+    {% endif %}
+    <form method="post" action="/admin/settings-save">
+      <input type="hidden" name="section" value="{{ section }}">
+      {% for key, label, ftype, scope in fields %}
+      {% if ftype == 'checkbox' %}
+      <div class="check-list">
+        <label><input type="checkbox" name="{{ key }}" value="1" {{ 'checked' if values[key] == 1 or values[key] == '1' }}> {{ label }}</label>
+      </div>
+      {% elif ftype == 'textarea' %}
+      <div class="form-group">
+        <label class="control-label">{{ label }}</label>
+        <textarea name="{{ key }}" class="form-input" rows="3">{{ values[key] or '' }}</textarea>
+      </div>
+      {% elif ftype == 'secret' %}
+      <div class="form-group">
+        <label class="control-label">{{ label }} <small>(leave masked to keep the stored value)</small></label>
+        <input type="password" name="{{ key }}" class="form-input" autocomplete="new-password" value="{{ values[key] or '' }}">
+      </div>
+      {% elif ftype == 'number' %}
+      <div class="form-group">
+        <label class="control-label">{{ label }}</label>
+        <input type="number" name="{{ key }}" class="form-input" value="{{ values[key] if values[key] is not none else '' }}">
+      </div>
+      {% elif ftype == 'color' %}
+      <div class="form-group">
+        <label class="control-label">{{ label }} <small>(blank = theme default {{ color_defaults[key] if color_defaults else '' }})</small></label>
+        <div class="color-field">
+          <input type="color" value="{{ values[key] or (color_defaults[key] if color_defaults else '#000000') }}" data-color-for="{{ key }}">
+          <input type="text" name="{{ key }}" id="cf-{{ key }}" class="form-input color-hex" value="{{ values[key] or '' }}" placeholder="theme default" maxlength="9">
+        </div>
+      </div>
+      {% elif ftype.startswith('select:') %}
+      <div class="form-group">
+        <label class="control-label">{{ label }}</label>
+        <select name="{{ key }}" class="form-input">
+          {% for opt in ftype[7:].split('|') %}
+          <option value="{{ opt }}" {{ 'selected' if (values[key] or '')|string == opt }}>{{ opt or 'Theme default' }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% elif ftype == 'image' %}
+      <div class="form-group">
+        <label class="control-label">{{ label }} <small>(upload path, e.g. uploads/logo/...)</small></label>
+        {% if values[key] %}<div class="settings-img-preview"><img src="{{ values[key]|img_url }}" alt=""></div>{% endif %}
+        <input type="text" name="{{ key }}" class="form-input" value="{{ values[key] or '' }}">
+      </div>
+      {% else %}
+      <div class="form-group">
+        <label class="control-label">{{ label }}</label>
+        <input type="text" name="{{ key }}" class="form-input" value="{{ values[key] or '' }}">
+      </div>
+      {% endif %}
+      {% endfor %}
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

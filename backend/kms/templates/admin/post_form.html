@@ -1,0 +1,979 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if request.query_params.get('edit_pending') %}<div class="alert alert-success">Changes saved. This post is published — your edit goes live once the administrator approves it.</div>
+{% elif request.query_params.get('saved') %}<div class="alert alert-success">Post saved.</div>{% endif %}
+{% if post and post.review %}{% set rv = post.review %}
+<div class="alert {{ 'alert-success' if rv.state == 'approved' else ('alert-danger' if rv.state == 'declined' else 'alert-info') }}">
+  {% if rv.pending_edit and rv.state != 'in_review' %}An edit to this post is waiting for the administrator's approval.
+  {% elif rv.state == 'in_review' %}In review — {{ rv.votes|selectattr('vote','equalto','approve')|list|length }} of {{ rv.required }} approvals so far.
+  {% elif rv.state == 'approved' %}Approved and published.
+  {% elif rv.state == 'declined' %}Not approved. Edit it and submit it for review again — it goes back to all the other authors.
+  {% elif rv.state == 'draft' %}Draft. When you submit it for review again, all the other authors review it from scratch.{% endif %}
+  {% for v in rv.votes or [] %}{% if v.comment %}<br><strong>{{ v.name }}</strong> ({{ v.vote }}): {{ v.comment }}{% endif %}{% endfor %}
+  {% if rv.history %}<details style="margin-top:6px;"><summary>Previous review rounds ({{ rv.history|length }})</summary>
+    {% for h in rv.history|reverse %}<div style="margin-top:4px;">Round {{ loop.revindex }} — {{ 'approved' if h.state == 'approved' else ('not approved' if h.state == 'declined' else 'resubmitted') }}:
+      {% for v in h.votes or [] %}<br><strong>{{ v.name }}</strong> ({{ v.vote }}){% if v.comment %}: {{ v.comment }}{% endif %}{% endfor %}</div>{% endfor %}
+  </details>{% endif %}
+</div>{% endif %}
+{% if post %}<div style="margin-bottom:12px"><a href="/admin/quiz/{{ post.id }}" class="btn btn-default btn-sm">&#128218; Reading Quiz (members)</a></div>{% endif %}
+<form method="post" action="/admin/post-save" id="postForm">
+<input type="hidden" name="id" value="{{ post.id if post else 0 }}">
+<input type="hidden" name="lang_id" value="{{ post.lang_id if post else 1 }}">
+<input type="hidden" name="image_id" id="imageId" value="{{ post.image_id or '' if post else '' }}">
+<input type="hidden" name="post_type" value="{{ ptype }}">
+<input type="hidden" name="type_payload" id="typePayload" value="">
+<div class="form-grid">
+  <div class="form-left">
+
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Post Details</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Title</label>
+          <input type="text" name="title" id="postTitle" class="form-input" placeholder="Title" maxlength="500" required value="{{ post.title if post else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Slug&nbsp;<small>(If you leave it blank, it will be generated automatically)</small></label>
+          <input type="text" name="slug" id="postSlug" class="form-input" placeholder="Slug" maxlength="500" value="{{ post.slug if post else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Summary &amp; Description (Meta Tag)</label>
+          <textarea name="summary" class="form-input" rows="3" placeholder="Summary & Description (Meta Tag)">{{ post.summary or '' if post else '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="control-label">Keywords (Meta Tag)</label>
+          <input type="text" name="keywords" class="form-input" placeholder="Keywords (Meta Tag)" value="{{ post.keywords or '' if post else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Tags</label>
+          <div class="tags-input" id="tagsInput">
+            <input type="text" id="tagTyper" placeholder="Type tag and hit enter">
+          </div>
+          <input type="hidden" name="tags" id="tagsHidden" value="{{ post.tags|map(attribute='tag')|join(',') if post and post.tags else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Optional URL</label>
+          <input type="text" name="optional_url" class="form-input" placeholder="Optional URL" value="{{ post.optional_url or '' if post else '' }}">
+        </div>
+      </div>
+    </div>
+
+    {% if ptype == 'video' %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Video</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Video URL <small>(YouTube / Vimeo / direct .mp4)</small></label>
+          <input type="text" name="video_url" class="form-input" placeholder="https://www.youtube.com/watch?v=..." value="{{ post.video_url or '' if post else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">or Upload a Video File <small>(.mp4 / .webm, max 50MB)</small></label>
+          <input type="file" id="videoUpload" class="form-input" accept=".mp4,.webm">
+          <span class="text-muted" id="videoUploadStatus"></span>
+        </div>
+        <div class="form-group">
+          <label class="control-label">or Embed Code <small>(takes precedence)</small></label>
+          <textarea name="video_embed_code" class="form-input" rows="3" placeholder="<iframe ...></iframe>">{{ post.video_embed_code or '' if post else '' }}</textarea>
+        </div>
+      </div>
+    </div>
+    {% elif ptype == 'audio' %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Audio Files</h3>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAddRow">+ Add Audio</button>
+      </div>
+      <div class="box-body"><div id="typeRows"></div></div>
+    </div>
+    {% elif is_item_type %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Gallery Items' if ptype == 'gallery' else ('List Items' if ptype == 'sorted_list' else 'Sections') }}</h3>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAddRow">+ Add Item</button>
+      </div>
+      <div class="box-body"><div id="typeRows"></div></div>
+    </div>
+    {% elif is_quiz_type %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Poll Questions' if ptype == 'poll' else 'Quiz Questions' }}</h3>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAddQuestion">+ Add Question</button>
+      </div>
+      <div class="box-body">
+        {% if ptype == 'trivia_quiz' %}<p class="text-muted">Mark exactly one correct answer per question.</p>
+        {% elif ptype == 'personality_quiz' %}<p class="text-muted">Give each answer a Result # (1 = first result below). The most-chosen result wins.</p>
+        {% elif ptype == 'poll' %}
+        <div class="check-list"><label><input type="checkbox" name="is_poll_public" value="1" {{ 'checked' if post and post.is_poll_public == 1 }}> Results visible before voting</label></div>
+        {% endif %}
+        <div id="quizQuestions"></div>
+      </div>
+    </div>
+    {% if ptype != 'poll' %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Results</h3>
+        <button type="button" class="btn btn-primary btn-sm" id="btnAddResult">+ Add Result</button>
+      </div>
+      <div class="box-body">
+        {% if ptype == 'trivia_quiz' %}<p class="text-muted">Each result covers a correct-answer range (min–max).</p>{% endif %}
+        <div id="quizResults"></div>
+      </div>
+    </div>
+    {% endif %}
+    {% elif ptype == 'recipe' %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Recipe</h3></div>
+      <div class="box-body">
+        <div class="half-row form-group">
+          <span><label class="control-label">Prep Time</label><input type="text" id="rcPrep" class="form-input" placeholder="15 min"></span>
+          <span><label class="control-label">Cook Time</label><input type="text" id="rcCook" class="form-input" placeholder="30 min"></span>
+        </div>
+        <div class="form-group"><label class="control-label">Serves</label><input type="text" id="rcServes" class="form-input" placeholder="4 people"></div>
+        <div class="form-group"><label class="control-label">Ingredients <small>(one per line)</small></label><textarea id="rcIngredients" class="form-input" rows="6"></textarea></div>
+        <div class="form-group"><label class="control-label">Directions <small>(one step per line)</small></label><textarea id="rcDirections" class="form-input" rows="8"></textarea></div>
+      </div>
+    </div>
+    {% endif %}
+    {% if not is_item_type %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Content</h3></div>
+      <div class="box-body">
+        <div class="editor-buttons">
+          <button type="button" class="btn btn-default" id="btnEditorImage">🖼&nbsp; Add Image</button>
+          <button type="button" class="btn btn-default" id="btnAttachHtml" title="Load the content from an HTML file (as specified in the brief)">📄&nbsp; Attach HTML</button>
+          <button type="button" class="btn btn-default" id="btnAiWriter" title="Available once the Claude API key is configured">✎&nbsp; AI Writer</button>
+        </div>
+        <input type="file" id="htmlFileInput" accept=".html,.htm,text/html" hidden>
+        <textarea id="postContent" name="content">{{ post.content or '' if post else '' }}</textarea>
+        {# Scoped document CSS, kept in its OWN field so a TinyMCE re-save can't
+           strip it. Pre-filled on edit so saving without re-attaching preserves
+           it; the Attach-HTML tool overwrites it with a freshly-scoped sheet. #}
+        <input type="hidden" name="doc_css" id="postDocCss" value="{{ post.doc_css|e if post and post.doc_css else '' }}">
+      </div>
+    </div>
+    {% else %}
+    <input type="hidden" name="content" value="{{ post.content or '' if post else '' }}">
+    {% endif %}
+
+  </div>
+  <div class="form-right">
+
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Image</h3></div>
+      <div class="box-body">
+        <div class="main-image-preview" id="mainImagePreview">
+          {% if post and post.image %}<img src="{{ (post.image.image_default or post.image.image_big)|img_url }}" alt="">{% endif %}
+        </div>
+        <button type="button" class="btn btn-default" id="btnBrowseMain">Browse Files</button>
+        <button type="button" class="btn btn-reset-upload" id="btnResetMain">Reset</button>
+        <div class="form-group mt">
+          <label class="control-label">or&nbsp;Add Image Url</label>
+          <input type="text" name="image_url" class="form-input" placeholder="Add Image Url" value="{{ post.image_url or '' if post else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Image Description</label>
+          <input type="text" name="image_description" class="form-input" placeholder="Image Description" value="{{ post.image_description or '' if post else '' }}">
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Category</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Category</label>
+          <select name="category" id="selCategory" class="form-input">
+            <option value="">Select</option>
+            {% for c in cats %}
+            <option value="{{ c.id }}" {{ 'selected' if sel_parent == c.id }}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="control-label">Subcategory</label>
+          <select name="subcategory" id="selSubcategory" class="form-input" data-current="{{ post.category_id if post else '' }}">
+            <option value="">Select</option>
+            {% for sc in subcats %}
+            <option value="{{ sc.id }}" data-parent="{{ sc.parent_id }}" {{ 'selected' if sel_sub == sc.id }}>{{ sc.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .kms-picker-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+      .kms-picker-chips:empty { display: none; }
+      .kms-picker-search { position: relative; }
+      .kms-picker-results { position: absolute; left: 0; right: 0; top: 100%; z-index: 30; background: #fff;
+        border: 1px solid var(--adm-border, #e2e8f0); border-radius: 4px; margin-top: 3px; max-height: 240px;
+        overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,.13); }
+      .kms-picker-item { display: block; width: 100%; text-align: left; padding: 8px 12px; font-size: 13px;
+        background: none; border: 0; border-bottom: 1px solid #f1f5f9; cursor: pointer; color: #1a2332; }
+      .kms-picker-item:last-child { border-bottom: 0; }
+      .kms-picker-item:hover { background: #f8fafc; }
+      .kms-picker-empty { padding: 8px 12px; font-size: 12px; color: #94a3b8; }
+      .kms-picker-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 8px 6px 13px;
+        background: rgba(13,148,136,.10); color: #0D7268; border-radius: 999px; font-size: 13px; font-weight: 500; }
+      .kms-picker-clear { background: none; border: 0; color: #0D7268; cursor: pointer; font-size: 17px;
+        line-height: 1; padding: 0 2px; }
+      .kms-picker-clear:hover { color: #dc2626; }
+    </style>
+
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Related Books</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Reading-List books</label>
+          <div class="kms-picker" data-endpoint="/admin/search-books">
+            <input type="hidden" name="related_book_ids" class="kms-picker-ids" value="{{ related_books | map(attribute='id') | join(',') }}">
+            <div class="kms-picker-chips">
+              {% for it in related_books %}
+              <span class="kms-picker-chip" data-id="{{ it.id }}"><span class="kms-picker-label">{{ it.label }}</span><button type="button" class="kms-picker-clear" title="Remove">&times;</button></span>
+              {% endfor %}
+            </div>
+            <div class="kms-picker-search">
+              <input type="text" class="form-input kms-picker-input" autocomplete="off" placeholder="Search books by title…">
+              <div class="kms-picker-results"></div>
+            </div>
+          </div>
+          <small class="text-muted">Link one or more Reading-List books — this post appears under each book's "Related Insights" on the site.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Related Companies</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Companies</label>
+          <div class="kms-picker" data-endpoint="/admin/search-companies">
+            <input type="hidden" name="related_company_ids" class="kms-picker-ids" value="{{ related_companies | map(attribute='id') | join(',') }}">
+            <div class="kms-picker-chips">
+              {% for it in related_companies %}
+              <span class="kms-picker-chip" data-id="{{ it.id }}"><span class="kms-picker-label">{{ it.label }}</span><button type="button" class="kms-picker-clear" title="Remove">&times;</button></span>
+              {% endfor %}
+            </div>
+            <div class="kms-picker-search">
+              <input type="text" class="form-input kms-picker-input" autocomplete="off" placeholder="Search a company by name or ticker…">
+              <div class="kms-picker-results"></div>
+            </div>
+          </div>
+          <small class="text-muted">Link one or more Companies — this post appears under each company's "Related Posts" on the site.</small>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        function debounce(fn, ms) { var t; return function () { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, ms); }; }
+        document.querySelectorAll('.kms-picker').forEach(function (root) {
+          var endpoint = root.getAttribute('data-endpoint');
+          var hidden = root.querySelector('.kms-picker-ids');
+          var chips = root.querySelector('.kms-picker-chips');
+          var input = root.querySelector('.kms-picker-input');
+          var results = root.querySelector('.kms-picker-results');
+          function ids() { return Array.prototype.map.call(chips.querySelectorAll('.kms-picker-chip'), function (c) { return c.getAttribute('data-id'); }); }
+          function sync() { hidden.value = ids().join(','); }
+          function wireChip(span) {
+            var btn = span.querySelector('.kms-picker-clear');
+            if (btn) btn.addEventListener('click', function () { span.remove(); sync(); });
+          }
+          function addChip(id, label) {
+            if (ids().indexOf(String(id)) !== -1) return;
+            var span = document.createElement('span'); span.className = 'kms-picker-chip'; span.setAttribute('data-id', id);
+            var lab = document.createElement('span'); lab.className = 'kms-picker-label'; lab.textContent = label; span.appendChild(lab);
+            var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'kms-picker-clear'; btn.title = 'Remove'; btn.innerHTML = '&times;';
+            span.appendChild(btn); chips.appendChild(span); wireChip(span); sync();
+          }
+          chips.querySelectorAll('.kms-picker-chip').forEach(wireChip);
+          sync();
+          var run = debounce(function () {
+            var q = (input.value || '').trim();
+            if (!q) { results.innerHTML = ''; return; }
+            fetch(endpoint + '?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
+              .then(function (r) { return r.ok ? r.json() : []; })
+              .then(function (rows) {
+                results.innerHTML = '';
+                if (!rows.length) { results.innerHTML = '<div class="kms-picker-empty">No matches</div>'; return; }
+                var cur = ids();
+                rows.forEach(function (it) {
+                  var already = cur.indexOf(String(it.id)) !== -1;
+                  var b = document.createElement('button');
+                  b.type = 'button'; b.className = 'kms-picker-item'; b.disabled = already;
+                  b.textContent = it.label + (already ? '  (added)' : '');
+                  if (!already) b.addEventListener('click', function () { addChip(it.id, it.label); input.value = ''; results.innerHTML = ''; input.focus(); });
+                  results.appendChild(b);
+                });
+              }).catch(function () { results.innerHTML = ''; });
+          }, 250);
+          if (input) input.addEventListener('input', run);
+          document.addEventListener('click', function (e) { if (!root.contains(e.target)) results.innerHTML = ''; });
+        });
+      })();
+    </script>
+
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Publish</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label>Publication Date</label>
+          <input type="datetime-local" name="date_published" class="form-input"
+                 value="{{ (post.created_at|replace(' ','T'))[:16] if post and post.created_at else '' }}">
+          <small class="text-muted">The date shown on the article (when it was actually published).</small>
+        </div>
+        <div class="form-group">
+          <label>Scheduled Publication</label>
+          <input type="datetime-local" name="scheduled_at" class="form-input"
+                 value="{{ (post.scheduled_at|replace(' ','T'))[:16] if post and post.scheduled_at else '' }}">
+          <small class="text-muted">Optional future date — the post stays hidden and publishes automatically at this moment (which then becomes its Publication Date). Leave blank to publish now.</small>
+        </div>
+        <div class="form-group">
+          <label>Last Updated</label>
+          <input type="datetime-local" name="date_updated" class="form-input"
+                 value="{{ (post.updated_at|replace(' ','T'))[:16] if post and post.updated_at else '' }}">
+          <small class="text-muted">The "Updated" date shown on the article (only appears when it differs from the Publication Date). Leave blank to set it to the current save time.</small>
+        </div>
+        {% if is_admin %}
+        <div class="form-group">
+          <label>Original Views <small>(real reader visits — automatic)</small></label>
+          <input type="number" class="form-input" value="{{ post.pageviews or 0 if post else 0 }}" disabled>
+        </div>
+        <div class="form-group">
+          <label>Dummy Views</label>
+          <input type="number" name="dummy_views" class="form-input" min="0"
+                 value="{{ post.dummy_views or 0 if post else 0 }}">
+          <small class="text-muted">The site shows Original + Dummy (e.g. dummy 100 → visitors see 101, 102… as real views accrue). Real accounting is untouched.</small>
+        </div>
+        <div class="form-group">
+          <label>Share Points</label>
+          <input type="number" name="share_points" class="form-input" min="0"
+                 value="{{ post.share_points if post and post.share_points is not none else '' }}" placeholder="default">
+          <small class="text-muted">Member Points a contributor earns for sharing THIS post (per network). Blank = the point-table default.</small>
+        </div>
+        {% endif %}
+        <div class="form-group">
+          <label>Visibility</label>
+          <div class="radio-row">
+            <label><input type="radio" name="visibility" value="1" {{ 'checked' if not post or post.visibility != 0 }}> Show</label>
+            <label><input type="radio" name="visibility" value="0" {{ 'checked' if post and post.visibility == 0 }}> Hide</label>
+          </div>
+        </div>
+        {% if is_admin %}
+        <div class="check-list">
+          <label><input type="checkbox" name="sel_slider" value="1" {{ 'checked' if 'slider' in sels }}> Add to Slider</label>
+          <label><input type="checkbox" name="sel_featured" value="1" {{ 'checked' if 'featured' in sels }}> Add to Featured</label>
+          <label><input type="checkbox" name="sel_breaking" value="1" {{ 'checked' if 'breaking' in sels }}> Add to Breaking</label>
+          <label><input type="checkbox" name="sel_recommended" value="1" {{ 'checked' if 'recommended' in sels }}> Add to Recommended</label>
+        </div>
+        {% endif %}
+        <div class="form-group">
+          <label>Content Tier</label>
+          {% set cur_tier = post.tier if post and post.tier else ('registered' if post and post.need_auth == 1 else 'public') %}
+          <select name="tier" class="form-input">
+            <option value="public" {{ 'selected' if cur_tier == 'public' }}>Public</option>
+            <option value="registered" {{ 'selected' if cur_tier == 'registered' }}>Registered</option>
+            <option value="mastermind" {{ 'selected' if cur_tier == 'mastermind' }}>Mastermind</option>
+          </select>
+          <small class="text-muted">Public = subscribers can read &middot; Registered = active members &middot; Mastermind = Mastermind-level members. Higher tiers are invisible to lower ones.</small>
+        </div>
+        {% if ptype == 'sorted_list' %}
+        <div class="check-list">
+          <label><input type="checkbox" name="show_item_numbers" value="1" {{ 'checked' if not post or post.show_item_numbers != 0 }}> Show Item Numbers</label>
+        </div>
+        {% endif %}
+        <div class="form-group">
+          <label>Status</label>
+          <select name="post_status" class="form-input">
+            {% if is_admin %}
+            <option value="published" {{ 'selected' if not post or post.status == 1 }}>Published</option>
+            {% if post and post.status == 0 and post.is_draft != 1 %}
+            <option value="pending" selected>Pending Review</option>
+            {% endif %}
+            {% else %}
+            {# s150: authors never publish — they submit for review (approvals set in the CMS) #}
+            {% if post and post.status == 1 %}<option value="published" selected>Published — save changes for admin approval</option>{% endif %}
+            <option value="review" {{ 'selected' if not post or (post.status == 0 and post.is_draft != 1) }}>Submit for review</option>
+            {% endif %}
+            <option value="draft" {{ 'selected' if post and post.status == 0 and post.is_draft == 1 }}>Draft</option>
+            {# Delete lives here by request (D-2026-80). Only on an existing post —
+               there is nothing to delete while creating one. Never preselected,
+               and the submit is gated by a confirm() below. #}
+            {% if post %}<option value="delete">Delete this post</option>{% endif %}
+          </select>
+          <small class="text-muted">Draft saves the post into Posts &rarr; Drafts (not public).
+            {% if post %}<br><strong>Delete</strong> removes the post for good, including its copy on the News site.{% endif %}</small>
+        </div>
+        <div class="publish-actions">
+          <button type="submit" class="btn btn-primary pull-right">Submit</button>
+          {# Preview — renders the CURRENT editor state as the public page in a new
+             tab, without saving (formaction overrides the Save action). #}
+          <button type="submit" id="btnPreview" class="btn btn-default pull-right"
+                  style="margin-right:8px"
+                  formaction="/admin/preview-post" formtarget="_blank"
+                  formnovalidate>👁&nbsp; Preview</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</form>
+<div class="modal-backdrop" id="aiModal" hidden>
+  <div class="fm-modal ai-modal">
+    <div class="modal-header">
+      <h4>AI Writer</h4>
+      <button type="button" class="modal-close" id="aiClose">&times;</button>
+    </div>
+    <div class="ai-body">
+      <label class="control-label">What should the article be about?</label>
+      <textarea id="aiPrompt" class="form-input" rows="4" placeholder="e.g. Write a 500-word market analysis of this week's FED rate decision..."></textarea>
+      <div class="ai-actions">
+        <button type="button" class="btn btn-primary" id="aiGenerate">Generate</button>
+        <span class="ai-status" id="aiStatus"></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{# self-hosted TinyMCE 7.6.1 (GPL, vendored from npm onto the box at kms/static/tinymce) #}
+<script src="/kms-static/tinymce/tinymce.min.js"></script>
+<script>
+/* Status → Delete guard (D-2026-80). A destructive option inside a Save flow
+   must never fire on a mis-click, so the submit is confirmed by title and the
+   select is put back if the user backs out. */
+(function () {
+  var form = document.getElementById('postForm');
+  if (!form) return;
+  var sel = form.querySelector('select[name="post_status"]');
+  if (!sel) return;
+  var previous = sel.value;
+  sel.addEventListener('change', function () {
+    if (sel.value !== 'delete') previous = sel.value;
+  });
+  form.addEventListener('submit', function (e) {
+    // Preview opens in a new tab and never persists — skip the delete confirm.
+    if (e.submitter && e.submitter.id === 'btnPreview') return;
+    if (sel.value !== 'delete') return;
+    var title = (form.querySelector('input[name="title"]') || {}).value || 'this post';
+    if (!window.confirm('Delete "' + title + '" permanently?\n\nThe post and its copy on the News site will be removed. This cannot be undone.')) {
+      e.preventDefault();
+      sel.value = previous;
+    }
+  });
+  // Sync the TinyMCE editor into its textarea before a Preview submit so the
+  // preview reflects the latest typed content (not the last-saved version).
+  var pv = document.getElementById('btnPreview');
+  if (pv) pv.addEventListener('click', function () {
+    try { if (window.tinymce) tinymce.triggerSave(); } catch (e) {}
+  });
+})();
+
+/* Same init as the live install (TinyMCE 7 GPL). */
+if (document.getElementById('postContent'))
+tinymce.init({
+  license_key: 'gpl',
+  selector: '#postContent',
+  height: 500, min_height: 500,
+  valid_elements: '*[*]',
+  relative_urls: false,
+  entity_encoding: 'raw',
+  remove_script_host: false,
+  menubar: true,
+  plugins: 'advlist autolink lists link image charmap preview searchreplace visualblocks code codesample fullscreen insertdatetime media table',
+  toolbar: 'fullscreen code preview | undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | numlist bullist | forecolor backcolor removeformat | image media link',
+  promotion: false, branding: false
+});
+
+/* AI Writer -> Claude (Phase 4a) */
+(function () {
+  var modal = document.getElementById("aiModal");
+  var btn = document.getElementById("btnAiWriter");
+  if (!modal || !btn) return;
+  var status = document.getElementById("aiStatus");
+  var gen = document.getElementById("aiGenerate");
+  btn.addEventListener("click", function () { modal.hidden = false; });
+  document.getElementById("aiClose").addEventListener("click", function () { modal.hidden = true; });
+  gen.addEventListener("click", function () {
+    var prompt = document.getElementById("aiPrompt").value.trim();
+    if (!prompt) { status.textContent = "Enter a topic first."; return; }
+    gen.disabled = true;
+    status.textContent = "Generating…";
+    fetch("/admin/ai-writer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: prompt })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        gen.disabled = false;
+        if (d.ok) {
+          tinymce.get("postContent").insertContent(d.html);
+          status.textContent = "";
+          modal.hidden = true;
+        } else {
+          status.textContent = d.error || "Generation failed";
+        }
+      })
+      .catch(function () { gen.disabled = false; status.textContent = "Request failed"; });
+  });
+})();
+
+/* Attach HTML v2 -> load a brief's HTML file straight into the editor,
+   KEEPING the document's own CSS (KMS_MODERNA_THEME_PLAN Phase 4, D3=b):
+   <style> blocks (head+body) are collected, print rules neutralized
+   (@page/@media print dropped, fixed cm/in widths -> 100%), every selector
+   scoped under .post-content (html/body/:root map to .post-content itself),
+   and prepended to the inserted content as <style data-kms-doc>. The theme
+   vocabulary renders the brief; this preserved CSS is the exact-fidelity
+   override layer and can never restyle the site chrome. */
+(function () {
+  var btn = document.getElementById("btnAttachHtml");
+  var input = document.getElementById("htmlFileInput");
+  if (!btn || !input) return;
+
+  function scopeSelector(selectorText) {
+    return selectorText.split(",").map(function (s) {
+      s = s.trim();
+      if (!s) return s;
+      if (/^(html|body|:root)$/i.test(s)) return ".post-content";
+      if (/^(html|body|:root)\b/i.test(s))
+        return s.replace(/^(html|body|:root)\s*/i, ".post-content ");
+      return ".post-content " + s;
+    }).join(", ");
+  }
+
+  function scopeCss(cssText) {
+    /* Parse with the browser's own CSS engine (invalid print leftovers are
+       dropped for free); media="not all" so it never applies while attached. */
+    var st = document.createElement("style");
+    st.media = "not all";
+    st.textContent = cssText;
+    document.head.appendChild(st);
+    var out = [];
+    function walk(rules, sink) {
+      for (var i = 0; i < rules.length; i++) {
+        var r = rules[i];
+        if (r.type === 1 && r.selectorText) {            /* style rule */
+          var css = r.style.cssText
+            .replace(/(^|;)\s*(width\s*:\s*[\d.]+(?:cm|in))\s*(?=;|$)/gi, "$1width:100%")
+            .replace(/(^|;)\s*(page-break-[a-z]+|break-before|break-after)\s*:[^;]*(?=;|$)/gi, "$1");
+          if (css) sink.push(scopeSelector(r.selectorText) + "{" + css + "}");
+        } else if (r.type === 4) {                       /* @media */
+          if (/print/i.test(r.media.mediaText)) continue;
+          var inner = [];
+          walk(r.cssRules, inner);
+          if (inner.length) sink.push("@media " + r.media.mediaText + "{" + inner.join("\n") + "}");
+        } else if (r.type === 7) {                       /* @keyframes */
+          sink.push(r.cssText);
+        }
+        /* @page (6), @import (3), @font-face (5) dropped: print-only or external */
+      }
+    }
+    try { walk(st.sheet.cssRules, out); } catch (e) {}
+    st.remove();
+    return out.join("\n");
+  }
+
+  /* Strip the document's own masthead: remove everything up to AND INCLUDING
+     the first <h1> (logo, brand band, running header, kicker, title) at every
+     nesting level — the KMS post page already renders the title and the site
+     chrome provides identity. Returns the h1 text (auto-fills an empty Title). */
+  function stripAboveTitle(body) {
+    var h1 = body.querySelector("h1");
+    if (!h1) return "";
+    var node = h1;
+    while (node && node !== body) {
+      var parent = node.parentNode;
+      while (node.previousSibling) parent.removeChild(node.previousSibling);
+      node = parent;
+    }
+    var text = (h1.textContent || "").replace(/\s+/g, " ").trim();
+    h1.remove();
+    return text;
+  }
+
+  btn.addEventListener("click", function () { input.click(); });
+  input.addEventListener("change", function () {
+    var f = input.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var raw = String(reader.result || "");
+      var html = raw;
+      var docTitle = "";
+      try {
+        // Full document: keep its CSS (scoped), then take the <body> content.
+        var doc = new DOMParser().parseFromString(raw, "text/html");
+        if (doc && doc.body && doc.body.innerHTML.trim()) {
+          var cssParts = [];
+          doc.querySelectorAll("style").forEach(function (s) {
+            if (s.textContent.trim()) cssParts.push(s.textContent);
+          });
+          doc.body.querySelectorAll("style").forEach(function (s) { s.remove(); });
+          docTitle = stripAboveTitle(doc.body);
+          // iiReport: append the "As of <Month D, YYYY>" date to the auto-filled
+          // title so the editor shows the dated title on upload (parity with the
+          // server-side ensure_report_date; the server won't double it).
+          try {
+            var _bt = doc.body.textContent || "";
+            var _dm = _bt.match(/As of\s+((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+\d{1,2},?\s+\d{4})/i);
+            if (docTitle && _dm && !/\b\d{4}\b/.test(docTitle))
+              docTitle = docTitle + " - " + _dm[1].replace(/\s+/g, " ");
+          } catch (e) {}
+          html = doc.body.innerHTML;
+          var scoped = cssParts.length ? scopeCss(cssParts.join("\n")) : "";
+          if (scoped) html = '<style data-kms-doc="1">\n' + scoped + "\n</style>\n" + html;
+          // Persist the scoped stylesheet in its own hidden field so the save
+          // keeps it even though TinyMCE strips <style> out of the editor body.
+          var dc = document.getElementById("postDocCss");
+          if (dc) dc.value = scoped || "";
+        }
+      } catch (e) {}
+      // auto-fill an empty Title from the document's own <h1> (quick-publish
+      // convention); dispatch input so the slug auto-fill reacts too.
+      var titleInput = document.getElementById("postTitle");
+      if (docTitle && titleInput && !titleInput.value.trim()) {
+        titleInput.value = docTitle;
+        titleInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+      var ed = window.tinymce && tinymce.get("postContent");
+      var ta = document.getElementById("postContent");
+      var cur = ed ? ed.getContent() : (ta ? ta.value : "");
+      var replace = !cur.trim() ||
+        window.confirm("Replace the current content with the attached HTML file?\n\n(Cancel inserts it at the cursor instead.)");
+      if (replace) {
+        if (ed) ed.setContent(html); else if (ta) ta.value = html;
+      } else if (ed) {
+        ed.insertContent(html);
+      }
+      input.value = "";
+    };
+    reader.readAsText(f);
+  });
+})();
+
+/* Type rows editor (Phase 4c-1): audio files / gallery items / list items / TOC sections */
+(function () {
+  var PTYPE = {{ ptype|tojson }};
+  var rowsHost = document.getElementById("typeRows");
+  if (!rowsHost) return;
+  var isAudio = PTYPE === "audio";
+  var initial = [];
+  try { initial = JSON.parse({{ type_payload|tojson }}); } catch (e) {}
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function addRow(data) {
+    data = data || {};
+    var row = el("div", "type-item-row");
+    row.dataset.row = String(rowsHost.children.length);
+    var head = el("div", "type-row-head");
+    var ttl = el("span", "type-row-num");
+    head.appendChild(ttl);
+    var btns = el("span", "type-row-btns");
+    ["▲", "▼", "×"].forEach(function (sym) {
+      var b = el("button", "btn btn-sm btn-default", sym);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        if (sym === "×") { row.remove(); }
+        else if (sym === "▲" && row.previousElementSibling) rowsHost.insertBefore(row, row.previousElementSibling);
+        else if (sym === "▼" && row.nextElementSibling) rowsHost.insertBefore(row.nextElementSibling, row);
+        renumber();
+      });
+      btns.appendChild(b);
+    });
+    head.appendChild(btns);
+    row.appendChild(head);
+
+    if (isAudio) {
+      row.appendChild(el("label", "control-label", "Audio Name"));
+      var name = el("input", "form-input row-name"); name.type = "text"; name.value = data.name || "";
+      row.appendChild(name);
+      row.appendChild(el("label", "control-label", "Audio URL (.mp3 / .ogg / .wav)"));
+      var url = el("input", "form-input row-url"); url.type = "text"; url.value = data.url || "";
+      row.appendChild(url);
+      row.appendChild(el("label", "control-label", "or Upload an Audio File"));
+      var up = el("input", "form-input row-upload"); up.type = "file"; up.accept = ".mp3,.wav,.ogg,.m4a";
+      up.addEventListener("change", function () {
+        if (up.files[0] && window.kmsUploadMedia) window.kmsUploadMedia(up.files[0], function (u, err) {
+          if (u) { url.value = u; up.value = ""; } else window.alert(err || "Upload failed");
+        });
+      });
+      row.appendChild(up);
+      var dl = el("label", "check-inline");
+      var cb = el("input", "row-download"); cb.type = "checkbox"; cb.checked = !!data.download;
+      dl.appendChild(cb); dl.appendChild(document.createTextNode(" Show download button"));
+      row.appendChild(dl);
+    } else {
+      row.appendChild(el("label", "control-label", "Title"));
+      var t = el("input", "form-input row-title"); t.type = "text"; t.value = data.title || "";
+      row.appendChild(t);
+      row.appendChild(el("label", "control-label", "Content"));
+      var c = el("textarea", "form-input row-content"); c.rows = 3; c.value = data.content || "";
+      row.appendChild(c);
+      var imgWrap = el("div", "type-row-image");
+      var prev = el("div", "item-image-preview main-image-preview");
+      if (data.image && (data.image.image_default || data.image.image_big))
+        prev.innerHTML = '<img src="/' + (data.image.image_default || data.image.image_big) + '" alt="">';
+      imgWrap.appendChild(prev);
+      var hid = el("input", "item-image-id"); hid.type = "hidden"; hid.value = data.image_id || "";
+      imgWrap.appendChild(hid);
+      var browse = el("button", "btn btn-default btn-sm", "Browse Image");
+      browse.type = "button";
+      browse.addEventListener("click", function () {
+        if (window.kmsFmOpen) window.kmsFmOpen("item:" + row.dataset.row);
+      });
+      imgWrap.appendChild(browse);
+      var clear = el("button", "btn btn-sm btn-reset-upload", "Reset");
+      clear.type = "button";
+      clear.addEventListener("click", function () { hid.value = ""; prev.innerHTML = ""; });
+      imgWrap.appendChild(clear);
+      row.appendChild(imgWrap);
+      row.appendChild(el("label", "control-label", "Image Description"));
+      var d = el("input", "form-input row-imgdesc"); d.type = "text"; d.value = data.image_description || "";
+      row.appendChild(d);
+    }
+    rowsHost.appendChild(row);
+    renumber();
+  }
+
+  function renumber() {
+    Array.prototype.forEach.call(rowsHost.children, function (row, i) {
+      row.dataset.row = String(i);
+      var num = row.querySelector(".type-row-num");
+      if (num) num.textContent = "#" + (i + 1);
+    });
+  }
+
+  document.getElementById("btnAddRow").addEventListener("click", function () { addRow(); });
+  if (initial.length) initial.forEach(addRow); else addRow();
+
+  document.getElementById("postForm").addEventListener("submit", function () {
+    var out = [];
+    Array.prototype.forEach.call(rowsHost.children, function (row) {
+      if (isAudio) {
+        out.push({
+          name: (row.querySelector(".row-name") || {}).value || "",
+          url: (row.querySelector(".row-url") || {}).value || "",
+          download: (row.querySelector(".row-download") || {}).checked ? 1 : 0
+        });
+      } else {
+        out.push({
+          title: (row.querySelector(".row-title") || {}).value || "",
+          content: (row.querySelector(".row-content") || {}).value || "",
+          image_id: (row.querySelector(".item-image-id") || {}).value || "",
+          image_description: (row.querySelector(".row-imgdesc") || {}).value || ""
+        });
+      }
+    });
+    document.getElementById("typePayload").value = JSON.stringify(out);
+  });
+})();
+
+/* Quiz / Poll builder (Phase 4c-2) */
+(function () {
+  var PTYPE = {{ ptype|tojson }};
+  var qHost = document.getElementById("quizQuestions");
+  if (!qHost) return;
+  var rHost = document.getElementById("quizResults"); // absent for poll
+  var isTrivia = PTYPE === "trivia_quiz";
+  var isPersonality = PTYPE === "personality_quiz";
+  var initial = { questions: [], results: [] };
+  try { initial = JSON.parse({{ type_payload|tojson }}) || initial; } catch (e) {}
+  var rowSeq = 100; // unique data-row ids for File Manager targeting
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+  function headBar(row, host, label) {
+    var head = el("div", "type-row-head");
+    head.appendChild(el("span", "type-row-num", label));
+    var btns = el("span", "type-row-btns");
+    ["▲", "▼", "×"].forEach(function (sym) {
+      var b = el("button", "btn btn-sm btn-default", sym);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        if (sym === "×") row.remove();
+        else if (sym === "▲" && row.previousElementSibling) host.insertBefore(row, row.previousElementSibling);
+        else if (sym === "▼" && row.nextElementSibling) host.insertBefore(row.nextElementSibling, row);
+        renumber(host);
+      });
+      btns.appendChild(b);
+    });
+    head.appendChild(btns);
+    return head;
+  }
+  function renumber(host) {
+    Array.prototype.forEach.call(host.children, function (row, i) {
+      var num = row.querySelector(".type-row-num");
+      if (num) num.textContent = "#" + (i + 1);
+    });
+  }
+
+  function addAnswer(ansHost, qRow, data) {
+    data = data || {};
+    var a = el("div", "quiz-answer-row");
+    var t = el("input", "form-input ans-text"); t.type = "text"; t.placeholder = "Answer text"; t.value = data.text || "";
+    a.appendChild(t);
+    if (isTrivia) {
+      var lb = el("label", "check-inline");
+      var cb = el("input", "ans-correct"); cb.type = "radio"; cb.name = "correct-" + qRow.dataset.row; cb.checked = !!data.correct;
+      lb.appendChild(cb); lb.appendChild(document.createTextNode(" Correct"));
+      a.appendChild(lb);
+    } else if (isPersonality) {
+      var rn = el("input", "form-input ans-result"); rn.type = "number"; rn.min = "1"; rn.placeholder = "Result #";
+      if (data.result !== null && data.result !== undefined) rn.value = data.result + 1;
+      a.appendChild(rn);
+    }
+    var del = el("button", "btn btn-sm btn-danger", "×"); del.type = "button";
+    del.addEventListener("click", function () { a.remove(); });
+    a.appendChild(del);
+    ansHost.appendChild(a);
+  }
+
+  function addQuestion(data) {
+    data = data || {};
+    var row = el("div", "type-item-row quiz-question");
+    row.dataset.row = String(rowSeq++);
+    row.appendChild(headBar(row, qHost, "#" + (qHost.children.length + 1)));
+    row.appendChild(el("label", "control-label", "Question"));
+    var q = el("input", "form-input q-text"); q.type = "text"; q.value = data.question || "";
+    row.appendChild(q);
+    row.appendChild(el("label", "control-label", "Description (optional)"));
+    var d = el("input", "form-input q-desc"); d.type = "text"; d.value = data.description || "";
+    row.appendChild(d);
+    var imgWrap = el("div", "type-row-image");
+    var prev = el("div", "item-image-preview main-image-preview");
+    if (data.image && (data.image.image_default || data.image.image_big))
+      prev.innerHTML = '<img src="/' + (data.image.image_default || data.image.image_big) + '" alt="">';
+    imgWrap.appendChild(prev);
+    var hid = el("input", "item-image-id"); hid.type = "hidden"; hid.value = data.image_id || "";
+    imgWrap.appendChild(hid);
+    var browse = el("button", "btn btn-default btn-sm", "Browse Image"); browse.type = "button";
+    browse.addEventListener("click", function () { if (window.kmsFmOpen) window.kmsFmOpen("item:" + row.dataset.row); });
+    imgWrap.appendChild(browse);
+    row.appendChild(imgWrap);
+    row.appendChild(el("label", "control-label", "Answers"));
+    var ansHost = el("div", "quiz-answers");
+    row.appendChild(ansHost);
+    var add = el("button", "btn btn-default btn-sm", "+ Add Answer"); add.type = "button";
+    add.addEventListener("click", function () { addAnswer(ansHost, row); });
+    row.appendChild(add);
+    (data.answers && data.answers.length ? data.answers : [{}, {}]).forEach(function (a) { addAnswer(ansHost, row, a); });
+    qHost.appendChild(row);
+    renumber(qHost);
+  }
+
+  function addResult(data) {
+    data = data || {};
+    var row = el("div", "type-item-row quiz-result");
+    row.appendChild(headBar(row, rHost, "#" + (rHost.children.length + 1)));
+    row.appendChild(el("label", "control-label", "Result Title"));
+    var t = el("input", "form-input res-title"); t.type = "text"; t.value = data.title || "";
+    row.appendChild(t);
+    row.appendChild(el("label", "control-label", "Description"));
+    var d = el("textarea", "form-input res-desc"); d.rows = 2; d.value = data.description || "";
+    row.appendChild(d);
+    if (isTrivia) {
+      var mm = el("div", "half-row form-group");
+      var s1 = el("span"); s1.appendChild(el("label", "control-label", "Min Correct"));
+      var mn = el("input", "form-input res-min"); mn.type = "number"; mn.min = "0"; mn.value = data.min_correct || 0;
+      s1.appendChild(mn); mm.appendChild(s1);
+      var s2 = el("span"); s2.appendChild(el("label", "control-label", "Max Correct"));
+      var mx = el("input", "form-input res-max"); mx.type = "number"; mx.min = "0"; mx.value = data.max_correct || 0;
+      s2.appendChild(mx); mm.appendChild(s2);
+      row.appendChild(mm);
+    }
+    rHost.appendChild(row);
+    renumber(rHost);
+  }
+
+  document.getElementById("btnAddQuestion").addEventListener("click", function () { addQuestion(); });
+  if (rHost) document.getElementById("btnAddResult").addEventListener("click", function () { addResult(); });
+  (initial.questions && initial.questions.length ? initial.questions : [{}]).forEach(addQuestion);
+  if (rHost) (initial.results || []).forEach(addResult);
+
+  document.getElementById("postForm").addEventListener("submit", function () {
+    var out = { questions: [], results: [] };
+    Array.prototype.forEach.call(qHost.children, function (row) {
+      var answers = [];
+      row.querySelectorAll(".quiz-answer-row").forEach(function (a) {
+        var res = a.querySelector(".ans-result");
+        answers.push({
+          text: (a.querySelector(".ans-text") || {}).value || "",
+          correct: (a.querySelector(".ans-correct") || {}).checked ? 1 : 0,
+          result: res && res.value ? (parseInt(res.value, 10) - 1) : null
+        });
+      });
+      out.questions.push({
+        question: (row.querySelector(".q-text") || {}).value || "",
+        description: (row.querySelector(".q-desc") || {}).value || "",
+        image_id: (row.querySelector(".item-image-id") || {}).value || "",
+        answers: answers
+      });
+    });
+    if (rHost) Array.prototype.forEach.call(rHost.children, function (row) {
+      out.results.push({
+        title: (row.querySelector(".res-title") || {}).value || "",
+        description: (row.querySelector(".res-desc") || {}).value || "",
+        min_correct: parseInt((row.querySelector(".res-min") || {}).value || "0", 10) || 0,
+        max_correct: parseInt((row.querySelector(".res-max") || {}).value || "0", 10) || 0
+      });
+    });
+    document.getElementById("typePayload").value = JSON.stringify(out);
+  });
+})();
+
+/* Media file upload helper (Phase 4c-3) */
+window.kmsUploadMedia = function (file, cb) {
+  var fd = new FormData();
+  fd.append("file", file);
+  fetch("/admin/file/upload-media", { method: "POST", body: fd })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { cb(d.ok ? d.url : null, d.error); })
+    .catch(function () { cb(null, "Upload failed"); });
+};
+(function () {
+  var vu = document.getElementById("videoUpload");
+  if (!vu) return;
+  var st = document.getElementById("videoUploadStatus");
+  vu.addEventListener("change", function () {
+    if (!vu.files[0]) return;
+    st.textContent = "Uploading…";
+    window.kmsUploadMedia(vu.files[0], function (u, err) {
+      if (u) {
+        document.querySelector('input[name="video_url"]').value = u;
+        st.textContent = "Uploaded ✓";
+        vu.value = "";
+      } else st.textContent = err || "Upload failed";
+    });
+  });
+})();
+
+/* Recipe editor (Phase 4c-2) */
+(function () {
+  var prep = document.getElementById("rcPrep");
+  if (!prep) return;
+  var initial = {};
+  try { initial = JSON.parse({{ type_payload|tojson }}) || {}; } catch (e) {}
+  prep.value = initial.prep_time || "";
+  document.getElementById("rcCook").value = initial.cook_time || "";
+  document.getElementById("rcServes").value = initial.serves || "";
+  document.getElementById("rcIngredients").value = (initial.ingredients || []).join("\n");
+  document.getElementById("rcDirections").value = (initial.directions || []).join("\n");
+  document.getElementById("postForm").addEventListener("submit", function () {
+    document.getElementById("typePayload").value = JSON.stringify({
+      prep_time: prep.value, cook_time: document.getElementById("rcCook").value,
+      serves: document.getElementById("rcServes").value,
+      ingredients: document.getElementById("rcIngredients").value.split("\n"),
+      directions: document.getElementById("rcDirections").value.split("\n")
+    });
+  });
+})();
+</script>
+{% endblock %}

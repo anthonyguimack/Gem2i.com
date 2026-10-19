@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+<h1 class="title-index">{{ title }}</h1>
+{% if ads.get('index_top') %}<div class="container-xl">{{ m.ad_space(ads['index_top']) }}</div>{% endif %}
+
+{% if show_newsticker and breaking %}
+<section class="section section-newsticker">
+  <div class="container-xl">
+    <div class="newsticker-container">
+      <div class="newsticker-title">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/></svg>
+        <span>{{ trans('breaking_news') }}</span>
+      </div>
+      <ul class="newsticker" id="newsticker">
+        {% for p in breaking %}<li{{ ' class=active'|safe if loop.first }}><a href="/{{ p.slug }}">{{ p.title }}</a></li>{% endfor %}
+      </ul>
+      <div class="newsticker-nav">
+        <button class="prev" id="ntPrev" aria-label="prev">&lsaquo;</button>
+        <button class="next" id="ntNext" aria-label="next">&rsaquo;</button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if show_featured and (slider or featured) %}
+<section class="section section-featured">
+  <div class="container-xl">
+    <div class="featured-grid">
+      <div class="featured-slider" id="mainSlider">
+        {% for p in slider %}
+        <div class="slide{{ ' active' if loop.first }}">
+          <a href="/{{ p.slug }}">
+            {% if post_image(p, 'big') %}<img src="{{ post_image(p, 'big') }}" alt="{{ p.title }}"{{ ' loading=lazy'|safe if not loop.first }}>{% endif %}
+            <div class="slide-caption">
+              {% set c = all_categories|selectattr('id','equalto',p.category_id)|first %}
+              {% if c %}<span class="cat-label" style="background:{{ c.color or primary }}">{{ c.name }}</span>{% endif %}
+              <h2 class="title">{{ p.title }}</h2>
+              <p class="post-meta">{{ m.post_meta(p) }}</p>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+        {% if slider|length > 1 %}
+        <button class="slider-nav prev" id="slPrev" aria-label="prev">&lsaquo;</button>
+        <button class="slider-nav next" id="slNext" aria-label="next">&rsaquo;</button>
+        <div class="slider-dots" id="slDots">{% for p in slider %}<button class="dot{{ ' active' if loop.first }}" data-i="{{ loop.index0 }}" aria-label="slide {{ loop.index }}"></button>{% endfor %}</div>
+        {% endif %}
+      </div>
+      <div class="featured-side">
+        {% for p in featured[:4] %}
+        <a href="/{{ p.slug }}" class="featured-item">
+          {% if post_image(p, 'mid') %}<img src="{{ post_image(p, 'mid') }}" alt="{{ p.title }}" loading="lazy">{% endif %}
+          <div class="featured-item-caption"><h3 class="title">{{ p.title|char_limit(60) }}</h3></div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% for cat in home_cats %}
+  {% set posts = cat_posts.get(cat.id, []) %}
+  {% if posts %}
+    {% if cat.block_type == 'block-4' %}
+      {{ m.block_type_4(cat, posts) }}
+    {% else %}
+      {{ m.block_type_1(cat, posts) }}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+<section class="section section-latest">
+  <div class="container-xl">
+    <div class="section-title"><h3 class="title">{{ trans('latest_posts') }}</h3></div>
+    <div class="latest-grid">
+      <div class="latest-main">
+        {% for p in latest[:10] %}{{ m.post_item_horizontal(p) }}{% endfor %}
+        <div class="latest-more"><a href="/posts" class="btn-custom-outline">{{ trans('show_more') }}</a></div>
+      </div>
+      {{ m.sidebar(sidebar_widgets, popular, recommended, tags, ls, poll, poll_votes, poll_voted, user, ads, brand_social_links) }}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Footer v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bg2:#0A121A; --card:#0D1721; --line:rgba(255,255,255,.09); --accent:#0068b3; --link:#5AAFEA; --body:#b4c0cb; --muted:#8a98a6; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  a { color:inherit; text-decoration:none; }
+  .group { max-width:1600px; margin:0 auto; padding:56px 24px 10px; }
+  .group h1 { margin:0; font-size:24px; font-weight:700; }
+  .group p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.6; max-width:980px; }
+  .label { max-width:1600px; margin:0 auto; padding:40px 24px 12px; font-size:15px; color:#a9b6c2; line-height:1.6; }
+  .label b { color:#fff; margin-right:8px; font-size:17px; }
+  .frame { max-width:1600px; margin:0 auto; border-radius:14px; overflow:hidden; background:var(--bg); }
+  .pad { padding:72px clamp(24px,5vw,96px); }
+  .t { font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--link); margin:0 0 16px; }
+  ul { padding:0; margin:0; } li { list-style:none; margin:0 0 10px; font-size:15px; color:#c7d2dc; }
+  .h { font-family:'Playfair Display',serif; font-weight:700; line-height:1.04; margin:0; }
+  .h em { font-style:italic; font-weight:500; color:var(--link); }
+  .btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:#fff; border-radius:999px; padding:14px 26px; font-weight:600; font-size:15px; }
+  .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,.3); }
+  .soc { width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.2); display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#c7d2dc; }
+  input { background:transparent; border:0; border-bottom:1.5px solid rgba(255,255,255,.3); color:#fff; padding:12px 0; font:inherit; font-size:15px; width:100%; }
+  .bar { border-top:1px solid var(--line); padding:22px clamp(24px,5vw,96px); display:flex; flex-wrap:wrap; gap:14px 28px; justify-content:space-between; font-size:13px; color:var(--muted); }
+  .bar nav { display:flex; gap:22px; flex-wrap:wrap; }
+  .logo { font-weight:800; font-size:26px; letter-spacing:.02em; } .logo span { color:var(--link); }
+  .muted { color:var(--body); font-size:15px; line-height:1.7; }
+  .chip { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px; border:1px solid var(--line); font-size:14px; color:var(--body); }
+  .chip i { width:7px; height:7px; border-radius:50%; background:#2fbf71; font-style:normal; }
+  .office { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; }
+  .office b { display:block; font-size:16px; } .office small { color:var(--muted); font-size:13px; }
+  .office .time { margin-top:14px; font-size:24px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .wordmark { font-weight:800; font-size:clamp(90px,19vw,300px); line-height:.8; letter-spacing:-.03em; color:transparent; -webkit-text-stroke:1px rgba(255,255,255,.14); text-align:center; margin:0; user-select:none; }
+  .ev { display:flex; gap:16px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .ev .img { width:84px; height:84px; border-radius:10px; flex:none; background:linear-gradient(135deg,#0068b3,#002444); }
+  .note { max-width:1600px; margin:0 auto; padding:32px 24px 80px; color:var(--muted); font-size:14px; line-height:1.7; }
+  .note b { color:#fff; }
+  @media (max-width:900px){ .gx{grid-template-columns:1fr !important} .pad{padding:56px 20px} }
+</style>
+</head>
+<body>
+<div class="group">
+  <h1>Bocetos: Footer v2</h1>
+  <p>Tres propuestas para reemplazar FT-1. Las tres corrigen lo que hoy falla: el contenido queda alineado también en la plantilla 02 (ancho completo), la lista de oficinas deja de ser una columna larga, y Contacto pasa a ser la acción principal. Todos los textos y enlaces salen del CMS que ya existe (Maps &amp; Locations, redes, suscriptores).</p>
+</div>
+
+<!-- ───────────── FT-2 ───────────── -->
+<div class="label"><b>FT-2 · Gran llamada a la acción</b>Una frase grande en Playfair con el botón de contacto arriba, luego cuatro columnas compactas y las oficinas como chips. La palabra GEM2i en contorno cierra la página.</div>
+<div class="frame">
+  <div class="pad" style="border-bottom:1px solid var(--line)">
+    <div class="gx" style="display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:end">
+      <h2 class="h" style="font-size:clamp(40px,5.5vw,76px)">Let's make the night <em>unforgettable</em></h2>
+      <div>
+        <p class="muted" style="margin:0 0 22px">Events, artists, venues and brands in more than 17 markets. Tell us what you are planning.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn">Contact us →</a><a class="btn ghost">List your event</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1.3fr;gap:40px">
+    <div><div class="logo">GEM<span>2i</span></div><p class="muted">Global Entertainment Management &amp; Marketing Integration.</p>
+      <div style="display:flex;gap:10px;margin-top:18px"><span class="soc">f</span><span class="soc">ig</span><span class="soc">yt</span><span class="soc">sc</span></div></div>
+    <div><p class="t">Explore</p><ul><li>Events</li><li>Festivals</li><li>Artists</li><li>Venues</li></ul></div>
+    <div><p class="t">Company</p><ul><li>About us</li><li>Services</li><li>Partners</li><li>Membership</li></ul></div>
+    <div><p class="t">Newsletter</p><p class="muted" style="margin:0 0 10px">Line-ups and guest lists first.</p><input placeholder="Your email"><a class="btn" style="margin-top:16px;padding:11px 20px">Subscribe</a></div>
+  </div>
+  <div style="padding:0 clamp(24px,5vw,96px) 40px;display:flex;flex-wrap:wrap;gap:10px">
+    <span class="chip">New York · HQ</span><span class="chip">Spain</span><span class="chip">Lima</span><span class="chip">Buenos Aires</span><span class="chip">Santo Domingo</span>
+  </div>
+  <p class="wordmark">GEM2i</p>
+  <div class="bar"><span>© 2026 GEM2i. All rights reserved.</span><nav><a>Terms</a><a>Privacy</a><a>Cookies</a></nav></div>
+</div>
+
+<!-- ───────────── FT-3 ───────────── -->
+<div class="label"><b>FT-3 · Oficinas con hora local</b>Lo global se muestra con tarjetas de oficina que llevan la hora local en vivo y un punto verde si es horario laboral. A la izquierda quedan marca, contacto y newsletter.</div>
+<div class="frame">
+  <div class="pad gx" style="display:grid;grid-template-columns:1fr 2fr;gap:56px">
+    <div>
+      <div class="logo">GEM<span>2i</span></div>
+      <p class="muted">The leading full service marketing, media and business integration company for the entertainment industry.</p>
+      <ul style="margin-top:20px"><li>main@gem2i.com</li><li>862-201-3636</li></ul>
+      <p class="t" style="margin-top:28px">Newsletter</p>
+      <div style="display:flex;gap:12px;align-items:end"><input placeholder="Your email"><a class="btn" style="padding:11px 18px">→</a></div>
+    </div>
+    <div>
+      <p class="t">Where we are</p>
+      <div class="gx" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div class="office"><b>New York</b><small>Headquarters · North America</small><div class="time">09:42 <span class="chip" style="padding:4px 10px;font-size:12px;vertical-align:middle"><i></i>open</span></div></div>
+        <div class="office"><b>Spain</b><small>Europe · Commercial</small><div class="time">15:42</div></div>
+        <div class="office"><b>Lima</b><small>South America · Corporate</small><div class="time">08:42 <span class="chip" style="padding:4px 10px;font-size:12px;vertical-align:middle"><i></i>open</span></div></div>
+        <div class="office"><b>Buenos Aires</b><small>South America · Corporate</small><div class="time">10:42</div></div>
+        <div class="office"><b>Santo Domingo</b><small>Central America · Corporate</small><div class="time">09:42</div></div>
+        <div class="office" style="display:flex;flex-direction:column;justify-content:center;background:var(--accent);border-color:var(--accent)"><b>Contact us →</b><small style="color:#dbeafe">We answer within 24 h</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="bar"><span>© 2026 GEM2i</span><nav><a>Events</a><a>Festivals</a><a>Artists</a><a>Venues</a><a>About</a><a>Terms</a><a>Privacy</a></nav><span style="display:flex;gap:8px"><span class="soc">f</span><span class="soc">ig</span><span class="soc">yt</span></span></div>
+</div>
+
+<!-- ───────────── FT-4 ───────────── -->
+<div class="label"><b>FT-4 · Footer vivo</b>El footer muestra el próximo evento real del catálogo y el estado de la membresía, para que siga vendiendo hasta la última línea. Las columnas quedan sobre una banda con el degradado de marca.</div>
+<div class="frame">
+  <div class="pad" style="background:linear-gradient(120deg,#002444,#0068b3)">
+    <div class="gx" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center">
+      <div><p class="t" style="color:#cfe6fb">Next up</p>
+        <div class="ev" style="background:rgba(4,8,12,.35);border-color:rgba(255,255,255,.15)"><div class="img"></div>
+          <div><b style="font-size:18px">Ushuaïa Opening Party</b><div class="muted" style="color:#dbeafe">Sat 14 Jun · Ibiza, Spain</div><div style="margin-top:6px;font-weight:600">Guest list open →</div></div></div></div>
+      <div><p class="t" style="color:#cfe6fb">Join the guest list</p>
+        <h3 class="h" style="font-size:34px">Members get in <em style="color:#fff">first</em></h3>
+        <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap"><a class="btn" style="background:#fff;color:#002444">Become a member</a><a class="btn ghost">Sign in</a></div></div>
+    </div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:repeat(5,1fr);gap:32px">
+    <div><div class="logo">GEM<span>2i</span></div><p class="muted" style="font-size:14px">Since 1993 · 17+ markets</p></div>
+    <div><p class="t">Discover</p><ul><li>Events</li><li>Festivals</li><li>Artists</li><li>Venues</li></ul></div>
+    <div><p class="t">Company</p><ul><li>About us</li><li>Services</li><li>Partners</li><li>Contact</li></ul></div>
+    <div><p class="t">Offices</p><ul><li>New York · HQ</li><li>Spain</li><li>Lima</li><li>Buenos Aires</li><li>Santo Domingo</li></ul></div>
+    <div><p class="t">Follow</p><div style="display:flex;gap:10px;flex-wrap:wrap"><span class="soc">f</span><span class="soc">ig</span><span class="soc">yt</span><span class="soc">sc</span></div>
+      <p class="t" style="margin-top:22px">Newsletter</p><input placeholder="Your email"></div>
+  </div>
+  <div class="bar"><span>© 2026 GEM2i. All rights reserved.</span><nav><a>Terms</a><a>Privacy</a><a>Cookies</a><a>EN / ES</a></nav></div>
+</div>
+
+<div class="note">
+  <b>Comparación rápida.</b> FT-2 es el más editorial y el que más se parece a las secciones nuevas (Playfair + acento en itálica). FT-3 destaca la presencia internacional y es el más útil para quien quiere contactar. FT-4 es el más comercial: necesita leer el próximo evento del catálogo, algo que ya existe en la API.<br>
+  Responde con el código (por ejemplo "FT-2") o mezcla piezas (por ejemplo "FT-2 con las oficinas de FT-3").
+</div>
+</body>
+</html>

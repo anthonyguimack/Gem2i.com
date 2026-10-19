@@ -168,21 +168,33 @@ async def _unique_slug(coll: str, base: str, exclude_id: str | None = None) -> s
 
 
 # ================================================================ PUBLIC
+def _rx(text: str) -> dict:
+    """Case-insensitive 'contains' match for the legacy free-text filters."""
+    return {"$regex": re.escape(text.strip()), "$options": "i"}
+
+
 @router.get("/public/gem/artists")
 async def public_artists(roster: str = None, continent: str = None, country: str = None,
-                         genre: str = None, q: str = None, page: int = 1, limit: int = 24):
+                         genre: str = None, q: str = None, position: int = None,
+                         state: str = None, city: str = None, page: int = 1, limit: int = 24):
     query = {"status": "active"}
     sort = [("name", 1)]
     if roster in ("gem", "djmag", "resident"):
         field = f"rosters.{roster}_rank"
         query[field] = {"$ne": None}
         sort = [(field, 1)]
+        if position:
+            query[field] = position
     if continent:
         query["continent"] = continent
     if country:
-        query["country"] = country
+        query["country"] = _rx(country)
     if genre:
-        query["genres"] = genre
+        query["genres"] = _rx(genre)
+    if state:
+        query["state"] = state
+    if city:
+        query["city"] = _rx(city)
     if q:
         query["$or"] = [{"name": {"$regex": re.escape(q), "$options": "i"}},
                         {"full_name": {"$regex": re.escape(q), "$options": "i"}}]
@@ -199,17 +211,37 @@ async def public_artist_detail(slug: str):
 
 @router.get("/public/gem/venues")
 async def public_venues(continent: str = None, country: str = None, state: str = None,
-                        q: str = None, page: int = 1, limit: int = 24):
+                        city: str = None, position: int = None, q: str = None,
+                        page: int = 1, limit: int = 24):
     query = {"status": "active"}
     if continent:
         query["continent"] = continent
     if country:
-        query["country"] = country
+        query["country"] = _rx(country)
     if state:
         query["state"] = state
+    if city:
+        query["$or"] = [{"city": _rx(city)}, {"state": _rx(city)}]
+    if position:
+        query["order"] = position
     if q:
-        query["name"] = {"$regex": re.escape(q), "$options": "i"}
+        query["name"] = _rx(q)
     return await _paginate("gem_venues", query, [("order", 1), ("name", 1)], page, limit)
+
+
+@router.get("/public/gem/venues-top")
+async def public_top_venues(limit: int = 8):
+    """Top venues strip: venues marked Featured in the CMS; until any is marked,
+    the first ones by listing order. Photo-less rows are skipped (legacy showed
+    test venues without photos here)."""
+    limit = max(1, min(limit, 24))
+    base = {"status": "active", "images.view": {"$nin": [None, ""]}}
+    sort = [("order", 1), ("name", 1)]
+    query = {**base, "featured": True}
+    if not await db.gem_venues.count_documents(query):
+        query = {**base, "order": {"$gte": 1}}
+    cursor = db.gem_venues.find(query, {"_id": 0}).sort(sort).limit(limit)
+    return {"items": [_serialize("gem_venues", d) async for d in cursor]}
 
 
 @router.get("/public/gem/venues/{slug}")
@@ -228,11 +260,53 @@ async def public_venue_detail(slug: str):
 
 
 @router.get("/public/gem/festivals")
-async def public_festivals(page: int = 1, limit: int = 24, q: str = None):
+async def public_festivals(page: int = 1, limit: int = 24, q: str = None, scope: str = None,
+                           country: str = None, city: str = None, continent: str = None,
+                           date: str = None, state: str = None,
+                           date_from: str = None, date_to: str = None):
     query = {"status": "active"}
+    sort = [("event_date", -1)]
+    if scope == "upcoming":
+        query["event_date"] = {"$gte": _now_date()}
+        sort = [("event_date", 1)]
+    elif scope == "past":
+        query["event_date"] = {"$lt": _now_date()}
+    if date:
+        query["event_date"] = {"$gte": date}
+        sort = [("event_date", 1)]
+    if date_from or date_to:
+        rng = {}
+        if date_from:
+            rng["$gte"] = date_from
+        if date_to:
+            rng["$lte"] = date_to
+        query["event_date"] = rng
+        sort = [("event_date", 1)]
     if q:
-        query["title"] = {"$regex": re.escape(q), "$options": "i"}
-    return await _paginate("gem_festivals", query, [("event_date", -1)], page, limit)
+        query["title"] = _rx(q)
+    if country:
+        query["country"] = _rx(country)
+    if city:
+        query["$or"] = [{"city": _rx(city)}, {"state": _rx(city)}]
+    if continent:
+        query["continent"] = continent
+    if state:
+        query["state"] = state
+    result = await _paginate("gem_festivals", query, sort, page, limit)
+    # Cards show the first lineup names — one artist query per page.
+    ids = list({i for f in result["items"] for i in (f.get("lineup") or [])[:3]})
+    names = {a["id"]: a["name"] async for a in db.gem_artists.find(
+        {"id": {"$in": ids}, "status": "active"}, {"_id": 0, "id": 1, "name": 1})}
+    for f in result["items"]:
+        f["lineup_names"] = [names[i] for i in (f.get("lineup") or [])[:3] if i in names]
+    return result
+
+
+@router.get("/public/gem/festivals-meta")
+async def public_festivals_meta():
+    """Whether the Upcoming/Past switch is worth showing."""
+    return {"upcoming": await db.gem_festivals.count_documents(
+        {"status": "active", "event_date": {"$gte": _now_date()}})}
 
 
 @router.get("/public/gem/festivals/{slug}")
@@ -260,7 +334,9 @@ async def public_conference_detail(slug: str):
 
 @router.get("/public/gem/events")
 async def public_events(scope: str = "current", country: str = None, q: str = None,
-                        date: str = None, page: int = 1, limit: int = 24):
+                        date: str = None, city: str = None, state: str = None,
+                        date_from: str = None, date_to: str = None,
+                        page: int = 1, limit: int = 24):
     query = {"status": "active", "private": False, "show_portal": True}
     if scope == "past":
         query["event_date"] = {"$lt": _now_date(), "$gte": _past_cutoff()}
@@ -270,22 +346,69 @@ async def public_events(scope: str = "current", country: str = None, q: str = No
         sort = [("event_date", 1)]
     if date:
         query["event_date"] = date
+    if date_from or date_to:
+        # Calendar range (CA-2): replaces the current/past window.
+        rng = {}
+        if date_from:
+            rng["$gte"] = date_from
+        if date_to:
+            rng["$lte"] = date_to
+        query["event_date"] = rng
+        sort = [("event_date", 1)]
     if q:
         query["title"] = {"$regex": re.escape(q), "$options": "i"}
-    if country:
-        # Country lives on the venue (legacy search behavior) — restrict by
+    if country or city or state:
+        # Country/city live on the venue (legacy search behavior) — restrict by
         # venue ids BEFORE pagination so totals stay correct.
-        ids = [v["id"] async for v in db.gem_venues.find(
-            {"country": country}, {"_id": 0, "id": 1})]
+        vq = {}
+        if country:
+            vq["country"] = _rx(country)
+        if state:
+            vq["state"] = state
+        if city:
+            vq["$or"] = [{"city": _rx(city)}, {"state": _rx(city)}]
+        ids = [v["id"] async for v in db.gem_venues.find(vq, {"_id": 0, "id": 1})]
         query["venue_id"] = {"$in": ids}
     result = await _paginate("gem_events", query, sort, page, limit)
     # Card rendering needs the venue name/city — resolve in one query per page.
     venue_ids = [e.get("venue_id") for e in result["items"] if e.get("venue_id")]
     vmap = {v["id"]: v async for v in db.gem_venues.find(
-        {"id": {"$in": venue_ids}}, {"_id": 0, "id": 1, "name": 1, "city": 1, "country": 1, "slug": 1})}
+        {"id": {"$in": venue_ids}}, {"_id": 0, "id": 1, "name": 1, "city": 1, "state": 1, "country": 1, "slug": 1})}
     for e in result["items"]:
         e["venue"] = vmap.get(e.get("venue_id"))
     return result
+
+
+@router.get("/public/gem/catalog-dates")
+async def public_catalog_dates(catalog: str = "events", month: str = ""):
+    """Days of one month (YYYY-MM) that have public items → calendar dots."""
+    if not re.fullmatch(r"\d{4}-\d{2}", month or ""):
+        return {"days": {}}
+    coll = "gem_festivals" if catalog == "festivals" else "gem_events"
+    query = {"status": "active", "event_date": {"$regex": "^" + month}}
+    if coll == "gem_events":
+        query.update({"private": False, "show_portal": True})
+    days = {}
+    async for d in db[coll].find(query, {"_id": 0, "event_date": 1}):
+        k = str(d.get("event_date"))[:10]
+        days[k] = days.get(k, 0) + 1
+    return {"days": days}
+
+
+@router.get("/public/gem/hero-events")
+async def public_hero_events():
+    """Events the CMS pinned to hero slides (Events manager → "Show in these
+    hero slides"). Same public gate as the listing; past events drop out."""
+    query = {"status": "active", "private": False, "show_portal": True,
+             "event_date": {"$gte": _now_date()}, "hero_slide_ids.0": {"$exists": True}}
+    cursor = db.gem_events.find(query, {"_id": 0}).sort([("event_date", 1)]).limit(50)
+    items = [_serialize("gem_events", e) async for e in cursor]
+    venue_ids = [e.get("venue_id") for e in items if e.get("venue_id")]
+    vmap = {v["id"]: v async for v in db.gem_venues.find(
+        {"id": {"$in": venue_ids}}, {"_id": 0, "id": 1, "name": 1, "city": 1, "state": 1, "country": 1, "slug": 1})}
+    for e in items:
+        e["venue"] = vmap.get(e.get("venue_id"))
+    return {"items": items}
 
 
 @router.get("/public/gem/events/{slug}")
@@ -340,6 +463,41 @@ async def public_venue_countries():
     autocompleted countries; events resolve country via their venue)."""
     items = await db.gem_venues.distinct("country", {"status": "active", "country": {"$nin": [None, ""]}})
     return {"items": sorted(items)}
+
+
+_PLACE_COLL = {"events": "gem_venues", "venues": "gem_venues",
+               "artists": "gem_artists", "festivals": "gem_festivals"}
+
+
+@router.get("/public/gem/places")
+async def public_places(catalog: str = "venues", country: str = None, state: str = None,
+                        q: str = None):
+    """Nested country → state → city options for the catalog search: the full
+    geo tables (countries / states / cities, loaded from the legacy world list)
+    plus any place the catalog rows use that the geo tables lack. Cities are a
+    type-ahead (`q`, max 50) — the US alone has 20k+."""
+    coll = _PLACE_COLL.get(catalog, "gem_venues")
+    clean = lambda xs: sorted({x.strip() for x in xs if isinstance(x, str) and x.strip()}, key=str.lower)
+    countries = clean([c["name"] async for c in db.countries.find({}, {"_id": 0, "name": 1})]
+                      + await db[coll].distinct("country", {"status": "active"}))
+    states, cities = [], []
+    if country:
+        cdoc = await db.countries.find_one({"name": country}, {"_id": 0, "id": 1})
+        sdocs = [s async for s in db.states.find({"country_id": cdoc["id"]}, {"_id": 0, "id": 1, "name": 1})] if cdoc else []
+        states = clean([s["name"] for s in sdocs]
+                       + await db[coll].distinct("state", {"status": "active", "country": country}))
+        sids = [s["id"] for s in sdocs if not state or s["name"] == state]
+        cq = {"state_id": {"$in": sids}}
+        if q:
+            cq["name"] = {"$regex": "^" + re.escape(q.strip()), "$options": "i"}
+        found = [c["name"] async for c in db.cities.find(cq, {"_id": 0, "name": 1}).sort("name", 1).limit(50)] if sids else []
+        rq = {"status": "active", "country": country}
+        if state:
+            rq["state"] = state
+        used = [c for c in await db[coll].distinct("city", rq) if isinstance(c, str)
+                and (not q or c.lower().startswith(q.strip().lower()))]
+        cities = clean(found + used)[:50]
+    return {"countries": countries, "states": states, "cities": cities}
 
 
 @router.get("/public/gem/continents")

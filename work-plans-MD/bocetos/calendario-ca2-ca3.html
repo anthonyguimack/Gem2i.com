@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Boceto: Calendario CA-2 + CA-3</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bg2:#0A121A; --card:#0D1721; --line:rgba(255,255,255,.09); --accent:#0068b3; --link:#5AAFEA; --body:#b4c0cb; --muted:#8a98a6; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+  .group { max-width:1400px; margin:0 auto; padding:56px 24px 8px; }
+  .group h1 { margin:0; font-size:26px; } .group p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.65; max-width:960px; }
+  .label { max-width:1400px; margin:0 auto; padding:34px 24px 12px; font-size:15px; color:#a9b6c2; line-height:1.6; }
+  .label b { color:#fff; margin-right:8px; font-size:17px; }
+  .frame { max-width:1400px; margin:0 auto; border-radius:14px; background:var(--bg); padding:40px clamp(20px,4vw,56px) 56px; }
+  .field { display:flex; align-items:center; gap:10px; width:280px; padding:12px 14px; border-radius:12px; background:var(--card); border:1px solid var(--line); color:#fff; font-size:15px; }
+  .field svg { color:var(--link); flex:none; }
+  .field.on { border-color:var(--link); box-shadow:0 0 0 3px rgba(90,175,234,.18); }
+  .field .ph { color:rgba(255,255,255,.45); }
+  .pop { margin-top:10px; width:340px; border-radius:18px; background:#0B141D; border:1px solid rgba(255,255,255,.1); box-shadow:0 24px 60px -20px rgba(0,0,0,.8); padding:18px; animation:in .22s cubic-bezier(.16,1,.3,1); }
+  @keyframes in { from { opacity:0; transform:translateY(-6px) scale(.98) } to { opacity:1; transform:none } }
+  .hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .mo { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; } .mo em { font-style:italic; font-weight:500; color:var(--link); }
+  .nav { width:36px; height:36px; border-radius:50%; border:1px solid var(--line); display:inline-flex; align-items:center; justify-content:center; transition:background .2s; }
+  .nav:hover { background:rgba(255,255,255,.08); }
+  .dow, .days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; }
+  .dow span { font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--muted); padding:6px 0; }
+  .d { height:40px; border-radius:12px; font-size:14px; font-variant-numeric:tabular-nums; position:relative; transition:background .15s, color .15s; }
+  .d:hover { background:rgba(255,255,255,.07); }
+  .d.out { color:rgba(255,255,255,.25); }
+  .d.today { box-shadow:inset 0 0 0 1px var(--link); }
+  .d.sel { background:var(--accent); color:#fff; font-weight:700; }
+  .d.ev::after { content:''; position:absolute; left:50%; bottom:6px; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:var(--link); }
+  .d.sel.ev::after { background:#fff; }
+  .d.range { background:rgba(0,104,179,.22); border-radius:0; }
+  .d.r-start { border-radius:12px 0 0 12px; } .d.r-end { border-radius:0 12px 12px 0; }
+  .ft { display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:14px; }
+  .ft .a { color:var(--link); font-weight:600; } .ft .m { color:var(--muted); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .chip { padding:7px 14px; border-radius:999px; border:1px solid var(--line); font-size:13px; color:var(--body); }
+  .chip.on { background:#fff; color:#04080C; font-weight:700; border-color:#fff; }
+  .row { display:flex; flex-wrap:wrap; gap:48px; align-items:flex-start; }
+  .strip { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; }
+  .day { flex:none; width:68px; padding:10px 0 12px; border-radius:16px; text-align:center; border:1px solid var(--line); background:var(--card); transition:transform .2s, border-color .2s; }
+  .day:hover { transform:translateY(-2px); border-color:rgba(90,175,234,.5); }
+  .day small { display:block; font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--muted); }
+  .day b { display:block; font-size:24px; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .day i { display:block; font-style:normal; font-size:11px; color:var(--link); margin-top:2px; min-height:14px; }
+  .day.sel { background:var(--accent); border-color:var(--accent); } .day.sel small, .day.sel i { color:#dbeafe; }
+  .note { max-width:1400px; margin:0 auto; padding:24px 24px 80px; color:var(--muted); font-size:14px; line-height:1.7; } .note b { color:#fff; }
+
+  .page { max-width:1400px; margin:0 auto; border-radius:14px; background:var(--bg); padding:48px clamp(20px,4vw,56px) 64px; }
+  .eyebrow { display:inline-flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--link); }
+  .eyebrow::before { content:''; width:32px; height:2px; background:var(--accent); }
+  .h { font-family:'Playfair Display',serif; font-weight:700; font-size:clamp(34px,4vw,52px); margin:10px 0 0; } .h em { font-style:italic; font-weight:500; color:var(--link); }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:4px; gap:4px; } .seg span { padding:8px 16px; border-radius:999px; font-size:14px; color:var(--body); } .seg .on { background:#fff; color:#04080C; font-weight:700; }
+  .bar { position:relative; margin-top:22px; display:grid; gap:10px; grid-template-columns:repeat(5,minmax(0,1fr)) auto auto; padding:12px; border-radius:16px; background:var(--bg2); border:1px solid var(--line); align-items:center; }
+  .in { padding:12px 14px; border-radius:12px; background:var(--card); border:1px solid var(--line); font-size:15px; color:rgba(255,255,255,.55); display:flex; justify-content:space-between; }
+  .in.v { color:#fff; }
+  .bar .field { width:auto; }
+  .btn { padding:12px 22px; border-radius:999px; font-weight:600; font-size:15px; background:var(--accent); color:#fff; } .btn.g { background:transparent; border:1px solid rgba(255,255,255,.3); font-weight:500; }
+  .popwrap { position:absolute; top:calc(100% - 4px); z-index:5; }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:22px; }
+  .card { position:relative; aspect-ratio:3/4; background-size:cover; background-position:center; background-color:var(--card); }
+  .tag { position:absolute; left:14px; top:14px; padding:6px 12px; font-size:11px; font-weight:700; letter-spacing:.16em; background:rgba(4,8,12,.8); border:1px solid rgba(255,255,255,.15); }
+  .striphd { display:flex; justify-content:space-between; align-items:center; margin-top:34px; margin-bottom:12px; }
+  .striphd b { font-size:15px; } .striphd span { color:var(--muted); font-size:14px; }
+  @media (max-width:1000px){ .bar{grid-template-columns:1fr 1fr} .grid{grid-template-columns:1fr 1fr} }
+</style></head><body>
+<div class="group"><h1>Boceto: CA-2 + CA-3 en la página de Events</h1>
+<p>Así quedaría /events. En el buscador, el campo de fecha abre el calendario CA-2, con atajos y rango; aquí se ve abierto. Encima de la grilla va la tira de días CA-3, con los próximos 14 días y cuántos eventos tiene cada uno. Las dos usan el mismo filtro: tocar un día de la tira equivale a elegir esa fecha en el calendario, y "Fechas…" abre el calendario. Es interactivo: prueba los atajos, elige un rango y toca los días de la tira.</p></div>
+<div style="height:24px"></div>
+<div class="page">
+  <span class="eyebrow">All</span><h2 class="h">Upcoming <em>events</em></h2>
+  <div style="display:flex;justify-content:space-between;margin-top:26px;flex-wrap:wrap;gap:12px"><div class="seg"><span class="on">Current events</span><span>Past events</span></div><div class="seg"><span class="on">Event view</span><span>List view</span></div></div>
+  <div class="bar">
+    <div class="in v">United States <span>▾</span></div><div class="in">All states <span>▾</span></div><div class="in">Type a city…</div><div class="in">by event name…</div>
+    <div style="position:relative"><div class="field on" id="f2"></div><div class="popwrap" style="right:0"><div class="pop" id="c2"></div></div></div>
+    <span class="btn">Search</span><span class="btn g">Reset</span>
+  </div>
+  <div style="height:440px" aria-hidden="true"></div>
+  <div class="striphd"><b>Próximos días</b><span>Toca un día para ver sus eventos</span></div>
+  <div class="strip" id="strip"></div>
+  <div class="grid">
+    <div class="card" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1555028843.png)"><span class="tag">INFO</span></div>
+    <div class="card" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1555028828.png)"><span class="tag">INFO</span></div>
+    <div class="card" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1750968631.png)"><span class="tag" style="background:#0068b3;border-color:#0068b3">E-TICKET</span></div>
+    <div class="card" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1560532319.png)"><span class="tag" style="background:#2fbf71;border-color:#2fbf71;color:#04210f">GUEST LIST</span></div>
+  </div>
+</div>
+<div class="note"><b>Para implementarlo:</b> la API de eventos aceptaría <code>date_from</code> y <code>date_to</code>, y daría el conteo de eventos por día para los puntos y la tira. En el móvil, el calendario se abre como hoja inferior y la tira se desliza con el dedo. Con teclado: flechas, Enter y Esc.</div>
+<script>
+const ES={m:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],d:['Lu','Ma','Mi','Ju','Vi','Sá','Do'],sh:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']};
+const TODAY=new Date(2026,9,19);
+const EV=new Set(['2026-10-23','2026-10-24','2026-10-31','2026-11-07','2026-11-14','2026-10-25']);
+const key=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const same=(a,b)=>a&&b&&key(a)===key(b);
+const ico='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+const fmt=d=>`${d.getDate()} ${ES.sh[d.getMonth()]} ${d.getFullYear()}`;
+
+function cal(el, field, opts){
+  const st={view:new Date(TODAY.getFullYear(),TODAY.getMonth(),1), a:opts.range?null:new Date(2026,9,24), b:null, chip:null};
+  function paintField(){
+    let t='<span class="ph">Cualquier fecha</span>';
+    if(st.a&&st.b) t=`${st.a.getDate()} – ${st.b.getDate()} ${ES.sh[st.b.getMonth()]}`; else if(st.a) t=fmt(st.a);
+    field.innerHTML=ico+t;
+  }
+  function render(){
+    const y=st.view.getFullYear(), m=st.view.getMonth();
+    const first=(new Date(y,m,1).getDay()+6)%7, start=new Date(y,m,1-first);
+    let h='';
+    if(opts.range){ h+='<div class="chips">'+['Hoy','Este fin de semana','Próximos 7 días','Este mes'].map((c,i)=>`<button class="chip ${st.chip===i?'on':''}" data-c="${i}">${c}</button>`).join('')+'</div>'; }
+    h+=`<div class="hd"><button class="nav" data-n="-1" aria-label="Mes anterior">‹</button><div class="mo">${ES.m[m][0].toUpperCase()+ES.m[m].slice(1)} <em>${y}</em></div><button class="nav" data-n="1" aria-label="Mes siguiente">›</button></div>`;
+    h+='<div class="dow">'+ES.d.map(d=>`<span>${d}</span>`).join('')+'</div><div class="days">';
+    for(let i=0;i<42;i++){const d=new Date(start); d.setDate(start.getDate()+i);
+      const inR=st.a&&st.b&&d>st.a&&d<st.b;
+      const cls=['d', d.getMonth()!==m&&'out', same(d,TODAY)&&'today', (same(d,st.a)||same(d,st.b))&&'sel', EV.has(key(d))&&'ev', inR&&'range', inR&&'' ].filter(Boolean).join(' ');
+      h+=`<button class="${cls}" data-d="${key(d)}">${d.getDate()}</button>`;}
+    h+=`</div><div class="ft"><button class="a" data-t="1">Hoy</button><span class="m">${EV.size} fechas con eventos</span><button class="a" data-x="1">Limpiar</button></div>`;
+    el.innerHTML=h; paintField();
+    el.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{st.view=new Date(y,m+ +b.dataset.n,1);render();});
+    el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const [Y,M,D]=b.dataset.d.split('-').map(Number);const d=new Date(Y,M-1,D);st.chip=null;
+      if(opts.range){ if(!st.a||st.b){st.a=d;st.b=null;} else if(d<st.a){st.b=st.a;st.a=d;} else st.b=d; } else st.a=d; render();});
+    el.querySelector('[data-t]').onclick=()=>{st.a=new Date(TODAY);st.b=null;st.view=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);render();};
+    el.querySelector('[data-x]').onclick=()=>{st.a=st.b=null;st.chip=null;render();};
+    el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const i=+b.dataset.c;st.chip=i;const t=new Date(TODAY);
+      if(i===0){st.a=t;st.b=null}
+      if(i===1){const sat=new Date(t);sat.setDate(t.getDate()+((6-t.getDay()+7)%7));const sun=new Date(sat);sun.setDate(sat.getDate()+1);st.a=sat;st.b=sun}
+      if(i===2){st.a=t;const e=new Date(t);e.setDate(t.getDate()+7);st.b=e}
+      if(i===3){st.a=t;st.b=new Date(t.getFullYear(),t.getMonth()+1,0)}
+      render();});
+  }
+  render();
+}
+cal(document.getElementById('c2'),document.getElementById('f2'),{range:true});
+
+const strip=document.getElementById('strip'); let selI=0; const days=['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+function paintStrip(){ let h='';
+  for(let i=0;i<14;i++){const d=new Date(TODAY);d.setDate(TODAY.getDate()+i);const n=EV.has(key(d))?(i%3)+1:0;
+    h+=`<button class="day ${i===selI?'sel':''}" data-i="${i}"><small>${i===0?'HOY':days[d.getDay()].toUpperCase()}</small><b>${d.getDate()}</b><i>${n?n+' ev.':''}</i></button>`;}
+  h+='<button class="day" style="width:110px"><small>MÁS</small><b style="font-size:16px;margin-top:10px">Fechas…</b></button>';
+  strip.innerHTML=h; strip.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{selI=+b.dataset.i;paintStrip();}); }
+paintStrip();
+</script></body></html>

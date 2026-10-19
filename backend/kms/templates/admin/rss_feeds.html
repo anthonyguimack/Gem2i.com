@@ -1,0 +1,86 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if imported and imported != '0' %}<div class="alert alert-success">Imported {{ imported }} new post(s).</div>
+{% elif imported == '0' %}<div class="alert alert-success">Feed fetched — no new posts (all already imported).</div>{% endif %}
+{% if err == 'fetch' %}<div class="alert alert-danger">Could not fetch or parse the feed URL.</div>{% endif %}
+<div class="form-grid">
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Update Feed' if editing else 'Add Feed' }}</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/feed-save">
+          <input type="hidden" name="id" value="{{ editing.id if editing else 0 }}">
+          <input type="hidden" name="lang_id" value="{{ editing.lang_id if editing else 1 }}">
+          <div class="form-group">
+            <label class="control-label">Feed Name</label>
+            <input type="text" name="feed_name" class="form-input" required value="{{ editing.feed_name if editing else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Feed URL</label>
+            <input type="url" name="feed_url" class="form-input" required placeholder="https://example.com/rss" value="{{ editing.feed_url if editing else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Category</label>
+            <select name="category_id" class="form-input">
+              <option value="0">None</option>
+              {% for c in cats %}
+              <option value="{{ c.id }}" {{ 'selected' if editing and editing.category_id == c.id }}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Post Limit (per import)</label>
+            <input type="number" name="post_limit" class="form-input" min="1" max="50" value="{{ editing.post_limit or 10 if editing else 10 }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">"Read More" Button Text</label>
+            <input type="text" name="read_more_button_text" class="form-input" value="{{ editing.read_more_button_text or '' if editing else '' }}">
+          </div>
+          <div class="check-list">
+            <label><input type="checkbox" name="auto_update" value="1" {{ 'checked' if editing and editing.auto_update == 1 }}> Auto-update (hourly, on admin activity)</label>
+            <label><input type="checkbox" name="read_more_button" value="1" {{ 'checked' if not editing or editing.read_more_button == 1 }}> Add "Read More" link to source</label>
+            <label><input type="checkbox" name="add_posts_as_draft" value="1" {{ 'checked' if editing and editing.add_posts_as_draft == 1 }}> Import as Drafts</label>
+            <label><input type="checkbox" name="generate_keywords_from_title" value="1" {{ 'checked' if editing and editing.generate_keywords_from_title == 1 }}> Keywords from Title</label>
+          </div>
+          <button class="btn btn-primary" type="submit">{{ 'Save Changes' if editing else 'Add Feed' }}</button>
+          {% if editing %}<a href="/admin/rss-feeds" class="btn btn-default">Cancel</a>{% endif %}
+        </form>
+        <p class="text-muted mt">Imports are idempotent by post slug — re-importing skips existing posts. Scheduled auto-ingest ships with a later Phase-4 pass.</p>
+      </div>
+    </div>
+  </div>
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Feeds</h3></div>
+      <div class="box-body">
+        <table class="table">
+          <thead><tr><th>Id</th><th>Name</th><th>URL</th><th>Limit</th><th>Options</th></tr></thead>
+          <tbody>
+            {% for f in feeds %}
+            <tr>
+              <td>{{ f.id }}</td>
+              <td>{{ f.feed_name }}</td>
+              <td class="td-message">{{ f.feed_url|char_limit(60) }}</td>
+              <td>{{ f.post_limit }}</td>
+              <td class="td-actions">
+                <form method="post" action="/admin/feed-import" class="inline-form">
+                  <input type="hidden" name="feed_id" value="{{ f.id }}">
+                  <button class="btn btn-sm btn-success" type="submit">Import Now</button>
+                </form>
+                <a href="/admin/rss-feeds?edit={{ f.id }}" class="btn btn-sm btn-default">Edit</a>
+                <form method="post" action="/admin/feed-delete" class="inline-form js-confirm" data-confirm="Delete this feed? (Imported posts are kept.)">
+                  <input type="hidden" name="feed_id" value="{{ f.id }}">
+                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-muted">No feeds configured.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

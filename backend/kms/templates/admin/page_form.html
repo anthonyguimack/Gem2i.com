@@ -1,0 +1,108 @@
+{% extends "admin/_base.html" %}
+{% set is_default = page and page.is_custom == 0 %}
+{% block content %}
+<form method="post" action="/admin/page-save">
+<input type="hidden" name="id" value="{{ page.id if page else 0 }}">
+<input type="hidden" name="lang_id" value="{{ page.lang_id if page else 1 }}">
+<div class="form-grid">
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Page Details</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Title</label>
+          <input type="text" name="title" class="form-input" required value="{{ page.title if page else '' }}">
+        </div>
+        {% if not is_default %}
+        <div class="form-group">
+          <label class="control-label">Page Type</label>
+          <select name="page_type" class="form-input" id="pageType">
+            <option value="page" {{ 'selected' if not page or page.page_type != 'link' }}>Page</option>
+            <option value="link" {{ 'selected' if page and page.page_type == 'link' }}>Link</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="control-label">Slug <small>(leave blank to auto-generate)</small></label>
+          <input type="text" name="slug" class="form-input" value="{{ page.slug if page else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Link <small>(only for Link type)</small></label>
+          <input type="text" name="link" class="form-input" placeholder="https://..." value="{{ page.link or '' if page else '' }}">
+        </div>
+        {% else %}
+        <p class="text-muted">Default module page (<b>{{ page.page_default_name }}</b>) — slug and content are managed by the system.</p>
+        {% endif %}
+        <div class="form-group">
+          <label class="control-label">Description (Meta Tag)</label>
+          <input type="text" name="description" class="form-input" value="{{ page.description or '' if page else '' }}">
+        </div>
+        <div class="form-group">
+          <label class="control-label">Keywords (Meta Tag)</label>
+          <input type="text" name="keywords" class="form-input" value="{{ page.keywords or '' if page else '' }}">
+        </div>
+      </div>
+    </div>
+    {% if not is_default %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Content</h3></div>
+      <div class="box-body">
+        <textarea id="pageContent" name="page_content">{{ page.page_content or '' if page else '' }}</textarea>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Publish</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Parent Page</label>
+          <select name="parent_id" class="form-input">
+            <option value="0">None</option>
+            {% for pp in parents %}
+            <option value="{{ pp.id }}" {{ 'selected' if page and page.parent_id == pp.id }}>{{ pp.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="control-label">Location</label>
+          <select name="location" class="form-input">
+            {% for loc in ['top','footer','none'] %}
+            <option value="{{ loc }}" {{ 'selected' if (page.location if page else 'top') == loc }}>{{ loc|title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="control-label">Order</label>
+          <input type="number" name="page_order" class="form-input" value="{{ page.page_order or 0 if page else 0 }}">
+        </div>
+        <div class="check-list">
+          <label><input type="checkbox" name="visibility" value="1" {{ 'checked' if not page or page.visibility == 1 }}> Visible</label>
+          <label><input type="checkbox" name="title_active" value="1" {{ 'checked' if not page or page.title_active == 1 }}> Show Title</label>
+          <label><input type="checkbox" name="breadcrumb_active" value="1" {{ 'checked' if not page or page.breadcrumb_active == 1 }}> Show Breadcrumb</label>
+          <label><input type="checkbox" name="right_column_active" value="1" {{ 'checked' if page and page.right_column_active == 1 }}> Show Right Column</label>
+          <label><input type="checkbox" name="need_auth" value="1" {{ 'checked' if page and page.need_auth == 1 }}> Show Only to Registered Users</label>
+        </div>
+        <button class="btn btn-primary" type="submit">{{ 'Save Changes' if page else 'Add Page' }}</button>
+        <a href="/admin/pages" class="btn btn-default">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}
+{% block scripts %}
+{% if not is_default %}
+<script src="/kms-static/tinymce/tinymce.min.js"></script>
+<script>
+tinymce.init({
+  license_key: 'gpl', selector: '#pageContent',
+  height: 400, min_height: 400, valid_elements: '*[*]', relative_urls: false,
+  entity_encoding: 'raw', remove_script_host: false, menubar: true,
+  plugins: 'advlist autolink lists link image charmap preview searchreplace visualblocks code codesample fullscreen insertdatetime media table',
+  toolbar: 'fullscreen code preview | undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | numlist bullist | forecolor backcolor removeformat | image media link',
+  promotion: false, branding: false
+});
+</script>
+{% endif %}
+{% endblock %}

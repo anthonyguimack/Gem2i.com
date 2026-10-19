@@ -11,6 +11,7 @@
 | systemd | gem2i-backend (uvicorn server:app :8050) |
 | MongoDB | gem2i_cms (local mongod) |
 | Health | `https://beta.gem2i.com/api/health` → 200 |
+| KMS / Insights | **https://insightsbeta.gem2i.com** — nginx vhost `insightsbeta.gem2i.com` (`/` → `127.0.0.1:8050/insights/`, from `scripts/gem2i_insights_nginx.conf`), LE cert via `certbot --nginx`. Same backend service; dormant unless `settings.kms_native_enabled`. |
 
 ⚠ **NEVER** deploy to or touch the brand boxes: carlos 34.238.109.173 · aurex 18.232.233.16 · acapital 52.55.141.150. The provision script hard-refuses those IPs.
 
@@ -42,3 +43,5 @@
 - **Cutover to gem2i.com:** follow `work-plans-MD/GEM2I_CUTOVER_RUNBOOK.md`. The frontend API URL is baked at build time (`frontend/.env` on the box: `REACT_APP_BACKEND_URL`) and CORS lives in `backend/.env` (`CORS_ORIGINS`) — both must change with the domain.
 - **Re-running the ETL loaders is delta-safe since 2026-09-23:** docs with `updated_at` (edited in the CMS / by the member) are skipped unless `--overwrite-edited`.
 - No local Python venv with FastAPI on this machine: `py_compile` is the only local backend check; the real import test is the deploy (auto-rollback on failure).
+- **KMS deploys (2026-10-19):** the KMS is Python + Jinja inside `backend/kms/` — the smart deploy ships it like any backend file (templates/static included); no frontend build. A requirements change triggers pip on the box (first KMS deploy took 10m46s).
+- **Geo data:** `scripts/out/` is gitignored; regenerate with `python -I scripts/gem2i_etl_geo.py <gem2ica_production.sql>` and load on the box with `backend/venv/bin/python scripts/gem2i_load_geo.py scripts/out` (idempotent).

@@ -1,0 +1,103 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="form-grid">
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Categories</h3></div>
+      <div class="box-body">
+        <div class="table-responsive">
+        <table class="table">
+          <thead><tr><th>Id</th><th>Name</th><th>Slug</th><th>Parent</th><th>Block</th><th>Order</th><th>Posts</th><th>Options</th></tr></thead>
+          <tbody>
+            {% for c in cats %}
+            <tr>
+              <td>{{ c.id }}</td>
+              <td>{{ '— ' if c.parent_id }}<span class="cat-dot" style="background:{{ c.color or '#2d65fe' }}"></span> {{ c.name }}</td>
+              <td>{{ c.slug }}</td>
+              <td>{% set par = cats|selectattr('id','equalto',c.parent_id)|first %}{{ par.name if par else '-' }}</td>
+              <td>{{ c.block_type or '-' }}</td>
+              <td>{{ c.category_order }}</td>
+              <td>{{ counts.get(c.id, 0) }}</td>
+              <td class="td-actions">
+                <a href="/admin/categories?edit={{ c.id }}" class="btn btn-sm btn-default">Edit</a>
+                <form method="post" action="/admin/category-delete" class="inline-form js-confirm" data-confirm="Delete this category?">
+                  <input type="hidden" name="cat_id" value="{{ c.id }}">
+                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Update Category' if editing else 'Add Category' }}</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/category-save">
+          <input type="hidden" name="id" value="{{ editing.id if editing else 0 }}">
+          <input type="hidden" name="lang_id" value="{{ editing.lang_id if editing else 1 }}">
+          <div class="form-group">
+            <label class="control-label">Category Name</label>
+            <input type="text" name="name" class="form-input" required value="{{ editing.name if editing else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Slug <small>(leave blank to auto-generate)</small></label>
+            <input type="text" name="slug" class="form-input" value="{{ editing.slug if editing else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Parent Category</label>
+            <select name="parent_id" class="form-input">
+              <option value="0">None</option>
+              {% for c in cats if not c.parent_id and (not editing or c.id != editing.id) %}
+              <option value="{{ c.id }}" {{ 'selected' if editing and editing.parent_id == c.id }}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Description (Meta Tag)</label>
+            <input type="text" name="description" class="form-input" value="{{ editing.description or '' if editing else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Keywords (Meta Tag)</label>
+            <input type="text" name="keywords" class="form-input" value="{{ editing.keywords or '' if editing else '' }}">
+          </div>
+          <div class="form-group half-row">
+            <span>
+              <label class="control-label">Color</label>
+              <input type="color" name="color" class="form-input input-color" value="{{ editing.color or '#2d65fe' if editing else '#2d65fe' }}">
+            </span>
+            <span>
+              <label class="control-label">Order</label>
+              <input type="number" name="category_order" class="form-input" value="{{ editing.category_order or 0 if editing else 0 }}">
+            </span>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Block Style (homepage)</label>
+            <select name="block_type" class="form-input">
+              {% for b in ['block-1','block-2','block-3','block-4','block-5','block-6'] %}
+              <option value="{{ b }}" {{ 'selected' if editing and editing.block_type == b }}>{{ b|title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Default thumbnail (fallback)</label>
+            <input type="text" name="default_image" class="form-input" value="{{ editing.default_image or '' if editing else '' }}" placeholder="/api/uploads/... or /uploads/...">
+            <small class="text-muted">Used as the post image when a post in this (sub)category has none of its own. Leave blank for the normal behaviour.</small>
+          </div>
+          <div class="check-list">
+            <label><input type="checkbox" name="show_on_homepage" value="1" {{ 'checked' if not editing or editing.show_on_homepage == 1 }}> Show on Homepage</label>
+            <label><input type="checkbox" name="show_on_menu" value="1" {{ 'checked' if not editing or editing.show_on_menu == 1 }}> Show on Menu</label>
+            <label><input type="checkbox" name="compose_company_logo" value="1" {{ 'checked' if editing and editing.compose_company_logo == 1 }}> Compose linked company logo onto the default thumbnail</label>
+          </div>
+          <button class="btn btn-primary" type="submit">{{ 'Save Changes' if editing else 'Add Category' }}</button>
+          {% if editing %}<a href="/admin/categories" class="btn btn-default">Cancel</a>{% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

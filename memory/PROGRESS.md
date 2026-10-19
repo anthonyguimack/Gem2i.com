@@ -2,6 +2,22 @@
 
 ---
 
+## 2026-10-19 (session 9, Anthony's machine) — catalog pages v2, page heroes, About, geo, calendar CA-2, KMS installed (all DEPLOYED to beta)
+
+**Shipped (beta.gem2i.com, health 200 after every deploy; checked live with curl/JS):**
+- **Small fixes:** venue logo circle clips its image (`overflow-hidden`); Partners logos grayscale → colour on hover; Clients section reads Section Manager `gem_clients_cfg` (subtitle, CTA, max) + name/description cards (data: `scripts/gem2i_fill_clients.js`, backup `clients_before_fill_*`).
+- **Footer:** FT-1 blue band kept + FT-4b dark part (brand · Discover · Company · Offices · Follow; bottom bar with legal + EN/ES switch). Bocetos `footer-v2.html`, `footer-ft4b.html`.
+- **Catalog pages v2** (bocetos `catalogos-paginas.html`, all approved): shared `components/gem2i/GemCatalogCards.js` (one card hover = legacy left→right veil wipe + zoom + info rise + logo grey→colour; SearchBar; ContinentTabs incl. USA; Segmented). Events (Current/Past, Event/List view, type tag, Buy tickets), Festivals (featured bento, lineup names, Upcoming/Past only when any upcoming), Artists (ranking column Gem2i/DJ Mag/RA top 10 + Ranking/All + grid), Venues (Top strip = CMS Featured else first by order; Photo/Logo view), new `/about` page (`pages/gem2i/Gem2iAbout.js`).
+- **Backend catalog filters** (`routes/gem_catalogs.py`): city/state/position/country-contains on artists/venues/festivals/events; `venues-top`, `festivals-meta`, `places` (geo-fed country/state + city type-ahead), `catalog-dates` (calendar dots), `hero-events`, `date_from/date_to` on events + festivals.
+- **Page heroes:** Hero slide → Page Assignment now lists system pages about/events/festivals/artists/venues (`/public/site-pages`, menu duplicates dropped). Inner pages render the SAME hero as the home (active template A/B/C, full height, `.gem-tpl-wide` on 02). Hero slides get admin-only **Name Slide** (`name`) — list + pickers use it.
+- **Events → hero slides:** with "Show on the GEM2i portal" on, the Events manager lists live slides (`hero_slide_ids`); heroes show ONLY events pinned to the current slide (no "next event" fallback). Events manager: Date field readable (light scheme), all "(HTML allowed)" fields → RichTextEditor.
+- **About:** CMS → About gets Key figures (stats) + **Page sections** (order/show-hide Methodology · Offices · Team · Contact with their texts) using the new house widget `components/admin/SortableSectionList.js` (D-GEM-2026-09). Sample content + real phone/signature/button (`scripts/gem2i_about_sample.js`, `gem2i_about_fill.js`; backups `about_before_sample_*`, `about_fill_before_*`).
+- **Geo:** full world list from the legacy dump (`countries2`/`states`/`cities`) → `countries` 249 · `states` 1,259 · `cities` 57,949 (`scripts/gem2i_etl_geo.py` local → `scripts/out/` (gitignored) → `scripts/gem2i_load_geo.py` on box; existing ids kept; backup `geo_before_legacy_*`). Some legacy city names lost accents in the source ("Alcal").
+- **Calendar CA-2** (`components/gem2i/GemDateRange.js`, bocetos `calendario*.html`): shortcuts, from–to range, event dots, keyboard, mobile bottom sheet — on Events + Festivals.
+- **KMS installed tal cual from A Capital** (D-GEM-2026-10): `backend/kms/` @1775e05 at `/insights`, served on **https://insightsbeta.gem2i.com** (vhost `scripts/gem2i_insights_nginx.conf`, LE cert), `settings.kms_native_enabled=true`, `kms_native_base`. My Account SSO Quick Link `qlink_kms` "Insights" granted to Nivel 0/1. New pip deps html5lib, tinycss2. KMS data empty.
+
+**Open / human:** test My Account → Insights SSO with a login; KMS design work (waiting on Anthony); name the 2 hero slides; assign slides to inner pages; Events "CA-3" day strip not built (only CA-2 approved); team photos; lighting look; Testimonials content.
+
 ## 2026-10-17 (session 8, part 4) — Page Builder per-section background image (DEPLOYED to beta)
 - `SectionOrderManager.js`: gem2i themes get a "Background image" upload (`section_configs[theme][key].bg_image`), "Remove image (use colour)" link and a "Colour veil" slider (`bg_overlay`, 0–95, default 70).
 - `Gem2iHome.js` wrapper: with an image paints `linear-gradient(veil,veil), url(img)` where veil = `color-mix(section colour | #04080C, overlay%)`; tone (light/dark text) follows the veil colour; no image → the section colour as before (`gem-has-img` class added).

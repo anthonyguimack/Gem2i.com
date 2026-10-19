@@ -1,0 +1,218 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Settings saved.</div>{% endif %}
+
+{% if langs|length > 1 %}
+<div class="box box-settings">
+  <div class="box-body">
+    <div class="form-group m0">
+      <label class="control-label">Settings Language</label>
+      <select class="form-input" onchange="location='/admin/general-settings?slang='+this.value">
+        {% for l in langs %}
+        <option value="{{ l.id }}" {{ 'selected' if l.id == slang }}>{{ l.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="box box-settings">
+  <div class="gs-tabs" id="gsTabs">
+    {% set TABS = [('general','General Settings'),('logo','Logo'),('contact','Contact Settings'),('social','Social Media Settings'),('fbcomments','Facebook Comments'),('cookies','Cookies Warning'),('headercodes','Custom Header Codes'),('footercodes','Custom Footer Codes')] %}
+    {% for tid, tlabel in TABS %}
+    <button type="button" class="gs-tab{{ ' active' if tab == tid }}" data-tab="{{ tid }}">{{ tlabel }}</button>
+    {% endfor %}
+  </div>
+  <div class="box-body">
+
+    <div class="gs-panel" data-panel="general" {{ 'hidden' if tab != 'general' }}>
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="general">
+        <input type="hidden" name="form_keys" value="timezone,application_name,about_footer,optional_url_button_name,copyright">
+        <div class="form-group">
+          <label class="control-label">Timezone</label>
+          <select name="timezone" class="form-input">
+            {% for tz in timezones %}<option value="{{ tz }}" {{ 'selected' if tz == g.timezone }}>{{ tz }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label class="control-label">Application Name</label>
+          <input type="text" name="application_name" class="form-input" value="{{ l.application_name or '' }}"></div>
+        <div class="form-group"><label class="control-label">Footer About Section</label>
+          <textarea name="about_footer" class="form-input" rows="5">{{ l.about_footer or '' }}</textarea></div>
+        <div class="form-group"><label class="control-label">Post Optional URL Button Name</label>
+          <input type="text" name="optional_url_button_name" class="form-input" value="{{ l.optional_url_button_name or '' }}"></div>
+        <div class="form-group"><label class="control-label">Copyright</label>
+          <input type="text" name="copyright" class="form-input" value="{{ l.copyright or '' }}"></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+    <div class="gs-panel" data-panel="logo" {{ 'hidden' if tab != 'logo' }}>
+      <div class="alert alert-info">
+        The brand marks below are managed in the <strong>platform CMS &rarr; Settings &rarr; General</strong>
+        and mirrored here, so there is only ever one version of each. Upload or replace them there.
+      </div>
+      {% for lbl, url, cms_field in [('Logo', logo, 'Logo On #2'),
+                                     ('Footer Logo', logo_footer, 'Logo On #1'),
+                                     ('Email Logo', logo_email, 'Logo On #2'),
+                                     ('Favicon', favicon, 'Favicon')] %}
+      <div class="form-group">
+        <label class="control-label">{{ lbl }} <small>from CMS "{{ cms_field }}"</small></label>
+        {% if url %}<div class="settings-img-preview"><img src="{{ url }}" alt=""></div>
+        {% else %}<p class="text-muted">Not set in the CMS yet.</p>{% endif %}
+      </div>
+      {% endfor %}
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="logo">
+        <input type="hidden" name="form_keys" value="logo_size">
+        <div class="form-group"><label class="control-label">Logo Size (px height)</label>
+          <input type="text" name="logo_size" class="form-input" value="{{ g.logo_size or '' }}"></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+    <div class="gs-panel" data-panel="contact" {{ 'hidden' if tab != 'contact' }}>
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="contact">
+        <input type="hidden" name="form_keys" value="contact_text,contact_address,contact_email,contact_phone">
+        <div class="form-group"><label class="control-label">Contact Page Text</label>
+          <textarea name="contact_text" class="form-input" rows="4">{{ l.contact_text or '' }}</textarea></div>
+        <div class="form-group"><label class="control-label">Address</label>
+          <input type="text" name="contact_address" class="form-input" value="{{ l.contact_address or '' }}"></div>
+        <div class="form-group"><label class="control-label">Email</label>
+          <input type="text" name="contact_email" class="form-input" value="{{ l.contact_email or '' }}"></div>
+        <div class="form-group"><label class="control-label">Phone</label>
+          <input type="text" name="contact_phone" class="form-input" value="{{ l.contact_phone or '' }}"></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+    <div class="gs-panel" data-panel="social" {{ 'hidden' if tab != 'social' }}>
+      {# SOCIAL_LINKS_KMS_SYNC_PLAN (D3): social networks are now managed centrally in the
+         CMS so the website and this platform stay in sync. This tab is read-only; the old
+         per-language fields remain in the database but are no longer used. #}
+      <div class="gs-notice">
+        <h3 style="margin:0 0 6px;">Managed in the CMS</h3>
+        <p class="text-muted" style="margin:0 0 10px;">
+          Social networks are now edited in one place — <strong>CMS&nbsp;→&nbsp;Settings&nbsp;→&nbsp;Social&nbsp;Links</strong>.
+          Whatever is marked <strong>Active</strong> there drives this platform's footer links and the
+          share buttons on posts automatically. There's nothing to configure here anymore.
+        </p>
+        {% if brand_social_links %}
+        <p class="text-muted" style="margin:0 0 6px;">Currently active networks:</p>
+        <div class="follow-links">
+          {% for s in brand_social_links %}<a href="{{ s.url }}" target="_blank" rel="noopener" class="follow-link" title="{{ s.label }}">{{ s.label }}</a>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="gs-panel" data-panel="fbcomments" {{ 'hidden' if tab != 'fbcomments' }}>
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="fbcomments">
+        <input type="hidden" name="form_keys" value="facebook_comment_active,facebook_comment">
+        <div class="check-list">
+          <label><input type="checkbox" name="facebook_comment_active" value="1" {{ 'checked' if g.facebook_comment_active == 1 }}> Enable Facebook Comments on posts</label>
+        </div>
+        <div class="form-group"><label class="control-label">Facebook Comments Code <small>(the plugin/SDK snippet from developers.facebook.com)</small></label>
+          <textarea name="facebook_comment" class="form-input" rows="5">{{ g.facebook_comment or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+    <div class="gs-panel" data-panel="cookies" {{ 'hidden' if tab != 'cookies' }}>
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="cookies">
+        <input type="hidden" name="form_keys" value="cookies_warning,cookies_warning_text">
+        <div class="check-list">
+          <label><input type="checkbox" name="cookies_warning" value="1" {{ 'checked' if l.cookies_warning == 1 }}> Show Cookies Warning</label>
+        </div>
+        <div class="form-group"><label class="control-label">Cookies Warning Text</label>
+          <textarea name="cookies_warning_text" class="form-input" rows="4">{{ l.cookies_warning_text or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+    <div class="gs-panel" data-panel="headercodes" {{ 'hidden' if tab != 'headercodes' }}>
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="headercodes">
+        <input type="hidden" name="form_keys" value="custom_header_codes">
+        <div class="form-group"><label class="control-label">Custom Header Codes <small>(injected into every public page &lt;head&gt;)</small></label>
+          <textarea name="custom_header_codes" class="form-input" rows="8">{{ g.custom_header_codes or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+    <div class="gs-panel" data-panel="footercodes" {{ 'hidden' if tab != 'footercodes' }}>
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="footercodes">
+        <input type="hidden" name="form_keys" value="custom_footer_codes">
+        <div class="form-group"><label class="control-label">Custom Footer Codes <small>(injected before &lt;/body&gt; on every public page)</small></label>
+          <textarea name="custom_footer_codes" class="form-input" rows="8">{{ g.custom_footer_codes or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<div class="gs-two-col">
+  <div class="box">
+    <div class="box-header"><h3 class="box-title">Google reCAPTCHA</h3></div>
+    <div class="box-body">
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="general">
+        <input type="hidden" name="form_keys" value="recaptcha_site_key,recaptcha_secret_key">
+        <div class="form-group"><label class="control-label">Site Key</label>
+          <input type="text" name="recaptcha_site_key" class="form-input" value="{{ g.recaptcha_site_key or '' }}"></div>
+        <div class="form-group"><label class="control-label">Secret Key <small>(leave masked to keep the stored value)</small></label>
+          <input type="password" name="recaptcha_secret_key" class="form-input" autocomplete="new-password"
+                 value="{{ '********' if g.recaptcha_secret_key else '' }}"></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-header"><h3 class="box-title">Maintenance Mode</h3></div>
+    <div class="box-body">
+      <form method="post" action="/admin/general-settings-save">
+        <input type="hidden" name="slang" value="{{ slang }}"><input type="hidden" name="tab" value="general">
+        <input type="hidden" name="form_keys" value="maintenance_mode_status,maintenance_mode_title,maintenance_mode_description">
+        <div class="check-list">
+          <label><input type="checkbox" name="maintenance_mode_status" value="1" {{ 'checked' if g.maintenance_mode_status == 1 }}> Enable Maintenance Mode <small>(admins &amp; authors still see the site)</small></label>
+        </div>
+        <div class="form-group"><label class="control-label">Title</label>
+          <input type="text" name="maintenance_mode_title" class="form-input" value="{{ g.maintenance_mode_title or '' }}"></div>
+        <div class="form-group"><label class="control-label">Description</label>
+          <textarea name="maintenance_mode_description" class="form-input" rows="3">{{ g.maintenance_mode_description or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll("#gsTabs .gs-tab").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#gsTabs .gs-tab").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      document.querySelectorAll(".gs-panel").forEach(function (p) {
+        p.hidden = p.dataset.panel !== b.dataset.tab;
+      });
+      history.replaceState(null, "", "/admin/general-settings?slang={{ slang }}&tab=" + b.dataset.tab);
+    });
+  });
+  var rows = document.getElementById("socialRows");
+  var tpl = document.getElementById("socialRowTpl");
+  var add = document.getElementById("btnAddSocial");
+  if (add && rows && tpl) add.addEventListener("click", function () {
+    rows.appendChild(tpl.content.cloneNode(true));
+  });
+  if (rows) rows.addEventListener("click", function (e) {
+    if (e.target.classList.contains("social-remove")) e.target.closest(".social-row").remove();
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Páginas de catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bg2:#0A121A; --card:#0D1721; --line:rgba(255,255,255,.09); --accent:#0068b3; --link:#5AAFEA; --body:#b4c0cb; --muted:#8a98a6; --ease:cubic-bezier(.19,1,.22,1); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  a { color:inherit; text-decoration:none; }
+  .nav { position:sticky; top:0; z-index:50; background:rgba(8,11,16,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); display:flex; gap:6px; flex-wrap:wrap; padding:12px 24px; }
+  .nav a { padding:8px 14px; border-radius:999px; font-size:14px; color:var(--body); border:1px solid var(--line); }
+  .nav a:hover { color:#fff; border-color:var(--link); }
+  .group { max-width:1600px; margin:0 auto; padding:64px 24px 10px; }
+  .group h1 { margin:0; font-size:26px; } .group h2 { margin:0; font-size:22px; }
+  .group p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.65; max-width:1000px; }
+  .label { max-width:1600px; margin:0 auto; padding:28px 24px 12px; font-size:15px; color:#a9b6c2; line-height:1.6; }
+  .label b { color:#fff; margin-right:8px; font-size:17px; }
+  .frame { max-width:1600px; margin:0 auto; border-radius:14px; overflow:hidden; background:var(--bg); }
+  .pad { padding:64px clamp(20px,4vw,72px); }
+  .eyebrow { display:inline-flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--link); }
+  .eyebrow::before { content:''; width:32px; height:2px; background:var(--accent); }
+  .h { font-family:'Playfair Display',serif; font-weight:700; line-height:1.06; margin:12px 0 0; font-size:clamp(34px,4vw,52px); }
+  .h em { font-style:italic; font-weight:500; color:var(--link); }
+  .muted { color:var(--body); font-size:16px; line-height:1.75; }
+  .btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:#fff; border-radius:999px; padding:12px 22px; font-weight:600; font-size:15px; border:0; font-family:inherit; cursor:pointer; }
+  .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,.3); }
+  .btn.red { background:#c8323b; }
+
+  /* ── search bar + continent tabs (all catalogs) ── */
+  .search { display:grid; gap:10px; grid-template-columns:repeat(var(--n,4),1fr) auto auto; align-items:center; background:var(--bg2); border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .search input { background:var(--card); border:1px solid var(--line); color:#fff; border-radius:10px; padding:12px 14px; font:inherit; font-size:14px; width:100%; }
+  .search input::placeholder { color:var(--muted); }
+  .tabs { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 22px; }
+  .chip { display:inline-flex; align-items:center; padding:8px 16px; border-radius:999px; border:1px solid var(--line); font-size:14px; color:var(--body); cursor:pointer; background:none; font-family:inherit; }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:4px; gap:4px; }
+  .seg button { background:none; border:0; color:var(--body); font:inherit; font-size:14px; padding:8px 16px; border-radius:999px; cursor:pointer; }
+  .seg button.on { background:#fff; color:#04080C; font-weight:700; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; align-items:center; margin-top:28px; }
+
+  /* ── THE shared card hover (beta: venues grid) + legacy wipe ──
+     rest:   photo, number chip, logo circle in grey
+     hover:  photo zooms 1.05 · dark veil wipes in left→right (legacy .event-single::before)
+             · info rises + fades in · logo turns to colour · "View details" button */
+  .card { position:relative; display:block; overflow:hidden; background:var(--card); isolation:isolate; }
+  .card .ph { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .7s ease-out; }
+  .card::before { content:''; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%); transform:scaleX(0); transform-origin:right center; transition:transform 1s var(--ease); }
+  .card:hover::before, .card:focus-visible::before { transform:scaleX(1); transform-origin:left center; }
+  .card:hover .ph, .card:focus-visible .ph { transform:scale(1.05); }
+  .num { position:absolute; left:14px; top:14px; z-index:3; min-width:40px; height:40px; padding:0 8px; display:inline-flex; align-items:center; justify-content:center; background:var(--accent); font-weight:700; font-size:17px; font-variant-numeric:tabular-nums; }
+  .tag { position:absolute; left:14px; top:14px; z-index:3; padding:6px 12px; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; background:rgba(4,8,12,.8); border:1px solid rgba(255,255,255,.15); }
+  .tag.tk { background:var(--accent); border-color:var(--accent); } .tag.gl { background:#2fbf71; border-color:#2fbf71; color:#04210f; }
+  .logo { position:absolute; right:14px; top:14px; z-index:3; width:84px; height:84px; border-radius:50%; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; padding:12px; box-shadow:0 8px 20px -8px rgba(0,0,0,.5); }
+  .logo img { max-width:100%; max-height:100%; object-fit:contain; filter:grayscale(1); opacity:.85; transition:filter .3s, opacity .3s; }
+  .card:hover .logo img { filter:none; opacity:1; }
+  .info { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:22px 22px 20px; border-top:1px solid rgba(255,255,255,.1); opacity:0; transform:translateY(18px); transition:opacity .5s, transform 1.2s var(--ease); }
+  .card:hover .info, .card:focus-visible .info { opacity:1; transform:none; }
+  .info b { display:block; font-size:22px; font-weight:600; line-height:1.2; }
+  .info .m { margin-top:6px; display:flex; flex-direction:column; gap:3px; font-size:14px; color:#d6e2ec; }
+  .info .more { margin-top:12px; display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,.8); padding:6px 14px; font-size:14px; font-weight:500; }
+  .info .gen { margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; } .info .gen span { font-size:12px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.12); }
+  /* always-visible name strip (for photo-only grids where a name is needed at rest) */
+  .strip { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:14px 18px; background:linear-gradient(180deg,transparent,rgba(4,8,12,.85)); font-weight:600; transition:opacity .3s; }
+  .card:hover .strip { opacity:0; }
+  .grid { display:grid; gap:6px; }
+  /* list view (events) */
+  .lrow { display:grid; grid-template-columns:280px 1fr auto; gap:24px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; transition:border-color .3s, transform .3s; }
+  .lrow:hover { border-color:rgba(90,175,234,.5); transform:translateY(-2px); }
+  .lrow img { width:100%; height:170px; object-fit:cover; display:block; }
+  .lrow .meta { display:flex; flex-wrap:wrap; gap:6px 18px; color:var(--body); font-size:14px; margin-top:8px; }
+  /* ranking */
+  .rank { background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; position:sticky; top:80px; }
+  .rank .rt { display:flex; border-bottom:1px solid var(--line); }
+  .rank .rt button { flex:1; background:none; border:0; color:var(--body); font:inherit; font-size:14px; padding:14px 8px; cursor:pointer; border-bottom:2px solid transparent; }
+  .rank .rt button.on { color:#fff; border-color:var(--link); font-weight:700; }
+  .rank ol { list-style:none; margin:0; padding:8px 0; }
+  .rank li a { display:grid; grid-template-columns:40px 44px 1fr auto; gap:12px; align-items:center; padding:9px 20px; transition:background .2s; }
+  .rank li a:hover { background:rgba(90,175,234,.08); }
+  .rank li .p { font-weight:800; color:var(--link); font-variant-numeric:tabular-nums; font-size:18px; }
+  .rank li img { width:44px; height:44px; border-radius:50%; object-fit:cover; filter:grayscale(1); }
+  .rank li a:hover img { filter:none; }
+  .rank li .d { font-size:12px; color:var(--muted); }
+  .rank .ft { padding:14px 20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); text-align:center; }
+  .note { max-width:1600px; margin:0 auto; padding:20px 24px 10px; color:var(--muted); font-size:14px; line-height:1.7; }
+  .note b { color:#fff; }
+  .fields { max-width:1600px; margin:0 auto; padding:0 24px; }
+  .fields table { width:100%; border-collapse:collapse; font-size:14px; } .fields td, .fields th { border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; color:var(--body); vertical-align:top; } .fields th { color:#fff; }
+  .stat b { display:block; font-family:'Playfair Display',serif; font-size:48px; color:#fff; } .stat span { color:var(--body); font-size:14px; }
+  .scroller { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(300px,1fr); gap:6px; overflow-x:auto; scrollbar-width:thin; }
+  @media (prefers-reduced-motion:reduce){ .card::before,.card .ph,.info,.logo img{transition:none !important} }
+  @media (max-width:1000px){ .gx{grid-template-columns:1fr !important} .search{grid-template-columns:1fr 1fr} .lrow{grid-template-columns:1fr} .rank{position:static} }
+</style>
+</head>
+<body>
+<nav class="nav"><a href="#about">About</a><a href="#events">Events</a><a href="#festivals">Festivals</a><a href="#artists">Artists</a><a href="#venues">Venues</a><a href="#hover">Efecto hover</a></nav>
+
+<div class="group">
+  <h1>Bocetos: About, Events, Festivals, Artists y Venues</h1>
+  <p>Mismo lenguaje que la home de beta (fondo oscuro, Playfair + Manrope, azul #0068b3). Todas las tarjetas usan <b>un solo efecto al pasar el mouse</b>: es el de la grilla de Venues de beta (zoom de la foto y el logo pasa de gris a color), y además recupera el barrido del sitio antiguo: un velo oscuro que entra de izquierda a derecha mientras el texto sube. <b>Pasa el mouse por las tarjetas.</b> Las fotos, nombres y rankings son datos reales de beta.</p>
+</div>
+
+<!-- ═════════════ HOVER ═════════════ -->
+<div class="group" id="hover"><h2>0 · El efecto, una sola vez</h2>
+<p>En reposo: la foto, el número (o la etiqueta del tipo de evento) y el logo en gris. Al pasar el mouse: el velo barre en 1 s con la curva del sitio antiguo, la foto hace zoom, el texto sube y aparece, y el logo toma color. También funciona con el teclado (foco) y se desactiva para quien pide menos movimiento.</p></div>
+
+<!-- ═════════════ ABOUT ═════════════ -->
+<div class="group" id="about"><h2>1 · About (/about), con contenido de ejemplo</h2></div>
+<div class="label"><b>AB-1</b>Cabecera con foto, historia en dos columnas, cifras, metodología, oficinas y equipo. Termina con un bloque de contacto. Todos los textos se editan en el CMS.</div>
+<div class="frame">
+  <div style="position:relative;min-height:440px;display:flex;align-items:flex-end;background:url(https://beta.gem2i.com/api/uploads/gem2i/backgrounds/bg_crowd.jpg) center/cover">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,8,12,.35),rgba(4,8,12,.95))"></div>
+    <div class="pad" style="position:relative;max-width:900px">
+      <span class="eyebrow">About us</span>
+      <h2 class="h" style="font-size:clamp(40px,5vw,68px)">Three decades behind the <em>night</em></h2>
+      <p class="muted" style="font-size:18px;margin-top:16px">Global Entertainment Management &amp; Marketing Integration: marketing, media and business integration for the entertainment and service industry.</p>
+    </div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:1fr 1fr;gap:56px">
+    <div><span class="eyebrow">Our story</span><h3 class="h" style="font-size:36px">From a promotions partnership to a <em>global network</em></h3></div>
+    <div class="muted">
+      <p style="margin-top:0">GEM2i's origins date back to an entertainment and promotions partnership first established in 1993. In 2002 it was reorganized to serve different segments and demographics of the nightlife and live-music business.</p>
+      <p>With our proprietary business development methodology we connect promoters, festivals, venues and artists in more than 17 markets across North America, South America, Europe and Asia, designing strategies that fit our clients and their audiences.</p>
+    </div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-top:44px;padding-bottom:44px">
+    <div class="stat"><b>1993</b><span>First partnership</span></div>
+    <div class="stat"><b>17+</b><span>Markets on 4 continents</span></div>
+    <div class="stat"><b>1,700+</b><span>Events on the platform</span></div>
+    <div class="stat"><b>500+</b><span>Artists in our catalog</span></div>
+  </div>
+  <div class="pad">
+    <span class="eyebrow">How we work</span><h3 class="h" style="font-size:36px">Our <em>methodology</em></h3>
+    <div class="gx" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px">
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px"><b style="color:var(--link);font-size:13px;letter-spacing:.18em">GOAL DEFINITION</b><p class="muted" style="margin:10px 0 0">We map the client's audience, market and business targets before any campaign starts.</p></div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px"><b style="color:var(--link);font-size:13px;letter-spacing:.18em">ANALYSIS</b><p class="muted" style="margin:10px 0 0">Data from venues, ticketing and social reach shape a model built for that market.</p></div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px"><b style="color:var(--link);font-size:13px;letter-spacing:.18em">IMPLEMENTATION</b><p class="muted" style="margin:10px 0 0">Our regional partners execute the events, media and activations, and we measure every one.</p></div>
+    </div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:1fr 1.4fr;gap:48px;background:var(--bg2)">
+    <div><span class="eyebrow">Where we are</span><h3 class="h" style="font-size:36px">Five offices, <em>one team</em></h3><p class="muted">Offices come from CMS → Maps &amp; Locations (the same data as the home map and the footer).</p></div>
+    <div class="gx" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><b>New York, USA</b><div class="muted" style="font-size:14px">Headquarters · North America &amp; Global</div></div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><b>Spain</b><div class="muted" style="font-size:14px">Europe · Commercial management</div></div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><b>Lima, Peru</b><div class="muted" style="font-size:14px">South America · Corporate representative</div></div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><b>Buenos Aires, Argentina</b><div class="muted" style="font-size:14px">South America · Corporate representative</div></div>
+      <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><b>Santo Domingo, D.R.</b><div class="muted" style="font-size:14px">Central America · Corporate representative</div></div>
+    </div>
+  </div>
+  <div class="pad"><span class="eyebrow">Team</span><h3 class="h" style="font-size:36px">The people <em>behind it</em></h3>
+    <div class="grid gx" id="team" style="grid-template-columns:repeat(6,1fr);margin-top:28px;gap:12px"></div></div>
+  <div class="pad" style="background:linear-gradient(90deg,#002444,#0068b3);display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center">
+    <h3 class="h" style="font-size:34px;margin:0">Planning an event, a tour or a <em style="color:#cfe9f8">launch</em>?</h3>
+    <a class="btn" style="background:#fff;color:#002444">Contact us →</a>
+  </div>
+</div>
+
+<!-- ═════════════ EVENTS ═════════════ -->
+<div class="group" id="events"><h2>2 · Events (/events)</h2></div>
+<div class="label"><b>EV-1 · Vista de eventos</b>Tiene los mismos controles que el sitio antiguo: Current/Past, Event view/List view y búsqueda por país, ciudad, nombre y fecha. La etiqueta del tipo de evento (INFO, E-TICKET, GUEST LIST) queda siempre visible. Al pasar el mouse aparecen título, fecha, apertura, venue y ciudad, país y "View details" (o "Buy tickets" si es e-ticket).</div>
+<div class="frame"><div class="pad">
+  <span class="eyebrow">All</span><h2 class="h">Upcoming <em>events</em></h2>
+  <div class="toolbar"><div class="seg"><button class="on">Current events</button><button>Past events</button></div><div class="seg"><button class="on">Event view</button><button>List view</button></div></div>
+  <div class="search" style="--n:4;margin-top:18px"><input placeholder="by country…"><input placeholder="by city…"><input placeholder="by event name…"><input placeholder="MM/DD/YYYY"><button class="btn">Search</button><button class="btn ghost">Reset</button></div>
+  <div class="grid gx" id="events-grid" style="grid-template-columns:repeat(4,1fr);margin-top:24px"></div>
+</div></div>
+<div class="label"><b>EV-1 · List view</b>Es la vista de lista del sitio antiguo: el flyer a la izquierda y los datos a la derecha. Al pasar el mouse la fila se ilumina.</div>
+<div class="frame"><div class="pad" id="events-list" style="display:flex;flex-direction:column;gap:12px"></div></div>
+
+<!-- ═════════════ FESTIVALS ═════════════ -->
+<div class="group" id="festivals"><h2>3 · Festivals (/festivals)</h2>
+<p><b>Datos:</b> en beta ya hay <b>188 festivales activos</b> y la API pública los devuelve (los más recientes: Ultra Miami 2023 y EDC Las Vegas 2022). En el sitio antiguo la página sale vacía porque filtra por fecha futura y ninguno tiene fecha próxima. Propongo mostrar todos los activos, ordenados por fecha, con un selector Upcoming/Past (como Events) que solo aparece cuando hay festivales futuros.</p></div>
+<div class="label"><b>FE-1 · Destacado + grilla</b>El primer festival se muestra grande, con el bento de la home ampliado. Debajo va la grilla con búsqueda por nombre, fecha, país y ciudad, y las pestañas de continente. Al pasar el mouse aparecen nombre, rango de fechas, estado y país, el lineup (primeros 3 artistas) y "View details".</div>
+<div class="frame"><div class="pad">
+  <span class="eyebrow">Global</span><h2 class="h">Festivals <em>worldwide</em></h2>
+  <div class="search" style="--n:4;margin-top:28px"><input placeholder="by name…"><input placeholder="MM/DD/YYYY"><input placeholder="by country…"><input placeholder="by city…"><button class="btn">Search</button><button class="btn red">Reset</button></div>
+  <div class="tabs" id="cont-f"></div>
+  <div class="grid gx" id="fest-grid" style="grid-template-columns:repeat(4,1fr);grid-auto-rows:300px"></div>
+</div></div>
+
+<!-- ═════════════ ARTISTS ═════════════ -->
+<div class="group" id="artists"><h2>4 · Artists (/artists)</h2></div>
+<div class="label"><b>AR-1</b>Mantiene la estructura del sitio antiguo: el ranking a la izquierda (pestañas Gem2i / DJ Mag / Resident Advisor, top 10, "Information updated as of 2026") y a la derecha el buscador (nombre, país, género musical, posición), las pestañas de continente y la grilla. Al pasar el mouse por una fila del ranking se resalta su tarjeta. Al pasar el mouse por una tarjeta aparecen nombre, estado y país, géneros y "View details". El número de la tarjeta sigue la pestaña de ranking elegida.</div>
+<div class="frame"><div class="pad gx" style="display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start">
+  <aside class="rank">
+    <div class="rt" id="rank-tabs"></div>
+    <div style="padding:18px 20px 4px;text-align:center"><div class="h" style="font-size:26px;margin:0">Global <em>DJ's</em></div><div style="color:var(--muted);font-size:13px;margin-top:4px">Our latest ranking</div></div>
+    <ol id="rank-list"></ol>
+    <div class="ft">Information updated as of 2026</div>
+  </aside>
+  <div>
+    <div class="search" style="--n:4"><input placeholder="by name…"><input placeholder="by country…"><input placeholder="by music genre…"><input placeholder="by position…"><button class="btn">Search</button><button class="btn red">Reset</button></div>
+    <div class="tabs" id="cont-a"></div>
+    <div class="grid gx" id="art-grid" style="grid-template-columns:repeat(3,1fr)"></div>
+  </div>
+</div></div>
+
+<!-- ═════════════ VENUES ═════════════ -->
+<div class="group" id="venues"><h2>5 · Venues (/venues)</h2></div>
+<div class="label"><b>VE-1 · Top venues</b>Es una franja horizontal de tarjetas altas: la foto, la posición y el logo en reposo, y al pasar el mouse nombre, ciudad y país, tipo y aforo. <b>Ojo:</b> en el sitio antiguo el "Top" incluye 4 venues de prueba sin foto (Lava, lawevas, anidados2, sjl club). En beta esos no se muestran, porque una tarjeta sin foto se salta.</div>
+<div class="frame"><div class="pad">
+  <span class="eyebrow">Top</span><h2 class="h">Top <em>venues</em></h2>
+  <div class="scroller" id="top-venues" style="margin-top:28px"></div>
+</div></div>
+<div class="label"><b>VE-1 · Todos los venues</b>Conserva Photo view/Logo view, la búsqueda por país, ciudad, posición y nombre, y las pestañas de continente. En Photo view, al pasar el mouse aparecen nombre, ubicación, tipo, aforo y "View details". En Logo view se ve una grilla de logos en gris que pasan a color al pasar el mouse, con el nombre debajo.</div>
+<div class="frame"><div class="pad">
+  <span class="eyebrow">Global</span><h2 class="h">All <em>venues</em></h2>
+  <div class="toolbar"><div class="seg" id="vview"><button class="on" data-v="photo">Photo view</button><button data-v="logo">Logo view</button></div></div>
+  <div class="search" style="--n:4;margin-top:18px"><input placeholder="by country…"><input placeholder="by city…"><input placeholder="by position…"><input placeholder="by name…"><button class="btn">Search</button><button class="btn red">Reset</button></div>
+  <div class="tabs" id="cont-v"></div>
+  <div class="grid gx" id="ven-grid" style="grid-template-columns:repeat(4,1fr)"></div>
+</div></div>
+
+<!-- ═════════════ FIELD CHECK ═════════════ -->
+<div class="group"><h2>Comprobación de campos (sitio antiguo → boceto)</h2></div>
+<div class="fields"><table>
+  <tr><th>Página</th><th>Sitio antiguo</th><th>Boceto</th></tr>
+  <tr><td>Events</td><td>Etiqueta INFO/tipo, flyer, título, fecha, ciudad y país, View details · Current/Past · Event/List view · filtros país, ciudad, nombre, fecha</td><td>Todo, más hora de apertura, nombre del venue y "Buy tickets" para e-ticket</td></tr>
+  <tr><td>Festivals</td><td>Foto, logo, nombre, rango de fechas, estado y país, View details · filtros nombre, fecha, país, ciudad · continentes</td><td>Todo, más el lineup (3 primeros) y el selector Upcoming/Past</td></tr>
+  <tr><td>Artists</td><td>Ranking Gem2i / DJ Mag / RA (top 10, "Updated as of") · filtros nombre, país, género, posición · continentes · tarjeta: posición, foto, logo, nombre, estado y país, View details</td><td>Todo, más los géneros en la tarjeta y la foto en miniatura en el ranking</td></tr>
+  <tr><td>Venues</td><td>Top venues · Global: Photo/Logo view · filtros país, ciudad, posición, nombre · continentes · tarjeta: posición, foto, logo, nombre, estado y país, View details</td><td>Todo, más tipo y aforo al pasar el mouse</td></tr>
+</table></div>
+<div class="note">Responde con lo que apruebas o cambias, por ejemplo "AB-1 ok, EV-1 sin la etiqueta verde". Implementarlo es otro paso.</div>
+<div style="height:80px"></div>
+
+<script>
+const U='https://beta.gem2i.com/api/uploads/gem2i/legacy/';
+const CONT=['All','USA','Europe','North America','South America','Africa','Oceania','Asia'];
+['cont-f','cont-a','cont-v'].forEach(id=>document.getElementById(id).innerHTML=CONT.map((c,i)=>`<button class="chip ${i?'':'on'}">${c}</button>`).join(''));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const events=[
+ {t:'Party: Analog Soul and Joey Anderson',d:'Fri, Apr 19, 2030',o:'22:00',v:'Venue name',w:'New York, United States',f:'1555028843.png',k:'INFO'},
+ {t:'Superflu, Sasha Barbot, Playsuit, NSR',d:'Sat, Apr 20, 2030',o:'22:00',v:'Venue name',w:'New York, United States',f:'1555028828.png',k:'INFO'},
+ {t:'Noche Dorada - Tau Beta Rho 32th Anniversary',d:'Sat, Sep 12, 2026',o:'20:00',v:'Venue name',w:'United States',f:'1750968631.png',k:'E-TICKET'},
+ {t:'Invite Productions Cluster I',d:'Sat, Sep 27, 2025',o:'22:00',v:'Venue name',w:'Peru',f:'1560532319.png',k:'GUEST LIST'},
+];
+const tagCls=k=>k==='E-TICKET'?'tk':k==='GUEST LIST'?'gl':'';
+document.getElementById('events-grid').innerHTML=events.map(e=>`
+ <a class="card" href="#" style="aspect-ratio:3/4"><img class="ph" src="${U}events_images/${e.f}" alt="">
+  <span class="tag ${tagCls(e.k)}">${e.k}</span>
+  <div class="info"><b>${esc(e.t)}</b><div class="m"><span>📅 ${e.d} · doors ${e.o}</span><span>📍 ${e.v} · ${e.w}</span></div>
+  <span class="more">${e.k==='E-TICKET'?'Buy tickets':'View details'} →</span></div></a>`).join('');
+document.getElementById('events-list').innerHTML=events.map(e=>`
+ <a class="lrow" href="#"><img src="${U}events_images/${e.f}" alt="">
+  <div><span class="tag ${tagCls(e.k)}" style="position:static;display:inline-block">${e.k}</span><div style="font-size:22px;font-weight:600;margin-top:10px">${esc(e.t)}</div>
+   <div class="meta"><span>📅 ${e.d}</span><span>🕙 Doors ${e.o}</span><span>📍 ${e.v}, ${e.w}</span></div></div>
+  <span class="btn" style="margin-right:24px">${e.k==='E-TICKET'?'Buy tickets':'View details'} →</span></a>`).join('');
+
+const fest=[
+ {n:'Ultra Music Festival',r:'March 1–3, 2023',w:'Florida, United States',p:'1518136932',l:'1518136932',lu:'Carl Cox · Armin Van Buuren · Afrojack'},
+ {n:'EDC Las Vegas',r:'March 2022',w:'Nevada, United States',p:'1517430743',l:'1517430743',lu:'Tiesto · Martin Garrix · Hardwell'},
+ {n:'DGTL Tel Aviv',r:'October 14, 2020',w:'Tel Aviv, Israel',p:'1570741257',l:'1570741257',lu:'Dixon · Âme · Ben Klock'},
+ {n:'Eco Festival',r:'October 5, 2020',w:'Ljubljana, Slovenia',p:'1570817505',l:'1570817505',lu:'Luciano · Loco Dice'},
+ {n:'BPM Tel Aviv',r:'September 30, 2020',w:'Tel Aviv, Israel',p:'1569883530',l:'1569883530',lu:'Jamie Jones · Joseph Capriati'},
+ {n:'Oasis Festival',r:'September 20, 2020',w:'Marrakech-Safi, Morocco',p:'1516128182',l:'1461001098',lu:'Seth Troxler · Maceo Plex'},
+];
+document.getElementById('fest-grid').innerHTML=fest.map((f,i)=>`
+ <a class="card" href="#" style="${i===0?'grid-column:span 2;grid-row:span 2':i===1?'grid-column:span 2':''}"><img class="ph" src="${U}images_festivals/photo/${f.p}.png" alt="">
+  <span class="logo" style="${i===0?'width:110px;height:110px':''}"><img src="${U}images_festivals/logos/${f.l}.png" alt=""></span>
+  <span class="strip">${esc(f.n)}</span>
+  <div class="info"><b style="${i===0?'font-size:30px':''}">${esc(f.n)}</b><div class="m"><span>📅 ${f.r}</span><span>📍 ${f.w}</span><span style="color:var(--link)">♫ ${f.lu}</span></div><span class="more">View details →</span></div></a>`).join('');
+
+const art=[
+ {n:'Maceo Plex',w:'Florida, United States',b:'1402697498',l:'1454443963',g:['House','Tech house'],r:{gem:1,dj:null,ra:2}},
+ {n:'Carl Cox',w:'England, United Kingdom',b:'1400182806',l:'1398811325',g:['House','Techno'],r:{gem:2,dj:74,ra:59}},
+ {n:'Richie Hawtin',w:'England, United Kingdom',b:'1400103527',l:'1419353223',g:['Minimal','Techno'],r:{gem:3,dj:null,ra:21}},
+ {n:'Loco Dice',w:'North Rhine-Westphalia, Germany',b:'1402697782',l:'1419431682',g:['House','Techno'],r:{gem:4,dj:null,ra:32}},
+ {n:'Marco Carola',w:'Campania, Italy',b:'1402698909',l:'1419431730',g:['Minimal Techno','Techno'],r:{gem:5,dj:null,ra:23}},
+ {n:'Luciano',w:'Vaud, Switzerland',b:'1402939227',l:'1419441355',g:['House','Tech house'],r:{gem:6,dj:null,ra:80}},
+ {n:'Jamie Jones',w:'Wales, United Kingdom',b:'1402697916',l:'1419441383',g:['Deep house','Tech house'],r:{gem:7,dj:null,ra:16}},
+ {n:'Joseph Capriati',w:'Campania, Italy',b:'1402941566',l:'1419444029',g:['House','Techno'],r:{gem:8,dj:null,ra:38}},
+];
+const RANKS={gem:['Maceo Plex','Carl Cox','Richie Hawtin','Loco Dice','Marco Carola','Luciano','Jamie Jones','Joseph Capriati','Seth Troxler','Armin Van Buuren'],
+ dj:['Martin Garrix','Dimitri Vegas & Like Mike','Armin Van Buuren','David Guetta','Tiesto','Don Diablo','Afrojack','Hardwell','Oliver Heldens','Marshmello'],
+ ra:['Dixon','Maceo Plex','Tale Of Us','Ben Ufo','Jackmaster','Ricardo Villalobos','Seth Troxler','Ben Klock','Âme','Rødhåd']};
+const RT=[['gem','Gem2i'],['dj','DJ Mag'],['ra','Resident Advisor']];
+function renderRank(k){
+  document.getElementById('rank-tabs').innerHTML=RT.map(([id,l])=>`<button class="${id===k?'on':''}" data-k="${id}">${l}</button>`).join('');
+  document.getElementById('rank-list').innerHTML=RANKS[k].map((n,i)=>{const a=art.find(x=>x.n===n);
+    return `<li><a href="#" data-n="${esc(n)}"><span class="p">${i+1}</span>${a?`<img src="${U}djs_images/big/${a.b}.png" alt="">`:`<span style="width:44px;height:44px;border-radius:50%;background:var(--bg2);display:inline-block"></span>`}<span>${esc(n)}${a?`<div class="d">${a.w.split(', ').pop()}</div>`:''}</span><span style="color:var(--muted)">→</span></a></li>`}).join('');
+  document.querySelectorAll('#rank-tabs button').forEach(b=>b.onclick=()=>renderRank(b.dataset.k));
+  document.querySelectorAll('#rank-list a').forEach(a=>{a.onmouseenter=()=>{const c=document.querySelector(`#art-grid [data-n="${a.dataset.n}"]`);c&&c.dispatchEvent(new Event('hl'))}});
+}
+renderRank('gem');
+document.getElementById('art-grid').innerHTML=art.map(a=>`
+ <a class="card" href="#" data-n="${esc(a.n)}" style="aspect-ratio:1/1"><img class="ph" src="${U}djs_images/big/${a.b}.png" alt="" style="filter:grayscale(1)">
+  <span class="num">${a.r.gem}</span><span class="logo"><img src="${U}djs_images/${a.l}.png" alt=""></span>
+  <div class="info"><b>${esc(a.n)}</b><div class="m"><span>📍 ${a.w}</span></div><div class="gen">${a.g.map(g=>`<span>${g}</span>`).join('')}</div><span class="more">View details →</span></div></a>`).join('');
+document.querySelectorAll('#art-grid .card').forEach(c=>c.addEventListener('hl',()=>{c.style.outline='3px solid var(--link)';setTimeout(()=>c.style.outline='',900)}));
+
+const ven=[
+ {n:'Green Valley',w:'Santa Catarina, Brazil',i:'1403884600',t:'Nightclub',c:'6,000'},
+ {n:'Echostage',w:'Washington, United States',i:'1404146545',t:'Nightclub',c:'3,000'},
+ {n:'Ushuaia',w:'Balearic Islands, Spain',i:'1404140969',t:'Nightclub',c:'5,000'},
+ {n:'Hï Ibiza',w:'Balearic Islands, Spain',i:'1555093652',t:'Club',c:null},
+ {n:'Zouk Club',w:'Kuala Lumpur, Malaysia',i:'1403279461',t:'Club',c:'2,000'},
+ {n:'Papaya',w:'Lika-Senj, Croatia',i:'1404149560',t:'Nightclub',c:'5,000'},
+ {n:'Octagon',w:'Sudogwon, South Korea',i:'1403892346',t:'Club',c:'2,500'},
+ {n:'Bootshaus',w:'North Rhine-Westphalia, Germany',i:'1404269372',t:'Nightclub',c:'1,200'},
+];
+const vcard=(v,i,ratio)=>`<a class="card" href="#" style="aspect-ratio:${ratio}"><img class="ph" src="${U}venues_view/${v.i}.png" alt="">
+  <span class="num">${i+1}</span><span class="logo"><img src="${U}venues_logos/${v.i}.png" alt=""></span>
+  <div class="info"><b>${esc(v.n)}</b><div class="m"><span>📍 ${v.w}</span><span>${v.t}${v.c?` · capacity ${v.c}`:''}</span></div><span class="more">View details →</span></div></a>`;
+document.getElementById('top-venues').innerHTML=ven.slice(0,6).map((v,i)=>vcard(v,i,'3/4')).join('');
+function renderVen(mode){
+  const g=document.getElementById('ven-grid');
+  if(mode==='photo'){g.style.gridTemplateColumns='repeat(4,1fr)';g.style.gap='6px';g.innerHTML=ven.map((v,i)=>vcard(v,i,'4/3')).join('');}
+  else{g.style.gridTemplateColumns='repeat(6,1fr)';g.style.gap='12px';g.innerHTML=ven.map((v,i)=>`<a href="#" class="card" style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 14px;text-align:center">
+    <span style="position:absolute;left:10px;top:10px;font-weight:800;color:var(--link);font-size:14px">${i+1}</span>
+    <span style="display:flex;height:90px;align-items:center;justify-content:center"><span class="logo" style="position:static;width:90px;height:90px"><img src="${U}venues_logos/${v.i}.png" alt=""></span></span>
+    <div style="margin-top:12px;font-weight:600">${esc(v.n)}</div><div style="font-size:13px;color:var(--muted)">${v.w.split(', ').pop()}</div></a>`).join('');}
+  document.querySelectorAll('#vview button').forEach(b=>b.classList.toggle('on',b.dataset.v===mode));
+}
+document.querySelectorAll('#vview button').forEach(b=>b.onclick=()=>renderVen(b.dataset.v));
+renderVen('photo');
+
+const team=['Founder & CEO','Head of Events','Artist Relations','Marketing Director','LatAm Manager','Partnerships'];
+document.getElementById('team').innerHTML=team.map((r,i)=>`<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center">
+  <div style="width:72px;height:72px;margin:0 auto;border-radius:50%;background:linear-gradient(135deg,#0068b3,#002444);display:flex;align-items:center;justify-content:center;font-weight:800">${['AG','CM','LR','JS','MP','DV'][i]}</div>
+  <b style="display:block;margin-top:12px;font-size:15px">Team member</b><span style="font-size:13px;color:var(--muted)">${r}</span></div>`).join('');
+</script>
+</body>
+</html>

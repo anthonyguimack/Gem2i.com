@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section section-gallery">
+  <div class="container-xl">
+    {% if page.breadcrumb_active != 0 %}
+    <nav class="breadcrumb"><a href="/">{{ trans('home') }}</a><span>/</span><span>{{ page.title }}</span></nav>
+    {% endif %}
+    {% if page.title_active != 0 %}<div class="section-title"><h1 class="title">{{ page.title }}</h1></div>{% endif %}
+    <div class="gallery-grid">
+      {% for a in albums %}
+      <a href="/gallery-album/{{ a.id }}" class="album-card">
+        {% if a.cover %}<img src="{{ a.cover.path_small|img_url }}" alt="{{ a.name }}" loading="lazy">{% endif %}
+        <div class="album-caption">
+          <h3 class="title">{{ a.name }}</h3>
+          <span class="count">{{ a.count }} {{ trans('images') }}</span>
+        </div>
+      </a>
+      {% else %}
+      <p class="no-results">{{ trans('no_records_found') }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

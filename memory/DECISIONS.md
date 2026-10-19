@@ -49,3 +49,9 @@ Typography T-2 (Playfair + italic accent + Manrope); header hover H-3; Contact U
 
 ## Standing security note
 The legacy PHP source carries live secrets (SES SMTP, MySQL, Facebook, reCAPTCHA). Rotate them at cutover time; NEVER copy any into repo/plan/memory.
+
+## D-GEM-2026-09 — One ordering widget everywhere (2026-10-19, Anthony) — HOUSE RULE
+Every CMS control that orders blocks/sections/items uses the Page Builder (`/admin/section-order`) pattern: drag handle + label/key + eye + switch to show/hide. Implemented once as `frontend/src/components/admin/SortableSectionList.js` (dnd-kit, mouse + keyboard) — reuse it; never up/down arrows or a new widget. Ordering blocks sit in the CMS form in the same position as on the page (e.g. About → "Page sections" is LAST, because those blocks come last on /about).
+
+## D-GEM-2026-10 — KMS installed "tal cual" from A Capital (2026-10-19, Anthony)
+Overrides "KMS out" in D-GEM-2026-06: gem2i needs the KMS to run its magazine. `backend/kms/` copied verbatim from AUX-1.0 @1775e05 and mounted at `/insights`; served on its own origin **https://insightsbeta.gem2i.com** (nginx `/` → `:8050/insights/`, `scripts/gem2i_insights_nginx.conf`, LE cert). `settings.kms_native_enabled=true`, `kms_native_base`. Entered from My Account via the SSO Quick Link `qlink_kms` (product `kms`, granted to Nivel 0/1). Shims for A Capital-only deps: `routes/paid_membership.py` (membership_lapsed → gem2i paid_membership), `utils/mms_events.product_points` (no MMS → unavailable), `payments._add_months`; copied `utils/referral|mms_coupons|subscription_emails`. Data starts empty (no A Capital content). Design changes come later, on Anthony's instructions.

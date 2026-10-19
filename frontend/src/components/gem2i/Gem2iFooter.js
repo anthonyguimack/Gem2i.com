@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { publicAPI, landingAPI } from '../../lib/api';
 import { BACKEND_URL } from '../../lib/config';
-import { useT } from '../../lib/i18n';
+import { useT, useLang } from '../../lib/i18n';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import AccentTitle from './AccentTitle';
 import Gem2iCookieNotice from './Gem2iCookieNotice';
@@ -13,19 +13,27 @@ const GEM_FONT = "'Manrope', sans-serif";
 const TEXT = 'var(--color-footer-text, #B4C0CB)';
 const LINK = 'var(--color-link, #5AAFEA)';
 const LEGAL = /privacy|terms|cookie|legal/i;
+const LINK_CLS = 'text-[15px] transition-colors hover:text-white';
+const DISCOVER = [
+  { url: '/events', label: { en: 'Events', es: 'Eventos' } },
+  { url: '/festivals', label: { en: 'Festivals', es: 'Festivales' } },
+  { url: '/artists', label: { en: 'Artists', es: 'Artistas' } },
+  { url: '/venues', label: { en: 'Venues', es: 'Venues' } },
+];
 
 /**
- * gem2i public footer — FT-1 (approved 2026-10-17, bocetos/gallery-footer.html).
+ * gem2i public footer — FT-1 band + FT-4b columns (2026-10-19, bocetos/footer-ft4b.html).
  *  1) Call band on the brand gradient: headline + newsletter (POST
  *     /public/landing-subscribe → CMS Landing subscribers).
- *  2) Four columns: brand blurb + HQ contact (gem_config content), CMS site map
- *     (legal pages moved to the bottom bar), offices (Maps & Locations →
- *     global_business, the same data as the home map), socials + Contact us.
- *  3) Bottom bar: copyright + legal links.
+ *  2) Five columns: brand blurb + email/phone (gem_config content), Discover
+ *     (catalogs), Company (CMS footer pages + Contact), offices (Maps &
+ *     Locations → global_business), socials.
+ *  3) Bottom bar: copyright + legal links + EN/ES switch.
  * Data props come from Footer.js's shared useFooterData() hook.
  */
 export default function Gem2iFooter({ settings, socialLinks, footerPages, isExternal }) {
   const tt = useT();
+  const { lang, setLang, enabled = [] } = useLang() || {};
   const { byKey } = useSocialCatalog();
   const [contactInfo, setContactInfo] = useState(null);
   const [offices, setOffices] = useState([]);
@@ -64,7 +72,8 @@ export default function Gem2iFooter({ settings, socialLinks, footerPages, isExte
   const isLegal = (p) => LEGAL.test(`${p.title} ${p.url || ''}`);
   const sitePages = footerPages.filter(p => !isLegal(p));
   const legalPages = footerPages.filter(isLegal);
-  const half = Math.ceil(sitePages.length / 2);
+  // Catalog pages live under Discover; everything else is Company.
+  const companyPages = sitePages.filter(p => !DISCOVER.some(d => (p.url || '').replace(/\/$/, '') === d.url) && !/contact/i.test(`${p.title} ${p.url || ''}`));
   const toContact = () => window.dispatchEvent(new CustomEvent('gem2i:open-contact'));
   const region = (o) => String(o.description || '').trim();
 
@@ -97,41 +106,44 @@ export default function Gem2iFooter({ settings, socialLinks, footerPages, isExte
         </div>
       </div>
 
-      {/* 2 · Columns */}
-      <div className="max-w-7xl mx-auto px-6 md:px-10 pt-16 pb-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.3fr_1fr] gap-10 lg:gap-12">
-          <div>
+      {/* 2 · Columns (FT-4b, 2026-10-19): brand · discover · company · offices · follow */}
+      <div className="max-w-7xl mx-auto px-6 md:px-10 pt-16 pb-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 lg:gap-8">
+          <div className="sm:col-span-2 lg:col-span-1">
             {logoSrc
               ? <img src={logoSrc} alt={brandName} className="h-10 w-auto object-contain mb-5" data-testid="footer-logo-img" />
-              : <p className="text-white text-xl font-extrabold tracking-[0.06em] mb-5">{brandName}</p>}
-            {tt(settings.footer_description) && <p className="text-[15px] leading-[1.7] mb-6" style={{ color: TEXT }}>{tt(settings.footer_description)}</p>}
+              : <p className="text-white text-2xl font-extrabold tracking-[0.02em] mb-5">{brandName}</p>}
+            {tt(settings.footer_description) && <p className="text-[15px] leading-[1.7] mb-5 max-w-sm" style={{ color: TEXT }}>{tt(settings.footer_description)}</p>}
             {contactInfo && (
-              <ul className="space-y-2.5 text-[15px]" style={{ color: TEXT }}>
-                {tt(contactInfo.headquarters) && <li className="flex items-center gap-2.5"><MapPin className="w-4 h-4 shrink-0" style={{ color: LINK }} />{tt(contactInfo.headquarters)}</li>}
-                {contactInfo.phone && <li className="flex items-center gap-2.5"><Phone className="w-4 h-4 shrink-0" style={{ color: LINK }} /><a href={`tel:${contactInfo.phone}`} className="hover:text-white transition-colors">{contactInfo.phone}</a></li>}
-                {contactInfo.email && <li className="flex items-center gap-2.5"><Mail className="w-4 h-4 shrink-0" style={{ color: LINK }} /><a href={`mailto:${contactInfo.email}`} className="hover:text-white transition-colors">{contactInfo.email}</a></li>}
+              <ul className="space-y-2 text-[15px]">
+                {contactInfo.email && <li><a href={`mailto:${contactInfo.email}`} className="text-white/90 hover:text-white transition-colors">{contactInfo.email}</a></li>}
+                {contactInfo.phone && <li><a href={`tel:${contactInfo.phone}`} className="text-white/90 hover:text-white transition-colors">{contactInfo.phone}</a></li>}
               </ul>
             )}
           </div>
 
           <div>
-            <h4 className="gem-eyebrow mb-5">{tt({ en: 'Site map', es: 'Mapa del sitio' })}</h4>
-            {sitePages.length > 0 && (
-              <div className="grid grid-cols-2 gap-x-6" data-testid="footer-sitemap">
-                <ul className="space-y-2.5">{sitePages.slice(0, half).map(p => <li key={p.id}>{pageLink(p)}</li>)}</ul>
-                <ul className="space-y-2.5">{sitePages.slice(half).map(p => <li key={p.id}>{pageLink(p)}</li>)}</ul>
-              </div>
-            )}
+            <h4 className="gem-eyebrow mb-5">{tt({ en: 'Discover', es: 'Descubre' })}</h4>
+            <ul className="space-y-2.5" data-testid="footer-discover">
+              {DISCOVER.map(d => <li key={d.url}><Link to={d.url} className={LINK_CLS} style={{ color: TEXT }}>{tt(d.label)}</Link></li>)}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="gem-eyebrow mb-5">{tt({ en: 'Company', es: 'Compañía' })}</h4>
+            <ul className="space-y-2.5" data-testid="footer-sitemap">
+              {companyPages.map(p => <li key={p.id}>{pageLink(p)}</li>)}
+              <li><button type="button" onClick={toContact} className={LINK_CLS} style={{ color: TEXT }}>{tt({ en: 'Contact', es: 'Contacto' })}</button></li>
+            </ul>
           </div>
 
           {offices.length > 0 && (
             <div>
               <h4 className="gem-eyebrow mb-5">{tt({ en: 'Offices', es: 'Oficinas' })}</h4>
-              <ul className="space-y-3" data-testid="footer-offices">
+              <ul className="space-y-2.5" data-testid="footer-offices">
                 {offices.map(o => (
-                  <li key={o.id}>
-                    <span className="block text-white text-[15px] font-semibold">{o.name || tt(o.title)}</span>
-                    {region(o) && <span className="block text-[14px]" style={{ color: TEXT }}>{region(o)}</span>}
+                  <li key={o.id} className="text-[15px]" style={{ color: TEXT }} title={region(o) || undefined}>
+                    {o.name || tt(o.title)}{/headquarters|sede/i.test(region(o)) ? ' · HQ' : ''}
                   </li>
                 ))}
               </ul>
@@ -139,7 +151,7 @@ export default function Gem2iFooter({ settings, socialLinks, footerPages, isExte
           )}
 
           <div>
-            <h4 className="gem-eyebrow mb-5">{tt({ en: 'Connect', es: 'Conecta' })}</h4>
+            <h4 className="gem-eyebrow mb-5">{tt({ en: 'Follow', es: 'Síguenos' })}</h4>
             <div className="flex flex-wrap items-center gap-2">
               {socialLinks.map(link => {
                 const key = link.key || resolveKey(byKey, link) || '';
@@ -154,20 +166,28 @@ export default function Gem2iFooter({ settings, socialLinks, footerPages, isExte
                 );
               })}
             </div>
-            <button type="button" onClick={toContact}
-              className="mt-6 inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold text-white transition-[opacity,transform] hover:opacity-90 active:scale-[0.98]"
-              style={{ backgroundColor: 'var(--color-accent, #0068b3)' }}>
-              {tt({ en: 'Contact us', es: 'Contáctanos' })} <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
+      </div>
 
-        {/* 3 · Bottom bar */}
-        <div className="mt-14 pt-6 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[14px]" style={{ color: TEXT }}>
+      {/* 3 · Bottom bar — full-width rule, copyright · legal + language */}
+      <div className="border-t border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[14px]" style={{ color: TEXT }}>
           <p>{tt(settings.footer_copyright) || '© Gem2i. All Rights Reserved.'}</p>
-          {legalPages.length > 0 && (
-            <div className="flex flex-wrap gap-x-6 gap-y-2">{legalPages.map(p => <span key={p.id}>{pageLink(p, 'text-[14px] transition-colors hover:text-white')}</span>)}</div>
-          )}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {legalPages.map(p => <span key={p.id}>{pageLink(p, 'text-[14px] transition-colors hover:text-white')}</span>)}
+            {enabled.length > 1 && (
+              <span className="inline-flex items-center gap-1.5" data-testid="footer-lang">
+                {enabled.map((l, i) => (
+                  <React.Fragment key={l}>
+                    {i > 0 && <span aria-hidden="true">/</span>}
+                    <button type="button" onClick={() => setLang(l)} aria-pressed={lang === l}
+                      className={`uppercase transition-colors hover:text-white ${lang === l ? 'text-white font-semibold' : ''}`}>{l}</button>
+                  </React.Fragment>
+                ))}
+              </span>
+            )}
+          </div>
         </div>
       </div>
       <Gem2iCookieNotice />

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Footer FT-4b</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --bg2:#0A121A; --card:#0D1721; --line:rgba(255,255,255,.09); --accent:#0068b3; --link:#5AAFEA; --body:#b4c0cb; --muted:#8a98a6; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  a { color:inherit; text-decoration:none; }
+  .group { max-width:1600px; margin:0 auto; padding:56px 24px 10px; }
+  .group h1 { margin:0; font-size:24px; font-weight:700; }
+  .group p { margin:8px 0 0; color:var(--muted); font-size:15px; line-height:1.6; max-width:980px; }
+  .label { max-width:1600px; margin:0 auto; padding:40px 24px 12px; font-size:15px; color:#a9b6c2; line-height:1.6; }
+  .label b { color:#fff; margin-right:8px; font-size:17px; }
+  .frame { max-width:1600px; margin:0 auto; border-radius:14px; overflow:hidden; background:var(--bg); }
+  .pad { padding:72px clamp(24px,5vw,96px); }
+  .t { font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--link); margin:0 0 16px; }
+  ul { padding:0; margin:0; } li { list-style:none; margin:0 0 10px; font-size:15px; color:#c7d2dc; }
+  .h { font-family:'Playfair Display',serif; font-weight:700; line-height:1.04; margin:0; }
+  .h em { font-style:italic; font-weight:500; color:var(--link); }
+  .btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:#fff; border-radius:999px; padding:14px 26px; font-weight:600; font-size:15px; }
+  .btn.ghost { background:transparent; border:1px solid rgba(255,255,255,.3); }
+  .soc { width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.2); display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#c7d2dc; }
+  input { background:transparent; border:0; border-bottom:1.5px solid rgba(255,255,255,.3); color:#fff; padding:12px 0; font:inherit; font-size:15px; width:100%; }
+  .bar { border-top:1px solid var(--line); padding:22px clamp(24px,5vw,96px); display:flex; flex-wrap:wrap; gap:14px 28px; justify-content:space-between; font-size:13px; color:var(--muted); }
+  .bar nav { display:flex; gap:22px; flex-wrap:wrap; }
+  .logo { font-weight:800; font-size:26px; letter-spacing:.02em; } .logo span { color:var(--link); }
+  .muted { color:var(--body); font-size:15px; line-height:1.7; }
+  .chip { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px; border:1px solid var(--line); font-size:14px; color:var(--body); }
+  .chip i { width:7px; height:7px; border-radius:50%; background:#2fbf71; font-style:normal; }
+  .office { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; }
+  .office b { display:block; font-size:16px; } .office small { color:var(--muted); font-size:13px; }
+  .office .time { margin-top:14px; font-size:24px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .wordmark { font-weight:800; font-size:clamp(90px,19vw,300px); line-height:.8; letter-spacing:-.03em; color:transparent; -webkit-text-stroke:1px rgba(255,255,255,.14); text-align:center; margin:0; user-select:none; }
+  .ev { display:flex; gap:16px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .ev .img { width:84px; height:84px; border-radius:10px; flex:none; background:linear-gradient(135deg,#0068b3,#002444); }
+  .note { max-width:1600px; margin:0 auto; padding:32px 24px 80px; color:var(--muted); font-size:14px; line-height:1.7; }
+  .note b { color:#fff; }
+  @media (max-width:900px){ .gx{grid-template-columns:1fr !important} .pad{padding:56px 20px} }
+</style>
+</head>
+<body>
+<div class="group"><h1>Boceto FT-4b: FT-4 con la banda azul actual</h1>
+<p>Se mantiene tal cual la banda azul de hoy ("Be part of the night" + newsletter). Debajo, sobre fondo oscuro, va la parte viva de FT-4: el próximo evento del catálogo y la invitación a hacerse miembro. Después vienen las columnas de FT-4 y la barra legal.</p></div>
+<div class="label"><b>FT-4b</b>De arriba abajo: banda azul (se conserva) → fila viva → columnas → barra legal.</div>
+<div class="frame">
+  <div class="pad" style="background:linear-gradient(90deg,#002444 0%,#0068b3 100%);padding-top:52px;padding-bottom:52px">
+    <div class="gx" style="display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center">
+      <div><h2 class="h" style="font-size:40px">Be part of the <em style="color:#cfe9f8">night</em></h2>
+        <p class="muted" style="color:#e3f1fa;margin:12px 0 0">Guest lists, QR e-passes and e-tickets for members. Get the next events in your inbox.</p></div>
+      <div style="display:flex;gap:12px;align-items:end"><input placeholder="Your email for news and events" style="border-bottom-color:rgba(255,255,255,.6)"><a class="btn" style="background:#fff;color:#002444;flex:none">Subscribe</a></div>
+    </div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-top:44px;padding-bottom:44px;border-bottom:1px solid var(--line)">
+    <div class="ev"><div class="img"></div>
+      <div><p class="t" style="margin:0 0 6px">Next up</p><b style="font-size:18px">Ushuaïa Opening Party</b><div class="muted" style="font-size:14px">Sat 14 Jun · Ibiza, Spain</div><div style="margin-top:6px;font-weight:600;color:var(--link)">Guest list open →</div></div></div>
+    <div class="ev" style="justify-content:space-between;flex-wrap:wrap;padding:20px 24px">
+      <div><p class="t" style="margin:0 0 6px">Membership</p><b style="font-size:22px;font-family:'Playfair Display',serif">Members get in <em style="color:var(--link)">first</em></b></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" style="padding:11px 20px">Become a member</a><a class="btn ghost" style="padding:11px 20px">Sign in</a></div></div>
+  </div>
+  <div class="pad gx" style="display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px">
+    <div><div class="logo">GEM<span>2i</span></div><p class="muted" style="font-size:14px">The leading full service marketing, media and business integration company for the entertainment industry. Since 1993 · 17+ markets.</p>
+      <ul style="margin-top:14px"><li>main@gem2i.com</li><li>862-201-3636</li></ul></div>
+    <div><p class="t">Discover</p><ul><li>Events</li><li>Festivals</li><li>Artists</li><li>Venues</li></ul></div>
+    <div><p class="t">Company</p><ul><li>About us</li><li>Services</li><li>Partners</li><li>Contact</li></ul></div>
+    <div><p class="t">Offices</p><ul><li>New York · HQ</li><li>Spain</li><li>Lima</li><li>Buenos Aires</li><li>Santo Domingo</li></ul></div>
+    <div><p class="t">Follow</p><div style="display:flex;gap:10px;flex-wrap:wrap"><span class="soc">f</span><span class="soc">ig</span><span class="soc">yt</span><span class="soc">sc</span></div></div>
+  </div>
+  <div class="bar"><span>© 2026 GEM2i. All rights reserved.</span><nav><a>Terms</a><a>Privacy</a><a>Cookies</a><a>EN / ES</a></nav></div>
+</div>
+<div class="note"><b>Notas.</b> Como el newsletter ya está en la banda azul, desaparece de las columnas. La tarjeta "Next up" muestra el próximo evento público del catálogo y se oculta si no hay ninguno. A un miembro que ya inició sesión la tarjeta de membresía le muestra "My account" en lugar de los botones. En la plantilla 02 todo usa el mismo ancho que el resto de la página.</div>
+</body></html>

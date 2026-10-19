@@ -1,0 +1,44 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Translations saved.</div>{% endif %}
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">{{ lang.name }} — {{ pager.total }} labels</h3>
+    <form method="get" action="/admin/edit-translations/{{ lang.id }}" class="inline-form">
+      <input type="text" name="q" class="form-input input-search" placeholder="Search label / translation..." value="{{ q }}">
+      <button class="btn btn-default btn-sm" type="submit">Search</button>
+    </form>
+  </div>
+  <div class="box-body">
+    <form method="post" action="/admin/translations-save">
+      <input type="hidden" name="lang_id" value="{{ lang.id }}">
+      <input type="hidden" name="back" value="/admin/edit-translations/{{ lang.id }}{% if q or pager.page > 1 %}?{% if q %}q={{ q }}{% endif %}{% if q and pager.page > 1 %}&{% endif %}{% if pager.page > 1 %}page={{ pager.page }}{% endif %}{% endif %}">
+      <table class="table">
+        <thead><tr><th style="width:35%">Label</th><th>Translation</th></tr></thead>
+        <tbody>
+          {% for t in rows %}
+          <tr>
+            <td><code>{{ t.label }}</code></td>
+            <td><input type="text" name="t_{{ t.id }}" class="form-input" value="{{ t.translation or '' }}"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button class="btn btn-primary" type="submit">Save This Page</button>
+      <a href="/admin/language-settings" class="btn btn-default">Back to Languages</a>
+    </form>
+    {% if pager.pages > 1 %}
+    <div class="pager">
+      {% for pnum in range(1, pager.pages + 1) %}
+      {% if pnum <= 3 or pnum > pager.pages - 3 or (pnum - pager.page)|abs <= 2 %}
+      <a class="btn btn-sm {{ 'btn-primary' if pnum == pager.page else 'btn-default' }}"
+         href="/admin/edit-translations/{{ lang.id }}?page={{ pnum }}{% if q %}&q={{ q }}{% endif %}">{{ pnum }}</a>
+      {% elif pnum == 4 or pnum == pager.pages - 3 %}
+      <span class="pager-ellipsis">…</span>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

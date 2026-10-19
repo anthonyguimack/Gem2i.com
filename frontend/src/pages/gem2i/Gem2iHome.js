@@ -65,6 +65,7 @@ export default function Gem2iHome() {
   const [layout, setLayout] = useState(null);      // {section_order, sections, section_configs}
   const [sm, setSm] = useState({});                // Section Manager content by key
   const [events, setEvents] = useState([]);
+  const [heroEvents, setHeroEvents] = useState([]); // events pinned to hero slides
   const [artists, setArtists] = useState([]);
   const [venues, setVenues] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
@@ -79,13 +80,14 @@ export default function Gem2iHome() {
     gemAPI.festivals({ limit: 12 }).then(r => setFestivals(r.data?.items || [])).catch(() => {});
     gemAPI.conferences({ limit: 12 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
     gemAPI.clients().then(r => setClientLogos((r.data?.items || []).map(cl => ({
-      name: cl.title, url: cl.url, image: cl.image_urls?.on?.startsWith('/api')
+      name: cl.title, url: cl.url, description: cl.description ? cl.description.replace(/<[^>]+>/g, '').trim() : '', image: cl.image_urls?.on?.startsWith('/api')
         ? `${process.env.REACT_APP_BACKEND_URL || ''}${cl.image_urls.on}` : cl.image_urls?.on,
     })))).catch(() => {});
     publicAPI.getSections(settings.active_theme).then(r => setLayout(r.data || {})).catch(() => setLayout({}));
     Promise.all(SM_KEYS.map(k => publicAPI.getSectionContent(k).then(r => [k, r.data]).catch(() => [k, null])))
       .then(rows => setSm(Object.fromEntries(rows.filter(([, v]) => v))));
     gemAPI.events({ limit: 12 }).then(r => setEvents(r.data?.items || [])).catch(() => {});
+    gemAPI.heroEvents().then(r => setHeroEvents(r.data?.items || [])).catch(() => {});
     gemAPI.artists({ limit: 12 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
     gemAPI.venues({ limit: 150 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
     Promise.all([['map_global', 'global_business'], ['map_conferences', 'conferences'], ['map_recommended', 'recommended_sites']]
@@ -148,9 +150,9 @@ export default function Gem2iHome() {
     hero: () => {
       const tpl = settings.active_theme;
       const slide = heroSlides[0];
-      if (tpl === 'gem2i_02') return <GemHeroB slide={slide} slides={heroSlides} event={events[0]} />;
-      if (tpl === 'gem2i_03') return <GemHeroC slide={slide} slides={heroSlides} events={events} />;
-      return <GemHeroA slide={slide} slides={heroSlides} />;
+      if (tpl === 'gem2i_02') return <GemHeroB slide={slide} slides={heroSlides} event={events[0]} linked={heroEvents} />;
+      if (tpl === 'gem2i_03') return <GemHeroC slide={slide} slides={heroSlides} events={events} linked={heroEvents} />;
+      return <GemHeroA slide={slide} slides={heroSlides} linked={heroEvents} />;
     },
     legacy_hero: () => (<>
       {/* HERO — CMS hero-canvas slides; branded static fallback until slides are entered */}
@@ -314,7 +316,11 @@ export default function Gem2iHome() {
     gem_clients: () => (isTpl01 ? (() => {
       const cl = override(c.clients, 'gem_clients_cfg');
       if (!cl) return null;
-      return <GemClientsGrid kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cl.text)} logos={cl.logos?.length > 0 ? cl.logos : clientLogos} />;
+      // Section Manager (Clients — Section Configuration) wins over the gem_config defaults.
+      const cfg = smCfg('gem_clients_cfg');
+      const logos = (cl.logos?.length > 0 ? cl.logos : clientLogos).slice(0, limitOf('gem_clients_cfg', 12));
+      return <GemClientsGrid kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cfg.subtitle) || tt(cl.text)} logos={logos}
+        ctaText={tt(cfg.cta_text)} ctaUrl={cfg.cta_url} ctaNewTab={!!cfg.cta_new_tab} />;
     })() : (<>
       {/* CLIENTS */}
       {override(c.clients, 'gem_clients_cfg') && (

@@ -1,0 +1,96 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">Quiz Analytics — {{ post.title if post else 'Post' }}</h3>
+    <div class="pull-right">
+      <a href="/admin/quiz-analytics" class="btn btn-default btn-sm">&laquo; All</a>
+      {% if post %}<a href="/admin/quiz/{{ post.id }}" class="btn btn-default btn-sm">Edit quiz</a>{% endif %}
+      {% if post and post.status == 1 %}<a href="/{{ post.slug }}" target="_blank" class="btn btn-default btn-sm">View article</a>{% endif %}
+    </div>
+  </div>
+  <div class="box-body">
+    {% if not has_quiz %}
+    <div class="alert alert-warning">This article has no quiz configured.</div>
+    {% endif %}
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+      <div class="qa-stat"><div class="qa-n">{{ attempts_n }}</div><div class="qa-l">attempts</div></div>
+      <div class="qa-stat"><div class="qa-n">{{ uniq }}</div><div class="qa-l">unique members</div></div>
+      <div class="qa-stat"><div class="qa-n">{{ avg_score }}{% if total_q %}/{{ total_q }}{% endif %}</div><div class="qa-l">average</div></div>
+    </div>
+
+    {% if dist %}
+    <h4 class="qa-h">Score distribution</h4>
+    {% set maxd = (dist|max) or 1 %}
+    <div class="qa-dist">
+      {% for c in dist %}
+      <div class="qa-bar-col">
+        <div class="qa-bar-val">{{ c }}</div>
+        <div class="qa-bar" style="height:{{ (6 + (c/maxd)*120)|round(0,'floor') }}px" title="{{ loop.index0 }}/{{ total_q }}: {{ c }}"></div>
+        <div class="qa-bar-x">{{ loop.index0 }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-muted" style="font-size:12px;margin:4px 0 20px">score (correct out of {{ total_q }}) → number of attempts</div>
+    {% endif %}
+
+    {% if q_stats %}
+    <h4 class="qa-h">Correct rate per question</h4>
+    <div class="table-responsive">
+    <table class="table table-striped">
+      <thead><tr><th style="width:40px">#</th><th>Question</th><th style="width:120px;text-align:right">% correct</th><th style="width:110px;text-align:right">answered</th></tr></thead>
+      <tbody>
+        {% for q in q_stats %}
+        <tr>
+          <td>{{ q.n }}</td>
+          <td>{{ q.q }}</td>
+          <td style="text-align:right">
+            <span style="display:inline-block;min-width:38px">{{ q.correct_pct }}%</span>
+            <span class="qa-mini"><span class="qa-mini-fill{{ ' low' if q.correct_pct < 50 }}" style="width:{{ q.correct_pct }}%"></span></span>
+          </td>
+          <td style="text-align:right">{{ q.answered }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% endif %}
+
+    <h4 class="qa-h">Recent attempts</h4>
+    <div class="table-responsive">
+    <table class="table table-striped">
+      <thead><tr><th>Member</th><th style="text-align:right">Score</th><th style="text-align:right">%</th><th>Type</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for a in recent %}
+        <tr>
+          <td>{{ a.who }}</td>
+          <td style="text-align:right">{{ a.score }}/{{ a.total }}</td>
+          <td style="text-align:right">{{ a.pct }}%</td>
+          <td>{% if a.first %}<span class="label lb-teal">First time</span>{% else %}<span class="label">Retry</span>{% endif %}</td>
+          <td>{{ a.at[:16] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="td-empty">No attempts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<style>
+  .qa-stat { background:#f5f7fa; border:1px solid #e2e5ec; border-radius:10px; padding:12px 18px; min-width:120px; }
+  .qa-n { font-size:26px; font-weight:800; color:#405189; line-height:1; }
+  .qa-l { font-size:12px; color:#697386; margin-top:4px; }
+  .qa-h { margin:18px 0 10px; font-size:15px; }
+  .qa-dist { display:flex; align-items:flex-end; gap:6px; height:150px; padding:6px 0; border-bottom:1px solid #e2e5ec; }
+  .qa-bar-col { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; flex:1; min-width:22px; }
+  .qa-bar-val { font-size:11px; color:#697386; margin-bottom:2px; }
+  .qa-bar { width:70%; max-width:48px; background:#405189; border-radius:4px 4px 0 0; }
+  .qa-bar-x { font-size:11px; color:#697386; margin-top:4px; }
+  .qa-mini { display:inline-block; width:70px; height:8px; background:#e2e5ec; border-radius:4px; overflow:hidden; vertical-align:middle; margin-left:6px; }
+  .qa-mini-fill { display:block; height:100%; background:#0ab39c; }
+  .qa-mini-fill.low { background:#f06548; }
+</style>
+{% endblock %}

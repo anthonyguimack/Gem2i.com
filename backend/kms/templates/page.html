@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+<section class="section section-page">
+  <div class="container-xl">
+    {% if page.breadcrumb_active != 0 %}
+    <nav class="breadcrumb"><a href="/">{{ trans('home') }}</a><span>/</span><span>{{ page.title }}</span></nav>
+    {% endif %}
+    <div class="latest-grid{{ ' no-sidebar' if page.right_column_active == 0 }}">
+      <div class="latest-main page-detail">
+        {% if page.title_active != 0 %}<h1 class="post-title">{{ page.title }}</h1>{% endif %}
+        <div class="post-content">{{ page.page_content|safe }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

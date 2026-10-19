@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Login - Admin&nbsp;{{ site_title }}</title>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+{% if favicon %}<link rel="shortcut icon" type="image/png" href="{{ favicon }}"/>{% endif %}
+<style>
+/* Two-panel membership login — parity with the live install's custom login. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #0d0d0f; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
+.layout { display: flex; min-height: 100vh; }
+.panel-left { width: 55%; min-height: 100vh; background: #0d0d0f; display: flex; align-items: center; justify-content: center; padding: 60px 40px; }
+.form-wrapper { width: 100%; max-width: 420px; }
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+.brand img { max-height: 48px; width: auto; border: 0; }
+.heading { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: -.8px; line-height: 1.15; margin-bottom: 8px; }
+.subheading { font-size: 14px; color: #64748b; margin-bottom: 36px; line-height: 1.5; }
+.form { display: flex; flex-direction: column; gap: 20px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field-label { font-size: 13px; font-weight: 500; color: #94a3b8; letter-spacing: .1px; }
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-icon { position: absolute; left: 14px; color: #475569; display: flex; align-items: center; pointer-events: none; }
+.input { width: 100%; height: 48px; padding: 0 44px 0 42px; background: #1a1a1f; border: 1px solid #2a2a35; border-radius: 8px; color: #e2e8f0; font-size: 14px; transition: border-color .2s, box-shadow .2s; outline: none; }
+.input::placeholder { color: #3a3a48; }
+.input:focus { border-color: #334155; box-shadow: 0 0 0 3px rgba(51,65,85,.3); }
+.input-wrap:focus-within .input-icon { color: #64748b; }
+.eye-btn { position: absolute; right: 14px; background: none; border: none; color: #475569; cursor: pointer; padding: 4px; display: flex; align-items: center; transition: color .2s; }
+.eye-btn:hover { color: #94a3b8; }
+.error-msg { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; font-size: 13px; padding: 10px 14px; border-radius: 6px; }
+.btn-submit { width: 100%; height: 50px; background: #fff; color: #0d0d0f; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, transform .1s; margin-top: 4px; letter-spacing: -.1px; }
+.btn-submit:hover { background: #f1f5f9; }
+.btn-submit:active { transform: scale(.99); }
+.panel-right { width: 45%; min-height: 100vh; background-image: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=80&auto=format&fit=crop'); background-size: cover; background-position: center; position: relative; overflow: hidden; }
+.panel-right-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(13,13,15,.25) 0%, transparent 40%); }
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  .panel-left { width: 100%; min-height: auto; padding: 48px 24px 40px; }
+  .panel-right { width: 100%; height: 240px; min-height: 0; order: -1; }
+  .heading { font-size: 26px; }
+}
+@media (max-width: 480px) { .panel-left { padding: 36px 20px; } }
+/* Referral register panel (Member Points, D2) */
+.reg-divider { display: flex; align-items: center; gap: 12px; margin: 32px 0 24px; color: #475569; font-size: 12px; letter-spacing: .4px; text-transform: uppercase; }
+.reg-divider::before, .reg-divider::after { content: ""; flex: 1; height: 1px; background: #2a2a35; }
+.reg-intro { font-size: 13px; color: #64748b; margin-bottom: 18px; line-height: 1.5; }
+.reg-form { display: flex; flex-direction: column; gap: 14px; }
+.reg-row { display: flex; gap: 10px; }
+.reg-row .input { padding-left: 14px; }
+.reg-form .input { height: 44px; }
+.reg-agree { display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; color: #94a3b8; line-height: 1.5; cursor: pointer; }
+.reg-agree input { margin-top: 2px; accent-color: #e2e8f0; }
+.btn-register { width: 100%; height: 46px; background: transparent; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s, border-color .2s; }
+.btn-register:hover { background: #1a1a1f; border-color: #475569; }
+.ok-msg { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: #86efac; font-size: 13px; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; line-height: 1.5; }
+.hp-field { position: absolute; left: -9999px; top: -9999px; height: 0; width: 0; overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="panel-left">
+    <div class="form-wrapper">
+      <div class="brand">
+        <a href="/admin/login">{% if logo %}<img src="{{ logo }}" alt="{{ app_name }}">{% else %}<span class="heading">{{ app_name }}</span>{% endif %}</a>
+      </div>
+      <h1 class="heading">Welcome Back</h1>
+      <p class="subheading">Sign in to access your membership area</p>
+      <form action="/admin/login-post" method="post" class="form" id="loginForm">
+        <div class="field">
+          <label class="field-label" for="email">Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </span>
+            <input id="email" type="email" name="email" class="input" placeholder="Email" autocomplete="email" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </span>
+            <input id="password" type="password" name="password" class="input" placeholder="Password" autocomplete="current-password" required>
+            <button type="button" class="eye-btn" title="Show/hide password" id="eyeBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+        {% if error %}<div class="error-msg">Invalid email or password.</div>{% endif %}
+        <button type="submit" class="btn-submit">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          Sign In
+        </button>
+      </form>
+      {% if ref_code or registered or rerr %}
+      <div class="reg-divider">New here</div>
+      {% if registered == '1' %}
+      <div class="ok-msg">You're registered! Your access request was received — you'll get an invitation to activate your account.</div>
+      {% elif registered == '2' %}
+      <div class="ok-msg">That email is already registered. Sign in above, or wait for your activation invitation.</div>
+      {% else %}
+      {% if rerr %}<div class="error-msg" style="margin-bottom:18px">{{ rerr }}</div>{% endif %}
+      <p class="reg-intro">You were invited to read this content. Leave your name and email to request access — we'll send you an activation invitation.</p>
+      <form action="/register" method="post" class="reg-form" id="regForm">
+        <div class="reg-row">
+          <input type="text" name="first_name" class="input" placeholder="First name" required>
+          <input type="text" name="last_name" class="input" placeholder="Last name" required>
+        </div>
+        <input type="email" name="email" class="input" style="padding-left:14px" placeholder="Email" required>
+        <div class="hp-field" aria-hidden="true">
+          <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        </div>
+        <input type="hidden" name="form_token" value="{{ form_token }}">
+        <input type="hidden" name="accepted" id="regAccepted" value="">
+        <input type="hidden" name="ref" value="{{ ref_code }}">
+        <label class="reg-agree">
+          <input type="checkbox" id="regAgree" required>
+          <span>I have read and accept the Disclaimer and Terms.</span>
+        </label>
+        <button type="submit" class="btn-register">Request Access</button>
+      </form>
+      {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  <div class="panel-right"><div class="panel-right-overlay"></div></div>
+</div>
+<script>
+document.getElementById('eyeBtn').addEventListener('click', function () {
+  var p = document.getElementById('password');
+  p.type = p.type === 'password' ? 'text' : 'password';
+});
+/* acceptance == proof-of-interaction: the checkbox change sets accepted = the token */
+var regAgree = document.getElementById('regAgree');
+if (regAgree) {
+  regAgree.addEventListener('change', function () {
+    document.getElementById('regAccepted').value = this.checked
+      ? document.getElementById('regForm').querySelector('[name=form_token]').value : '';
+  });
+}
+</script>
+</body>
+</html>

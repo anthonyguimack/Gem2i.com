@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block content %}
+<section class="section section-listing">
+  <div class="container-xl">
+    <div class="section-title">
+      <h1 class="title">{{ heading }}</h1>
+      {% if profile_slug is defined and profile_slug %}
+      <div class="profile-follow">
+        <span class="follower-count">{{ follower_count }} follower{{ 's' if follower_count != 1 }}</span>
+        {% if user %}
+        <form method="post" action="/follow-user-post" class="inline-form">
+          <input type="hidden" name="slug" value="{{ profile_slug }}">
+          <button type="submit" class="btn-custom{{ '-outline' if is_following }}">{{ 'Following ✓' if is_following else 'Follow' }}</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="latest-grid">
+      <div class="latest-main">
+        {% if posts %}
+          {% for p in posts %}{{ m.post_item_horizontal(p) }}{% endfor %}
+          {{ m.pagination(pager) }}
+        {% else %}
+          <p class="no-results">{{ trans('no_records_found') }}</p>
+        {% endif %}
+      </div>
+      {{ m.sidebar(sidebar_widgets, popular, recommended, tags, ls, poll, poll_votes, poll_voted, user, ads, brand_social_links) }}
+    </div>
+  </div>
+</section>
+{% endblock %}

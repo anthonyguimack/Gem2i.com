@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section">
+  <div class="container-xl maintenance-wrap">
+    <h1 class="maintenance-title">{{ gs.maintenance_mode_title or 'Coming Soon!' }}</h1>
+    <p class="maintenance-desc">{{ gs.maintenance_mode_description or 'We are performing scheduled maintenance. We will be back online shortly.' }}</p>
+  </div>
+</div>
+{% endblock %}

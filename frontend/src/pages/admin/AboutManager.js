@@ -5,6 +5,9 @@ import { toast } from 'sonner';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Save, Loader2 } from 'lucide-react';
+import SortableSectionList from '../../components/admin/SortableSectionList';
+import { ABOUT_SECTIONS, aboutSectionOrder } from '../../lib/gemAboutSections';
+import { isGem2iTheme } from '../../lib/themeColors';
 
 import ImageUpload from '../../components/ImageUpload';
 import LocalizedField from '../../components/admin/LocalizedField';
@@ -214,6 +217,28 @@ export default function AboutManager() {
             </div>
           </div>
 
+          {/* Key figures (gem2i /about stats row) */}
+          <div className="pt-4 border-t border-slate-100">
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Key figures</p>
+            <div className="space-y-2">
+              {(data.stats || []).map((s, i) => {
+                const setStat = (k, v) => setData({ ...data, stats: (data.stats || []).map((x, j) => (j === i ? { ...x, [k]: v } : x)) });
+                return (
+                  <div key={i} className="grid grid-cols-[140px_1fr_auto] gap-3 items-start">
+                    <Input value={s.value || ''} onChange={e => setStat('value', e.target.value)} placeholder="17+" />
+                    <LocalizedField value={s.label} onChange={v => setStat('label', v)} render={({ value, onChange }) => (
+                      <Input value={value || ''} onChange={e => onChange(e.target.value)} placeholder="Markets on 4 continents" />
+                    )} />
+                    <button type="button" onClick={() => setData({ ...data, stats: (data.stats || []).filter((_, j) => j !== i) })}
+                      className="h-9 px-3 text-sm text-red-500 hover:text-red-700">Remove</button>
+                  </div>
+                );
+              })}
+            </div>
+            <button type="button" onClick={() => setData({ ...data, stats: [...(data.stats || []), { value: '', label: '' }] })}
+              className="mt-3 text-sm text-[#0D9488] hover:underline">+ Add figure</button>
+          </div>
+
           {/* Call-to-action Button */}
           <div className="pt-4 border-t border-slate-100">
             <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">
@@ -248,6 +273,33 @@ export default function AboutManager() {
               Open in new window / tab
             </label>
           </div>
+
+          {/* gem2i /about: order + visibility of the blocks below the story.
+              Last on purpose — the form follows the page top to bottom. */}
+          {isGem2iTheme(settings.active_theme) && (
+            <div className="pt-4 border-t border-slate-100" data-testid="about-page-sections">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1">Page sections (below the story)</p>
+              <p className="text-xs text-slate-400 mb-3">Drag to reorder, switch to show or hide. Changes apply when you press Save.</p>
+              <SortableSectionList
+                items={aboutSectionOrder(data.page_sections)}
+                defs={Object.fromEntries(ABOUT_SECTIONS.map(d => [d.key, d]))}
+                onChange={next => setData({ ...data, page_sections: next })}
+                renderExtra={item => {
+                  const L = (label, key, placeholder) => (
+                    <div>
+                      <Label className="text-xs text-slate-500">{label}</Label>
+                      <LocalizedField value={data[key]} onChange={v => setData({ ...data, [key]: v })} render={({ value, onChange }) => (
+                        <Input value={value || ''} onChange={e => onChange(e.target.value)} className="mt-1" placeholder={placeholder} />
+                      )} />
+                    </div>
+                  );
+                  if (item.key === 'offices') return <div className="grid md:grid-cols-2 gap-3">{L('Eyebrow', 'offices_eyebrow', 'Where we are')}{L('Title (empty = "N offices, one team")', 'offices_title', '5 offices, one team')}</div>;
+                  if (item.key === 'contact') return <div className="grid md:grid-cols-2 gap-3">{L('Title', 'cta_title', 'Planning an event, a tour or a launch')}{L('Button text', 'cta_button', 'Contact us')}</div>;
+                  return null;
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

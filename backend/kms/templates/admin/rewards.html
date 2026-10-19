@@ -1,0 +1,84 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Reward settings saved.</div>{% endif %}
+{% if is_admin %}
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Reward Settings</h3></div>
+  <div class="box-body">
+    <form method="post" action="/admin/reward-settings-save" class="inline-form">
+      <div class="check-list">
+        <label><input type="checkbox" name="reward_system_status" value="1" {{ 'checked' if reward_on }}> Reward System Enabled</label>
+      </div>
+      <div class="form-group">
+        <label class="control-label">Reward per 1,000 pageviews ({{ currency }})</label>
+        <input type="number" step="0.01" min="0" name="reward_amount" class="form-input" style="max-width:160px" value="{{ rate }}">
+      </div>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+<div class="box">
+  <div class="box-header"><h3 class="box-title">{{ 'Author Earnings' if is_admin else 'My Earnings' }}</h3></div>
+  <div class="box-body">
+    {% if not reward_on %}<p class="text-muted">The reward system is currently disabled — balances shown are informational.</p>{% endif %}
+    <table class="table">
+      <thead><tr><th>Author</th><th>Posts</th><th>Pageviews</th><th>Earned</th><th>Paid</th><th>Balance</th>{% if is_admin %}<th>Record Payout</th>{% endif %}</tr></thead>
+      <tbody>
+        {% for s in stats %}
+        <tr>
+          <td>{{ s.name or s.slug }}</td>
+          <td>{{ s.posts }}</td>
+          <td>{{ s.views }}</td>
+          <td>{{ currency }}{{ '%.2f'|format(s.earned) }}</td>
+          <td>{{ currency }}{{ '%.2f'|format(s.paid) }}</td>
+          <td><b>{{ currency }}{{ '%.2f'|format(s.balance) }}</b></td>
+          {% if is_admin %}
+          <td>
+            <form method="post" action="/admin/add-payout" class="inline-form">
+              <input type="hidden" name="author_slug" value="{{ s.slug }}">
+              <input type="number" step="0.01" min="0.01" name="amount" class="form-input input-payout" placeholder="0.00" required>
+              <input type="text" name="note" class="form-input input-payout-note" placeholder="Note">
+              <button class="btn btn-sm btn-success" type="submit">Pay</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted">No author activity yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Payout History</h3></div>
+  <div class="box-body">
+    <table class="table">
+      <thead><tr><th>Id</th><th>Author</th><th>Amount</th><th>Note</th><th>By</th><th>Date</th>{% if is_admin %}<th></th>{% endif %}</tr></thead>
+      <tbody>
+        {% for p in payouts %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td>{{ p.author_slug }}</td>
+          <td>{{ currency }}{{ '%.2f'|format(p.amount) }}</td>
+          <td>{{ p.note or '-' }}</td>
+          <td>{{ p.paid_by or '-' }}</td>
+          <td>{{ p.created_at|fmt_date(true) }}</td>
+          {% if is_admin %}
+          <td class="td-actions">
+            <form method="post" action="/admin/payout-delete" class="inline-form js-confirm" data-confirm="Delete this payout record?">
+              <input type="hidden" name="payout_id" value="{{ p.id }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted">No payouts recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

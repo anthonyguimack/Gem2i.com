@@ -1,0 +1,76 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="form-grid">
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Update Poll' if editing else 'Add Poll' }}</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/poll-save">
+          <input type="hidden" name="id" value="{{ editing.id if editing else 0 }}">
+          <input type="hidden" name="lang_id" value="{{ editing.lang_id if editing else 1 }}">
+          <div class="form-group">
+            <label class="control-label">Question</label>
+            <textarea name="question" class="form-input" rows="2" required>{{ editing.question if editing else '' }}</textarea>
+          </div>
+          {% for i in range(1, 11) %}
+          <div class="form-group">
+            <label class="control-label">Option {{ i }}{% if i > 2 %} <small>(optional)</small>{% endif %}</label>
+            <input type="text" name="option{{ i }}" class="form-input" value="{{ editing['option' ~ i] or '' if editing else '' }}">
+          </div>
+          {% endfor %}
+          <div class="form-group">
+            <label class="control-label">Who Can Vote</label>
+            <select name="vote_permission" class="form-input">
+              <option value="all" {{ 'selected' if not editing or editing.vote_permission == 'all' }}>All</option>
+              <option value="registered" {{ 'selected' if editing and editing.vote_permission == 'registered' }}>Registered Users</option>
+            </select>
+          </div>
+          <div class="check-list">
+            <label><input type="checkbox" name="status" value="1" {{ 'checked' if not editing or editing.status == 1 }}> Active</label>
+          </div>
+          <button class="btn btn-primary" type="submit">{{ 'Save Changes' if editing else 'Add Poll' }}</button>
+          {% if editing %}<a href="/admin/polls" class="btn btn-default">Cancel</a>{% endif %}
+        </form>
+        <p class="text-muted mt">The newest active poll renders in the sidebar "Voting Poll" widget.</p>
+      </div>
+    </div>
+  </div>
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Polls</h3></div>
+      <div class="box-body">
+        {% for p in polls %}
+        <div class="poll-admin-block">
+          <div class="poll-admin-head">
+            <b>{{ p.question }}</b>
+            <span class="badge {{ 'badge-primary' if p.status == 1 else 'badge-muted' }}">{{ 'Active' if p.status == 1 else 'Inactive' }}</span>
+            <span class="text-muted">{{ counts.get(p.id, 0) }} votes</span>
+          </div>
+          <table class="table">
+            <tbody>
+              {% for i in range(1, 11) %}{% set opt = p['option' ~ i] %}
+              {% if opt %}
+              <tr>
+                <td>{{ opt }}</td>
+                <td style="width:110px">{{ results.get(p.id, {}).get('option' ~ i, 0) }} votes</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="td-actions">
+            <a href="/admin/polls?edit={{ p.id }}" class="btn btn-sm btn-default">Edit</a>
+            <form method="post" action="/admin/poll-delete" class="inline-form js-confirm" data-confirm="Delete this poll and its votes?">
+              <input type="hidden" name="poll_id" value="{{ p.id }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% else %}
+        <p class="text-muted">No polls yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

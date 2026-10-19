@@ -1,0 +1,57 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="form-grid">
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Update Category' if editing else 'Add Category' }}</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/gallery-category-save">
+          <input type="hidden" name="cat_id" value="{{ editing.id if editing else 0 }}">
+          <div class="form-group">
+            <label class="control-label">Category Name</label>
+            <input type="text" name="name" class="form-input" required value="{{ editing.name if editing else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Album</label>
+            <select name="album_id" class="form-input">
+              <option value="0">None</option>
+              {% for a in albums %}
+              <option value="{{ a.id }}" {{ 'selected' if editing and editing.album_id == a.id }}>{{ a.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit">{{ 'Save Changes' if editing else 'Add Category' }}</button>
+          {% if editing %}<a href="/admin/gallery-categories" class="btn btn-default">Cancel</a>{% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Gallery Categories</h3></div>
+      <div class="box-body">
+        <table class="table">
+          <thead><tr><th>Id</th><th>Name</th><th>Album</th><th>Images</th><th>Options</th></tr></thead>
+          <tbody>
+            {% for c in gcats %}
+            <tr>
+              <td>{{ c.id }}</td>
+              <td>{{ c.name }}</td>
+              <td>{% set alb = albums|selectattr('id','equalto',c.album_id)|first %}{{ alb.name if alb else '-' }}</td>
+              <td>{{ counts.get(c.id, 0) }}</td>
+              <td class="td-actions">
+                <a href="/admin/gallery-categories?edit={{ c.id }}" class="btn btn-sm btn-default">Edit</a>
+                <form method="post" action="/admin/gallery-category-delete" class="inline-form js-confirm" data-confirm="Delete this category?">
+                  <input type="hidden" name="cat_id" value="{{ c.id }}">
+                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

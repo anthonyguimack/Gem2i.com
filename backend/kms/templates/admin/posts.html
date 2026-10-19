@@ -1,0 +1,86 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">{{ title }}</h3>
+    <a href="/admin/add-post" class="btn btn-primary btn-sm pull-right">Add Post</a>
+  </div>
+  <div class="box-body">
+    <form method="get" class="filter-row">
+      <input type="text" name="q" value="{{ q }}" class="form-input" placeholder="Search">
+      <select name="category" class="form-input">
+        <option value="">All Categories</option>
+        {% for c in cats %}<option value="{{ c.id }}" {{ 'selected' if cat_filter == c.id|string }}>{{ '— ' if c.parent_id }}{{ c.name }}</option>{% endfor %}
+      </select>
+      <select name="tier" class="form-input">
+        <option value="">All Tiers</option>
+        <option value="public" {{ 'selected' if tier_filter == 'public' }}>Public</option>
+        <option value="registered" {{ 'selected' if tier_filter == 'registered' }}>Registered</option>
+        <option value="mastermind" {{ 'selected' if tier_filter == 'mastermind' }}>Mastermind</option>
+      </select>
+      <button class="btn btn-default" type="submit">Filter</button>
+    </form>
+    <table class="table">
+      <thead><tr>
+        <th>Id</th><th></th><th>Post</th><th>Category</th><th>Author</th>
+        {% if selection_type %}<th>{{ selection_type|title }}</th>{% else %}<th>Status</th>{% endif %}
+        <th>Date</th><th>Options</th>
+      </tr></thead>
+      <tbody>
+        {% for p in posts %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td class="td-thumb">{% if post_image(p, 'small') %}<img src="{{ post_image(p, 'small') }}" alt="">{% endif %}</td>
+          <td class="td-title"><a href="/admin/edit-post/{{ p.id }}">{{ p.title }}</a></td>
+          <td>{% set c = cats|selectattr('id','equalto',p.category_id)|first %}{{ c.name if c else '-' }}</td>
+          <td>{{ p.author_username or '-' }}</td>
+          {% if selection_type %}
+          <td>
+            <label class="switch">
+              <input type="checkbox" class="sel-toggle" data-post="{{ p.id }}" data-sel="{{ selection_type }}" {{ 'checked' if p.id in sel_ids }}>
+              <span class="slider-sw"></span>
+            </label>
+          </td>
+          {% else %}
+          <td>{% if p.is_scheduled == 1 %}<span class="label lb-teal">Scheduled</span>
+              {% elif p.status == 1 %}<span class="label lb-green">Published</span>
+              {% elif p.is_draft == 1 %}<span class="label lb-yellow">Draft</span>
+              {% else %}<span class="label lb-orange">{{ 'In review' if p.review and p.review.state == 'in_review' else 'Pending' }}</span>{% endif %}
+              {% if p.review %}{% set ra = p.review.votes|selectattr('vote','equalto','approve')|list|length %}
+                {% if p.review.state == 'in_review' %}<span class="label lb-teal">{{ ra }}/{{ p.review.required }}</span>
+                {% elif p.review.state == 'declined' %}<span class="label lb-red">Declined</span>{% endif %}
+                {% if p.review.pending_edit %}<span class="label lb-yellow">Edit pending</span>{% endif %}
+              {% endif %}
+              {% set ptier = p.tier or ('registered' if p.need_auth == 1 else 'public') %}
+              <span class="label lb-tier-{{ ptier }}">{{ ptier|title }}</span></td>
+          {% endif %}
+          <td>{{ p.created_at|fmt_date(True) }}</td>
+          <td class="td-actions">
+            <select class="form-input row-action" data-post="{{ p.id }}" data-slug="{{ p.slug }}">
+              <option value="">Select an option</option>
+              {% if p.status == 1 %}<option value="view">View</option>{% endif %}
+              <option value="preview">Preview</option>
+              <option value="edit">Edit</option>
+              {% if is_admin and not (p.status == 0 and p.is_draft == 1) %}<option value="draft">Move to Draft</option>{% endif %}
+              {% if is_admin and p.status == 0 %}<option value="publish">Publish</option>{% endif %}
+              {% if is_admin and active == 'posts' %}<option value="replicate">Replicate</option>{% endif %}
+              <option value="delete">Delete</option>
+            </select>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="td-empty">No records found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if pager.pages > 1 %}
+    <nav class="pagination">
+      {% for i in range(1, pager.pages + 1) %}
+        {% if i == pager.page %}<span class="page-current">{{ i }}</span>
+        {% else %}<a href="?page={{ i }}{{ '&q=' + q if q }}{{ '&category=' + cat_filter if cat_filter }}{{ '&tier=' + tier_filter if tier_filter }}" class="page-link">{{ i }}</a>{% endif %}
+      {% endfor %}
+    </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

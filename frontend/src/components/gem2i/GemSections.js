@@ -626,7 +626,7 @@ export function GemVenueGrid({ config = {}, items = [], limit = 12 }) {
                 <img src={view(v)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-visible:scale-105 motion-reduce:transition-none" />
                 <span className="absolute left-4 top-4 z-10 min-w-[44px] h-[44px] px-2 inline-flex items-center justify-center text-white text-[19px] font-semibold tabular-nums" style={{ backgroundColor: 'var(--color-accent, #0068b3)' }}>{i + 1}</span>
                 {logo(v) && (
-                  <span className="absolute right-4 top-4 z-10 w-[88px] h-[88px] 2xl:w-[104px] 2xl:h-[104px] rounded-full bg-white flex items-center justify-center p-3 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]">
+                  <span className="absolute right-4 top-4 z-10 w-[88px] h-[88px] 2xl:w-[104px] 2xl:h-[104px] rounded-full overflow-hidden bg-white flex items-center justify-center p-3 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]">
                     <img src={logo(v)} alt="" loading="lazy" className="max-w-full max-h-full object-contain transition-opacity duration-300 group-hover:opacity-0 group-focus-visible:opacity-0" />
                     <img src={logo(v, true)} alt="" loading="lazy" className="absolute inset-3 m-auto max-w-[calc(100%-1.5rem)] max-h-[calc(100%-1.5rem)] object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
                   </span>
@@ -1058,9 +1058,7 @@ export function GemLogoMarquee({ config = {}, items = [], testid }) {
   const tt = useT();
   if (!items.length) return null;
   const Logo = ({ l, hidden }) => {
-    const img = <img src={gemImg(l.logo_url || l.image)} alt={hidden ? '' : (tt(l.name) || '')} loading="lazy" className="h-10 md:h-12 w-auto max-w-[180px] object-contain opacity-60 transition-opacity hover:opacity-100"
-      // Mixed legacy logos (navy, black, colour): one white silhouette keeps them all legible on the dark band.
-      style={{ filter: 'brightness(0) invert(1)' }} />;
+    const img = <img src={gemImg(l.logo_url || l.image)} alt={hidden ? '' : (tt(l.name) || '')} loading="lazy" className="h-10 md:h-12 w-auto max-w-[180px] object-contain grayscale opacity-70 transition-[filter,opacity] duration-300 hover:grayscale-0 hover:opacity-100" />;
     return l.link_url
       ? <a href={l.link_url} target={l.link_target || '_blank'} rel="noopener noreferrer" tabIndex={hidden ? -1 : 0} aria-hidden={hidden || undefined} className="shrink-0 mx-8 md:mx-12">{img}</a>
       : <span className="shrink-0 mx-8 md:mx-12" aria-hidden={hidden || undefined}>{img}</span>;
@@ -1080,8 +1078,9 @@ export function GemLogoMarquee({ config = {}, items = [], testid }) {
 }
 
 // ── K-1 Clients: centred heading + text, logo grid in boxes (colour on hover).
-export function GemClientsGrid({ title, kicker, text, logos = [] }) {
+export function GemClientsGrid({ title, kicker, text, logos = [], ctaText, ctaUrl, ctaNewTab }) {
   if (!logos.length && !title) return null;
+  const ctaExternal = /^https?:/i.test(ctaUrl || '');
   return (
     <Wrap testid="gem2i-clients">
       <div className="text-center">
@@ -1092,13 +1091,28 @@ export function GemClientsGrid({ title, kicker, text, logos = [] }) {
       {logos.length > 0 && (
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
           {logos.map((l, i) => {
-            const img = <img src={l.image} alt={l.name || 'client'} loading="lazy" className="max-w-full max-h-[60px] object-contain grayscale brightness-150 opacity-70 transition-[filter,opacity] duration-300 group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100" />;
-            const cls = 'group h-24 rounded-2xl flex items-center justify-center p-4 transition-colors hover:border-white/20';
+            const body = (<>
+              <span className="h-16 flex items-center justify-center">
+                <img src={l.image} alt={l.name || 'client'} loading="lazy" className="max-w-full max-h-[60px] object-contain grayscale brightness-150 opacity-70 transition-[filter,opacity] duration-300 group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100" />
+              </span>
+              {l.name && <span className="mt-4 text-white text-[15px] font-semibold leading-tight">{l.name}</span>}
+              {l.description && <span className="mt-1 text-[13px] leading-snug" style={{ color: BODY }}>{l.description}</span>}
+            </>);
+            const cls = 'group rounded-2xl flex flex-col items-center justify-start text-center p-5 transition-colors hover:border-white/20';
             const style = { backgroundColor: CARD, border: `1px solid ${BORDER}` };
             return l.url
-              ? <a key={i} href={l.url} target="_blank" rel="noreferrer" className={cls} style={style}>{img}</a>
-              : <div key={i} className={cls} style={style}>{img}</div>;
+              ? <a key={i} href={l.url} target="_blank" rel="noreferrer" className={cls} style={style}>{body}</a>
+              : <div key={i} className={cls} style={style}>{body}</div>;
           })}
+        </div>
+      )}
+      {ctaText && ctaUrl && (
+        <div className="mt-12 text-center">
+          <a href={ctaUrl} target={ctaNewTab || ctaExternal ? '_blank' : undefined} rel={ctaNewTab || ctaExternal ? 'noopener noreferrer' : undefined}
+            className="inline-flex items-center gap-2 px-6 py-3 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: ACCENT }}>
+            {ctaText} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </a>
         </div>
       )}
     </Wrap>

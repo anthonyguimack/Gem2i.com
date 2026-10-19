@@ -1,0 +1,48 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if request.query_params.get('err') == 'notempty' %}<div class="alert alert-danger">Album is not empty — move or delete its images first.</div>{% endif %}
+<div class="form-grid">
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">{{ 'Update Album' if editing else 'Add Album' }}</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/gallery-album-save">
+          <input type="hidden" name="album_id" value="{{ editing.id if editing else 0 }}">
+          <div class="form-group">
+            <label class="control-label">Album Name</label>
+            <input type="text" name="name" class="form-input" required value="{{ editing.name if editing else '' }}">
+          </div>
+          <button class="btn btn-primary" type="submit">{{ 'Save Changes' if editing else 'Add Album' }}</button>
+          {% if editing %}<a href="/admin/gallery-albums" class="btn btn-default">Cancel</a>{% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Albums</h3></div>
+      <div class="box-body">
+        <table class="table">
+          <thead><tr><th>Id</th><th>Name</th><th>Images</th><th>Options</th></tr></thead>
+          <tbody>
+            {% for a in albums %}
+            <tr>
+              <td>{{ a.id }}</td>
+              <td>{{ a.name }}</td>
+              <td>{{ counts.get(a.id, 0) }}</td>
+              <td class="td-actions">
+                <a href="/admin/gallery-albums?edit={{ a.id }}" class="btn btn-sm btn-default">Edit</a>
+                <form method="post" action="/admin/gallery-album-delete" class="inline-form js-confirm" data-confirm="Delete this album?">
+                  <input type="hidden" name="album_id" value="{{ a.id }}">
+                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

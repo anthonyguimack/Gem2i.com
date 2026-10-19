@@ -6,6 +6,7 @@ import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Switch } from '../../components/ui/switch';
 import ImageUpload from '../../components/ImageUpload';
+import RichTextEditor from '../../components/RichTextEditor';
 import {
   Plus, Edit2, Trash2, Loader2, Search, RotateCcw, X,
   ChevronLeft, ChevronRight, Image as ImageIcon,
@@ -70,7 +71,7 @@ const CONFIGS = {
       { key: 'rosters.djmag_rank', label: 'DJ Mag rank (1–100)', type: 'rank', third: true },
       { key: 'rosters.resident_rank', label: 'Resident rank (1–100)', type: 'rank', third: true },
       { key: 'summary', label: 'Summary', type: 'textarea', rows: 2 },
-      { key: 'bio', label: 'Biography (HTML allowed)', type: 'textarea', rows: 5 },
+      { key: 'bio', label: 'Biography', type: 'rich' },
       { key: 'video', label: 'Video URL', type: 'text' },
       { key: 'gem2i_client', label: 'GEM2i-managed client', type: 'switch' },
     ],
@@ -94,7 +95,7 @@ const CONFIGS = {
       { key: 'order', label: 'Listing order', type: 'number', half: true },
       { key: 'genres', label: 'Genres (comma-separated)', type: 'csv' },
       { key: 'summary', label: 'Summary', type: 'textarea', rows: 2 },
-      { key: 'description', label: 'Description (HTML allowed)', type: 'textarea', rows: 4 },
+      { key: 'description', label: 'Description', type: 'rich' },
       { key: 'map', label: 'Map embed / URL', type: 'text' },
       { key: 'featured', label: 'Featured', type: 'switch' },
     ],
@@ -115,8 +116,8 @@ const CONFIGS = {
       { key: 'open_time', label: 'Open time', type: 'text', half: true },
       { key: 'end_time', label: 'End time', type: 'text', half: true },
       ...geoFields,
-      { key: 'description', label: 'Description (HTML allowed)', type: 'textarea', rows: 4 },
-      { key: 'artists_schedule', label: 'Artists schedule (HTML allowed)', type: 'textarea', rows: 3 },
+      { key: 'description', label: 'Description', type: 'rich' },
+      { key: 'artists_schedule', label: 'Artists schedule', type: 'rich' },
       { key: 'video', label: 'Video URL', type: 'text', half: true },
       { key: 'map', label: 'Map embed / URL', type: 'text', half: true },
       { key: 'lineup', label: 'Line-up', type: 'lineup' },
@@ -137,8 +138,8 @@ const CONFIGS = {
       { key: 'event_date', label: 'Date', type: 'date', half: true },
       { key: 'range_dates', label: 'Date range (display)', type: 'text', half: true },
       ...geoFields,
-      { key: 'description', label: 'Description (HTML allowed)', type: 'textarea', rows: 4 },
-      { key: 'conferences_schedule', label: 'Schedule (HTML allowed)', type: 'textarea', rows: 3 },
+      { key: 'description', label: 'Description', type: 'rich' },
+      { key: 'conferences_schedule', label: 'Schedule', type: 'rich' },
       { key: 'video', label: 'Video URL', type: 'text', half: true },
       { key: 'website', label: 'Website', type: 'text', half: true },
     ],
@@ -159,7 +160,7 @@ const CONFIGS = {
       ] },
       { key: 'url', label: 'Link URL', type: 'text', half: true },
       { key: 'video', label: 'Video URL (mode = video)', type: 'text' },
-      { key: 'description', label: 'Description', type: 'textarea', rows: 2 },
+      { key: 'description', label: 'Description', type: 'rich' },
       { key: 'publish', label: 'Published on homepage', type: 'publish' },
       { key: 'gallery', label: 'Gallery photos (mode = gallery)', type: 'gallery' },
     ],
@@ -184,11 +185,12 @@ const CONFIGS = {
       { key: 'venue_id', label: 'Venue', type: 'venue' },
       { key: 'lineup', label: 'DJ line-up', type: 'lineup' },
       { key: 'summary', label: 'Summary', type: 'textarea', rows: 2 },
-      { key: 'description', label: 'Description (HTML allowed)', type: 'textarea', rows: 4 },
-      { key: 'concept', label: 'Concept (HTML allowed)', type: 'textarea', rows: 2 },
+      { key: 'description', label: 'Description', type: 'rich' },
+      { key: 'concept', label: 'Concept', type: 'rich' },
       { key: 'external_ticket_system', label: 'External ticket system URL', type: 'text' },
       { key: 'private', label: 'Private event (hidden from public)', type: 'switch', half: true },
       { key: 'show_portal', label: 'Show on the GEM2i portal', type: 'switch', half: true },
+      { key: 'hero_slide_ids', label: 'Show in these hero slides', type: 'heroSlides', showIf: (e) => e.show_portal !== false },
       { key: 'guest_list', label: 'Guest list', type: 'guestList' },
       { key: 'tiers', label: 'Ticket tiers', type: 'tiers' },
       { key: 'points', label: 'Reward points', type: 'points' },
@@ -204,6 +206,42 @@ const CONFIGS = {
 /* ---------------- shared sub-widgets ---------------- */
 
 /** Searchable reference picker against another gem catalog (single or multi). */
+/** Event → hero slides it is featured in (only while "Show on the GEM2i
+ *  portal" is on). Lists the hero slides that are live today; ids saved on
+ *  the event as hero_slide_ids. An event can sit in one or many slides. */
+function HeroSlidePicker({ value, onChange }) {
+  const [slides, setSlides] = useState(null);
+  useEffect(() => {
+    adminAPI.getHeroSlides().then((r) => {
+      const now = new Date().toISOString();
+      const live = (r.data || []).filter((sl) => (!sl.date_start || sl.date_start <= now) && (!sl.date_end || now <= sl.date_end));
+      setSlides(live);
+    }).catch(() => setSlides([]));
+  }, []);
+  const ids = Array.isArray(value) ? value : [];
+  const plain = (v) => String((v && typeof v === 'object' ? (v.en || Object.values(v)[0]) : v) || '').replace(/<[^>]*>/g, '').trim();
+  if (!slides) return <p className="text-xs text-slate-400">Loading hero slides…</p>;
+  if (!slides.length) return <p className="text-xs text-slate-400">No active hero slides. Create one in CMS → Hero.</p>;
+  return (
+    <div className="grid sm:grid-cols-2 gap-2" data-testid="event-hero-picker">
+      {slides.map((sl) => {
+        const on = ids.includes(sl.id);
+        const pages = (sl.assigned_pages || []).filter((p) => p.length < 20).join(', ');
+        return (
+          <label key={sl.id} className={`flex items-start gap-2.5 p-2.5 rounded-sm border cursor-pointer ${on ? 'border-[#0D9488] bg-teal-50' : 'border-slate-200 bg-white'}`}>
+            <input type="checkbox" checked={on} className="mt-0.5 accent-[#0D9488]"
+              onChange={(e) => onChange(e.target.checked ? [...ids, sl.id] : ids.filter((x) => x !== sl.id))} />
+            <span className="min-w-0">
+              <span className="block text-sm text-slate-800 truncate">{sl.name || plain(sl.title) || 'Untitled slide'}</span>
+              <span className="block text-[11px] text-slate-400 truncate">{pages ? `Pages: ${pages}` : 'Not assigned to a page'}</span>
+            </span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
 function RefPicker({ catalog, value, onChange, multiple, placeholder }) {
   const ids = useMemo(() => (multiple ? value || [] : value ? [value] : []), [value, multiple]);
   const [names, setNames] = useState({});
@@ -583,7 +621,13 @@ export default function GemCatalogManager({ catalog }) {
         return <Input type="number" min="1" max="100" value={val ?? ''} placeholder="—"
           onChange={(e) => set(e.target.value === '' ? null : Math.max(1, Math.min(100, Number(e.target.value))))} className="mt-1" />;
       case 'date':
-        return <Input type="date" value={(val || '').slice(0, 10)} onChange={(e) => set(e.target.value)} className="mt-1" />;
+        // Explicit light scheme: the admin shell's dark tokens made the date text unreadable.
+        return <Input type="date" value={(val || '').slice(0, 10)} onChange={(e) => set(e.target.value)}
+          className="mt-1 bg-white text-slate-900 [color-scheme:light]" />;
+      case 'rich':
+        return <div className="mt-1"><RichTextEditor value={val || ''} onChange={set} /></div>;
+      case 'heroSlides':
+        return <div className="mt-1"><HeroSlidePicker value={val} onChange={set} /></div>;
       case 'textarea':
         return <textarea value={val || ''} rows={f.rows || 3} onChange={(e) => set(e.target.value)}
           className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-sm text-sm mt-1" />;
@@ -730,7 +774,7 @@ export default function GemCatalogManager({ catalog }) {
           {editing && (
             <div className="space-y-4">
               <div className="grid grid-cols-6 gap-3">
-                {cfg.fields.map((f) => (
+                {cfg.fields.filter((f) => !f.showIf || f.showIf(editing)).map((f) => (
                   <div key={f.key} className={f.third ? 'col-span-2' : f.half ? 'col-span-3' : 'col-span-6'}>
                     <Label className="text-xs text-slate-500">{f.label}</Label>
                     {renderField(f)}

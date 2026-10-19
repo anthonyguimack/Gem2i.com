@@ -1,0 +1,71 @@
+{% extends "admin/_base.html" %}
+{% set builtin = widget and widget.is_custom == 0 %}
+{% block content %}
+<form method="post" action="/admin/widget-save">
+<input type="hidden" name="id" value="{{ widget.id if widget else 0 }}">
+<input type="hidden" name="lang_id" value="{{ widget.lang_id if widget else 1 }}">
+<div class="form-grid">
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Widget</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Title</label>
+          <input type="text" name="title" class="form-input" required value="{{ widget.title if widget else '' }}">
+        </div>
+        {% if builtin %}
+        <p class="text-muted">Built-in widget (<b>{{ widget.type }}</b>) — its content is rendered by the theme.</p>
+        {% if widget.type == 'category' %}
+        <div class="form-group">
+          <label class="control-label">Display Category</label>
+          <select name="display_category_id" class="form-input">
+            <option value="0">Select</option>
+            {% for c in cats %}
+            <option value="{{ c.id }}" {{ 'selected' if widget.display_category_id == c.id }}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="form-group">
+          <label class="control-label">Content (HTML)</label>
+          <textarea id="widgetContent" name="content">{{ widget.content or '' if widget else '' }}</textarea>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Options</h3></div>
+      <div class="box-body">
+        <div class="form-group">
+          <label class="control-label">Order</label>
+          <input type="number" name="widget_order" class="form-input" value="{{ widget.widget_order or 0 if widget else 0 }}">
+        </div>
+        <div class="check-list">
+          <label><input type="checkbox" name="visibility" value="1" {{ 'checked' if not widget or widget.visibility == 1 }}> Visible</label>
+        </div>
+        <button class="btn btn-primary" type="submit">{{ 'Save Changes' if widget else 'Add Widget' }}</button>
+        <a href="/admin/widgets" class="btn btn-default">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}
+{% block scripts %}
+{% if not builtin %}
+<script src="/kms-static/tinymce/tinymce.min.js"></script>
+<script>
+tinymce.init({
+  license_key: 'gpl', selector: '#widgetContent',
+  height: 320, min_height: 320, valid_elements: '*[*]', relative_urls: false,
+  entity_encoding: 'raw', remove_script_host: false, menubar: false,
+  plugins: 'advlist autolink lists link image charmap code table',
+  toolbar: 'code | undo redo | bold italic underline | alignleft aligncenter alignright | numlist bullist | forecolor removeformat | image link',
+  promotion: false, branding: false
+});
+</script>
+{% endif %}
+{% endblock %}

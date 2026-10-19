@@ -1,0 +1,31 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if created is not none and created %}<div class="alert alert-success">Created {{ created }} post(s){% if skipped and skipped != '0' %}, skipped {{ skipped }} (empty title / slug already exists){% endif %}.</div>
+{% elif created == '0' %}<div class="alert alert-danger">No posts created — {{ skipped }} row(s) skipped (empty titles or slugs that already exist).</div>{% endif %}
+{% if err == 'size' %}<div class="alert alert-danger">File too large (max 10MB).</div>{% endif %}
+{% if err == 'parse' %}<div class="alert alert-danger">Could not parse the CSV (must be UTF-8).</div>{% endif %}
+{% if err == 'columns' %}<div class="alert alert-danger">CSV needs a header row with at least a <code>title</code> column.</div>{% endif %}
+<div class="box box-settings">
+  <div class="box-header"><h3 class="box-title">Bulk Post Upload (CSV)</h3></div>
+  <div class="box-body">
+    <p class="text-muted">Header row required. Columns: <code>title</code> (required), <code>content</code>, <code>summary</code>, <code>keywords</code>, <code>tags</code> (comma-separated), <code>slug</code>, <code>image_url</code>, <code>optional_url</code>. Plain-text content is auto-wrapped in paragraphs. Rows whose slug already exists are skipped (idempotent — same rule as RSS import). Max 500 rows.</p>
+    <form method="post" action="/admin/bulk-post-upload" enctype="multipart/form-data">
+      <div class="form-group">
+        <label class="control-label">CSV File</label>
+        <input type="file" name="file" class="form-input" accept=".csv,text/csv" required>
+      </div>
+      <div class="form-group">
+        <label class="control-label">Category (applied to all rows)</label>
+        <select name="category_id" class="form-input">
+          <option value="0">None</option>
+          {% for c in cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="check-list">
+        <label><input type="checkbox" name="as_draft" value="1" checked> Import as Drafts</label>
+      </div>
+      <button class="btn btn-primary" type="submit">Upload &amp; Import</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -5,6 +5,17 @@ from utils.stripe_helpers import StripeHelper
 from datetime import datetime, timezone
 import uuid
 
+def _add_months(dt, months):
+    """Calendar-accurate month add (clamps the day to the target month's length).
+    Used by the KMS reader subscriptions (kms/core.py, ported from A Capital)."""
+    import calendar
+    m = dt.month - 1 + months
+    y = dt.year + m // 12
+    m = m % 12 + 1
+    d = min(dt.day, calendar.monthrange(y, m)[1])
+    return dt.replace(year=y, month=m, day=d)
+
+
 router = APIRouter()
 
 @router.post("/checkout")

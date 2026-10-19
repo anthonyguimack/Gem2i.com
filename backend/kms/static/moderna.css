@@ -1,0 +1,268 @@
+/* KMS "Moderna" theme — editorial brief-native stylesheet.
+   Loaded by base.html only when general.theme == "moderna" (after kms.css).
+   Part A: site chrome in the Market Insight Notes editorial language.
+   Part B: the brief class vocabulary (KMS_MODERNA_SPEC.md §2) scoped under
+   .post-content — colors exclusively var(--kms-*), print pt/cm re-expressed
+   in screen units (spec §3). Magazine ships none of this file. */
+
+/* ═══ Part A — site chrome ═══════════════════════════════════════════════ */
+
+body.moderna { font-family: var(--kms-body-font); }
+body.moderna h1, body.moderna h2, body.moderna h3, body.moderna h4 {
+  font-weight: var(--kms-heading-weight);
+}
+
+/* masthead: band-colored top strip already comes via --dark→band; the main
+   nav gets the editorial accent rule (the brief's .rh-band bottom rule). */
+body.moderna .nav-main { border-bottom: 2px solid var(--kms-accent); }
+body.moderna .nav-link { letter-spacing: 1.2px; font-weight: var(--kms-heading-weight); }
+
+/* section/widget headings → kicker treatment */
+body.moderna .widget-title,
+body.moderna .block-title {
+  color: var(--kms-heading);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--kms-line);
+  padding-bottom: 6px;
+}
+body.moderna .cat-label {
+  background: transparent !important;
+  color: var(--kms-kicker);
+  padding: 0;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* post header → kicker / title / standfirst */
+body.moderna .post-title {
+  color: var(--kms-heading);
+  font-size: 2.3rem;
+  line-height: 1.15;
+  font-weight: var(--kms-heading-weight);
+  letter-spacing: 0.2px;
+}
+body.moderna .post-summary {
+  font-style: italic;
+  color: var(--kms-muted);
+  border-bottom: 1px solid var(--kms-line);
+  padding-bottom: 12px;
+}
+body.moderna .post-detail-meta { color: var(--kms-muted); }
+
+/* listing cards: hairlines + serif titles */
+body.moderna .post-item-title { color: var(--kms-heading); }
+body.moderna .footer-copyright { border-top: 2px solid var(--kms-accent); }
+
+/* dark mode: chrome darkens (kms.css), the reading sheet stays light
+   (News-tool precedent D-2026-30 / spec §3.7) */
+body.moderna.dark-mode .post-content {
+  background: #ffffff;
+  color: var(--kms-ink);
+  padding: 20px 24px;
+  border-radius: 3px;
+}
+
+/* ═══ Part A2 — post-detail typography (D-2026-76) ════════════════════════
+   Reading typography for the ARTICLE ONLY: Sora headings + Inter body, one
+   step larger. Chrome (top bar, masthead, nav, right sidebar, footer) keeps
+   the Georgia editorial voice — hence the scope.
+
+   Mechanism: the three theme font tokens are REDECLARED on `.post-detail`
+   (the article column; the sidebar is its sibling, not a descendant). Custom
+   properties inherit, so every existing `var(--kms-*-font)` rule under the
+   article resolves to these values with no new selectors and no duplicated
+   declarations. Anything outside `.post-detail` still reads the :root tokens
+   built by core.theme_css() — i.e. CMS → theme_fonts still governs the site.
+
+   Size: the article is sized in rem (this file), the chrome in px (kms.css —
+   zero rem in it), so lifting the rem base scales the article and nothing
+   else. `:has()` keeps the lift on post-detail pages only; where it is not
+   supported the page simply renders at 100% (no breakage). */
+html:has(.post-detail) { font-size: 110%; }
+
+.post-detail {
+  --kms-heading-font: 'Sora', 'Inter', -apple-system, sans-serif;
+  --kms-body-font: 'Inter', -apple-system, 'Helvetica Neue', sans-serif;
+  --kms-heading-weight: 600;
+  /* kms.css derives --font-primary/--font-secondary from the tokens ON :root
+     and `h1…h6, .widget-title, .btn-custom` declare `font-family:
+     var(--font-secondary)` explicitly — an explicit declaration beats
+     inheritance, so the aliases have to be re-derived here too or the post
+     title and every widget heading in the article would stay Georgia. */
+  --font-primary: var(--kms-body-font);
+  --font-secondary: var(--kms-heading-font);
+  /* `body.moderna` resolves --kms-body-font at BODY scope, i.e. still Georgia,
+     and elements with no family of their own (breadcrumb, meta, related,
+     comments) inherit that computed value. Re-anchoring the family here is
+     what makes the whole article column read as one face. */
+  font-family: var(--kms-body-font);
+}
+
+/* …EXCEPT the headline, restored (Anthony, 2026-07-22): the H1 keeps the site's
+   editorial voice — chrome face, chrome weight and its pre-lift size — while
+   the rest of the article reads in Sora/Inter.
+   The chrome values are captured on `body`, one level ABOVE the article, so
+   they still come from :root (i.e. CMS → theme_fonts) instead of being frozen
+   here; aliasing them at :root itself would be a self-reference and void the
+   declaration. The /1.1 divisors cancel the article's rem lift exactly, so the
+   title renders at the same px as before the change and stays responsive. */
+body { --kms-chrome-heading-font: var(--kms-heading-font);
+       --kms-chrome-heading-weight: var(--kms-heading-weight); }
+body.moderna .post-detail .post-title {
+  font-family: var(--kms-chrome-heading-font);
+  font-weight: var(--kms-chrome-heading-weight);
+  font-size: calc(2.3rem / 1.1);
+}
+@media (max-width: 640px) {
+  body.moderna .post-detail .post-title { font-size: calc(1.7rem / 1.1); }
+}
+
+/* ═══ Part B — brief content vocabulary (scoped .post-content) ═══════════ */
+
+.post-content { font-family: var(--kms-body-font); color: var(--kms-ink); line-height: 1.55; }
+.post-content b, .post-content strong { color: var(--kms-heading); }
+
+/* page shell from standalone briefs → neutral inside a post */
+.post-content .page { max-width: 100%; margin: 0; padding: 0; background: transparent; box-shadow: none; }
+.post-content .nobreak { page-break-inside: auto; }
+
+/* running masthead */
+.post-content .runhead { width: 100%; }
+.post-content .rh-top { display: flex; justify-content: space-between; align-items: center; padding: 0 0 8px 0; width: 100%; flex-wrap: wrap; gap: 8px; }
+.post-content .rh-logo img { height: 50px; width: auto; display: inline-block; }
+.post-content .rh-meta { text-align: right; font-size: 0.85rem; color: var(--kms-heading); line-height: 1.5; letter-spacing: 0.3px; }
+.post-content .rh-meta .it { font-style: italic; color: var(--kms-muted); }
+.post-content .rh-band {
+  background: var(--kms-band); color: var(--kms-box-bg); width: 100%; box-sizing: border-box;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;
+  padding: 10px 20px; border-bottom: 2px solid var(--kms-accent); margin-bottom: 6px;
+}
+.post-content .rh-band .l { font-size: 1.1rem; font-weight: var(--kms-heading-weight); letter-spacing: 4px; font-family: var(--kms-heading-font); }
+.post-content .rh-band .r { font-size: 0.8rem; letter-spacing: 2px; color: var(--kms-accent); white-space: nowrap; }
+
+/* openers */
+.post-content .kicker { color: var(--kms-kicker); font-size: 0.95rem; font-weight: bold; letter-spacing: 2.5px; text-transform: uppercase; margin: 0 0 6px 0; font-family: var(--kms-heading-font); }
+.post-content h1.title { color: var(--kms-heading); font-size: 2.2rem; line-height: 1.14; font-weight: var(--kms-heading-weight); letter-spacing: 0.2px; margin: 0 0 12px 0; font-family: var(--kms-heading-font); }
+.post-content .standfirst { font-style: italic; color: var(--kms-muted); font-size: 1.1rem; line-height: 1.5; border-bottom: 1px solid var(--kms-line); padding-bottom: 12px; margin-bottom: 12px; }
+.post-content .deck { font-size: 0.95rem; margin-bottom: 10px; }
+.post-content .deck b { color: var(--kms-heading); }
+
+/* section headings: accent left tab */
+.post-content h2.sec { color: var(--kms-heading); font-size: 1.4rem; font-weight: var(--kms-heading-weight); letter-spacing: 1px; padding-left: 12px; position: relative; margin: 20px 0 9px 0; line-height: 1.2; font-family: var(--kms-heading-font); }
+.post-content h2.sec::before { content: ""; position: absolute; left: 0; top: 2px; bottom: 2px; width: 4px; background: var(--kms-accent); }
+.post-content h2.sec .n { color: var(--kms-accent); font-size: 1.1rem; margin-right: 6px; }
+
+.post-content p.body { font-size: 0.95rem; margin: 0 0 8px 0; }
+.post-content p.body b { color: var(--kms-heading); }
+
+/* callout */
+.post-content .callout { background: var(--kms-box-bg); border-left: 4px solid var(--kms-accent); padding: 11px 16px; margin: 12px 0; }
+.post-content .callout .lbl { color: var(--kms-accent); font-size: 0.82rem; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+.post-content .callout .txt { color: var(--kms-heading); font-size: 1.05rem; line-height: 1.4; }
+
+/* pull quote */
+.post-content .pull { border-left: 4px solid var(--kms-accent); padding: 4px 0 4px 16px; margin: 13px 0; }
+.post-content .pull .q { color: var(--kms-heading); font-size: 1.35rem; font-style: italic; line-height: 1.3; }
+.post-content .pull .a { color: var(--kms-accent); font-size: 0.82rem; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+
+/* at-a-glance */
+.post-content .glance { background: var(--kms-box-bg); padding: 14px 18px; margin: 13px 0; border: 1px solid var(--kms-line); }
+.post-content .glance h4 { color: var(--kms-accent); font-size: 0.9rem; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 8px 0; }
+.post-content .glance ul { list-style: none; margin: 0; padding: 0; }
+.post-content .glance li { font-size: 0.9rem; line-height: 1.5; margin-bottom: 4px; padding-left: 16px; position: relative; }
+.post-content .glance li::before { content: "\2022"; color: var(--kms-accent); position: absolute; left: 0; font-size: 1rem; top: -1px; }
+.post-content .glance li b { color: var(--kms-heading); }
+
+/* accent bullets */
+.post-content ul.sq { list-style: none; margin: 5px 0 9px 4px; padding: 0; }
+.post-content ul.sq li { font-size: 0.93rem; line-height: 1.5; margin-bottom: 4px; padding-left: 16px; position: relative; }
+.post-content ul.sq li::before { content: "\2022"; color: var(--kms-accent); position: absolute; left: 0; font-size: 1rem; top: -1px; }
+.post-content ul.sq li b { color: var(--kms-heading); }
+
+/* scorecards */
+.post-content .scorecard { display: flex; gap: 6px; margin: 7px 0 11px 0; flex-wrap: wrap; }
+.post-content .sc { flex: 1 1 110px; border: 1px solid var(--kms-line); border-top: 3px solid var(--kms-negative); padding: 7px 9px; background: #fff; }
+.post-content .sc.up { border-top-color: var(--kms-positive); }
+.post-content .sc .l { font-size: 0.68rem; color: var(--kms-muted); letter-spacing: 0.4px; text-transform: uppercase; }
+.post-content .sc .v { font-size: 1.2rem; font-weight: bold; margin-top: 1px; }
+.post-content .sc .c { font-size: 0.74rem; }
+.post-content .neg { color: var(--kms-negative); }
+.post-content .pos { color: var(--kms-positive); }
+
+/* tables (fluid, scroll on narrow screens via wrapping div OR max-width) */
+.post-content table.grid { width: 100%; border-collapse: collapse; margin: 7px 0 10px 0; font-size: 0.88rem; display: block; overflow-x: auto; }
+.post-content table.grid thead, .post-content table.grid tbody { display: table; width: 100%; }
+.post-content table.grid th { background: var(--kms-heading); color: var(--kms-box-bg); text-align: left; padding: 7px 9px; font-size: 0.78rem; letter-spacing: 0.8px; text-transform: uppercase; font-weight: var(--kms-heading-weight); font-family: var(--kms-heading-font); }
+.post-content table.grid td { padding: 6px 9px; border-bottom: 1px solid var(--kms-line); vertical-align: top; }
+.post-content table.grid tr:nth-child(even) td { background: var(--kms-row-alt); }
+
+.post-content table.compare { width: 100%; border-collapse: collapse; margin: 9px 0; display: block; overflow-x: auto; }
+.post-content table.compare thead, .post-content table.compare tbody { display: table; width: 100%; }
+.post-content table.compare th { text-align: left; padding: 8px 12px; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; color: var(--kms-muted); background: var(--kms-row-alt); border-bottom: 2px solid var(--kms-accent); font-weight: bold; }
+.post-content table.compare th.r { color: var(--kms-accent); }
+.post-content table.compare td { padding: 9px 12px; font-size: 0.9rem; vertical-align: top; line-height: 1.4; }
+.post-content table.compare td.r { background: var(--kms-box-bg); }
+
+/* mover cards */
+.post-content .mover { border: 1px solid var(--kms-line); border-left: 3px solid var(--kms-negative); padding: 9px 12px; margin-bottom: 8px; }
+.post-content .mover.up { border-left-color: var(--kms-positive); }
+.post-content .mover.info { border-left-color: var(--kms-heading); }
+.post-content .mv-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; flex-wrap: wrap; }
+.post-content .mv-tkr { font-weight: bold; color: var(--kms-heading); font-size: 1.1rem; }
+.post-content .mv-co { color: var(--kms-muted); font-size: 0.85rem; }
+.post-content .mv-sec { color: var(--kms-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.post-content .mv-move { font-size: 1.1rem; font-weight: bold; }
+.post-content .mv-line { font-size: 0.88rem; line-height: 1.5; margin: 2px 0; }
+.post-content .mv-line b { color: var(--kms-heading); font-size: 0.78rem; letter-spacing: 0.4px; }
+.post-content .new { background: var(--kms-accent); color: var(--kms-heading); font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 2px; vertical-align: middle; }
+
+/* verdict tags — fixed semantic tints (spec §2: ratings, not brand colors) */
+.post-content .verdict { display: inline-block; margin-top: 4px; font-size: 0.78rem; font-weight: bold; letter-spacing: 0.8px; padding: 2px 10px; text-transform: uppercase; }
+.post-content .v-clarity { background: #f3ead2; color: #7c601f; }
+.post-content .v-entry { background: #d7e8dd; color: #14512f; }
+.post-content .v-deadcat { background: #eed8d2; color: #7c2a1d; }
+.post-content .v-momentum { background: #d8dfeb; color: #1B2A4A; }
+.post-content .v-waitopen { background: #e7e1d4; color: #6a5320; }
+
+/* tone bar + inline credits */
+.post-content .tonebar { background: var(--kms-band); color: var(--kms-box-bg); padding: 9px 14px; margin: 8px 0; font-size: 0.9rem; }
+.post-content .tonebar .hl { color: var(--kms-accent); }
+.post-content .ana { color: var(--kms-accent); font-weight: bold; font-size: 0.74rem; letter-spacing: 0.3px; }
+.post-content .src { color: var(--kms-muted); font-size: 0.76rem; font-style: italic; }
+.post-content .flag { color: var(--kms-accent); font-weight: bold; }
+
+/* numbered playbook */
+.post-content ol.play { margin: 5px 0 0 0; padding-left: 0; list-style: none; counter-reset: pb; }
+.post-content ol.play li { font-size: 0.93rem; line-height: 1.5; margin-bottom: 8px; padding-left: 26px; position: relative; counter-increment: pb; }
+.post-content ol.play li::before { content: counter(pb); position: absolute; left: 0; top: 0; background: var(--kms-accent); color: var(--kms-heading); width: 18px; height: 18px; border-radius: 50%; font-size: 0.8rem; font-weight: bold; text-align: center; line-height: 18px; }
+.post-content ol.play li b { color: var(--kms-heading); }
+
+/* two-column */
+.post-content .twocol { display: flex; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.post-content .col { flex: 1 1 240px; border: 1px solid var(--kms-line); border-top: 3px solid var(--kms-negative); padding: 9px 11px; }
+.post-content .col.g { border-top-color: var(--kms-positive); }
+.post-content .col h5 { font-size: 0.88rem; margin: 0 0 4px 0; color: var(--kms-heading); }
+.post-content .col p { font-size: 0.83rem; line-height: 1.45; margin: 0; }
+
+/* closers */
+.post-content .verify { background: var(--kms-box-bg); padding: 12px 17px; margin: 14px 0 0 0; border: 1px solid var(--kms-line); }
+.post-content .verify h4 { color: var(--kms-accent); font-size: 0.86rem; font-weight: bold; letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 5px 0; }
+.post-content .verify ol { margin: 0; padding-left: 16px; font-size: 0.83rem; line-height: 1.5; }
+.post-content .verify li { margin-bottom: 2px; }
+.post-content .sources { margin-top: 15px; }
+.post-content .sources h4 { color: var(--kms-accent); font-size: 0.9rem; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 5px 0; border-top: 1px solid var(--kms-line); padding-top: 9px; }
+.post-content .sources p { font-size: 0.83rem; line-height: 1.55; color: var(--kms-muted); }
+.post-content .sources b { color: var(--kms-heading); }
+.post-content .disclaimer-page { page-break-before: auto; margin-top: 16px; }
+.post-content .disclaimer-box { background: var(--kms-box-bg); padding: 16px 20px; margin-top: 6px; border: 1px solid var(--kms-line); }
+.post-content .disclaimer-box .dt { font-weight: bold; color: var(--kms-heading); font-size: 0.82rem; letter-spacing: 0.5px; }
+.post-content .disclaimer-box p { font-size: 0.8rem; line-height: 1.6; color: var(--kms-muted); }
+
+/* narrow screens */
+@media (max-width: 640px) {
+  .post-content .rh-band .l { letter-spacing: 2px; font-size: 1rem; }
+  .post-content h1.title { font-size: 1.7rem; }
+  body.moderna .post-title { font-size: 1.7rem; }
+}

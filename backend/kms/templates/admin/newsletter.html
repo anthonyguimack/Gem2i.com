@@ -1,0 +1,73 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if request.query_params.get('queued') %}<div class="alert alert-success">Campaign queued — sending in the background via the brand SMTP settings.</div>{% endif %}
+{% if request.query_params.get('err') == 'empty' %}<div class="alert alert-danger">Subject and body are required.</div>{% endif %}
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Send Campaign</h3></div>
+  <div class="box-body">
+    <form method="post" action="/admin/newsletter-send" class="js-confirm" data-confirm="Send this campaign to ALL subscribers now?">
+      <div class="form-group">
+        <label class="control-label">Subject</label>
+        <input type="text" name="subject" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="control-label">Body (HTML)</label>
+        <textarea id="nlBody" name="body_html"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Send to {{ subs|length }} subscriber{{ 's' if subs|length != 1 }}</button>
+    </form>
+    {% if log %}
+    <table class="table mt">
+      <thead><tr><th>Subject</th><th>Recipients</th><th>Sent</th><th>Failed</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for l in log %}
+        <tr><td>{{ l.subject }}</td><td>{{ l.recipients }}</td><td>{{ l.sent }}</td><td>{{ l.failed }}</td><td>{{ l.status }}</td><td>{{ l.created_at|fmt_date(true) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+</div>
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">Subscribers ({{ subs|length }})</h3>
+    <a href="/admin/newsletter-export" class="btn btn-default btn-sm">Export CSV</a>
+  </div>
+  <div class="box-body">
+    <p class="text-muted">Subscribers collect from the sidebar Newsletter widget; every campaign email carries a personal <code>/unsubscribe?token=…</code> link.</p>
+    <table class="table">
+      <thead><tr><th>Id</th><th>Email</th><th>Subscribed</th><th>Options</th></tr></thead>
+      <tbody>
+        {% for s in subs %}
+        <tr>
+          <td>{{ s.id }}</td>
+          <td>{{ s.email }}</td>
+          <td>{{ s.created_at|fmt_date(true) }}</td>
+          <td class="td-actions">
+            <form method="post" action="/admin/subscriber-delete" class="inline-form js-confirm" data-confirm="Remove this subscriber?">
+              <input type="hidden" name="sub_id" value="{{ s.id }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-muted">No subscribers yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/kms-static/tinymce/tinymce.min.js"></script>
+<script>
+tinymce.init({
+  license_key: 'gpl', selector: '#nlBody',
+  height: 300, min_height: 300, valid_elements: '*[*]', relative_urls: false,
+  entity_encoding: 'raw', remove_script_host: false, menubar: false,
+  plugins: 'advlist autolink lists link image code table',
+  toolbar: 'code | undo redo | bold italic underline | numlist bullist | forecolor removeformat | image link',
+  promotion: false, branding: false
+});
+</script>
+{% endblock %}

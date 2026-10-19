@@ -1,0 +1,48 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if saved %}<div class="alert alert-success">Font settings saved.</div>{% endif %}
+<div class="form-grid">
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Site Fonts</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/font-settings-save">
+          {% for name, cur in [('primary_font', primary), ('secondary_font', secondary), ('tertiary_font', tertiary)] %}
+          <div class="form-group">
+            <label class="control-label">{{ name.replace('_', ' ')|title }}</label>
+            <select name="{{ name }}" class="form-input">
+              <option value="">Theme default</option>
+              {% for f in fonts %}
+              <option value="{{ f.font_key }}" {{ 'selected' if cur == f.font_key }}>{{ f.font_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+          <button class="btn btn-primary" type="submit">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Available Fonts ({{ fonts|length }})</h3></div>
+      <div class="box-body">
+        <table class="table">
+          <thead><tr><th>Id</th><th>Name</th><th>Key</th><th>Source</th><th>Family</th></tr></thead>
+          <tbody>
+            {% for f in fonts %}
+            <tr>
+              <td>{{ f.id }}</td>
+              <td>{{ f.font_name }}</td>
+              <td>{{ f.font_key }}</td>
+              <td>{{ f.font_source or 'local' }}</td>
+              <td class="td-message">{{ f.font_family or '' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

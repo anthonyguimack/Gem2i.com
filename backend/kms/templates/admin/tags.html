@@ -1,0 +1,30 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Tags</h3></div>
+  <div class="box-body">
+    <table class="table">
+      <thead><tr><th>Id</th><th>Tag</th><th>Slug</th><th>Posts</th><th>Options</th></tr></thead>
+      <tbody>
+        {% for t in tags %}
+        <tr>
+          <td>{{ t.id }}</td>
+          <td>{{ t.tag }}</td>
+          <td>{{ t.tag_slug }}</td>
+          <td>{{ t.count }}</td>
+          <td class="td-actions">
+            <a href="/tag/{{ t.tag_slug }}" target="_blank" rel="noopener" class="btn btn-sm btn-default">View</a>
+            <form method="post" action="/admin/tag-delete" class="inline-form js-confirm" data-confirm="Delete this tag?">
+              <input type="hidden" name="tag_id" value="{{ t.id }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="td-empty">No records found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

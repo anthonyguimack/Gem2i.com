@@ -1,0 +1,76 @@
+{# Soft subscribe overlay (KMS public tier). The reader sees the page in full,
+   then on scroll >0.6 viewport OR after ~8s a blurring modal locks scroll until
+   they subscribe — the same funnel as News/Brief. A valid subscription creates
+   a pre_registered member (signature history) and sets the cross-subdomain
+   user_email cookie, so it will NOT reappear until that cookie expires.
+   Only rendered when show_subscribe_overlay (anonymous visitors). #}
+<style>
+#kmsSubOv{position:fixed;inset:0;background:rgba(7,8,11,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;justify-content:center;align-items:flex-start;overflow-y:auto;z-index:100000;padding:clamp(16px,5vh,56px) 14px}
+#kmsSubOv.show{display:flex}
+.kms-sub-pop{background:#fff;color:var(--kms-ink);border:1px solid var(--kms-line);border-radius:12px;width:100%;max-width:800px;margin:auto;padding:36px 40px;box-shadow:0 30px 80px -28px rgba(0,0,0,.7);font-family:var(--kms-body-font)}
+.kms-sub-pop .logo{display:block;margin:0 auto 14px;max-height:42px}
+.kms-sub-pop h2{font-family:var(--kms-heading-font);font-weight:var(--kms-heading-weight);color:var(--kms-heading);font-size:22px;text-align:center;margin:0 0 6px}
+.kms-sub-pop .sub{color:var(--kms-muted);font-size:14px;text-align:center;margin-bottom:20px;line-height:1.5}
+.kms-sub-pop .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.kms-sub-pop .fields .full{grid-column:1 / -1}
+.kms-sub-pop input[type=text],.kms-sub-pop input[type=email]{width:100%;box-sizing:border-box;border:1px solid var(--kms-line);border-radius:4px;padding:11px 13px;font-size:15px;font-family:inherit;background:#fff;color:var(--kms-ink)}
+.kms-sub-pop input::placeholder{color:var(--kms-muted);opacity:.85}
+.kms-sub-pop input:focus{outline:none;border-color:var(--kms-accent)}
+@media (max-width:560px){.kms-sub-pop{padding:30px 22px}.kms-sub-pop .fields{grid-template-columns:1fr}}
+.kms-sub-pop .agree{display:flex;gap:9px;align-items:flex-start;margin:15px 0;font-size:12.5px;color:var(--kms-muted);line-height:1.5}
+.kms-sub-pop .agree input{margin-top:3px}
+.kms-sub-pop button.submit{width:100%;margin-top:6px;background:var(--kms-accent);color:#fff;border:0;border-radius:4px;padding:12px;font-size:15px;font-family:inherit;font-weight:600;cursor:pointer}
+.kms-sub-pop button.submit:hover{filter:brightness(.94)}
+.kms-sub-pop .login{margin-top:16px;text-align:center;font-size:13.5px;color:var(--kms-muted)}
+.kms-sub-pop .login a{color:var(--kms-accent);text-decoration:none;font-weight:600}
+.kms-sub-hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+.kms-sub-pop .disc{margin-top:14px;border-top:1px solid var(--kms-line);padding-top:11px;font-size:11.5px;color:var(--kms-muted);line-height:1.55}
+body.kms-sub-locked{overflow:hidden}
+</style>
+<div id="kmsSubOv" role="dialog" aria-modal="true" aria-labelledby="kmsSubTitle">
+  <form class="kms-sub-pop" method="post" action="/subscribe" id="kmsSubForm">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="{{ site_title }}">{% endif %}
+    <h2 id="kmsSubTitle">Subscribe to continue reading</h2>
+    <p class="sub">{{ site_title }} is a private knowledge platform. Enter your name and email to keep reading the public library — free.</p>
+    <div class="fields">
+      <input type="text" id="kmsF" name="first_name" placeholder="First name" aria-label="First name" required maxlength="80" autocomplete="given-name">
+      <input type="text" id="kmsL" name="last_name" placeholder="Last name" aria-label="Last name" required maxlength="80" autocomplete="family-name">
+      <input class="full" type="email" id="kmsE" name="email" placeholder="Email" aria-label="Email" required maxlength="200" autocomplete="email">
+    </div>
+    <div class="kms-sub-hp"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <input type="hidden" name="form_token" value="{{ subscribe_form_token }}">
+    <input type="hidden" name="accepted" id="kmsAccepted" value="">
+    <input type="hidden" name="next" value="{{ subscribe_next }}">
+    <input type="hidden" name="ref" value="{{ subscribe_ref }}">
+    <input type="hidden" name="post_id" value="{{ subscribe_post_id or '' }}">
+    {# Disclaimer completo (paridad con la puerta de suscripción de News). Carlos 2026-08-14. #}
+    <div class="disc" style="text-align:left;margin-top:16px">
+      <p style="font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--kms-accent);margin:0 0 6px">Disclaimer</p>
+      <p>The analysis, opinions, and information provided on this platform are the proprietary intellectual property of {{ site_title }} and are intended solely for informational and educational purposes. The content is not intended to be, and should not be construed as, investment advice, a recommendation, or an offer or solicitation to buy, sell, or hold any security, financial product, or instrument.</p>
+      <p style="margin-top:8px"><b>Important Notice:</b></p>
+      <ul style="margin:6px 0 0;padding-left:18px">
+        <li>The information presented reflects the views and actions of {{ site_title }} and is not tailored to the investment needs or objectives of any individual reader.</li>
+        <li>Readers are strongly encouraged to conduct their own independent research and consult with a qualified financial advisor before making any investment decisions.</li>
+        <li>By accessing and reading this content, you acknowledge and agree that {{ site_title }} and its affiliates shall not be held liable for any direct, indirect, incidental, or consequential damages, losses, or expenses arising from or in connection with the use of this information.</li>
+        <li>The use of this information for the purchase or sale of securities is strictly at the reader&rsquo;s own risk. {{ site_title }} does not assume any responsibility for losses incurred as a result of actions taken based on the content provided herein.</li>
+      </ul>
+      <p style="margin-top:10px"><b>Agreement to Terms:</b> By continuing to read, you confirm that you have read, understood, and agreed to the terms and conditions outlined above.</p>
+    </div>
+    <label class="agree"><input type="checkbox" id="kmsAgree" required>
+      <span>I have read and accept the Disclaimer and the Terms, and I agree to receive content updates by email.</span></label>
+    <button type="submit" class="submit">Subscribe &amp; continue</button>
+    <p class="login">Already a member? <a href="/admin/login">Log in</a></p>
+    <p class="disc">The material on this site is provided for informational and educational purposes only and does not constitute financial, investment, legal or tax advice. Markets involve risk, including the possible loss of principal.</p>
+  </form>
+</div>
+<script>
+(function(){
+  var ov=document.getElementById('kmsSubOv');if(!ov)return;var shown=false;
+  var ag=document.getElementById('kmsAgree'),acc=document.getElementById('kmsAccepted'),
+      tok=document.querySelector('#kmsSubForm input[name=form_token]');
+  if(ag){ag.addEventListener('change',function(e){acc.value=e.target.checked?tok.value:'';});}
+  function show(){if(shown)return;shown=true;ov.classList.add('show');document.body.classList.add('kms-sub-locked');}
+  window.addEventListener('scroll',function(){if(window.scrollY>window.innerHeight*0.6)show();},{passive:true});
+  setTimeout(function(){if(!shown)show();},8000);
+})();
+</script>

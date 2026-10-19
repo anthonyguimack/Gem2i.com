@@ -1,0 +1,34 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="stat-grid">
+  <a class="stat-box sb-blue" href="/admin/posts"><span class="num">{{ counts.posts }}</span><span class="lbl">Posts</span></a>
+  <a class="stat-box sb-yellow" href="/admin/drafts"><span class="num">{{ counts.drafts }}</span><span class="lbl">Drafts</span></a>
+  <a class="stat-box sb-teal" href="/admin/scheduled-posts"><span class="num">{{ counts.scheduled }}</span><span class="lbl">Scheduled</span></a>
+  <a class="stat-box sb-green" href="/admin/categories"><span class="num">{{ counts.categories }}</span><span class="lbl">Categories</span></a>
+  <a class="stat-box sb-purple" href="/admin/tags"><span class="num">{{ counts.tags }}</span><span class="lbl">Tags</span></a>
+  <div class="stat-box sb-dark"><span class="num">{{ counts.images }}</span><span class="lbl">Images</span></div>
+  <div class="stat-box sb-red"><span class="num">{{ counts.pageviews }}</span><span class="lbl">Pageviews</span></div>
+  <div class="stat-box sb-gray"><span class="num">{{ counts.members }}</span><span class="lbl">Members</span></div>
+</div>
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Latest Posts</h3></div>
+  <div class="box-body">
+    <table class="table">
+      <thead><tr><th>Id</th><th>Post</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for p in latest %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td class="td-title"><a href="/admin/edit-post/{{ p.id }}">{{ p.title }}</a></td>
+          <td>{% if p.is_scheduled == 1 %}<span class="label lb-teal">Scheduled</span>
+              {% elif p.status == 1 %}<span class="label lb-green">Published</span>
+              {% else %}<span class="label lb-yellow">Draft</span>{% endif %}</td>
+          <td>{{ p.created_at|fmt_date(True) }}</td>
+          <td><a href="/admin/edit-post/{{ p.id }}" class="btn btn-sm btn-default">Edit</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

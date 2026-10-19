@@ -114,7 +114,7 @@ function HeroSlidePreview({ form }) {
 
 const defaultSlide = {
   date_start: '', date_end: '',
-  title: '', subtitle: '', description: '',
+  name: '', title: '', subtitle: '', description: '',
   button_text: '', button_url: '', window_open: 'same',
   button_2_text: '', button_2_url: '', button_2_window_open: 'same',
   button_3_text: '', button_3_url: '', button_3_window_open: 'same',
@@ -213,6 +213,15 @@ export default function HeroSlideForm() {
       </div>
 
       {/* Template Scope — Personal Brand mini-site selector (first field) */}
+      {/* Admin-only label: identifies the slide in the CMS (lists, event
+          hero picker). Never rendered on the website. */}
+      <div className={sectionCls} data-testid="slide-name-section">
+        <h2 className={sectionTitle}>Name Slide</h2>
+        <Input value={form.name || ''} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+          placeholder="e.g. Summer 2026 · Ibiza openings" data-testid="slide-name" />
+        <p className="text-xs text-slate-400 mt-1.5">Only for identifying the slide in the CMS. It is not shown anywhere on the website.</p>
+      </div>
+
       <div className={sectionCls} data-testid="slide-template-scope-section">
         <h2 className={sectionTitle}>Template Scope</h2>
         <p className="text-xs text-slate-400 mb-3">

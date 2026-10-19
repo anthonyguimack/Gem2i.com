@@ -1,0 +1,45 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Themes</h3></div>
+  <div class="box-body">
+    {% if saved %}<div class="alert alert-success">Theme updated.</div>{% endif %}
+    <div class="themes-grid">
+      <div class="theme-card{{ ' theme-active' if theme == 'magazine' }}">
+        <div class="theme-name">Magazine</div>
+        <div class="theme-desc">The default public theme — clean-room rebuild of the Varient magazine layout (newsticker, slider, featured, category blocks, sidebar widgets).</div>
+        {% if theme == 'magazine' %}
+          <span class="badge badge-primary">Active</span>
+        {% else %}
+          <form method="post" action="/admin/theme-activate" class="m0">
+            <input type="hidden" name="theme" value="magazine">
+            <button type="submit" class="btn btn-primary btn-sm">Activate</button>
+          </form>
+        {% endif %}
+      </div>
+      <div class="theme-card{{ ' theme-active' if theme == 'moderna' }}">
+        <div class="theme-name">Moderna</div>
+        <div class="theme-desc">Editorial brief-native theme — renders the Market Insight Notes house style (masthead band, kickers, callouts, scorecards) with the brand palette from Settings &rarr; Colors.</div>
+        {% if theme == 'moderna' %}
+          <span class="badge badge-primary">Active</span>
+        {% else %}
+          <form method="post" action="/admin/theme-activate" class="m0">
+            <input type="hidden" name="theme" value="moderna">
+            <button type="submit" class="btn btn-primary btn-sm">Activate</button>
+          </form>
+        {% endif %}
+      </div>
+      <div class="theme-card">
+        <div class="theme-name">News</div>
+        <div class="theme-desc">Not ported — the live installs only ever used Magazine (frozen decision, KMS migration plan §2.5).</div>
+        <span class="badge badge-muted">Unavailable</span>
+      </div>
+      <div class="theme-card">
+        <div class="theme-name">Classic</div>
+        <div class="theme-desc">Not ported — the live installs only ever used Magazine (frozen decision, KMS migration plan §2.5).</div>
+        <span class="badge badge-muted">Unavailable</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

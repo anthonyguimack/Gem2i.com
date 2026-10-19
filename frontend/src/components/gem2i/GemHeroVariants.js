@@ -140,6 +140,29 @@ function useHeroCarousel(slide, slides) {
   return { list, many, at, setAt, cur, go, sectionProps };
 }
 
+/** Events pinned to the current slide (Events manager → "Show in these hero
+ *  slides"); an event can sit in one or many slides. */
+const pinnedTo = (linked, slide) => (slide?.id ? (linked || []).filter(e => (e.hero_slide_ids || []).includes(slide.id)) : []);
+
+/** Featured-event card (Hero B; Hero A when the slide has a pinned event). */
+function EventCard({ event, label }) {
+  const tt = useT();
+  const flyer = gemImg(event.image_urls?.flyer) || gemImg(event.image_urls?.logo);
+  const when = event.event_date ? new Date(`${event.event_date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+  const ticket = event.type === 'eticket' || !!event.external_ticket_system;
+  return (
+    <Link to={`/events/${event.slug}`} className="hidden lg:block rounded-2xl p-3.5 border border-white/10 transition-transform duration-200 hover:-translate-y-1 gem-hero-in" style={{ backgroundColor: 'rgba(8,13,19,.88)' }} data-testid="gem2i-hero-event">
+      <div className="h-40 rounded-xl bg-cover bg-center" style={{ backgroundImage: flyer ? `url(${flyer})` : 'none', backgroundColor: '#16202a' }} />
+      <p className="mt-3 text-xs uppercase tracking-[0.2em]" style={{ color: LINK }}>{label} · {when}</p>
+      <p className="text-white text-lg font-semibold mt-1 line-clamp-2">{tt(event.title)}</p>
+      {event.venue?.name && <p className="text-xs mt-1 inline-flex items-center gap-1" style={{ color: '#b9c6d2' }}><MapPin className="w-3 h-3" />{event.venue.name}{event.venue.city ? ` · ${event.venue.city}` : ''}</p>}
+      <span className="mt-3 block text-center rounded-full py-2.5 text-sm font-semibold text-white" style={{ backgroundColor: ACCENT }}>
+        {ticket ? tt({ en: 'Buy tickets', es: 'Comprar entradas' }) : tt({ en: 'Join the guest list', es: 'Unirme a la lista' })}
+      </span>
+    </Link>
+  );
+}
+
 function HeroBackgrounds({ list, at, veil }) {
   return list.map((sl, i) => (
     <div key={i} aria-hidden={i !== at} className="absolute inset-0 transition-opacity duration-[1200ms] ease-out motion-reduce:transition-none"
@@ -172,19 +195,24 @@ function HeroControls({ c, center }) {
 }
 
 // ── A · Fiel a Aurex ────────────────────────────────────────────────────────
-export function GemHeroA({ slide, slides }) {
+// `compact` = inner pages (events/artists/venues/…): ~60% height, no default
+// buttons when the slide has none.
+export function GemHeroA({ slide, slides, compact = false, linked = [] }) {
   const tt = useT();
   const c = useHeroCarousel(slide, slides);
-  const btns = useSlideButtons(c.cur);
+  const allBtns = useSlideButtons(c.cur);
+  const hasOwn = !!(c.cur && [c.cur.button_text, c.cur.button_2_text, c.cur.button_3_text].some(x => tt(x)));
+  const btns = compact && !hasOwn ? [] : allBtns;
   return (
-    <section className="relative min-h-[calc(100svh-8.25rem)] flex items-center overflow-hidden" data-testid="gem2i-hero-a" {...c.sectionProps}>
+    <section className={`relative ${compact ? 'min-h-[min(62svh,560px)]' : 'min-h-[calc(100svh-8.25rem)]'} flex items-center overflow-hidden`} data-testid="gem2i-hero-a" {...c.sectionProps}>
       <HeroBackgrounds list={c.list} at={c.at} veil={LEFT_VEIL} />
       <Glow />
       <div aria-hidden="true" className="hidden lg:block absolute left-[44%] top-[30%] w-64 h-64 rounded-full border border-white/25" />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 py-10 md:py-12">
+      <div className={`relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 py-10 md:py-12 ${pinnedTo(linked, c.cur).length ? 'lg:grid lg:grid-cols-[1fr_320px] lg:gap-12 lg:items-center' : ''}`}>
+        <div>
         <div key={c.at} className="max-w-3xl gem-hero-in" aria-live={c.many ? 'polite' : undefined}>
           {noHtml(tt(c.cur?.subtitle)) && <p className="gem-eyebrow mb-5" style={{ color: LINK }}>{noHtml(tt(c.cur.subtitle))}</p>}
-          <Title text={noHtml(tt(c.cur?.title)) || tt(DEFAULTS.title)} style={{ fontSize: 'clamp(2.6rem, min(7.4vw, 10.5vh), 6.75rem)' }} />
+          <Title text={noHtml(tt(c.cur?.title)) || tt(DEFAULTS.title)} style={{ fontSize: compact ? 'clamp(2.2rem, min(5.6vw, 8vh), 4.75rem)' : 'clamp(2.6rem, min(7.4vw, 10.5vh), 6.75rem)' }} />
           <p className="max-w-xl mt-5 mb-7 md:mt-6 md:mb-8 text-base md:text-[17px] leading-[1.7]" style={{ color: BODY, textWrap: 'pretty' }}>{noHtml(tt(c.cur?.description)) || tt(DEFAULTS.description)}</p>
           <div className="flex flex-wrap items-center gap-4">
             {btns[0] && <Btn b={btns[0]} variant="round" />}
@@ -193,6 +221,8 @@ export function GemHeroA({ slide, slides }) {
           </div>
         </div>
         <HeroControls c={c} />
+        </div>
+        {pinnedTo(linked, c.cur)[0] && <EventCard key={`ev-${c.at}`} event={pinnedTo(linked, c.cur)[0]} label={tt({ en: 'Featured', es: 'Destacado' })} />}
       </div>
       <Scroll />
       <style>{HERO_IN_CSS}</style>
@@ -202,17 +232,18 @@ export function GemHeroA({ slide, slides }) {
 
 // ── B · Aurex + evento destacado ────────────────────────────────────────────
 // The slide copy rotates; the featured-event card stays put on the right.
-export function GemHeroB({ slide, slides, event }) {
+export function GemHeroB({ slide, slides, event, linked = [] }) {
   const tt = useT();
   const c = useHeroCarousel(slide, slides);
   const btns = useSlideButtons(c.cur);
-  const flyer = event ? (gemImg(event.image_urls?.flyer) || gemImg(event.image_urls?.logo)) : null;
-  const when = event?.event_date ? new Date(`${event.event_date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+  // Only events pinned to THIS slide (Events manager → hero slides); no
+  // "next event" fallback — an event appears only in the slides chosen for it.
+  const shown = pinnedTo(linked, c.cur)[0];
   return (
     <section className="relative min-h-[calc(100svh-8.25rem)] flex items-center overflow-hidden" data-testid="gem2i-hero-b" {...c.sectionProps}>
       <HeroBackgrounds list={c.list} at={c.at} veil={LEFT_VEIL} />
       <Glow />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 py-10 md:py-12 grid lg:grid-cols-[1fr_320px] gap-12 items-center">
+      <div className={`relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 py-10 md:py-12 grid gap-12 items-center ${shown ? 'lg:grid-cols-[1fr_320px]' : ''}`}>
         <div>
           <div key={c.at} className="max-w-3xl gem-hero-in" aria-live={c.many ? 'polite' : undefined}>
             <p className="gem-eyebrow mb-4" style={{ color: LINK }}>{noHtml(tt(c.cur?.subtitle)) || tt(DEFAULTS.kicker)}</p>
@@ -225,15 +256,7 @@ export function GemHeroB({ slide, slides, event }) {
           </div>
           <HeroControls c={c} />
         </div>
-        {event && (
-          <Link to={`/events/${event.slug}`} className="hidden lg:block rounded-2xl p-3.5 border border-white/10 transition-transform duration-200 hover:-translate-y-1" style={{ backgroundColor: 'rgba(8,13,19,.88)' }} data-testid="gem2i-hero-event">
-            <div className="h-40 rounded-xl bg-cover bg-center" style={{ backgroundImage: flyer ? `url(${flyer})` : 'none', backgroundColor: '#16202a' }} />
-            <p className="mt-3 text-xs uppercase tracking-[0.2em]" style={{ color: LINK }}>{tt({ en: 'Next', es: 'Próximo' })} · {when}</p>
-            <p className="text-white text-lg font-semibold mt-1 line-clamp-2">{tt(event.title)}</p>
-            {event.venue?.name && <p className="text-xs mt-1 inline-flex items-center gap-1" style={{ color: '#b9c6d2' }}><MapPin className="w-3 h-3" />{event.venue.name}{event.venue.city ? ` · ${event.venue.city}` : ''}</p>}
-            <span className="mt-3 block text-center rounded-full py-2.5 text-sm font-semibold text-white" style={{ backgroundColor: ACCENT }}>{tt({ en: 'Join the guest list', es: 'Unirme a la lista' })}</span>
-          </Link>
-        )}
+        {shown && <EventCard key={`ev-${shown.id}`} event={shown} label={tt({ en: 'Featured', es: 'Destacado' })} />}
       </div>
       <Scroll />
       <style>{HERO_IN_CSS}</style>
@@ -243,9 +266,10 @@ export function GemHeroB({ slide, slides, event }) {
 
 // ── C · Cinematográfico centrado ────────────────────────────────────────────
 // The centred copy rotates; the upcoming-events strip stays at the bottom.
-export function GemHeroC({ slide, slides, events = [] }) {
+export function GemHeroC({ slide, slides, events: upcoming = [], linked = [] }) {
   const tt = useT();
   const c = useHeroCarousel(slide, slides);
+  const events = pinnedTo(linked, c.cur); // pinned only, same rule as A/B
   const btns = useSlideButtons(c.cur);
   const fmt = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }).toUpperCase() : '');
   return (
@@ -266,7 +290,7 @@ export function GemHeroC({ slide, slides, events = [] }) {
       {events.length > 0 && (
         <div className="absolute left-0 right-0 bottom-0 z-10 border-t border-white/10 overflow-hidden" style={{ backgroundColor: 'rgba(8,13,19,.88)' }} data-testid="gem2i-hero-ticker">
           <div className="flex items-center gap-8 px-6 md:px-12 py-4 overflow-x-auto whitespace-nowrap text-[15px]" style={{ color: BODY }}>
-            <span className="text-xs font-semibold tracking-[0.25em]" style={{ color: LINK }}>{tt({ en: 'UPCOMING', es: 'PRÓXIMOS' })}</span>
+            <span className="text-xs font-semibold tracking-[0.25em]" style={{ color: LINK }}>{tt({ en: 'FEATURED', es: 'DESTACADOS' })}</span>
             {events.slice(0, 8).map(e => (
               <Link key={e.id} to={`/events/${e.slug}`} className="hover:text-white transition-colors">
                 <span className="tabular-nums">{fmt(e.event_date)}</span> · {tt(e.title)}

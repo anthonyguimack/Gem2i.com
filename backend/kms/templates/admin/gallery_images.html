@@ -1,0 +1,75 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if request.query_params.get('err') == 'size' %}<div class="alert alert-danger">File too large (max 15MB).</div>{% endif %}
+{% if request.query_params.get('err') == 'type' %}<div class="alert alert-danger">Not a valid image.</div>{% endif %}
+<div class="form-grid">
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Add Image</h3></div>
+      <div class="box-body">
+        <form method="post" action="/admin/gallery-image-add" enctype="multipart/form-data">
+          <div class="form-group">
+            <label class="control-label">Image</label>
+            <input type="file" name="file" class="form-input" accept="image/*" required>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Title</label>
+            <input type="text" name="title" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Album</label>
+            <select name="album_id" class="form-input">
+              <option value="0">None</option>
+              {% for a in albums %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="control-label">Category</label>
+            <select name="category_id" class="form-input">
+              <option value="0">None</option>
+              {% for c in gcats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit">Upload</button>
+        </form>
+        <p class="text-muted mt">Manage <a href="/admin/gallery-albums">Albums</a> · <a href="/admin/gallery-categories">Categories</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Images ({{ images|length }})</h3></div>
+      <div class="box-body">
+        <div class="gal-grid">
+          {% for g in images %}
+          <div class="gal-item">
+            <img src="{{ (g.path_small or g.path_big)|img_url }}" alt="{{ g.title or '' }}" loading="lazy">
+            <div class="gal-meta">
+              <div class="gal-title">{{ g.title or '—' }}{% if g.is_album_cover == 1 %} <span class="badge badge-muted">cover</span>{% endif %}</div>
+              <div class="gal-sub">
+                {% set alb = albums|selectattr('id','equalto',g.album_id)|first %}
+                {{ alb.name if alb else 'No album' }}
+              </div>
+              <div class="td-actions">
+                {% if g.album_id and g.is_album_cover != 1 %}
+                <form method="post" action="/admin/gallery-image-cover" class="inline-form">
+                  <input type="hidden" name="image_id" value="{{ g.id }}">
+                  <button class="btn btn-sm btn-default" type="submit">Set Cover</button>
+                </form>
+                {% endif %}
+                <form method="post" action="/admin/gallery-image-delete" class="inline-form js-confirm" data-confirm="Delete this image?">
+                  <input type="hidden" name="image_id" value="{{ g.id }}">
+                  <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-muted">No gallery images yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

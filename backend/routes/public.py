@@ -98,9 +98,18 @@ async def get_public_site_pages():
         {"id": "news", "title": "News", "url": "/news", "system": True},
         {"id": "gallery", "title": "Gallery", "url": "/gallery", "system": True},
         {"id": "reading-list", "title": "Reading List", "url": "/reading-list", "system": True},
+        # gem2i pages with a CMS hero (Hero slide → Page Assignment)
+        {"id": "about", "title": "About Us", "url": "/about", "system": True},
+        {"id": "events", "title": "Events", "url": "/events", "system": True},
+        {"id": "festivals", "title": "Festivals", "url": "/festivals", "system": True},
+        {"id": "artists", "title": "Artists", "url": "/artists", "system": True},
+        {"id": "venues", "title": "Venues", "url": "/venues", "system": True},
     ]
     nav_pages = await db.nav_pages.find({}, {"_id": 0}).sort("order", 1).to_list(100)
-    custom = [{"id": p["id"], "title": p["title"], "url": p.get("url", ""), "system": False} for p in nav_pages]
+    # A menu entry pointing at a system page would be a second, dead checkbox.
+    taken = {p["url"] for p in system_pages}
+    custom = [{"id": p["id"], "title": p["title"], "url": p.get("url", ""), "system": False}
+              for p in nav_pages if (p.get("url") or "") not in taken]
     return system_pages + custom
 
 @router.get("/public/about")

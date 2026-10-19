@@ -1,0 +1,48 @@
+<div class="modal-backdrop" id="fmBackdrop" hidden></div>
+<div class="modal fm-modal" id="fileManager" hidden>
+  <div class="modal-header">
+    <h4>Images</h4>
+    <button type="button" class="modal-close" id="fmClose">&times;</button>
+  </div>
+  <div class="fm-toolbar">
+    <label class="btn btn-default btn-file">
+      Upload Image <input type="file" id="fmUpload" accept="image/*" hidden>
+    </label>
+    <input type="text" id="fmSearch" class="form-input fm-search" placeholder="Search">
+    <span class="fm-status" id="fmStatus"></span>
+  </div>
+  <div class="fm-grid" id="fmGrid"></div>
+  <div class="fm-footer">
+    <button type="button" class="btn btn-default" id="fmMore" hidden>Load More</button>
+    <button type="button" class="btn btn-primary" id="fmSelect" disabled>Select Image</button>
+  </div>
+</div>
+
+{# Image Adjust — Crop / Auto Stretch / Use Original, shown before an upload is sent #}
+<div class="modal-backdrop" id="adjBackdrop" hidden></div>
+<div class="modal fm-modal img-adjust" id="imageAdjust" hidden>
+  <div class="modal-header">
+    <h4>Adjust Image</h4>
+    <button type="button" class="modal-close" id="adjClose">&times;</button>
+  </div>
+  <div class="adj-modes" role="tablist">
+    <button type="button" class="adj-mode active" data-mode="crop">Crop</button>
+    <button type="button" class="adj-mode" data-mode="stretch">Auto Stretch</button>
+    <button type="button" class="adj-mode" data-mode="original">Use Original</button>
+  </div>
+  <div class="adj-body">
+    <div class="adj-stage" id="adjStage"></div>
+    <div class="adj-side">
+      <div class="adj-preview-label">Result preview (3:2)</div>
+      <div class="adj-preview" id="adjPreview"><img class="adj-wm-preview" id="adjWmPreview" alt="" hidden></div>
+      <label class="adj-wm" id="adjWmRow" hidden>
+        <input type="checkbox" id="adjWatermark" checked> Add logo watermark
+      </label>
+      <p class="adj-hint" id="adjHint"></p>
+    </div>
+  </div>
+  <div class="fm-footer">
+    <button type="button" class="btn btn-default" id="adjCancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="adjConfirm">Confirm &amp; Upload</button>
+  </div>
+</div>

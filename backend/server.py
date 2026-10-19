@@ -108,6 +108,11 @@ async def shutdown_db_client():
     client.close()
 
 app.include_router(api_router)
+# KMS / Insights (magazine) — ported tal cual from A Capital @1775e05. Clean URLs
+# via the insightsbeta.gem2i.com nginx vhost (/ -> :8050/insights/). Dormant
+# unless settings.kms_native_enabled (see kms/__init__.py).
+from kms import page_router as kms_pages_router  # noqa: E402
+app.include_router(kms_pages_router, prefix="/insights")
 # H1: never default to "*" while credentials are allowed (that would let any site make
 # authenticated cross-origin requests). Origins must be explicitly allow-listed via
 # CORS_ORIGINS (comma-separated); unset => no cross-origin access.

@@ -1,0 +1,38 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">Users ({{ pager.total }})</h3>
+    <form method="get" action="/admin/users" class="inline-form">
+      <input type="text" name="q" class="form-input input-search" placeholder="Search name / email..." value="{{ q }}">
+      <button class="btn btn-default btn-sm" type="submit">Search</button>
+    </form>
+  </div>
+  <div class="box-body">
+    <p class="text-muted">Users are the unified <b>members</b> database. Create, edit, deactivate and assign roles in <b>CMS &rarr; Members</b> — changes apply here instantly.</p>
+    <table class="table">
+      <thead><tr><th>#</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for m in members %}
+        <tr>
+          <td>{{ m.membership_number if m.membership_number is not none else '-' }}</td>
+          <td>{{ (m.first_name or '') ~ ' ' ~ (m.last_name or '') }}</td>
+          <td>{{ m.username or '-' }}</td>
+          <td>{{ m.email }}</td>
+          <td><span class="badge {{ 'badge-primary' if m.kms_role == 'Super Admin' else ('badge-info' if m.kms_role == 'Author' else 'badge-muted') }}">{{ m.kms_role }}</span></td>
+          <td>{{ m.account_status or 'active' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if pager.pages > 1 %}
+    <div class="pager">
+      {% for pnum in range(1, pager.pages + 1) %}
+      <a class="btn btn-sm {{ 'btn-primary' if pnum == pager.page else 'btn-default' }}"
+         href="/admin/users?page={{ pnum }}{% if q %}&q={{ q }}{% endif %}">{{ pnum }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

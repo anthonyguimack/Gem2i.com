@@ -99,6 +99,7 @@ const Gem2iFestivalDetail = lazy(() => import('./pages/gem2i/Gem2iFestivalDetail
 const Gem2iEvents = lazy(() => import('./pages/gem2i/Gem2iEvents'));
 const Gem2iEventDetail = lazy(() => import('./pages/gem2i/Gem2iEventDetail'));
 const Gem2iTicketSuccess = lazy(() => import('./pages/gem2i/Gem2iTicketSuccess'));
+const Gem2iAbout = lazy(() => import('./pages/gem2i/Gem2iAbout'));
 
 import { injectThemeColors } from './lib/themeColors';
 import { LanguageProvider } from './lib/i18n';
@@ -509,6 +510,7 @@ function AppRouter() {
               {/* gem2i catalogs take over these URLs when the theme is active;
                   other themes fall through to the CMS placeholder pages. */}
               {isGem2iTheme(settings.active_theme) && <>
+                <Route path="/about" element={<Gem2iAbout />} />
                 <Route path="/artists" element={<Gem2iArtists />} />
                 <Route path="/artists/:slug" element={<Gem2iArtistDetail />} />
                 <Route path="/venues" element={<Gem2iVenues />} />

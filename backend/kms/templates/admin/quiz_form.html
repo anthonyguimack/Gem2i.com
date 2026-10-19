@@ -1,0 +1,217 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{% if request.query_params.get('saved') %}<div class="alert alert-success">Quiz saved.</div>{% endif %}
+{% if request.query_params.get('deleted') %}<div class="alert alert-success">Quiz deleted.</div>{% endif %}
+
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">Reading Quiz — {{ post.title }}</h3>
+    <div class="pull-right">
+      <a href="/admin/edit-post/{{ post.id }}" class="btn btn-default btn-sm">&laquo; Back to post</a>
+      <a href="/admin/quiz-analytics/{{ post.id }}" class="btn btn-default btn-sm">Analytics</a>
+      {% if post.status == 1 %}<a href="/{{ post.slug }}" target="_blank" class="btn btn-default btn-sm">View article</a>{% endif %}
+    </div>
+  </div>
+  <div class="box-body">
+    <p class="text-muted" style="margin-top:0">
+      Member-only reading-comprehension quiz for this article. Each question has up to 4 options;
+      pick the correct one and add a short explanation shown after the reader answers.
+    </p>
+
+    <form method="post" action="/admin/quiz/{{ post.id }}/save" id="quizForm">
+      <input type="hidden" name="questions_json" id="questionsJson" value="">
+      <label class="control-label" style="font-weight:600">
+        <input type="checkbox" name="active" id="quizActive" {{ 'checked' if quiz_active else '' }}>
+        Active (uncheck to hide the quiz without deleting it)
+      </label>
+
+      <div id="quizQuestions" style="margin-top:16px"></div>
+
+      <button type="button" class="btn btn-default" id="addQuestionBtn">+ Add question</button>
+      <label class="btn btn-default" style="cursor:pointer;margin-left:6px" title="Upload an .html file with all the questions">
+        &#8593; Upload HTML
+        <input type="file" accept=".html,.htm,text/html" id="quizHtmlInput" style="display:none">
+      </label>
+      <span id="quizHtmlStatus" style="margin-left:10px;font-size:13px;color:#697386"></span>
+      <div class="quiz-hint" style="margin-left:0;margin-top:8px">
+        Bulk upload: one <code>&lt;div class="quiz-question"&gt;</code> per question &mdash; a <code>&lt;p class="q"&gt;</code>,
+        an <code>&lt;ol class="options"&gt;</code> of <code>&lt;li&gt;</code> options (mark the right one
+        <code>&lt;li class="correct"&gt;</code>), and an optional <code>&lt;p class="explanation"&gt;</code>.
+        Loaded questions appear below for review before you press <b>Save Quiz</b>.
+      </div>
+
+      <hr>
+      <div>
+        <button type="submit" class="btn btn-primary">Save Quiz</button>
+        {% if has_quiz %}
+        <button type="submit" class="btn btn-danger pull-right" id="deleteQuizBtn"
+                formnovalidate onclick="return confirm('Delete this quiz permanently?');">
+          Delete quiz
+        </button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .quiz-qcard { border:1px solid #e2e5ec; border-radius:8px; padding:14px 16px; margin-bottom:14px; background:#fafbfc; }
+  .quiz-qcard-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .quiz-qcard-head b { font-size:14px; }
+  .quiz-qopt { display:flex; align-items:center; gap:8px; margin:6px 0; }
+  .quiz-qopt input[type=radio] { flex:none; }
+  .quiz-qopt .qletter { flex:none; width:22px; font-weight:700; color:#697386; }
+  .quiz-qopt input[type=text] { flex:1; }
+  .quiz-remove { color:#c0392b; cursor:pointer; background:none; border:0; font-size:13px; }
+  .quiz-hint { font-size:12px; color:#8a94a6; margin:2px 0 8px 30px; }
+</style>
+
+<script>
+(function () {
+  var SEED = {{ quiz_json|safe }};
+  var host = document.getElementById("quizQuestions");
+  var LETTERS = ["A", "B", "C", "D"];
+  var uid = 0;
+
+  function makeCard(q) {
+    q = q || { q: "", options: ["", "", "", ""], correct: 0, explanation: "" };
+    var opts = (q.options || []).slice(0, 4);
+    while (opts.length < 4) opts.push("");
+    var myUid = ++uid;
+    var card = document.createElement("div");
+    card.className = "quiz-qcard";
+    card.dataset.uid = myUid;
+
+    var head = document.createElement("div");
+    head.className = "quiz-qcard-head";
+    var b = document.createElement("b"); b.className = "q-index";
+    var rm = document.createElement("button");
+    rm.type = "button"; rm.className = "quiz-remove"; rm.textContent = "Remove";
+    rm.onclick = function () { card.remove(); renumber(); };
+    head.appendChild(b); head.appendChild(rm);
+    card.appendChild(head);
+
+    var qt = document.createElement("textarea");
+    qt.className = "form-input q-text"; qt.rows = 2; qt.placeholder = "Question text";
+    qt.value = q.q || "";
+    card.appendChild(qt);
+
+    var hint = document.createElement("div");
+    hint.className = "quiz-hint"; hint.textContent = "Select the radio next to the correct option:";
+    card.appendChild(hint);
+
+    opts.forEach(function (txt, oi) {
+      var row = document.createElement("div");
+      row.className = "quiz-qopt";
+      var radio = document.createElement("input");
+      radio.type = "radio"; radio.name = "correct-" + myUid; radio.className = "q-correct";
+      radio.value = oi; if (oi === (q.correct || 0)) radio.checked = true;
+      var letter = document.createElement("span");
+      letter.className = "qletter"; letter.textContent = LETTERS[oi];
+      var inp = document.createElement("input");
+      inp.type = "text"; inp.className = "form-input q-opt"; inp.placeholder = "Option " + LETTERS[oi];
+      inp.value = txt || "";
+      row.appendChild(radio); row.appendChild(letter); row.appendChild(inp);
+      card.appendChild(row);
+    });
+
+    var ex = document.createElement("textarea");
+    ex.className = "form-input q-exp"; ex.rows = 2;
+    ex.placeholder = "Explanation (shown after the reader answers)";
+    ex.style.marginTop = "8px";
+    ex.value = q.explanation || "";
+    card.appendChild(ex);
+
+    host.appendChild(card);
+    renumber();
+  }
+
+  function renumber() {
+    var cards = host.querySelectorAll(".quiz-qcard");
+    cards.forEach(function (c, i) { c.querySelector(".q-index").textContent = "Question " + (i + 1); });
+  }
+
+  (SEED && SEED.length ? SEED : [null]).forEach(makeCard);
+
+  document.getElementById("addQuestionBtn").addEventListener("click", function () { makeCard(); });
+
+  document.getElementById("quizForm").addEventListener("submit", function (e) {
+    // delete button submits without serializing
+    if (document.activeElement && document.activeElement.id === "deleteQuizBtn") return;
+    var out = [];
+    host.querySelectorAll(".quiz-qcard").forEach(function (c) {
+      var qtext = c.querySelector(".q-text").value.trim();
+      var opts = Array.prototype.map.call(c.querySelectorAll(".q-opt"), function (i) { return i.value.trim(); });
+      opts = opts.filter(function (o) { return o.length; });
+      var checked = c.querySelector(".q-correct:checked");
+      var correct = checked ? parseInt(checked.value, 10) : 0;
+      var exp = c.querySelector(".q-exp").value.trim();
+      if (qtext && opts.length >= 2) {
+        if (correct >= opts.length) correct = 0;
+        out.push({ q: qtext, options: opts, correct: correct, explanation: exp });
+      }
+    });
+    document.getElementById("questionsJson").value = JSON.stringify(out);
+  });
+
+  // --- Bulk upload: parse an .html file of questions into builder cards ----------
+  // Format: one `.quiz-question` block per question, with a `.q` prompt, `<li>`
+  // options (the correct one carrying class="correct" or a data-correct attr) and an
+  // optional `.explanation`. Parsed client-side into the SAME cards, so the author
+  // reviews/edits and presses Save Quiz as usual (no new server endpoint).
+  function parseQuizHtml(htmlText) {
+    var doc = new DOMParser().parseFromString(htmlText, "text/html");
+    var blocks = doc.querySelectorAll(".quiz-question");
+    var out = [];
+    blocks.forEach(function (b) {
+      var qEl = b.querySelector(".q") || b.querySelector("p, h1, h2, h3, h4");
+      var qtext = qEl ? (qEl.textContent || "").trim() : "";
+      var options = [], correct = 0;
+      b.querySelectorAll("li").forEach(function (li) {
+        var t = (li.textContent || "").trim();
+        if (!t) return;
+        if (li.classList.contains("correct") || li.hasAttribute("data-correct")) correct = options.length;
+        options.push(t);
+      });
+      var expEl = b.querySelector(".explanation");
+      var exp = expEl ? (expEl.textContent || "").trim() : "";
+      if (qtext && options.length >= 2) {
+        options = options.slice(0, 4);
+        if (correct >= options.length) correct = 0;
+        out.push({ q: qtext, options: options, correct: correct, explanation: exp });
+      }
+    });
+    return out;
+  }
+
+  var htmlInput = document.getElementById("quizHtmlInput");
+  var htmlStatus = document.getElementById("quizHtmlStatus");
+  htmlInput.addEventListener("change", function () {
+    var f = htmlInput.files && htmlInput.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var parsed = parseQuizHtml(String(reader.result || ""));
+      htmlInput.value = "";
+      if (!parsed.length) {
+        htmlStatus.style.color = "#c0392b";
+        htmlStatus.textContent = "No questions found — check the HTML format (see the note above).";
+        return;
+      }
+      var existing = host.querySelectorAll(".quiz-qcard").length;
+      var hasContent = Array.prototype.some.call(host.querySelectorAll(".q-text"), function (t) { return t.value.trim(); });
+      if (hasContent && !confirm("Replace the " + existing + " question(s) below with the " + parsed.length + " from the file?")) {
+        htmlStatus.textContent = "";
+        return;
+      }
+      host.innerHTML = "";
+      parsed.forEach(makeCard);
+      renumber();
+      htmlStatus.style.color = "#0a7d55";
+      htmlStatus.textContent = "Loaded " + parsed.length + " question(s) — review and press Save Quiz.";
+    };
+    reader.readAsText(f);
+  });
+})();
+</script>
+{% endblock %}

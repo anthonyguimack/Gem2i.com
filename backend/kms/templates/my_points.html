@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{# My points (s144) — the member's KMS slice of the MMS points program. Same
+   vocabulary as the LMS/PMS Points pages: summary, how to earn, latest points.
+   The full balance across products lives in My Account → Points & Rewards. #}
+{% block content %}
+<section class="section section-points">
+  <div class="container-xl">
+    <nav class="breadcrumb"><a href="/">{{ trans('home') }}</a><span>/</span><span>My points</span></nav>
+
+    <header class="pts-head">
+      <h1 class="post-title">My points</h1>
+      <p class="pts-lede">Reading, sharing and discussing Insights earns points. They add up with your points from every other product in My Account.</p>
+    </header>
+
+    {% if failed %}
+      <p class="pts-notice" role="status">Points are not available right now. Please try again in a moment.</p>
+    {% else %}
+
+    {% if has_member %}
+    <dl class="pts-summary">
+      <div class="pts-stat">
+        <dt>Earned in Insights</dt>
+        <dd><span class="pts-num">{{ "{:,}".format(me.points|int) }}</span><span class="pts-sub">{{ "{:,}".format(me.xp|int) }} XP</span></dd>
+      </div>
+      <div class="pts-stat">
+        <dt>Total balance</dt>
+        <dd><span class="pts-num">{{ "{:,}".format(me.balance|int) }}</span>
+          {% if hub_url %}<a class="pts-sub pts-link" href="{{ hub_url }}">See all products in My Account <span aria-hidden="true">→</span></a>
+          {% else %}<span class="pts-sub">Across every product</span>{% endif %}</dd>
+      </div>
+      <div class="pts-stat">
+        <dt>Posts read</dt>
+        <dd><span class="pts-num">{{ "{:,}".format(me.reads|int) }}</span><span class="pts-sub">since you joined</span></dd>
+      </div>
+    </dl>
+    {% endif %}
+
+    <div class="section-title"><h2 class="title">How to earn points</h2></div>
+    {% if actions %}
+    <div class="pts-table-wrap">
+      <table class="pts-table">
+        <thead>
+          <tr><th scope="col">Action</th><th scope="col" class="pts-col-limits">Limits</th>
+              {% if has_member %}<th scope="col" class="pts-r">Times</th>{% endif %}<th scope="col" class="pts-r">Points</th></tr>
+        </thead>
+        <tbody>
+          {% for a in actions %}
+          <tr>
+            <td>
+              <span class="pts-action">{{ a.name }}</span>
+              {% if a.description %}<span class="pts-desc">{{ a.description }}</span>{% endif %}
+              {% if a.limits %}<span class="pts-desc pts-limits-inline">{{ a.limits }}</span>{% endif %}
+            </td>
+            <td class="pts-col-limits pts-muted">{{ a.limits or '—' }}</td>
+            {% if has_member %}<td class="pts-r pts-muted">{{ "{:,}".format(a.times|int) }}</td>{% endif %}
+            <td class="pts-r pts-strong">+{{ "{:,}".format(a.points|round|int) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="pts-foot">Points arrive a few seconds after the action. From 500 XP your level adds a bonus on top (+5% and up).</p>
+    {% else %}
+      <p class="pts-empty">No Insights actions earn points right now.</p>
+    {% endif %}
+
+    {% if has_member %}
+    <div class="section-title pts-gap"><h2 class="title">Latest points</h2></div>
+    {% if recent %}
+    <div class="pts-table-wrap">
+      <table class="pts-table pts-recent">
+        <tbody>
+          {% for r in recent %}
+          <tr><td><span class="pts-action">{{ r.name }}</span></td>
+              <td class="pts-muted pts-date">{{ r.date }}</td>
+              <td class="pts-r pts-strong">{{ '+' if r.amount >= 0 }}{{ "{:,}".format(r.amount) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="pts-empty">Read your first post to earn your first points — each new post is worth points once.</p>
+    {% endif %}
+    {% endif %}
+
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Subscribe — {{ site_title }}</title>
+{% if favicon %}<link rel="shortcut icon" href="{{ favicon }}">{% endif %}
+<style>
+{{ theme_css | safe }}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--kms-body-font);background:var(--kms-box-bg);color:var(--kms-ink);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate{background:#fff;border:1px solid var(--kms-line);border-radius:8px;max-width:460px;width:100%;
+  padding:34px 32px;box-shadow:0 12px 40px rgba(0,0,0,.08)}
+.gate-logo{display:block;margin:0 auto 14px;max-height:44px}
+h1{font-family:var(--kms-heading-font);font-weight:var(--kms-heading-weight);color:var(--kms-heading);
+  font-size:22px;text-align:center;margin-bottom:6px}
+.sub{color:var(--kms-muted);font-size:14px;text-align:center;margin-bottom:20px;line-height:1.5}
+label{display:block;font-size:13px;color:var(--kms-muted);margin:12px 0 4px}
+input[type=text],input[type=email]{width:100%;border:1px solid var(--kms-line);border-radius:4px;
+  padding:10px 12px;font-size:15px;font-family:inherit;background:#fff;color:var(--kms-ink)}
+input:focus{outline:none;border-color:var(--kms-accent)}
+.agree{display:flex;gap:9px;align-items:flex-start;margin:16px 0;font-size:12.5px;color:var(--kms-muted);line-height:1.5}
+.agree input{margin-top:3px}
+button{width:100%;margin-top:6px;background:var(--kms-accent);color:#fff;border:0;border-radius:4px;
+  padding:12px;font-size:15px;font-family:inherit;font-weight:600;cursor:pointer}
+button:hover{filter:brightness(.94)}
+.err{background:#fdecea;color:#9e3b2f;border:1px solid #f2c8c2;border-radius:4px;padding:10px 12px;
+  font-size:13.5px;margin-bottom:14px}
+.login{margin-top:18px;text-align:center;font-size:13.5px;color:var(--kms-muted)}
+.login a{color:var(--kms-accent);text-decoration:none;font-weight:600}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+.disc{margin-top:16px;border-top:1px solid var(--kms-line);padding-top:12px;font-size:11.5px;color:var(--kms-muted);line-height:1.55}
+</style>
+</head>
+<body>
+<form class="gate" method="post" action="/subscribe">
+  {% if logo %}<img class="gate-logo" src="{{ logo }}" alt="{{ site_title }}">{% endif %}
+  <h1>Subscribe to continue</h1>
+  <p class="sub">{{ site_title }} is a private knowledge platform. Enter your name and email to unlock the public library.</p>
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  <label for="gFirst">First name</label>
+  <input type="text" id="gFirst" name="first_name" required maxlength="80" autocomplete="given-name">
+  <label for="gLast">Last name</label>
+  <input type="text" id="gLast" name="last_name" required maxlength="80" autocomplete="family-name">
+  <label for="gEmail">Email</label>
+  <input type="email" id="gEmail" name="email" required maxlength="200" autocomplete="email">
+  <div class="hp"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+  <input type="hidden" name="form_token" value="{{ form_token }}">
+  <input type="hidden" name="accepted" id="gAccepted" value="">
+  <input type="hidden" name="next" value="{{ next }}">
+  <label class="agree"><input type="checkbox" id="gAgree" required>
+    <span>I have read and accept the Disclaimer and the Terms, and I agree to receive content updates by email.</span></label>
+  <button type="submit">Subscribe &amp; continue</button>
+  <p class="login">Already a member? <a href="/admin/login">Log in</a></p>
+  <p class="disc">The material on this site is provided for informational and educational purposes only and does not constitute financial, investment, legal or tax advice. Markets involve risk, including the possible loss of principal.</p>
+</form>
+<script>
+document.getElementById('gAgree').addEventListener('change', function (ev) {
+  document.getElementById('gAccepted').value =
+    ev.target.checked ? document.querySelector('input[name=form_token]').value : '';
+});
+</script>
+</body>
+</html>

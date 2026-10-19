@@ -1,0 +1,183 @@
+{% macro post_meta(p) %}
+<span class="post-meta-item"><a href="/profile/{{ p.author_slug }}">{{ p.author_username or '' }}</a></span>
+<span class="post-meta-sep">•</span>
+<span class="post-meta-item">{{ p.created_at|fmt_date }}</span>
+{% endmacro %}
+
+{% macro post_item_vr(p) %}
+<div class="post-item post-item-vr">
+  <div class="image">
+    {% if post_image(p, 'slider') %}
+    <a href="/{{ p.slug }}" class="img-link">
+      <img src="{{ post_image(p, 'slider') }}" alt="{{ p.title }}" class="img-fluid" loading="lazy">
+    </a>
+    {% endif %}
+  </div>
+  <div class="caption">
+    <h3 class="title"><a href="/{{ p.slug }}">{{ p.title|char_limit(75) }}</a></h3>
+    <p class="post-meta m0">{{ post_meta(p) }}</p>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro post_item_small(p) %}
+<div class="post-item post-item-small">
+  {% if post_image(p, 'small') %}
+  <a href="/{{ p.slug }}" class="image"><img src="{{ post_image(p, 'small') }}" alt="{{ p.title }}" loading="lazy"></a>
+  {% endif %}
+  <div class="caption">
+    <h3 class="title"><a href="/{{ p.slug }}">{{ p.title|char_limit(70) }}</a></h3>
+    <p class="small-post-meta">{{ post_meta(p) }}</p>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro post_item_horizontal(p) %}
+<div class="post-item post-item-horizontal">
+  {% if post_image(p, 'mid') %}
+  <a href="/{{ p.slug }}" class="image"><img src="{{ post_image(p, 'mid') }}" alt="{{ p.title }}" loading="lazy"></a>
+  {% endif %}
+  <div class="caption">
+    <h3 class="title"><a href="/{{ p.slug }}">{{ p.title }}</a></h3>
+    <p class="summary">{{ p.summary|strip_tags(160) }}</p>
+    <p class="post-meta">{{ post_meta(p) }}</p>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro block_type_1(cat, posts) %}
+<div class="section section-category">
+  <div class="container-xl">
+    <div class="section-title"><h3 class="title" style="border-color: {{ cat.color or '#2d65fe' }}">{{ cat.name }}</h3></div>
+    <div class="section-content section-cat-block">
+      <div class="row row-vr">
+        {% for p in posts[:4] %}<div class="col-3-lg">{{ post_item_vr(p) }}</div>{% endfor %}
+      </div>
+      <div class="row row-small">
+        {% for p in posts[4:13] %}<div class="col-4-lg">{{ post_item_small(p) }}</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro block_type_4(cat, posts) %}
+<div class="section section-category">
+  <div class="container-xl">
+    <div class="section-title"><h3 class="title" style="border-color: {{ cat.color or '#2d65fe' }}">{{ cat.name }}</h3></div>
+    <div class="section-content">
+      <div class="row">
+        {% if posts %}
+        <div class="col-6-lg">{{ post_item_horizontal_big(posts[0]) }}</div>
+        <div class="col-6-lg">
+          {% for p in posts[1:5] %}{{ post_item_small(p) }}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro post_item_horizontal_big(p) %}
+<div class="post-item post-item-big">
+  {% if post_image(p, 'default') %}
+  <a href="/{{ p.slug }}" class="image"><img src="{{ post_image(p, 'default') }}" alt="{{ p.title }}" loading="lazy"></a>
+  {% endif %}
+  <div class="caption">
+    <h3 class="title title-lg"><a href="/{{ p.slug }}">{{ p.title }}</a></h3>
+    <p class="summary">{{ p.summary|strip_tags(200) }}</p>
+    <p class="post-meta">{{ post_meta(p) }}</p>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro ad_space(ad) %}
+<div class="ad-space ad-{{ ad.ad_space }}">
+  {% if ad.ad_code_desktop %}<div class="ad-desktop" {% if ad.desktop_width %}style="max-width:{{ ad.desktop_width }}px"{% endif %}>{{ ad.ad_code_desktop|safe }}</div>{% endif %}
+  {% if ad.ad_code_mobile %}<div class="ad-mobile" {% if ad.mobile_width %}style="max-width:{{ ad.mobile_width }}px"{% endif %}>{{ ad.ad_code_mobile|safe }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro poll_widget(w, poll, poll_votes, poll_voted, user) %}
+<div class="widget widget-poll"><h4 class="widget-title">{{ w.title }}</h4>
+  <p class="poll-question">{{ poll.question }}</p>
+  {% set total = poll_votes.values()|sum %}
+  {% set can_vote = user and not poll_voted and (poll.vote_permission != 'registered' or user) %}
+  {% if can_vote %}
+  <form method="post" action="/poll-vote" class="poll-form">
+    <input type="hidden" name="poll_id" value="{{ poll.id }}">
+    {% for i in range(1, 11) %}{% set opt = poll['option' ~ i] %}
+    {% if opt %}<label class="poll-option"><input type="radio" name="vote" value="option{{ i }}" required> {{ opt }}</label>{% endif %}
+    {% endfor %}
+    <button type="submit" class="btn-custom btn-poll">Vote</button>
+  </form>
+  {% else %}
+  <div class="poll-results">
+    {% for i in range(1, 11) %}{% set opt = poll['option' ~ i] %}
+    {% if opt %}{% set n = poll_votes.get('option' ~ i, 0) %}
+    <div class="poll-result">
+      <span class="poll-result-label">{{ opt }}</span>
+      <div class="poll-bar"><div class="poll-bar-fill" style="width:{{ ((n / total) * 100)|round(1) if total else 0 }}%"></div></div>
+      <span class="poll-result-count">{{ n }} ({{ ((n / total) * 100)|round(1) if total else 0 }}%)</span>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <p class="poll-total">{{ total }} vote{{ 's' if total != 1 }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro sidebar(widgets, popular, recommended, tags, ls, poll=None, poll_votes={}, poll_voted=False, user=None, ads={}, social=[]) %}
+<aside class="sidebar">
+  {% if ads.get('sidebar_top') %}{{ ad_space(ads['sidebar_top']) }}{% endif %}
+  {% for w in widgets %}
+    {% if w.type == 'popular-posts' and popular %}
+    <div class="widget"><h4 class="widget-title">{{ w.title }}</h4>
+      {% for p in popular %}{{ post_item_small(p) }}{% endfor %}
+    </div>
+    {% elif w.type == 'recommended-posts' and recommended %}
+    <div class="widget"><h4 class="widget-title">{{ w.title }}</h4>
+      {% for p in recommended[:5] %}{{ post_item_small(p) }}{% endfor %}
+    </div>
+    {% elif w.type == 'tags' and tags %}
+    <div class="widget"><h4 class="widget-title">{{ w.title }}</h4>
+      <div class="tag-cloud">{% for t in tags %}<a href="/tag/{{ t.tag_slug }}" class="tag-badge">{{ t.tag }}</a>{% endfor %}</div>
+    </div>
+    {% elif w.type == 'follow-us' %}
+    <div class="widget"><h4 class="widget-title">{{ w.title }}</h4>
+      <div class="follow-links">
+        {# SOCIAL_LINKS_KMS_SYNC_PLAN: active brand networks from CMS → Settings → Social Links #}
+        {% for s in social %}<a href="{{ s.url }}" target="_blank" rel="noopener" class="follow-link" aria-label="{{ s.label }}" title="{{ s.label }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">{{ s.svg|safe }}</svg></a>{% endfor %}
+      </div>
+    </div>
+    {% elif w.type == 'poll' and poll %}
+    {{ poll_widget(w, poll, poll_votes, poll_voted, user) }}
+    {% elif w.type == 'newsletter' %}
+    <div class="widget widget-newsletter"><h4 class="widget-title">{{ w.title }}</h4>
+      <form method="post" action="/add-newsletter-post" class="newsletter-form">
+        <input type="email" name="email" required placeholder="Email address...">
+        <button type="submit" class="btn-custom">Subscribe</button>
+      </form>
+    </div>
+    {% elif w.type == 'custom' and w.content %}
+    <div class="widget widget-custom"><h4 class="widget-title">{{ w.title }}</h4>
+      <div class="widget-custom-body">{{ w.content|safe }}</div>
+    </div>
+    {% endif %}
+  {% endfor %}
+  {% if ads.get('sidebar_bottom') %}{{ ad_space(ads['sidebar_bottom']) }}{% endif %}
+</aside>
+{% endmacro %}
+
+{% macro pagination(pager) %}
+{% if pager.pages > 1 %}
+<nav class="pagination">
+  {% for i in range(1, pager.pages + 1) %}
+    {% if i == pager.page %}<span class="page-current">{{ i }}</span>
+    {% else %}<a href="?page={{ i }}" class="page-link">{{ i }}</a>{% endif %}
+  {% endfor %}
+</nav>
+{% endif %}
+{% endmacro %}

@@ -1,0 +1,69 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="form-grid">
+  <div class="form-left">
+    <div class="box">
+      <div class="box-header">
+        <h3 class="box-title">Menu Links (Pages)</h3>
+        <a href="/admin/add-page" class="btn btn-primary btn-sm">Add Link</a>
+      </div>
+      <div class="box-body">
+        <table class="table">
+          <thead><tr><th style="width:90px">Order</th><th>Title</th><th>Type</th><th>Location</th><th>Visibility</th><th>Options</th></tr></thead>
+          <tbody>
+            {% for p in pages %}
+            <tr>
+              <td class="td-actions">
+                <form method="post" action="/admin/nav-move" class="inline-form">
+                  <input type="hidden" name="page_id" value="{{ p.id }}">
+                  <button class="btn btn-sm btn-default" name="direction" value="up" {{ 'disabled' if loop.first }}>&#9650;</button>
+                  <button class="btn btn-sm btn-default" name="direction" value="down" {{ 'disabled' if loop.last }}>&#9660;</button>
+                </form>
+              </td>
+              <td>{{ '— ' if p.parent_id }}{{ p.title }}</td>
+              <td>{{ p.page_type or 'page' }}</td>
+              <td>{{ p.location or 'top' }}</td>
+              <td>
+                <form method="post" action="/admin/nav-visibility" class="inline-form">
+                  <input type="hidden" name="page_id" value="{{ p.id }}">
+                  <button class="btn btn-sm {{ 'btn-primary' if p.visibility == 1 else 'btn-default' }}" type="submit">
+                    {{ 'Visible' if p.visibility == 1 else 'Hidden' }}
+                  </button>
+                </form>
+              </td>
+              <td class="td-actions"><a href="/admin/edit-menu-link/{{ p.id }}" class="btn btn-sm btn-default">Edit</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="form-right">
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Categories on Menu</h3></div>
+      <div class="box-body">
+        <table class="table">
+          <thead><tr><th>Category</th><th>On Menu</th></tr></thead>
+          <tbody>
+            {% for c in cats %}
+            <tr>
+              <td><span class="cat-dot" style="background:{{ c.color or '#2d65fe' }}"></span> {{ c.name }}</td>
+              <td>
+                <form method="post" action="/admin/nav-cat-toggle" class="inline-form">
+                  <input type="hidden" name="cat_id" value="{{ c.id }}">
+                  <button class="btn btn-sm {{ 'btn-primary' if c.show_on_menu == 1 else 'btn-default' }}" type="submit">
+                    {{ 'Yes' if c.show_on_menu == 1 else 'No' }}
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p class="text-muted">Category order is managed on the Categories screen.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

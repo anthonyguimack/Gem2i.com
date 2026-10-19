@@ -1,0 +1,51 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Languages</h3></div>
+  <div class="box-body">
+    <table class="table">
+      <thead><tr><th>Id</th><th>Name</th><th>Code</th><th>Direction</th><th>Translations</th><th>Status</th><th>Options</th></tr></thead>
+      <tbody>
+        {% for l in langs %}
+        <tr>
+          <td>{{ l.id }}</td>
+          <td>{{ l.name }} <small>({{ l.short_form }})</small></td>
+          <td>{{ l.language_code }}</td>
+          <td>{{ l.text_direction }}</td>
+          <td>{{ counts.get(l.id, 0) }}</td>
+          <td>
+            <form method="post" action="/admin/language-status" class="inline-form">
+              <input type="hidden" name="lang_id" value="{{ l.id }}">
+              <button class="btn btn-sm {{ 'btn-primary' if l.status == 1 else 'btn-default' }}" type="submit">
+                {{ 'Active' if l.status == 1 else 'Inactive' }}
+              </button>
+            </form>
+          </td>
+          <td class="td-actions">
+            <a href="/admin/edit-translations/{{ l.id }}" class="btn btn-sm btn-default">Edit Translations</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="text-muted">The default site language cannot be deactivated. New languages start Inactive with the default language's labels cloned as their starting translation dictionary — translate, then activate.</p>
+  </div>
+</div>
+<div class="box box-settings">
+  <div class="box-header"><h3 class="box-title">Add Language</h3></div>
+  <div class="box-body">
+    <form method="post" action="/admin/language-add">
+      <div class="half-row form-group">
+        <span><label class="control-label">Name</label><input type="text" name="name" class="form-input" placeholder="French" required></span>
+        <span><label class="control-label">Short Form</label><input type="text" name="short_form" class="form-input" placeholder="fr" maxlength="5" required></span>
+      </div>
+      <div class="half-row form-group">
+        <span><label class="control-label">Language Code</label><input type="text" name="language_code" class="form-input" placeholder="fr-FR"></span>
+        <span><label class="control-label">Direction</label>
+          <select name="text_direction" class="form-input"><option value="ltr">LTR</option><option value="rtl">RTL</option></select></span>
+      </div>
+      <button class="btn btn-primary" type="submit">Add Language</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

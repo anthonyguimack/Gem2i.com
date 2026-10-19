@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="{{ lang.short_form or 'en' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} - {{ site_title }}</title>
+<meta name="description" content="{{ description|default('') }}"/>
+<meta property="og:site_name" content="{{ app_name }}"/>
+{% block og %}
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="{{ title }} - {{ site_title }}"/>
+<meta property="og:description" content="{{ description|default('') }}"/>
+{% endblock %}
+{% if favicon %}<link rel="shortcut icon" type="image/png" href="{{ favicon }}"/>{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+{# ⚠ bump ?v= on every kms.css change — the public link is not cache-busted otherwise. #}
+<link rel="stylesheet" href="/kms-static/kms.css?v=9">
+<style>{{ theme_css|safe }}</style>
+{# Moderna only: Sora powers the post-detail headings (D-2026-76); Inter (body)
+   already ships in the shared font link above. ⚠ bump ?v= on every moderna.css
+   change — the public stylesheet links are otherwise not cache-busted. #}
+{% if theme == 'moderna' %}<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/kms-static/moderna.css?v=5">{% endif %}
+{% if gs.custom_header_codes %}{{ gs.custom_header_codes|safe }}{% endif %}
+</head>
+<body class="{{ theme|default('magazine') }}{{ ' dark-mode' if dark }}">
+<div class="nav-top">
+  <div class="container-xl nav-top-inner">
+    <div class="nav-top-left">
+      {% for p in nav_pages if p.location == 'top' and p.title_active != 0 %}
+        <a href="{{ p.link if p.page_type == 'link' and p.link else '/' + p.slug }}">{{ p.title }}</a>
+      {% endfor %}
+    </div>
+    <div class="nav-top-right">
+      <button class="btn-mode" id="btnDarkMode" title="Dark mode">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>
+      </button>
+      {% if user %}
+        <span class="nav-user">{{ user.u }}</span>
+        <a href="/my-points" class="nav-points"{% if request.url.path.endswith('/my-points') %} aria-current="page"{% endif %}>My points</a>
+        {% if user.a or user.au %}<a href="/admin" class="nav-admin-link">{{ trans('admin_panel') }}</a>{% endif %}
+        <a href="/logout">{{ trans('logout') }}</a>
+      {% else %}
+        <a href="/admin/login">{{ trans('login') }}</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<header id="header">
+  <div class="navbar nav-main">
+    <nav class="container-xl nav-main-inner">
+      <a href="{{ brand_home or '/' }}" class="navbar-brand">
+        {% if logo %}<img src="{{ logo_footer if dark else logo }}" alt="logo" class="logo">
+        {% else %}<span class="logo-text">{{ app_name }}</span>{% endif %}
+      </a>
+      <button class="nav-burger" id="navBurger" aria-label="menu"><span></span><span></span><span></span></button>
+      <ul class="navbar-nav" id="navMenu">
+        {% if gs.show_home_link == 1 %}<li><a href="/" class="nav-link">{{ trans('home') }}</a></li>{% endif %}
+        {% for c in categories if c.show_on_menu == 1 %}
+          <li class="nav-item-category"><a href="/{{ c.slug }}" class="nav-link">{{ c.name }}</a>
+          {% set subs = all_categories|selectattr('parent_id','equalto',c.id)|list %}
+          {% if subs %}<ul class="nav-dropdown">
+            {% for sc in subs if sc.show_on_menu == 1 %}<li><a href="/{{ c.slug }}/{{ sc.slug }}">{{ sc.name }}</a></li>{% endfor %}
+          </ul>{% endif %}
+          </li>
+        {% endfor %}
+        {% for p in nav_pages if p.location == 'main' and p.parent_id == 0 %}
+          <li><a href="{{ p.link if p.page_type == 'link' and p.link else '/' + p.slug }}" class="nav-link">{{ p.title }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="nav-right">
+        <button type="button" class="search-icon" id="btnSearch" aria-label="search">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+        <div class="search-form" id="searchForm">
+          <form action="/search" method="get">
+            <input type="text" name="q" maxlength="300" class="form-input" placeholder="{{ trans('placeholder_search') }}" required>
+            <button class="btn-custom" aria-label="search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+{% if ads and ads.get('header') %}
+{% import "_macros.html" as _adm %}
+<div class="container-xl">{{ _adm.ad_space(ads['header']) }}</div>
+{% endif %}
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer id="footer">
+  <div class="container-xl footer-inner">
+    <div class="footer-col footer-about">
+      {% if logo_footer %}<img src="{{ logo_footer }}" alt="logo" class="logo-footer">{% endif %}
+      <p>{{ (ls.about_footer or ls.site_description or '')|striptags }}</p>
+    </div>
+    <div class="footer-col">
+      <h4>{{ trans('categories') }}</h4>
+      <ul>{% for c in categories[:6] %}<li><a href="/{{ c.slug }}">{{ c.name }}</a></li>{% endfor %}</ul>
+    </div>
+    <div class="footer-col">
+      <h4>{{ trans('links') }}</h4>
+      <ul>
+        {% for p in nav_pages if p.location in ('main','top') and p.page_type != 'link' %}
+          <li><a href="/{{ p.slug }}">{{ p.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>{{ trans('follow_us') }}</h4>
+      <div class="footer-social">
+        {# SOCIAL_LINKS_KMS_SYNC_PLAN: active brand networks from CMS → Settings → Social Links #}
+        {% for s in brand_social_links %}<a href="{{ s.url }}" target="_blank" rel="noopener" aria-label="{{ s.label }}" title="{{ s.label }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">{{ s.svg|safe }}</svg></a>{% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright"><div class="container-xl">© {{ year }} {{ app_name }}. {{ ls.copyright or '' }}</div></div>
+</footer>
+{% if ls.cookies_warning == 1 and request.cookies.get('kms_cookies_ok') != '1' %}
+<div class="cookies-banner" id="cookiesBanner">
+  <div class="cookies-text">{{ ls.cookies_warning_text|safe }}</div>
+  <button class="btn-custom" id="btnAcceptCookies">{{ trans('accept_cookies') }}</button>
+</div>
+{% endif %}
+{# Back to top (D-2026-80) — mirrors the beta's BackToTop.js: appears past 300px,
+   smooth-scrolls home. Rendered always, revealed by kms.js. #}
+<button type="button" class="to-top" id="btnToTop" aria-label="Back to top" title="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+{# ⚠ bump ?v= on every kms.js change — the public link is not cache-busted otherwise. #}
+<script src="/kms-static/kms.js?v=4" defer></script>
+{% if gs.custom_footer_codes %}{{ gs.custom_footer_codes|safe }}{% endif %}
+{% if show_subscribe_overlay %}{% include "_subscribe_overlay.html" %}{% endif %}
+</body>
+</html>

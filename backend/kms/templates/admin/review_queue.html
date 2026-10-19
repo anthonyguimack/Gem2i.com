@@ -1,0 +1,87 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+{# s150 — author peer review. mode="queue": posts waiting for MY decision (authors
+   never see their own, nor ones they already voted). mode="mine": posts I already
+   reviewed — my vote and the current outcome; the vote can change while in review. #}
+<div class="box">
+  <div class="box-header">
+    <h3 class="box-title">{{ title }}</h3>
+    {% if mode == 'queue' %}<a href="/admin/reviewed-by-me" class="btn btn-default btn-sm pull-right">Reviewed by me</a>
+    {% else %}<a href="/admin/review-queue" class="btn btn-default btn-sm pull-right">Review Queue</a>{% endif %}
+  </div>
+  <div class="box-body">
+    {% if request.query_params.get('err') == 'comment' %}
+    <div class="alert alert-danger">Please add a comment when you decline a post — it tells the author what to improve.</div>
+    {% endif %}
+    <p class="text-muted" style="margin:0 0 14px;font-size:13px;">
+      {% if mode == 'mine' %}Posts you have already reviewed. While a post is still in review you can change your decision here.
+      {% elif is_admin %}As administrator your decision is final: <strong>Approve</strong> publishes the post (or applies the pending edit) right away, <strong>Decline</strong> rejects it.
+      {% else %}Posts written by other authors waiting for your decision. Open <strong>Preview</strong>, then approve or decline (a comment is required to decline). Once you decide, the post moves to <a href="/admin/reviewed-by-me">Reviewed by me</a>.{% endif %}
+    </p>
+    <table class="table">
+      <thead><tr>
+        <th>Post</th><th>Preview</th><th>Category</th><th>Author</th><th>Approvals</th>
+        {% if mode == 'mine' %}<th>My decision</th><th>Status</th><th>Change decision</th>
+        {% else %}<th>Submitted</th><th>Your decision</th>{% endif %}
+      </tr></thead>
+      <tbody>
+        {% for row in rows %}{% set p = row.p %}
+        <tr>
+          <td class="td-title">
+            {{ p.title }}
+            {% if row.edit %}<br><span class="label lb-yellow">Edit to a published post</span>{% endif %}
+          </td>
+          <td><a href="/admin/review-preview/{{ p.id }}" target="_blank" rel="noopener" class="btn btn-default btn-sm">Preview</a></td>
+          <td>{% set c = cats|selectattr('id','equalto',p.category_id)|first %}{{ c.name if c else '-' }}</td>
+          <td>{{ p.author_username or '-' }}</td>
+          <td>
+            {% if row.edit %}<span class="rq-mine">Admin only</span>{% else %}
+            <div class="rq-progress">
+              <div class="rq-bar"><span style="width: {{ [100, (100 * row.approve / row.required)|round|int]|min if row.required else 0 }}%"></span></div>
+              {{ row.approve }} / {{ row.required }}
+            </div>
+            <span class="rq-mine">{{ row.decline }} declined · {{ row.eligible }} reviewers</span>
+            {% endif %}
+          </td>
+          {% if mode == 'mine' %}
+          <td>
+            <span class="label {{ 'lb-green' if row.my_vote == 'approve' else 'lb-red' }}">{{ 'Approved' if row.my_vote == 'approve' else 'Declined' }}</span>
+            {% if row.my_comment %}<div class="rq-mine" style="margin-top:4px;">“{{ row.my_comment }}”</div>{% endif %}
+            {% if row.my_at %}<div class="rq-mine">{{ row.my_at[:10] }}</div>{% endif %}
+          </td>
+          <td>
+            {% if row.state == 'in_review' %}<span class="label lb-orange">In review</span>
+            {% elif row.state == 'approved' %}<span class="label lb-green">Published</span>
+            {% elif row.state == 'declined' %}<span class="label lb-red">Not approved</span>{% endif %}
+          </td>
+          <td>
+            {% if row.state == 'in_review' and not is_admin %}
+            <form method="post" action="/admin/review-vote" class="rq-vote">
+              <input type="hidden" name="post_id" value="{{ p.id }}">
+              <input type="hidden" name="next" value="mine">
+              <textarea name="comment" class="form-input" placeholder="Comment (required to decline)"></textarea>
+              {% if row.my_vote != 'approve' %}<button class="btn btn-success btn-sm" name="vote" value="approve" type="submit">Approve</button>{% endif %}
+              {% if row.my_vote != 'decline' %}<button class="btn btn-danger btn-sm" name="vote" value="decline" type="submit">Decline</button>{% endif %}
+            </form>
+            {% else %}<span class="rq-mine">Final</span>{% endif %}
+          </td>
+          {% else %}
+          <td>{{ (p.review.edit_submitted_at if row.edit else p.review.submitted_at)[:10] }}</td>
+          <td>
+            <form method="post" action="/admin/review-vote" class="rq-vote">
+              <input type="hidden" name="post_id" value="{{ p.id }}">
+              <textarea name="comment" class="form-input" placeholder="Comment (required to decline)"></textarea>
+              <button class="btn btn-success btn-sm" name="vote" value="approve" type="submit">Approve</button>
+              <button class="btn btn-danger btn-sm" name="vote" value="decline" type="submit">Decline</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="td-empty">{{ "You haven't reviewed any post yet." if mode == 'mine' else 'Nothing waiting for your review.' }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

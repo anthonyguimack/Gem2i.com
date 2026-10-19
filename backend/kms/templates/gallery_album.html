@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section section-gallery">
+  <div class="container-xl">
+    <nav class="breadcrumb"><a href="/">{{ trans('home') }}</a><span>/</span><a href="/gallery">{{ trans('gallery') }}</a><span>/</span><span>{{ album.name }}</span></nav>
+    <div class="section-title"><h1 class="title">{{ album.name }}</h1></div>
+    <div class="gallery-grid">
+      {% for g in images %}
+      <a href="{{ g.path_big|img_url }}" class="gallery-item" target="_blank" rel="noopener">
+        <img src="{{ g.path_small|img_url }}" alt="{{ g.title or album.name }}" loading="lazy">
+        {% if g.title %}<div class="album-caption"><h3 class="title">{{ g.title }}</h3></div>{% endif %}
+      </a>
+      {% else %}
+      <p class="no-results">{{ trans('no_records_found') }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
