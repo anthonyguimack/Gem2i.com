@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{#
+  gem2i theme · home = MG-1 "Revista nocturna" (approved 2026-10-19,
+  work-plans-MD/bocetos/kms-home.html). Same context as the shared index.html
+  (public.home): breaking, slider, featured, home_cats/cat_posts, latest,
+  popular, tags. Nothing new is stored — every block maps to KMS data:
+  cover = first slider post (else featured, else latest); side headlines =
+  next featured/latest; ticker = breaking; rows = home categories; video row =
+  latest video posts; most read = popular (pageviews); band → gem2i membership.
+#}
+{% macro cat_of(p) %}{% set c = all_categories|selectattr('id','equalto',p.category_id)|first %}{% if c %}{{ c.name }}{% endif %}{% endmacro %}
+{% macro g_meta(p) %}<span>{{ p.author_username or '' }}</span>{% if p.author_username %}<span aria-hidden="true">·</span>{% endif %}<span>{{ p.created_at|fmt_date }}</span>{% endmacro %}
+
+{% block content %}
+<h1 class="title-index">{{ title }}</h1>
+{% set pool = (slider or []) + (featured or []) + (latest or []) %}
+{% set cover = pool[0] if pool else None %}
+{% set ns = namespace(side=[], seen=[cover.id if cover else None]) %}
+{% for p in (featured or []) + (latest or []) %}{% if p.id not in ns.seen and ns.side|length < 3 %}{% set ns.side = ns.side + [p] %}{% set ns.seen = ns.seen + [p.id] %}{% endif %}{% endfor %}
+{% set videos = (latest or [])|selectattr('post_type','equalto','video')|list %}
+
+{% if breaking %}
+<div class="g-ticker" aria-label="{{ trans('breaking_news') }}">
+  <span class="g-live">LIVE</span>
+  <div class="g-ticker-track">{% for p in breaking %}<a href="/{{ p.slug }}">{{ p.title }}</a>{% if not loop.last %}<span aria-hidden="true">·</span>{% endif %}{% endfor %}</div>
+</div>
+{% endif %}
+{% if ads.get('index_top') %}<div class="container-xl">{{ m.ad_space(ads['index_top']) }}</div>{% endif %}
+
+{% if cover %}
+<section class="g-wrap g-hero">
+  <a href="/{{ cover.slug }}" class="g-cover g-zoom">
+    {% if post_image(cover, 'big') %}<img src="{{ post_image(cover, 'big') }}" alt="" class="g-cover-img g-hov">{% endif %}
+    <span class="g-cover-veil" aria-hidden="true"></span>
+    <span class="g-cover-copy">
+      {% set cn = cat_of(cover)|trim %}<span class="g-kick">{{ trans('home') if not cn else cn }}</span>
+      <span class="g-cover-title g-ttl">{{ cover.title }}</span>
+      {% if cover.summary %}<span class="g-cover-sum">{{ cover.summary|strip_tags(180) }}</span>{% endif %}
+      <span class="g-meta">{{ g_meta(cover) }}</span>
+    </span>
+  </a>
+  <div class="g-side">
+    {% for p in ns.side %}
+    <a href="/{{ p.slug }}" class="g-side-item g-zoom">
+      <span class="g-side-img">{% if post_image(p, 'mid') %}<img src="{{ post_image(p, 'mid') }}" alt="" loading="lazy" class="g-hov">{% endif %}</span>
+      <span><span class="g-kick">{{ cat_of(p) }}</span><span class="g-side-title g-ttl">{{ p.title|char_limit(80) }}</span><span class="g-meta">{{ p.created_at|fmt_date }}</span></span>
+    </a>
+    {% endfor %}
+    <form method="post" action="/add-newsletter-post" class="g-news">
+      <span class="g-kick">Newsletter</span>
+      <span class="g-news-copy">{{ ls.newsletter_text or 'Line-ups, guest lists and stories first in your inbox.' }}</span>
+      <span class="g-news-row"><input type="email" name="email" required maxlength="200" placeholder="Email" aria-label="Email"><button type="submit" class="g-btn">{{ trans('subscribe') or 'Subscribe' }}</button></span>
+    </form>
+  </div>
+</section>
+{% endif %}
+
+<div class="g-wrap g-body">
+  <div class="g-main">
+    {% for cat in home_cats %}
+      {% set posts = cat_posts.get(cat.id, []) %}
+      {% if posts %}
+      <section class="g-sec">
+        <div class="g-sechd"><h2>{{ cat.name }}</h2><a href="/{{ cat.slug }}">{{ trans('view_all') or 'View all' }} →</a></div>
+        <div class="g-row3">
+          {% for p in posts[:3] %}
+          <a href="/{{ p.slug }}" class="g-card g-zoom">
+            <span class="g-card-img">{% if post_image(p, 'mid') %}<img src="{{ post_image(p, 'mid') }}" alt="" loading="lazy" class="g-hov">{% endif %}</span>
+            <span class="g-card-title g-ttl">{{ p.title|char_limit(90) }}</span>
+            <span class="g-meta">{{ g_meta(p) }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+    {% else %}
+      {% if latest %}
+      <section class="g-sec">
+        <div class="g-sechd"><h2>{{ trans('latest_posts') }}</h2><a href="/posts">{{ trans('show_more') }} →</a></div>
+        <div class="g-row3">
+          {% for p in latest[:9] %}
+          <a href="/{{ p.slug }}" class="g-card g-zoom">
+            <span class="g-card-img">{% if post_image(p, 'mid') %}<img src="{{ post_image(p, 'mid') }}" alt="" loading="lazy" class="g-hov">{% endif %}</span>
+            <span class="g-kick">{{ cat_of(p) }}</span>
+            <span class="g-card-title g-ttl">{{ p.title|char_limit(90) }}</span>
+            <span class="g-meta">{{ g_meta(p) }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% else %}
+      <p class="g-empty">No stories yet. Publish the first one from the KMS admin.</p>
+      {% endif %}
+    {% endfor %}
+
+    {% if videos %}
+    <section class="g-sec">
+      <div class="g-sechd"><h2>Video</h2><a href="/posts">{{ trans('view_all') or 'View all' }} →</a></div>
+      <div class="g-video">
+        {% set v = videos[0] %}
+        <a href="/{{ v.slug }}" class="g-video-main g-zoom">
+          {% if post_image(v, 'big') %}<img src="{{ post_image(v, 'big') }}" alt="" loading="lazy" class="g-hov">{% endif %}
+          <span class="g-play" aria-hidden="true">▶</span>
+          <span class="g-video-title">{{ v.title }}</span>
+        </a>
+        <ul class="g-video-list">
+          {% for p in videos[1:4] %}<li><a href="/{{ p.slug }}" class="g-ttl">{{ p.title|char_limit(70) }}</a><span class="g-meta">{{ p.created_at|fmt_date }}</span></li>{% endfor %}
+        </ul>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+  <aside class="g-aside">
+    {% if popular %}
+    <div class="g-sechd"><h2>Most <em>read</em></h2></div>
+    <ol class="g-rank">
+      {% for p in popular[:5] %}<li><a href="/{{ p.slug }}"><span class="g-rank-n">{{ loop.index }}</span><span class="g-ttl">{{ p.title|char_limit(80) }}</span></a></li>{% endfor %}
+    </ol>
+    {% endif %}
+    {% if tags %}
+    <div class="g-tags"><span class="g-kick">Tags</span>
+      <div>{% for t in tags[:14] %}<a href="/tag/{{ t.tag_slug or t.slug }}" class="g-chip">{{ t.tag or t.name }}</a>{% endfor %}</div>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+
+<section class="g-band">
+  <div class="g-wrap g-band-inner">
+    <h2>Read the whole magazine with your <em>membership</em></h2>
+    <a href="{{ (brand_home or '').rstrip('/') }}/membership-enrollment" class="g-btn g-btn-white">Become a member</a>
+  </div>
+</section>
+{% endblock %}

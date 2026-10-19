@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{#
+  gem2i theme · every listing (category, sub-category, tag, search, author,
+  /posts) in the home's MG-1 language: eyebrow + Playfair heading, the first
+  story as a wide lead card, then the 3-column card grid, Most read + tags aside.
+#}
+{% macro cat_of(p) %}{% set c = all_categories|selectattr('id','equalto',p.category_id)|first %}{% if c %}{{ c.name }}{% endif %}{% endmacro %}
+{% block content %}
+{% set path = request.url.path %}
+{% set kind = 'Tag' if '/tag/' in path else ('Search' if '/search' in path else ('Author' if '/profile/' in path else ('All stories' if path.rstrip('/').endswith('/posts') else 'Section'))) %}
+<section class="g-pagehead">
+  <div class="g-wrap">
+    <span class="g-eyebrow">{{ kind }}</span>
+    <h1 class="g-h1">{{ heading }}</h1>
+    {% if profile_slug is defined and profile_slug %}
+    <div class="profile-follow">
+      <span class="follower-count">{{ follower_count }} follower{{ 's' if follower_count != 1 }}</span>
+      {% if user %}
+      <form method="post" action="/follow-user-post" class="inline-form">
+        <input type="hidden" name="slug" value="{{ profile_slug }}">
+        <button type="submit" class="g-btn{{ ' g-btn-ghost' if is_following }}">{{ 'Following ✓' if is_following else 'Follow' }}</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="g-wrap g-body">
+  <div class="g-main">
+    {% if posts %}
+      {% set lead = posts[0] %}
+      {% if pager is not defined or not pager or (pager.page|default(1)) == 1 %}
+      <a href="/{{ lead.slug }}" class="g-lead g-zoom">
+        <span class="g-lead-img">{% if post_image(lead, 'big') %}<img src="{{ post_image(lead, 'big') }}" alt="" class="g-hov">{% endif %}</span>
+        <span class="g-lead-copy">
+          <span class="g-kick">{{ cat_of(lead) }}</span>
+          <span class="g-lead-title g-ttl">{{ lead.title }}</span>
+          {% if lead.summary %}<span class="g-lead-sum">{{ lead.summary|strip_tags(200) }}</span>{% endif %}
+          <span class="g-meta"><span>{{ lead.author_username or '' }}</span><span>{{ lead.created_at|fmt_date }}</span></span>
+        </span>
+      </a>
+      {% set rest = posts[1:] %}
+      {% else %}{% set rest = posts %}{% endif %}
+      <div class="g-row3 g-row3-list">
+        {% for p in rest %}
+        <a href="/{{ p.slug }}" class="g-card g-zoom">
+          <span class="g-card-img">{% if post_image(p, 'mid') %}<img src="{{ post_image(p, 'mid') }}" alt="" loading="lazy" class="g-hov">{% endif %}</span>
+          <span class="g-kick">{{ cat_of(p) }}</span>
+          <span class="g-card-title g-ttl">{{ p.title|char_limit(90) }}</span>
+          <span class="g-meta"><span>{{ p.author_username or '' }}</span><span>{{ p.created_at|fmt_date }}</span></span>
+        </a>
+        {% endfor %}
+      </div>
+      {{ m.pagination(pager) }}
+    {% else %}
+      <p class="no-results">{{ trans('no_records_found') }}</p>
+    {% endif %}
+  </div>
+  <aside class="g-aside">
+    {% if popular %}
+    <div class="g-sechd"><h2>Most <em>read</em></h2></div>
+    <ol class="g-rank">
+      {% for p in popular[:5] %}<li><a href="/{{ p.slug }}"><span class="g-rank-n">{{ loop.index }}</span><span class="g-ttl">{{ p.title|char_limit(80) }}</span></a></li>{% endfor %}
+    </ol>
+    {% endif %}
+    {% if tags %}
+    <div class="g-tags"><span class="g-kick">Tags</span>
+      <div>{% for t in tags[:16] %}<a href="/tag/{{ t.tag_slug or t.slug }}" class="g-chip">{{ t.tag or t.name }}</a>{% endfor %}</div>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

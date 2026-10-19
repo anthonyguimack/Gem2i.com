@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-10-19 (session 9, part 2) — KMS "GEM2i Magazine" theme (MG-1) on every page + demo content (DEPLOYED)
+- **New KMS theme `gem2i`** (`kms/core.py` KMS_THEMES + tokens/fonts; KMS admin → Themes card "GEM2i Magazine"; active via `kms_settings.general.theme`, backup `kms_settings_before_theme_*`). A Capital templates untouched — overrides live in `backend/kms/templates/gem2i/`.
+- `gem2i/base.html`: beta chrome — header H-3 (logo + *Insights*, centred nav with rising-dot hover, search, Login / My points / My Account / Admin), footer FT-1 band (KMS newsletter) + FT-4b columns. `gem2i/index.html` = MG-1 home (cover + side headlines, LIVE ticker, category rows, Video row, Most read, tags, membership band). `gem2i/listing.html` = category/tag/search/author/posts with lead card + 3-col grid. `gem2i/login.html` = shared login restyled.
+- `kms/static/gem2i.css` (?v=2): re-points kms.css variables (dark, Manrope body / Playfair headings) + skins every shared component (post page reading column 18px, comments, reactions, sidebar, pagination, buttons, gallery, points, cookies). Verified live: body Manrope 16, post title Playfair 51, nav Manrope 14; home/section/tag/search/posts/post/login 200.
+- **Demo content** `scripts/gem2i_kms_demo.py` (tag `gem2i_kms_demo`; `--remove` deletes it): 5 categories, 17 posts (3 video), 24 tags, slider/featured/breaking selections.
+- Bocetos: `work-plans-MD/bocetos/kms-home.html` (MG-1 approved).
+- **Open:** KMS /admin keeps the A Capital admin look; logged-in header + subscribe overlay not checked; real KMS content to replace the demo.
+
 ## 2026-10-19 (session 9, Anthony's machine) — catalog pages v2, page heroes, About, geo, calendar CA-2, KMS installed (all DEPLOYED to beta)
 
 **Shipped (beta.gem2i.com, health 200 after every deploy; checked live with curl/JS):**

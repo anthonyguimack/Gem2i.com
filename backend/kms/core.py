@@ -878,7 +878,7 @@ def _make_env(loader) -> Environment:
 _env = _make_env(FileSystemLoader(str(KMS_DIR / "templates")))
 
 # ── themes ───────────────────────────────────────────────────────────────────
-KMS_THEMES = ("magazine", "moderna")
+KMS_THEMES = ("magazine", "moderna", "gem2i")
 
 # Semantic color tokens (KMS_MODERNA_THEME_PLAN §2.1/§4). Magazine's defaults are
 # its current hardcoded values, so an unconfigured install renders unchanged;
@@ -897,6 +897,13 @@ THEME_TOKEN_DEFAULTS = {
         "muted": "#6a6456", "line": "#ddd9cf", "row_alt": "#f6f5f1",
         "negative": "#9e3b2f", "positive": "#1f6b48",
     },
+    # gem2i (2026-10-19, bocetos/kms-home.html MG-1): the beta.gem2i.com night skin.
+    "gem2i": {
+        "band": "#04080C", "heading": "#FFFFFF", "accent": "#0068B3",
+        "kicker": "#5AAFEA", "box_bg": "#0D1721", "ink": "#E6EDF3",
+        "muted": "#8A98A6", "line": "#1C2631", "row_alt": "#0A121A",
+        "negative": "#E5484D", "positive": "#2FBF71",
+    },
 }
 THEME_FONT_DEFAULTS = {
     "magazine": {"heading_font": "'Inter', sans-serif",
@@ -905,6 +912,9 @@ THEME_FONT_DEFAULTS = {
     "moderna": {"heading_font": "Georgia, 'Times New Roman', serif",
                 "body_font": "Georgia, 'Times New Roman', serif",
                 "heading_weight": "400"},
+    "gem2i": {"heading_font": "'Playfair Display', Georgia, serif",
+              "body_font": "'Manrope', Helvetica, sans-serif",
+              "heading_weight": "700"},
 }
 
 _HEX_RE = re.compile(r"^#[0-9a-fA-F]{3,8}$")

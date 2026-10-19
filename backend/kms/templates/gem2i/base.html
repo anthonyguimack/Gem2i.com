@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+{#
+  gem2i theme base (2026-10-19): the KMS wears the SAME chrome as beta.gem2i.com
+  — header H-3 (logo left · nav centred with the rising-dot hover · account
+  right, 88px) and footer FT-1 band + FT-4b columns — so Insights reads as part
+  of one product. Every id kms.js relies on (navBurger, navMenu, btnSearch,
+  searchForm, btnToTop, btnAcceptCookies) is kept. Typography = Manrope text +
+  Playfair Display headings (gem2i.css).
+#}
+<html lang="{{ lang.short_form or 'en' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} - {{ site_title }}</title>
+<meta name="description" content="{{ description|default('') }}"/>
+<meta property="og:site_name" content="{{ app_name }}"/>
+{% block og %}
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="{{ title }} - {{ site_title }}"/>
+<meta property="og:description" content="{{ description|default('') }}"/>
+{% endblock %}
+{% if favicon %}<link rel="shortcut icon" type="image/png" href="{{ favicon }}"/>{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/kms-static/kms.css?v=9">
+<style>{{ theme_css|safe }}</style>
+{# ⚠ bump ?v= on every gem2i.css change — the public link is not cache-busted otherwise. #}
+<link rel="stylesheet" href="/kms-static/gem2i.css?v=2">
+{% if gs.custom_header_codes %}{{ gs.custom_header_codes|safe }}{% endif %}
+</head>
+<body class="gem2i">
+{% set home = (brand_home or '').rstrip('/') %}
+<header id="header" class="g-header">
+  <div class="g-header-inner">
+    <a href="/" class="g-brand" aria-label="{{ app_name }} Insights">
+      {% if logo_footer or logo %}<img src="{{ logo_footer or logo }}" alt="{{ app_name }}" class="logo">
+      {% else %}<span class="logo-text">{{ app_name }}</span>{% endif %}
+      <span class="g-brand-sub">Insights</span>
+    </a>
+    <button class="nav-burger" id="navBurger" aria-label="menu"><span></span><span></span><span></span></button>
+    <nav class="g-nav" aria-label="Insights sections">
+      <ul class="navbar-nav" id="navMenu">
+        {% set path = request.url.path.rstrip('/') %}
+        <li><a href="/" class="g-nav-link{{ ' is-active' if path in ('', '/insights') }}">{{ trans('home') }}</a></li>
+        {% for c in categories if c.show_on_menu == 1 %}
+          <li class="nav-item-category"><a href="/{{ c.slug }}" class="g-nav-link{{ ' is-active' if path.endswith('/' ~ c.slug) }}">{{ c.name }}</a>
+          {% set subs = all_categories|selectattr('parent_id','equalto',c.id)|list %}
+          {% if subs %}<ul class="nav-dropdown">
+            {% for sc in subs if sc.show_on_menu == 1 %}<li><a href="/{{ c.slug }}/{{ sc.slug }}">{{ sc.name }}</a></li>{% endfor %}
+          </ul>{% endif %}
+          </li>
+        {% endfor %}
+        {% for p in nav_pages if p.location == 'main' and p.parent_id == 0 %}
+          <li><a href="{{ p.link if p.page_type == 'link' and p.link else '/' + p.slug }}" class="g-nav-link">{{ p.title }}</a></li>
+        {% endfor %}
+        {% if home %}<li class="g-nav-mobile-only"><a href="{{ home }}/" class="g-nav-link">GEM2i.com</a></li>{% endif %}
+      </ul>
+    </nav>
+    <div class="g-header-right">
+      <button type="button" class="search-icon" id="btnSearch" aria-label="search">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
+      <div class="search-form" id="searchForm">
+        <form action="/search" method="get">
+          <input type="text" name="q" maxlength="300" class="form-input" placeholder="{{ trans('placeholder_search') }}" required>
+          <button class="btn-custom" aria-label="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+        </form>
+      </div>
+      {% if user %}
+        <a href="/my-points" class="g-nav-link g-hide-sm"{% if request.url.path.endswith('/my-points') %} aria-current="page"{% endif %}>My points</a>
+        {% if home %}<a href="{{ home }}/my-account/membership-profile" class="g-nav-link g-hide-sm">My Account</a>{% endif %}
+        {% if user.a or user.au %}<a href="/admin" class="g-pill">Admin</a>{% endif %}
+        <a href="/logout" class="g-icon-btn" aria-label="{{ trans('logout') }}" title="{{ trans('logout') }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></a>
+      {% else %}
+        <a href="/admin/login" class="g-login"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>{{ trans('login') }}</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+{% if ads and ads.get('header') %}
+{% import "_macros.html" as _adm %}
+<div class="container-xl">{{ _adm.ad_space(ads['header']) }}</div>
+{% endif %}
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer id="footer" class="g-footer">
+  <div class="g-footer-band">
+    <div class="g-wrap g-footer-band-inner">
+      <div>
+        <h2>Be part of the <em>night</em></h2>
+        <p>Guest lists, QR e-passes and e-tickets for members. Get the next stories in your inbox.</p>
+      </div>
+      <form method="post" action="/add-newsletter-post" class="g-footer-news">
+        <label class="g-grow"><span class="sr-only">Email</span><input type="email" name="email" required maxlength="200" placeholder="Your email for news and events" autocomplete="email"></label>
+        <button type="submit" class="g-btn g-btn-white">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="g-wrap g-footer-cols">
+    <div class="g-footer-brand">
+      {% if logo_footer %}<img src="{{ logo_footer }}" alt="{{ app_name }}" class="logo-footer">{% else %}<p class="logo-text">{{ app_name }}</p>{% endif %}
+      <p>{{ (ls.about_footer or ls.site_description or 'The GEM2i magazine: festivals, artists, venues and the business of the night.')|striptags }}</p>
+    </div>
+    <div>
+      <h4>{{ trans('categories') }}</h4>
+      <ul>{% for c in categories[:6] %}<li><a href="/{{ c.slug }}">{{ c.name }}</a></li>{% endfor %}</ul>
+    </div>
+    <div>
+      <h4>GEM2i</h4>
+      <ul>
+        {% if home %}<li><a href="{{ home }}/events">Events</a></li><li><a href="{{ home }}/festivals">Festivals</a></li><li><a href="{{ home }}/artists">Artists</a></li><li><a href="{{ home }}/venues">Venues</a></li>{% endif %}
+        {% for p in nav_pages if p.location in ('main','top') and p.page_type != 'link' %}<li><a href="/{{ p.slug }}">{{ p.title }}</a></li>{% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h4>{{ trans('follow_us') }}</h4>
+      <div class="footer-social">
+        {% for s in brand_social_links %}<a href="{{ s.url }}" target="_blank" rel="noopener" aria-label="{{ s.label }}" title="{{ s.label }}"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">{{ s.svg|safe }}</svg></a>{% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="g-footer-bar"><div class="g-wrap">© {{ year }} {{ app_name }}. {{ ls.copyright or '' }}</div></div>
+</footer>
+{% if ls.cookies_warning == 1 and request.cookies.get('kms_cookies_ok') != '1' %}
+<div class="cookies-banner" id="cookiesBanner">
+  <div class="cookies-text">{{ ls.cookies_warning_text|safe }}</div>
+  <button class="btn-custom" id="btnAcceptCookies">{{ trans('accept_cookies') }}</button>
+</div>
+{% endif %}
+<button type="button" class="to-top" id="btnToTop" aria-label="Back to top" title="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+<script src="/kms-static/kms.js?v=4" defer></script>
+{% if gs.custom_footer_codes %}{{ gs.custom_footer_codes|safe }}{% endif %}
+{% if show_subscribe_overlay %}{% include "_subscribe_overlay.html" %}{% endif %}
+</body>
+</html>

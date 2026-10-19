@@ -23,6 +23,9 @@
    change — the public stylesheet links are otherwise not cache-busted. #}
 {% if theme == 'moderna' %}<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/kms-static/moderna.css?v=5">{% endif %}
+{# gem2i theme (MG-1): Playfair + Manrope and the night skin. ⚠ bump ?v= on every gem2i.css change. #}
+{% if theme == 'gem2i' %}<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/kms-static/gem2i.css?v=2">{% endif %}
 {% if gs.custom_header_codes %}{{ gs.custom_header_codes|safe }}{% endif %}
 </head>
 <body class="{{ theme|default('magazine') }}{{ ' dark-mode' if dark }}">

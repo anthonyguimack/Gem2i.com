@@ -5,6 +5,18 @@
   <div class="box-body">
     {% if saved %}<div class="alert alert-success">Theme updated.</div>{% endif %}
     <div class="themes-grid">
+      <div class="theme-card{{ ' theme-active' if theme == 'gem2i' }}">
+        <div class="theme-name">GEM2i Magazine</div>
+        <div class="theme-desc">Night magazine in the beta.gem2i.com identity (Playfair + Manrope, #0068b3): cover story with side headlines, live ticker, one row per home category, video row, most read, membership band (sketch MG-1).</div>
+        {% if theme == 'gem2i' %}
+          <span class="badge badge-primary">Active</span>
+        {% else %}
+          <form method="post" action="/admin/theme-activate" class="m0">
+            <input type="hidden" name="theme" value="gem2i">
+            <button type="submit" class="btn btn-primary btn-sm">Activate</button>
+          </form>
+        {% endif %}
+      </div>
       <div class="theme-card{{ ' theme-active' if theme == 'magazine' }}">
         <div class="theme-name">Magazine</div>
         <div class="theme-desc">The default public theme — clean-room rebuild of the Varient magazine layout (newsticker, slider, featured, category blocks, sidebar widgets).</div>
