@@ -1,6 +1,6 @@
 // Aurex section schemas — drive the polymorphic admin UI.
 // Each entry defines: config fields (page-level) + item fields (CRUD rows).
-import { Users, Workflow, DollarSign, UserCircle, Calendar, Building2, Award, Film, Briefcase, MessageCircle, Newspaper, BookOpen, MapPin, Image, GalleryHorizontal, Megaphone } from 'lucide-react';
+import { Users, Workflow, DollarSign, UserCircle, Calendar, Building2, Award, Film, Briefcase, MessageCircle, Newspaper, BookOpen, MapPin, Image, GalleryHorizontal, Megaphone, Plane, Handshake } from 'lucide-react';
 import { adminText } from './i18n';
 
 // Field types: 'text' | 'textarea' | 'url' | 'number' | 'bool' | 'image' | 'icon' | 'rich' | 'social_links'
@@ -275,6 +275,79 @@ export const AUREX_SECTIONS = {
       { key: 'description', label: 'Description', type: 'rich' },
     ],
     itemPreview: (i) => `${i.step_number || '·'}. ${adminText(i.title)}`,
+  },
+  // ── gem2i inner pages (2026-10-19, port of the legacy travels.php /
+  //    services.php / partners.php — content was hardcoded in PHP there) ──
+  gem_travels: {
+    label: 'Travels page',
+    icon: Plane,
+    description: 'The /travels page: one row per trip, alternating photo / text. Each photo can switch to its Google map ("View map / View photo").',
+    configFields: [
+      { key: 'eyebrow',      label: 'Eyebrow (above title)', type: 'text', placeholder: 'Travels' },
+      { key: 'title',        label: 'Page title',            type: 'text', placeholder: 'Travel with GEM2i' },
+      { key: 'subtitle',     label: 'Intro',                 type: 'textarea' },
+      { key: 'members_only', label: 'Members only (log in to see the trips)', type: 'bool' },
+    ],
+    itemFields: [
+      { key: 'dates',       label: 'Dates (free text)',  type: 'text', placeholder: 'July 18 / 19 / 20 and 25 / 26 / 27' },
+      { key: 'title',       label: 'Trip / festival',    type: 'text', required: true },
+      { key: 'description', label: 'Description',        type: 'rich' },
+      { key: 'address',     label: 'Address',            type: 'text', placeholder: 'Dirkputstraat 260, Boom, Belgium' },
+      { key: 'image',       label: 'Photo',              type: 'image' },
+      { key: 'map_url',     label: 'Google Maps embed URL (Share → Embed a map → src)', type: 'url' },
+      { key: 'cta_text',    label: 'Button text (optional)', type: 'text', placeholder: 'Book this trip' },
+      { key: 'cta_url',     label: 'Button URL',         type: 'url' },
+    ],
+    itemPreview: (i) => `${adminText(i.title)}${i.dates ? ` · ${adminText(i.dates)}` : ''}`,
+  },
+  gem_services_page: {
+    label: 'Services page',
+    icon: Briefcase,
+    description: 'The /services page: "Our services" cards (icon + name). Clicking a card opens its photo / description.',
+    configFields: [
+      { key: 'eyebrow',  label: 'Eyebrow (above title)', type: 'text', placeholder: 'What we do' },
+      { key: 'title',    label: 'Page title',            type: 'text', placeholder: 'Our services' },
+      { key: 'subtitle', label: 'Intro',                 type: 'textarea' },
+    ],
+    itemFields: [
+      { key: 'title',       label: 'Service name',    type: 'text', required: true },
+      { key: 'icon_image',  label: 'Icon (SVG/PNG)',  type: 'image' },
+      { key: 'image',       label: 'Photo',           type: 'image' },
+      { key: 'description', label: 'Description',     type: 'rich' },
+      { key: 'url',         label: 'Link (optional)', type: 'url', placeholder: '/works' },
+    ],
+    itemPreview: (i) => adminText(i.title),
+  },
+  gem_works: {
+    label: 'Our Works (Services page)',
+    icon: GalleryHorizontal,
+    description: 'Dark band under the services: carousel of recent works.',
+    configFields: [
+      { key: 'eyebrow',  label: 'Eyebrow (above title)', type: 'text', placeholder: 'Portfolio' },
+      { key: 'title',    label: 'Section title',         type: 'text', placeholder: 'Our works' },
+      { key: 'subtitle', label: 'Intro',                 type: 'textarea' },
+      { key: 'cta_text', label: 'Card button text',      type: 'text', placeholder: 'View all works' },
+      { key: 'cta_url',  label: 'Card button URL',       type: 'url', placeholder: '/works' },
+    ],
+    itemFields: [
+      { key: 'title', label: 'Work title', type: 'text', required: true },
+      { key: 'image', label: 'Image',      type: 'image' },
+      { key: 'url',   label: 'Link (optional, else the section URL)', type: 'url' },
+    ],
+    itemPreview: (i) => adminText(i.title),
+  },
+  gem_partners_page: {
+    label: 'Partners page',
+    icon: Handshake,
+    description: 'The /partners page header. The logos come from "Partners" (aurex_partners) — the same list as the homepage marquee.',
+    configFields: [
+      { key: 'eyebrow',      label: 'Eyebrow (above title)', type: 'text', placeholder: 'Global' },
+      { key: 'title',        label: 'Page title',            type: 'text', placeholder: 'Partners' },
+      { key: 'subtitle',     label: 'Intro',                 type: 'textarea' },
+      { key: 'empty_text',   label: 'Text when there are no logos', type: 'text', placeholder: 'Coming soon…' },
+      { key: 'members_only', label: 'Members only (log in to see the page)', type: 'bool' },
+    ],
+    itemFields: null,
   },
   gem_events_cfg: {
     label: 'Upcoming Events — Section Configuration',

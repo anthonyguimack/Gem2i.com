@@ -45,3 +45,4 @@
 - No local Python venv with FastAPI on this machine: `py_compile` is the only local backend check; the real import test is the deploy (auto-rollback on failure).
 - **KMS deploys (2026-10-19):** the KMS is Python + Jinja inside `backend/kms/` — the smart deploy ships it like any backend file (templates/static included); no frontend build. A requirements change triggers pip on the box (first KMS deploy took 10m46s).
 - **Geo data:** `scripts/out/` is gitignored; regenerate with `python -I scripts/gem2i_etl_geo.py <gem2ica_production.sql>` and load on the box with `backend/venv/bin/python scripts/gem2i_load_geo.py scripts/out` (idempotent).
+- **Legacy PHP box (read-only reference):** gem2i.exclusivesession.com = **100.59.20.123** (Lightsail, key `ExclusiveSession.com-LightsailDefaultKey-us-east-1.pem`, user `ubuntu`, sites under `/var/www/<host>`, DB `gem2ica_production` via `sudo mysql`). Hosts many other exclusivesession.com sites — NEVER change anything there.

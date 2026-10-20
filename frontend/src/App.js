@@ -100,6 +100,9 @@ const Gem2iEvents = lazy(() => import('./pages/gem2i/Gem2iEvents'));
 const Gem2iEventDetail = lazy(() => import('./pages/gem2i/Gem2iEventDetail'));
 const Gem2iTicketSuccess = lazy(() => import('./pages/gem2i/Gem2iTicketSuccess'));
 const Gem2iAbout = lazy(() => import('./pages/gem2i/Gem2iAbout'));
+const Gem2iTravels = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iTravels })));
+const Gem2iServices = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iServices })));
+const Gem2iPartners = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iPartners })));
 
 import { injectThemeColors } from './lib/themeColors';
 import { LanguageProvider } from './lib/i18n';
@@ -511,6 +514,9 @@ function AppRouter() {
                   other themes fall through to the CMS placeholder pages. */}
               {isGem2iTheme(settings.active_theme) && <>
                 <Route path="/about" element={<Gem2iAbout />} />
+                <Route path="/travels" element={<Gem2iTravels />} />
+                <Route path="/services" element={<Gem2iServices />} />
+                <Route path="/partners" element={<Gem2iPartners />} />
                 <Route path="/artists" element={<Gem2iArtists />} />
                 <Route path="/artists/:slug" element={<Gem2iArtistDetail />} />
                 <Route path="/venues" element={<Gem2iVenues />} />

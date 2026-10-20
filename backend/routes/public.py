@@ -104,6 +104,9 @@ async def get_public_site_pages():
         {"id": "festivals", "title": "Festivals", "url": "/festivals", "system": True},
         {"id": "artists", "title": "Artists", "url": "/artists", "system": True},
         {"id": "venues", "title": "Venues", "url": "/venues", "system": True},
+        {"id": "travels", "title": "Travels", "url": "/travels", "system": True},
+        {"id": "services", "title": "Services", "url": "/services", "system": True},
+        {"id": "partners", "title": "Partners", "url": "/partners", "system": True},
     ]
     nav_pages = await db.nav_pages.find({}, {"_id": 0}).sort("order", 1).to_list(100)
     # A menu entry pointing at a system page would be a second, dead checkbox.

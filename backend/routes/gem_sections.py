@@ -76,6 +76,9 @@ VALID_SECTIONS = {
     "gem_conferences_cfg", "gem_clients_cfg",
     # gem2i template — Methodology steps (itemized, like Our Process)
     "gem_methodology",
+    # gem2i inner pages (2026-10-19, port of travels.php / services.php /
+    # partners.php): Travels trips, Services cards + Works carousel, Partners header.
+    "gem_travels", "gem_services_page", "gem_works", "gem_partners_page",
 }
 ITEM_SECTIONS = VALID_SECTIONS - {
     "aurex_events", "news_ticker",
@@ -83,6 +86,7 @@ ITEM_SECTIONS = VALID_SECTIONS - {
     "gem_conferences_cfg", "gem_clients_cfg",
     "aurex_services_cfg", "aurex_testimonials_cfg", "aurex_news_cfg",
     "aurex_blog_cfg", "aurex_locations_cfg", "aurex_model_portfolio_cfg",
+    "gem_partners_page",
 }
 
 

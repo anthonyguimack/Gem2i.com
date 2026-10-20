@@ -6,7 +6,7 @@
   (public.home): breaking, slider, featured, home_cats/cat_posts, latest,
   popular, tags. Nothing new is stored — every block maps to KMS data:
   cover = first slider post (else featured, else latest); side headlines =
-  next featured/latest; ticker = breaking; rows = home categories; video row =
+  next 4 featured/latest (newsletter lives in the footer band); ticker = breaking; rows = home categories; video row =
   latest video posts; most read = popular (pageviews); band → gem2i membership.
 #}
 {% macro cat_of(p) %}{% set c = all_categories|selectattr('id','equalto',p.category_id)|first %}{% if c %}{{ c.name }}{% endif %}{% endmacro %}
@@ -17,7 +17,7 @@
 {% set pool = (slider or []) + (featured or []) + (latest or []) %}
 {% set cover = pool[0] if pool else None %}
 {% set ns = namespace(side=[], seen=[cover.id if cover else None]) %}
-{% for p in (featured or []) + (latest or []) %}{% if p.id not in ns.seen and ns.side|length < 3 %}{% set ns.side = ns.side + [p] %}{% set ns.seen = ns.seen + [p.id] %}{% endif %}{% endfor %}
+{% for p in (featured or []) + (latest or []) %}{% if p.id not in ns.seen and ns.side|length < 4 %}{% set ns.side = ns.side + [p] %}{% set ns.seen = ns.seen + [p.id] %}{% endif %}{% endfor %}
 {% set videos = (latest or [])|selectattr('post_type','equalto','video')|list %}
 
 {% if breaking %}
@@ -47,11 +47,6 @@
       <span><span class="g-kick">{{ cat_of(p) }}</span><span class="g-side-title g-ttl">{{ p.title|char_limit(80) }}</span><span class="g-meta">{{ p.created_at|fmt_date }}</span></span>
     </a>
     {% endfor %}
-    <form method="post" action="/add-newsletter-post" class="g-news">
-      <span class="g-kick">Newsletter</span>
-      <span class="g-news-copy">{{ ls.newsletter_text or 'Line-ups, guest lists and stories first in your inbox.' }}</span>
-      <span class="g-news-row"><input type="email" name="email" required maxlength="200" placeholder="Email" aria-label="Email"><button type="submit" class="g-btn">{{ trans('subscribe') or 'Subscribe' }}</button></span>
-    </form>
   </div>
 </section>
 {% endif %}

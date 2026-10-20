@@ -2,6 +2,12 @@
 
 ---
 
+## 2026-10-19 (session 9, part 3) — KMS tweaks, legacy user export, Travels/Services/Partners pages (DEPLOYED)
+- **KMS:** home side column = 4 posts (newsletter only in the footer band); post page right column = Most read · More in <category> · Tags (`kms/templates/gem2i/post.html`, the A Capital widget sidebar is empty without kms_widgets); logged-in header no longer overflows (gem2i.css v4).
+- **Legacy users (read-only):** gem2i.exclusivesession.com lives on **100.59.20.123** (key `ExclusiveSession.com-LightsailDefaultKey`, user ubuntu; DB `gem2ica_production`, table `members` = 1,739 rows: 528 status 1 / 1,203 status 2 / 8 status 0; `admin` = 5). Export without passwords in `reference/local-only/legacy_members.{csv,html}` + `legacy_admins.csv` (gitignored). Anthony was given the Lightsail/mysql steps to read passwords himself; we never extract them (D2). ⚠ The legacy site's MySQL password appeared in a tool output — rotate at cutover.
+- **New pages** (`pages/gem2i/Gem2iInnerPages.js`, routes /travels /services /partners; system pages for hero assignment): Travels (alternating rows, View map/View photo, members-only switch), Services (8 icon cards + viewer, dark "Our works" carousel), Partners (aurex_partners logos grid, "Coming soon" when empty, members-only switch). Section Manager entries `gem_travels`, `gem_services_page`, `gem_works`, `gem_partners_page`. Content from the legacy PHP (hardcoded there) via `scripts/gem2i_seed_inner_pages.js` (seed tag, re-runnable; backup `inner_pages_before_*`); assets in `/api/uploads/gem2i/pages/`.
+- **Open:** check Travels/Partners logged in; real service descriptions/photos; more trips.
+
 ## 2026-10-19 (session 9, part 2) — KMS "GEM2i Magazine" theme (MG-1) on every page + demo content (DEPLOYED)
 - **New KMS theme `gem2i`** (`kms/core.py` KMS_THEMES + tokens/fonts; KMS admin → Themes card "GEM2i Magazine"; active via `kms_settings.general.theme`, backup `kms_settings_before_theme_*`). A Capital templates untouched — overrides live in `backend/kms/templates/gem2i/`.
 - `gem2i/base.html`: beta chrome — header H-3 (logo + *Insights*, centred nav with rising-dot hover, search, Login / My points / My Account / Admin), footer FT-1 band (KMS newsletter) + FT-4b columns. `gem2i/index.html` = MG-1 home (cover + side headlines, LIVE ticker, category rows, Video row, Most read, tags, membership band). `gem2i/listing.html` = category/tag/search/author/posts with lead card + 3-col grid. `gem2i/login.html` = shared login restyled.
