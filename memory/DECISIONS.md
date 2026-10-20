@@ -58,3 +58,6 @@ Overrides "KMS out" in D-GEM-2026-06: gem2i needs the KMS to run its magazine. `
 
 ## D-GEM-2026-11 — Insights = one product with beta (2026-10-19, Anthony)
 The KMS public site must look exactly like beta.gem2i.com — same fonts (Manrope text, Playfair headings), sizes, header/footer and graphic line — on the home AND every inner page (posts, sections, tags, search, pages, login). Implemented as the KMS theme `gem2i` (templates/gem2i/ overrides + static/gem2i.css); A Capital's shared templates stay untouched. Home = sketch MG-1.
+
+## D-GEM-2026-12 — Travel magazine templates + light/dark (2026-10-20, Anthony)
+Bocetos `kms-travel.html` approved: TR-1 (light) and TR-2 (dark) are ONE KMS template "GEM2i Magazine - Travel" — only the hero differs, plus the region block (light cards / dark tall photos); TR-3 is a separate template "GEM2i Magazine - Travel Calendar". Readers can switch light/dark from the frontend; the admin picks the default. Same switch enabled on the first template "GEM2i Magazine" (MG-1).

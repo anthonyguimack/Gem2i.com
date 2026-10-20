@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% import "_travel.html" as t with context %}
+{#
+  GEM2i Magazine - Travel Calendar home (TR-3 "Atlas", bocetos/kms-travel.html,
+  approved 2026-10-20). Cover = a map with one pin per post that has a place
+  (lat/lng); the newest pinned post opens its card. Below: month strip (?m=YYYY-MM)
+  and that month's route (KMS admin → Travel routes), then news + destinations.
+  Shares the reader light/dark switch with GEM2i Magazine - Travel.
+#}
+{% block head_extra %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+{% endblock %}
+
+{% block content %}
+<h1 class="title-index">{{ title }}</h1>
+{% set tr = travel %}
+<section class="t-atlas" aria-label="Map of stories">
+  <div class="t-atlas-copy">
+    <span class="t-place">The night map</span>
+    <h2 class="t-atlas-title">Where to dance <em>in {{ tr.month_label }}</em></h2>
+    <p>Every pin is a guide: a festival, a club or a city. Pick one to read it.</p>
+    <div class="t-atlas-cta"><a href="/posts" class="g-btn">All guides</a>{% if tr.dest %}<a href="#t-dest" class="g-btn t-btn-ghost">Choose a continent</a>{% endif %}</div>
+  </div>
+  <div class="t-atlas-map">
+    <div id="tMap" class="t-map" role="region" aria-label="Map"></div>
+    {% if not tr.pins %}<p class="t-map-empty">Add a place with latitude and longitude to a post and it will show up here.</p>{% endif %}
+  </div>
+</section>
+
+<nav class="g-wrap t-months" aria-label="Months">
+  {% for mo in tr.months %}<a href="?m={{ mo.key }}" class="{{ 'is-on' if mo.on }}{{ ' has-route' if mo.has }}"{% if mo.on %} aria-current="page"{% endif %}>{{ mo.label }}</a>{% endfor %}
+</nav>
+
+<section class="g-wrap t-sec">
+  {% if tr.stops %}
+  <div class="t-hd t-hdrow"><div><h2>{% if tr.route.title %}{{ tr.route.title }}{% else %}The route of <em>{{ tr.month_label|lower }}</em>{% endif %}</h2>{% if tr.route.subtitle %}<p>{{ tr.route.subtitle }}</p>{% endif %}</div></div>
+  <ol class="t-itin">
+    {% for st in tr.stops %}
+    <li><a href="/{{ st.post.slug }}" class="g-zoom">
+      <span class="t-itin-day">{{ st.day or loop.index }}<small>{{ st.label }}</small></span>
+      {{ t.img(st.post, 'mid', 't-r12 t-1610') }}
+      <span class="t-itin-title g-ttl">{{ st.post.title|char_limit(80) }}</span>
+    </a></li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <div class="t-hd"><h2>The route of <em>{{ tr.month_label|lower }}</em></h2><p>No route for this month yet.</p></div>
+  {% endif %}
+</section>
+
+{{ t.news(latest[:5]) }}
+<div id="t-dest">{{ t.destinations('By continent') }}</div>
+{{ t.offers() }}
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+  var pins={{ travel.pins|tojson }};var el=document.getElementById('tMap');if(!el||!window.L)return;
+  var map=L.map(el,{scrollWheelZoom:false,worldCopyJump:true,zoomControl:true}).setView([30,10],2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:2,attribution:'&copy; OpenStreetMap'}).addTo(map);
+  function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var pts=[];pins.forEach(function(p,i){
+    var icon=L.divIcon({className:'t-pin'+(i===0?' is-big':''),html:'<span>'+esc(p.city||'')+'</span><i></i>',iconSize:null,iconAnchor:[0,0]});
+    var m=L.marker([p.lat,p.lng],{icon:icon,title:p.title}).addTo(map);
+    m.bindPopup('<a class="t-pop" href="/'+esc(p.slug)+'">'+(p.img?'<img src="'+esc(p.img)+'" alt="">':'')+'<b>'+esc(p.title)+'</b></a>',{closeButton:false,maxWidth:260,className:'t-popwrap'});
+    if(i===0)setTimeout(function(){m.openPopup();},300);pts.push([p.lat,p.lng]);});
+  if(pts.length>1)map.fitBounds(pts,{padding:[60,60],maxZoom:5});
+})();
+</script>
+{% endblock %}

@@ -5,9 +5,25 @@
   <div class="box-body">
     {% if saved %}<div class="alert alert-success">Theme updated.</div>{% endif %}
     <div class="themes-grid">
+      {% for key, name, desc in [
+        ('gem2i_travel', 'GEM2i Magazine - Travel', 'Travel magazine in the GEM2i identity (sketches TR-1 / TR-2): light mode = carousel cover with side stories, dark mode = full-bleed cover with glass cards. Destinations by category, In the news, photo band, region block, GEM2i trips, more stories. Readers can switch light/dark.'),
+        ('gem2i_travel_cal', 'GEM2i Magazine - Travel Calendar', 'Travel magazine whose cover is a map (sketch TR-3): one pin per post with a place, month strip and the month route (Travel routes). Same light/dark switch.')] %}
+      <div class="theme-card{{ ' theme-active' if theme == key }}">
+        <div class="theme-name">{{ name }}</div>
+        <div class="theme-desc">{{ desc }}</div>
+        {% if theme == key %}
+          <span class="badge badge-primary">Active</span>
+        {% else %}
+          <form method="post" action="/admin/theme-activate" class="m0">
+            <input type="hidden" name="theme" value="{{ key }}">
+            <button type="submit" class="btn btn-primary btn-sm">Activate</button>
+          </form>
+        {% endif %}
+      </div>
+      {% endfor %}
       <div class="theme-card{{ ' theme-active' if theme == 'gem2i' }}">
         <div class="theme-name">GEM2i Magazine</div>
-        <div class="theme-desc">Night magazine in the beta.gem2i.com identity (Playfair + Manrope, #0068b3): cover story with side headlines, live ticker, one row per home category, video row, most read, membership band (sketch MG-1).</div>
+        <div class="theme-desc">Night magazine in the beta.gem2i.com identity (Playfair + Manrope, #0068b3): cover story with side headlines, live ticker, one row per home category, video row, most read, membership band (sketch MG-1). Readers can switch light/dark.</div>
         {% if theme == 'gem2i' %}
           <span class="badge badge-primary">Active</span>
         {% else %}
@@ -52,6 +68,40 @@
         <span class="badge badge-muted">Unavailable</span>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Light / dark mode and Travel settings</h3></div>
+  <div class="box-body">
+    <p class="text-muted">Default mode applies to GEM2i Magazine, GEM2i Magazine - Travel and Travel Calendar. The two category fields are used by the Travel themes only.</p>
+    {% set tv = travel or {} %}
+    <form method="post" action="/admin/travel-settings">
+      <div class="form-group">
+        <label class="control-label" for="tvMode">Default mode</label>
+        <select id="tvMode" name="default_mode" class="form-input">
+          <option value="dark" {{ 'selected' if (tv.default_mode or 'dark') == 'dark' }}>Dark</option>
+          <option value="light" {{ 'selected' if tv.default_mode == 'light' }}>Light</option>
+        </select>
+        <small class="text-muted">What a first-time reader sees. Readers can switch with the sun/moon button; their choice is remembered.</small>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="tvRegion">Region block (category)</label>
+        <select id="tvRegion" name="region_cat_id" class="form-input">
+          <option value="">First home category</option>
+          {% for c in top_cats %}<option value="{{ c.id }}" {{ 'selected' if tv.region_cat_id == c.id }}>{{ c.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="tvBand">Photo band (category)</label>
+        <select id="tvBand" name="band_cat_id" class="form-input">
+          <option value="">None</option>
+          {% for c in top_cats %}<option value="{{ c.id }}" {{ 'selected' if tv.band_cat_id == c.id }}>{{ c.name }}</option>{% endfor %}
+        </select>
+        <small class="text-muted">The newest post of this category fills the full-width photo band.</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
   </div>
 </div>
 {% endblock %}

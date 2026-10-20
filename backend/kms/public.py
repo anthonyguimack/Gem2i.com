@@ -585,8 +585,97 @@ async def home(request: Request):
         show_featured=gs.get("show_featured_section") == 1,
         sidebar_widgets=await core.widgets(lang_id),
         popular=await _popular(lang_id), recommended=await core.selected_posts("recommended", lang_id),
-        tags=await _tag_cloud(lang_id))
+        tags=await _tag_cloud(lang_id),
+        **(await _travel_ctx(request, gs, lang_id, cats, latest)
+           if core.active_theme(gs) in core.TRAVEL_THEMES else {}))
     return _page(html)
+
+
+# ── gem2i Travel themes (bocetos/kms-travel.html, 2026-10-20) ───────────────
+_MONTHS_ES = ("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto",
+              "Septiembre", "Octubre", "Noviembre", "Diciembre")
+_MONTHS_EN = ("January", "February", "March", "April", "May", "June", "July", "August",
+              "September", "October", "November", "December")
+
+
+async def _travel_ctx(request: Request, gs: dict, lang_id: int, cats: list, latest: list) -> dict:
+    """Extra home data for GEM2i Magazine - Travel (+ Travel Calendar):
+    destinations = top categories with post count and a photo; region = the
+    category chosen in Themes (else the first home category); band = newest post
+    of the chosen band category; calendar = month route + map pins."""
+    tcfg = gs.get("travel") or {}
+    tops = [c for c in cats if not c.get("parent_id")]
+    dest = []
+    for c in tops:
+        ids = [c["id"]] + [sc["id"] for sc in core.subcategories(cats, c["id"])]
+        n = await core.count_by_category(ids, lang_id)
+        if not n:
+            continue
+        first = (await core.posts_by_category(ids, lang_id, 1) or [None])[0]
+        img = (core.img_url(c["default_image"]) if c.get("default_image")
+               else (core.post_image(first, "small") if first else ""))
+        dest.append({"cat": c, "count": n, "image": img})
+
+    def _pick(key):
+        cid = tcfg.get(key)
+        return next((c for c in tops if c["id"] == cid), None)
+
+    region = _pick("region_cat_id") or next(
+        (c for c in tops if c.get("show_on_homepage") == 1), tops[0] if tops else None)
+    region_posts = []
+    if region:
+        rids = [region["id"]] + [sc["id"] for sc in core.subcategories(cats, region["id"])]
+        region_posts = await core.posts_by_category(rids, lang_id, 3)
+    band_cat = _pick("band_cat_id")
+    band = None
+    if band_cat:
+        bids = [band_cat["id"]] + [sc["id"] for sc in core.subcategories(cats, band_cat["id"])]
+        band = (await core.posts_by_category(bids, lang_id, 1) or [None])[0]
+    ctx = {"travel": {"dest": dest, "region": region, "region_posts": region_posts,
+                      "band": band, "band_cat": band_cat}}
+    if core.active_theme(gs) == "gem2i_travel_cal":
+        ctx["travel"].update(await _travel_cal_ctx(request, lang_id))
+    return ctx
+
+
+async def _travel_cal_ctx(request: Request, lang_id: int) -> dict:
+    """Month strip + that month's route (kms_travel_routes) + map pins (posts with lat/lng)."""
+    now = datetime.now(timezone.utc)
+    m = (request.query_params.get("m") or "").strip()
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", m):
+        m = f"{now.year}-{now.month:02d}"
+    year, mon = int(m[:4]), int(m[5:])
+    have = {r["month"] async for r in db.kms_travel_routes.find(
+        {"month": {"$regex": f"^{year}-"}, "active": {"$ne": False}}, {"month": 1})}
+    es = (await core.default_lang()).get("short_form", "en").startswith("es")
+    names = _MONTHS_ES if es else _MONTHS_EN
+    months = [{"key": f"{year}-{i:02d}", "label": names[i - 1][:3], "on": i == mon,
+               "has": f"{year}-{i:02d}" in have} for i in range(1, 13)]
+    route = await db.kms_travel_routes.find_one({"month": m, "active": {"$ne": False}}, {"_id": 0})
+    stops = []
+    if route:
+        items = [st for st in (route.get("stops") or []) if st.get("visible", True)]
+        ids = [int(st["post_id"]) for st in items if str(st.get("post_id", "")).isdigit()]
+        by_id = {p["id"]: p for p in await core.apply_default_images([p async for p in db.kms_posts.find(
+            {**core.public_post_filter(), "id": {"$in": ids}})])}
+        for st in items:
+            p = by_id.get(int(st.get("post_id") or 0))
+            if p:
+                stops.append({"post": p, "day": st.get("day") or "",
+                              "label": st.get("label") or ((p.get("place") or {}).get("city") or "")})
+    pins = []
+    async for p in (db.kms_posts.find({**core.public_post_filter(), "lang_id": lang_id,
+                                       "place.lat": {"$ne": None}},
+                                      {"_id": 0, "id": 1, "slug": 1, "title": 1, "place": 1,
+                                       "image": 1, "image_url": 1})
+                    .sort("created_at", -1).limit(80)):
+        pl = p.get("place") or {}
+        if pl.get("lat") is None or pl.get("lng") is None:
+            continue
+        pins.append({"slug": p["slug"], "title": p["title"], "lat": pl["lat"], "lng": pl["lng"],
+                     "city": pl.get("city") or "", "img": core.post_image(p, "mid")})
+    return {"month": m, "month_label": names[mon - 1], "months": months, "year": year,
+            "route": route, "stops": stops, "pins": pins}
 
 
 async def _popular(lang_id: int, limit: int = 5):

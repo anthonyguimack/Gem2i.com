@@ -63,6 +63,25 @@ def _slugify(text: str) -> str:
     return text[:190] or uuid.uuid4().hex[:12]
 
 
+def _coord(raw, limit: float):
+    try:
+        v = float(str(raw or "").strip().replace(",", "."))
+    except ValueError:
+        return None
+    return round(v, 6) if -limit <= v <= limit else None
+
+
+def _place_from_form(form) -> dict | None:
+    """Post place for the gem2i Travel themes: {city, country, lat, lng}; None when empty."""
+    place = {"city": (form.get("place_city") or "").strip()[:120] or None,
+             "country": (form.get("place_country") or "").strip()[:120] or None,
+             "lat": _coord(form.get("place_lat"), 90),
+             "lng": _coord(form.get("place_lng"), 180)}
+    if place["lat"] is None or place["lng"] is None:
+        place["lat"] = place["lng"] = None
+    return place if any(v is not None for v in place.values()) else None
+
+
 async def _unique_slug(base: str, exclude_id=None) -> str:
     slug, n = base, 2
     while True:
@@ -876,6 +895,10 @@ async def post_save(request: Request):
         "updated_at": updated_at, "tags": tags,
         "show_right_column": (existing or {}).get("show_right_column", 1),
     }
+    # Place (gem2i Travel themes): only when the editor sent the Place box, so bulk
+    # upload / scripts never wipe it.
+    if form.get("place_form") == "1":
+        doc["place"] = _place_from_form(form)
     # dummy views: admin-entered offset shown ON TOP of the real pageviews on the
     # public site. The real counter (pageviews) stays automatic and untouched —
     # it keeps feeding Reward System earnings and analytics honestly.

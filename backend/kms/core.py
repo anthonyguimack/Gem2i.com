@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 KMS_COOKIE = "kms_session"
 DARK_COOKIE = "kms_dark"
+MODE_COOKIE = "kms_mode"  # gem2i Travel themes: reader light/dark choice
 KMS_DIR = Path(__file__).resolve().parent
 UPLOADS_DIR = KMS_DIR.parent / "uploads" / "kms"
 
@@ -878,7 +879,13 @@ def _make_env(loader) -> Environment:
 _env = _make_env(FileSystemLoader(str(KMS_DIR / "templates")))
 
 # ── themes ───────────────────────────────────────────────────────────────────
-KMS_THEMES = ("magazine", "moderna", "gem2i")
+KMS_THEMES = ("magazine", "moderna", "gem2i", "gem2i_travel", "gem2i_travel_cal")
+# gem2i Travel themes (2026-10-20, bocetos/kms-travel.html): their templates fall
+# back to templates/gem2i/ (chrome, posts, listings) before the shared ones.
+THEME_PARENTS = {"gem2i_travel": ("gem2i",), "gem2i_travel_cal": ("gem2i_travel", "gem2i")}
+TRAVEL_THEMES = ("gem2i_travel", "gem2i_travel_cal")
+# Themes with the reader light/dark switch (default mode = KMS admin → Themes).
+MODE_THEMES = ("gem2i",) + TRAVEL_THEMES
 
 # Semantic color tokens (KMS_MODERNA_THEME_PLAN §2.1/§4). Magazine's defaults are
 # its current hardcoded values, so an unconfigured install renders unchanged;
@@ -905,6 +912,8 @@ THEME_TOKEN_DEFAULTS = {
         "negative": "#E5484D", "positive": "#2FBF71",
     },
 }
+THEME_TOKEN_DEFAULTS["gem2i_travel"] = dict(THEME_TOKEN_DEFAULTS["gem2i"])
+THEME_TOKEN_DEFAULTS["gem2i_travel_cal"] = dict(THEME_TOKEN_DEFAULTS["gem2i"])
 THEME_FONT_DEFAULTS = {
     "magazine": {"heading_font": "'Inter', sans-serif",
                  "body_font": "'Open Sans', Helvetica, sans-serif",
@@ -916,6 +925,8 @@ THEME_FONT_DEFAULTS = {
               "body_font": "'Manrope', Helvetica, sans-serif",
               "heading_weight": "700"},
 }
+THEME_FONT_DEFAULTS["gem2i_travel"] = dict(THEME_FONT_DEFAULTS["gem2i"])
+THEME_FONT_DEFAULTS["gem2i_travel_cal"] = dict(THEME_FONT_DEFAULTS["gem2i"])
 
 _HEX_RE = re.compile(r"^#[0-9a-fA-F]{3,8}$")
 
@@ -944,6 +955,16 @@ def theme_css(gs: dict, theme: str) -> str:
     return ":root{" + decls + "}"
 
 
+def travel_mode(request: Request, gs: dict) -> str:
+    """'light'|'dark' for the gem2i themes (MODE_THEMES). Reader cookie kms_mode wins over
+    the admin default general.travel.default_mode (dark when unset)."""
+    c = request.cookies.get(MODE_COOKIE)
+    if c in ("light", "dark"):
+        return c
+    d = (gs.get("travel") or {}).get("default_mode")
+    return d if d in ("light", "dark") else "dark"
+
+
 _theme_envs = {"magazine": _env}
 
 
@@ -952,10 +973,10 @@ def env_for(theme: str) -> Environment:
     templates/<theme>/ first and falls back to the shared templates/ — a theme
     only overrides the files it changes."""
     if theme not in _theme_envs:
-        _theme_envs[theme] = _make_env(ChoiceLoader([
-            FileSystemLoader(str(KMS_DIR / "templates" / theme)),
-            FileSystemLoader(str(KMS_DIR / "templates")),
-        ]))
+        chain = [theme, *THEME_PARENTS.get(theme, ())]
+        _theme_envs[theme] = _make_env(ChoiceLoader(
+            [FileSystemLoader(str(KMS_DIR / "templates" / t)) for t in chain]
+            + [FileSystemLoader(str(KMS_DIR / "templates"))]))
     return _theme_envs[theme]
 
 
@@ -981,6 +1002,8 @@ async def render(request: Request, template: str, **ctx) -> str:
         "lang": lang,
         "user": user,
         "dark": request.cookies.get(DARK_COOKIE) == "1",
+        # gem2i themes: admin picks the default mode, the reader's cookie wins.
+        "mode": travel_mode(request, gs) if theme in MODE_THEMES else None,
         "categories": [c for c in cats if not c.get("parent_id")],
         "all_categories": cats,
         "nav_pages": await nav_pages(lang_id),

@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEM2i Bocetos: Magazine Travel</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root { --accent:#0068b3; --deep:#002444; --link:#5AAFEA; }
+  * { box-sizing:border-box; } a { color:inherit; text-decoration:none; } img { display:block; max-width:100%; }
+  body { margin:0; background:#080b10; color:#fff; font-family:'Manrope',sans-serif; }
+  .nav { position:sticky; top:0; z-index:50; background:rgba(8,11,16,.92); backdrop-filter:blur(8px); border-bottom:1px solid rgba(255,255,255,.09); display:flex; gap:6px; flex-wrap:wrap; padding:12px 24px; }
+  .nav a { padding:8px 14px; border-radius:999px; font-size:14px; color:#b4c0cb; border:1px solid rgba(255,255,255,.09); } .nav a:hover { color:#fff; border-color:var(--link); }
+  .group { max-width:1440px; margin:0 auto; padding:56px 24px 8px; } .group h1 { margin:0; font-size:26px; } .group p { margin:8px 0 0; color:#8a98a6; font-size:15px; line-height:1.65; max-width:1000px; }
+  .label { max-width:1440px; margin:0 auto; padding:30px 24px 12px; font-size:15px; color:#a9b6c2; line-height:1.6; } .label b { color:#fff; margin-right:8px; font-size:17px; }
+  .frame { max-width:1440px; margin:0 auto 24px; border-radius:14px; overflow:hidden; }
+
+  /* ── shared magazine parts (each variant sets its own tokens) ── */
+  .mz { --pad:clamp(18px,3.5vw,56px); background:var(--bg); color:var(--ink); }
+  .serif { font-family:'Playfair Display',Georgia,serif; font-weight:700; letter-spacing:-.01em; }
+  .serif em { font-style:italic; font-weight:500; color:var(--em); }
+  .img { background-size:cover; background-position:center; background-color:var(--ph); }
+  .zoom { overflow:hidden; display:block; position:relative; } .zoom .img { transition:transform .6s cubic-bezier(.16,1,.3,1); } .zoom:hover .img { transform:scale(1.05); }
+  .ttl { transition:color .2s; } a:hover .ttl { color:var(--em); }
+  .meta { font-size:13px; color:var(--muted); display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .place { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--em); }
+  .place svg { width:13px; height:13px; }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; } .tags span { font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+  .wrap { padding:56px var(--pad); }
+  .hd { margin-bottom:26px; } .hd h3 { margin:0; font-family:'Playfair Display',serif; font-size:clamp(28px,2.6vw,38px); line-height:1.1; } .hd p { margin:6px 0 0; color:var(--muted); font-size:15px; }
+  .hdrow { display:flex; align-items:end; justify-content:space-between; gap:16px; }
+  .more { font-size:14px; font-weight:700; color:var(--em); white-space:nowrap; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; background:var(--accent); color:#fff; font-weight:700; font-size:15px; transition:transform .15s; } .btn:active { transform:scale(.98); }
+  .btn.ghost { background:transparent; color:var(--ink); border:1px solid var(--line); }
+
+  /* top bar */
+  .kbar { display:flex; align-items:center; gap:28px; padding:16px var(--pad); border-bottom:1px solid var(--line); background:var(--bar); }
+  .logo { font-weight:800; font-size:22px; letter-spacing:-.01em; } .logo i { font-family:'Playfair Display',serif; font-weight:500; color:var(--em); margin-left:6px; }
+  .kbar nav { display:flex; gap:22px; font-size:15px; color:var(--muted); flex-wrap:wrap; } .kbar nav a:hover, .kbar nav .on { color:var(--ink); }
+  .kbar .r { margin-left:auto; display:flex; gap:12px; align-items:center; font-size:14px; }
+
+  /* destinations rail */
+  .dest { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
+  .dest a { display:flex; align-items:center; gap:12px; padding:10px 12px 10px 10px; border:1px solid var(--line); border-radius:16px; background:var(--card); transition:border-color .2s, transform .2s; }
+  .dest a:hover { border-color:var(--em); transform:translateY(-2px); }
+  .dest .img { width:52px; height:52px; border-radius:50%; flex:none; }
+  .dest b { display:block; font-size:16px; } .dest small { color:var(--muted); font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+
+  /* news: lead + list */
+  .news { display:grid; grid-template-columns:1.25fr 1fr; gap:40px; }
+  .row { display:grid; grid-template-columns:1fr 128px; gap:18px; padding:18px 0; border-bottom:1px solid var(--line); } .row:last-child { border-bottom:0; }
+  .row h4 { margin:0 0 6px; font-family:'Playfair Display',serif; font-size:20px; line-height:1.25; } .row p { margin:0; color:var(--muted); font-size:14px; line-height:1.55; }
+  .row .img { aspect-ratio:1; border-radius:12px; }
+
+  /* full-bleed feature band */
+  .band { position:relative; min-height:560px; display:flex; align-items:end; }
+  .band .img { position:absolute; inset:0; } .band .veil { position:absolute; inset:0; background:linear-gradient(180deg,rgba(4,8,12,0) 30%,rgba(4,8,12,.88)); }
+  .band .txt { position:relative; padding:48px var(--pad); max-width:860px; color:#fff; } .band .txt p { color:#d3dce4; font-size:17px; line-height:1.6; margin:12px 0 0; max-width:62ch; }
+
+  /* region cards */
+  .cards3 { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+  .card .img { aspect-ratio:4/3; border-radius:16px; } .card h4 { margin:14px 0 8px; font-family:'Playfair Display',serif; font-size:23px; line-height:1.2; } .card p { margin:0 0 10px; color:var(--muted); font-size:15px; line-height:1.55; }
+
+  /* overlay row */
+  .ov { display:grid; grid-template-columns:1fr 1.3fr 1fr; gap:18px; align-items:end; }
+  .ov a { border-radius:18px; } .ov .img { aspect-ratio:3/4; } .ov a:nth-child(2) .img { aspect-ratio:4/5; }
+  .ov .cap { position:absolute; left:0; right:0; bottom:0; padding:22px; background:linear-gradient(180deg,transparent,rgba(4,8,12,.9)); color:#fff; } .ov .cap h4 { margin:8px 0 0; font-family:'Playfair Display',serif; font-size:22px; line-height:1.2; }
+  .ov .place { color:#9fd0f3; }
+
+  /* GEM2i Travels offers */
+  .offers { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:18px; }
+  .offer { border-radius:18px; padding:28px; display:flex; flex-direction:column; justify-content:end; min-height:300px; position:relative; overflow:hidden; color:#fff; }
+  .offer h4 { margin:0 0 8px; font-family:'Playfair Display',serif; font-size:26px; line-height:1.15; } .offer p { margin:0 0 18px; color:#d8e3ec; font-size:15px; line-height:1.55; max-width:40ch; }
+  .offer .cta { font-weight:700; font-size:14px; display:inline-flex; gap:8px; align-items:center; }
+
+  /* more stories: list grid */
+  .grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:10px 48px; }
+  .mini { display:grid; grid-template-columns:120px 1fr; gap:16px; padding:16px 0; align-items:center; }
+  .mini .img { aspect-ratio:4/3; border-radius:12px; } .mini h4 { margin:6px 0 0; font-family:'Playfair Display',serif; font-size:18px; line-height:1.3; }
+
+  /* newsletter + footer */
+  .nl { display:grid; grid-template-columns:1.2fr 1fr; gap:32px; align-items:center; padding:44px var(--pad); background:linear-gradient(110deg,var(--deep),var(--accent)); color:#fff; }
+  .nl h3 { margin:0; font-family:'Playfair Display',serif; font-size:32px; } .nl p { margin:6px 0 0; color:#d3e4f2; }
+  .nl form { display:flex; gap:10px; } .nl label { display:block; font-size:13px; font-weight:700; margin-bottom:8px; }
+  .nl input { flex:1; padding:13px 18px; border-radius:999px; border:1px solid rgba(255,255,255,.45); background:rgba(255,255,255,.12); color:#fff; font:inherit; } .nl input::placeholder { color:#d3e4f2; }
+  .nl button { padding:13px 22px; border-radius:999px; border:0; background:#fff; color:var(--deep); font:inherit; font-weight:800; }
+  .foot { padding:26px var(--pad); display:flex; gap:24px; flex-wrap:wrap; justify-content:space-between; font-size:14px; color:var(--muted); border-top:1px solid var(--line); background:var(--bar); }
+
+  /* ── TR-1 · Postal (claro, fiel a Wandering) ── */
+  .tr1 { --bg:#F7F8FA; --bar:#FFFFFF; --card:#FFFFFF; --ink:#0E1620; --muted:#5A6573; --line:#E2E6EB; --em:#0068b3; --ph:#dde3ea; }
+  .tr1 .hero { display:grid; grid-template-columns:1.7fr 1fr; gap:28px; padding:36px var(--pad) 0; }
+  .tr1 .hero .main { border-radius:22px; } .tr1 .hero .main .img { aspect-ratio:16/10; }
+  .tr1 .hero .main .cap { position:absolute; left:0; right:0; bottom:0; padding:36px; background:linear-gradient(180deg,transparent,rgba(4,8,12,.86)); color:#fff; }
+  .tr1 .hero .main .place { color:#9fd0f3; }
+  .tr1 .hero h2 { font-size:clamp(30px,3.2vw,48px); line-height:1.08; margin:10px 0 10px; max-width:20ch; }
+  .tr1 .side { display:flex; flex-direction:column; gap:14px; } .tr1 .side h5 { margin:0; font-size:13px; font-weight:800; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+  .tr1 .side a { display:grid; grid-template-columns:96px 1fr; gap:14px; align-items:center; padding:12px; border-radius:16px; background:#fff; border:1px solid var(--line); }
+  .tr1 .side .img { aspect-ratio:1; border-radius:12px; } .tr1 .side h4 { margin:4px 0 0; font-family:'Playfair Display',serif; font-size:17px; line-height:1.3; }
+  .tr1 .dots { display:flex; gap:8px; padding:18px var(--pad) 0; } .tr1 .dots i { width:28px; height:4px; border-radius:4px; background:var(--line); } .tr1 .dots i.on { background:var(--accent); }
+
+  /* ── TR-2 · Ruta nocturna (oscuro, piel de beta) ── */
+  .tr2 { --bg:#04080C; --bar:#04080C; --card:#0D1721; --ink:#E6EDF3; --muted:#8A98A6; --line:#1C2631; --em:#5AAFEA; --ph:#16202a; }
+  .tr2 .hero { position:relative; min-height:78vh; display:grid; grid-template-columns:1.4fr 1fr; align-items:end; gap:40px; padding:0 var(--pad) 48px; }
+  .tr2 .hero > .img { position:absolute; inset:0; } .tr2 .hero > .veil { position:absolute; inset:0; background:linear-gradient(90deg,rgba(4,8,12,.92) 0%,rgba(4,8,12,.45) 55%,rgba(4,8,12,.75)), linear-gradient(180deg,transparent 50%,#04080C); }
+  .tr2 .hero .lead { position:relative; } .tr2 .hero h2 { font-size:clamp(36px,4.4vw,64px); line-height:1.04; margin:12px 0 14px; max-width:16ch; }
+  .tr2 .hero .lead p { color:#c3cdd6; font-size:17px; line-height:1.6; max-width:52ch; margin:0 0 22px; }
+  .tr2 .hero .next { position:relative; display:flex; flex-direction:column; gap:10px; }
+  .tr2 .hero .next a { display:grid; grid-template-columns:76px 1fr; gap:14px; align-items:center; padding:10px; border-radius:16px; background:rgba(13,23,33,.72); border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(10px); }
+  .tr2 .hero .next .img { aspect-ratio:1; border-radius:10px; } .tr2 .hero .next h4 { margin:2px 0 0; font-family:'Playfair Display',serif; font-size:16px; line-height:1.3; }
+
+  /* ── TR-3 · Atlas (oscuro, el mapa manda) ── */
+  .tr3 { --bg:#060B11; --bar:#060B11; --card:#0C151F; --ink:#E6EDF3; --muted:#8A98A6; --line:#1A2430; --em:#5AAFEA; --ph:#16202a; }
+  .tr3 .hero { display:grid; grid-template-columns:1fr 1.25fr; min-height:640px; }
+  .tr3 .hero .txt { padding:56px var(--pad); display:flex; flex-direction:column; justify-content:center; gap:18px; border-right:1px solid var(--line); }
+  .tr3 .hero h2 { font-size:clamp(34px,3.8vw,56px); line-height:1.06; margin:0; }
+  .tr3 .hero p { color:#b4c0cb; font-size:17px; line-height:1.6; margin:0; max-width:46ch; }
+  .tr3 .map { position:relative; overflow:hidden; background:radial-gradient(120% 90% at 60% 40%,#0d2236 0%,#060B11 70%); }
+  .tr3 .map svg.dots { position:absolute; inset:0; width:100%; height:100%; }
+  .pin { position:absolute; transform:translate(-50%,-100%); display:flex; flex-direction:column; align-items:center; }
+  .pin span { white-space:nowrap; font-size:12px; font-weight:700; padding:5px 10px; border-radius:999px; background:#0C151F; border:1px solid #24405a; color:#dbe9f5; margin-bottom:6px; }
+  .pin i { width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 6px rgba(0,104,179,.25); }
+  .pin.big span { background:var(--accent); border-color:var(--accent); color:#fff; font-size:13px; }
+  .pin.big .card-pop { position:absolute; bottom:44px; left:50%; transform:translateX(-50%); width:260px; border-radius:16px; overflow:hidden; background:#0C151F; border:1px solid #24405a; }
+  .pin.big .card-pop .img { aspect-ratio:16/9; } .pin.big .card-pop div.t { padding:12px 14px; font-family:'Playfair Display',serif; font-size:16px; line-height:1.3; color:#fff; }
+  .tr3 .months { display:flex; gap:8px; overflow:auto; padding:18px var(--pad); border-bottom:1px solid var(--line); }
+  .tr3 .months a { padding:9px 16px; border-radius:999px; border:1px solid var(--line); font-size:14px; color:var(--muted); white-space:nowrap; } .tr3 .months a.on { background:#E6EDF3; color:#04080C; font-weight:700; border-color:#E6EDF3; }
+  .itin { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--line); border-radius:18px; overflow:hidden; }
+  .itin a { padding:22px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:12px; } .itin a:last-child { border-right:0; }
+  .itin .d { font-family:'Playfair Display',serif; font-size:40px; color:var(--em); line-height:1; } .itin .d small { display:block; font-family:'Manrope',sans-serif; font-size:12px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:6px; }
+  .itin .img { aspect-ratio:16/10; border-radius:12px; } .itin h4 { margin:0; font-family:'Playfair Display',serif; font-size:19px; line-height:1.25; }
+
+  @media (prefers-reduced-motion: reduce) { .zoom .img, .dest a, .btn { transition:none; } }
+  @media (max-width: 900px) {
+    .tr1 .hero, .tr2 .hero, .tr3 .hero, .news, .nl, .offers { grid-template-columns:1fr; }
+    .dest { grid-template-columns:repeat(2,1fr); } .cards3, .ov, .grid2 { grid-template-columns:1fr; } .itin { grid-template-columns:1fr 1fr; }
+    .kbar nav { display:none; } .tr3 .map { min-height:420px; } .band { min-height:440px; }
+    .itin a { border-bottom:1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<div class="nav">
+  <a href="#tr1">TR-1 Postal (claro)</a><a href="#tr2">TR-2 Ruta nocturna</a><a href="#tr3">TR-3 Atlas</a><a href="#map">De dónde sale cada bloque</a>
+</div>
+
+<div class="group">
+  <h1>Bocetos: GEM2i Magazine - Travel</h1>
+  <p>Segundo template del KMS (insightsbeta.gem2i.com). Toma la estructura de Wandering: portada destacada, destinos por continente, "en las noticias" con lista, banda a sangre, sección por región, ofertas propias y más historias. La identidad es la de GEM2i: Playfair con la última palabra en cursiva, Manrope, azul #0068b3 y fotos reales de festivales y clubes. Las tres versiones tienen el mismo contenido para poder compararlas.</p>
+</div>
+
+<!-- ═══════════════ TR-1 ═══════════════ -->
+<div class="label" id="tr1"><b>TR-1 · Postal (claro)</b>La más fiel a Wandering. Fondo blanco, tarjetas redondeadas, portada en carrusel con tres notas al lado, destinos como píldoras con foto redonda. Es la que más se aleja del sitio oscuro y se lee como una revista de viajes.</div>
+<div class="frame"><div class="mz tr1">
+  <div class="kbar"><a class="logo">GEM2i<i>Travel</i></a><nav><a class="on">Destinos</a><a>Festivales</a><a>Clubes</a><a>Dónde dormir</a><a>Guías</a><a>Rutas</a></nav><div class="r"><a>Buscar</a><a class="btn" style="padding:9px 18px;font-size:14px">Entrar</a></div></div>
+  <div class="hero">
+    <a class="zoom main"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png)"></div>
+      <div class="cap"><span class="place"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>Ibiza, España</span>
+      <h2 class="serif">Una semana en Ibiza, del amanecer en Ushuaïa a la <em>última sesión</em></h2>
+      <div class="meta" style="color:#c9d5df"><span>Por Walter García</span><span>12 min</span></div></div></a>
+    <div class="side"><h5>También en portada</h5>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518715751.png)"></div><div><span class="place">Ámsterdam</span><h4 class="ttl">ADE sin perderse: cómo moverse entre 200 venues en cinco días</h4></div></a>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404150842.png)"></div><div><span class="place">Mykonos</span><h4 class="ttl">Cavo Paradiso al atardecer: guía para llegar y dónde quedarse</h4></div></a>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1528307856.png)"></div><div><span class="place">Croacia</span><h4 class="ttl">La costa dálmata en verano: festivales en la playa, ferry incluido</h4></div></a>
+    </div>
+  </div>
+  <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+
+  <div class="wrap">
+    <div class="hd"><h3>Elige un <em class="serif" style="font-style:italic;font-weight:500;color:var(--em)">destino</em></h3><p>Festivales, clubes y rutas por continente.</p></div>
+    <div class="dest">
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142677.png)"></div><div><b>Norteamérica</b><small>24 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404144656.png)"></div><div><b>Sudamérica</b><small>18 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142338.png)"></div><div><b>Europa</b><small>41 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479757953.png)"></div><div><b>Medio Oriente</b><small>7 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403892346.png)"></div><div><b>Asia</b><small>12 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1516128182.png)"></div><div><b>África</b><small>4 notas</small></div></a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hdrow hd"><h3>En las noticias</h3><a class="more">Ver todo</a></div>
+    <div class="news">
+      <a class="zoom" style="border-radius:20px"><div class="img" style="aspect-ratio:4/3;border-radius:20px;background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1517430743.png)"></div>
+        <div style="padding-top:18px"><span class="place">Miami, Estados Unidos</span><h3 class="serif ttl" style="font-size:32px;line-height:1.12;margin:8px 0 10px">Miami Music Week: hoteles, rooftops y la agenda que vale la pena</h3><p style="color:var(--muted);font-size:16px;line-height:1.6;margin:0 0 12px">Dónde dormir cerca de Bayfront Park, qué fiestas de día no repetir y cómo moverse sin perder la tarde en un taxi.</p><div class="tags"><span>Festivales</span><span>Dónde dormir</span></div></div></a>
+      <div>
+        <a class="row zoom"><div><span class="place">Berlín</span><h4 class="ttl">Berlín de domingo a domingo: la semana de clubes, día por día</h4><p>Qué abrir primero, qué cerrar al final y dónde desayunar entre una y otra.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142338.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Londres</span><h4 class="ttl">De Printworks a Fabric: el mapa del Londres que todavía baila</h4><p>Barrios, horarios del metro nocturno y precios de entrada.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1555094350.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Tulum</span><h4 class="ttl">Tulum entre cenotes y fiestas en la selva: lo que hay que saber</h4><p>Temporada, traslados desde Cancún y cómo reservar con tiempo.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1446485033.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Seúl</span><h4 class="ttl">Seúl de noche: Octagon y los clubes de Gangnam para principiantes</h4><p>Código de vestimenta, horarios y cómo llegar.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403892346.png)"></div></a>
+      </div>
+    </div>
+  </div>
+
+  <a class="band zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1520010786.png)"></div><div class="veil"></div>
+    <div class="txt"><span class="place" style="color:#9fd0f3">Ideas de viaje</span><h2 class="serif" style="font-size:clamp(32px,3.6vw,52px);line-height:1.08;margin:10px 0 0">Nueve festivales que justifican <em style="color:#9fd0f3">el vuelo</em></h2><p>De Boom en Bélgica a Sónar en Barcelona: cuándo comprar, dónde dormir y cuántos días reservar.</p></div></a>
+
+  <div class="wrap">
+    <div class="hdrow hd"><div><h3>Europa</h3><p>Islas, capitales del techno y festivales junto al mar.</p></div><a class="more">Ver Europa</a></div>
+    <div class="cards3">
+      <a class="card zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1527877267.png)"></div><span class="place" style="margin-top:16px">Barcelona</span><h4 class="ttl">Sónar de día y de noche: cómo dividir la semana</h4><p>Entradas, barrios para alojarse y las fiestas paralelas.</p><div class="tags"><span>Festivales</span><span>Guías</span></div></a>
+      <a class="card zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404149560.png)"></div><span class="place" style="margin-top:16px">Novalja, Croacia</span><h4 class="ttl">Zrće Beach: Papaya, Noa y una isla para el verano</h4><p>Ferry, apartamentos y la mejor semana para ir.</p><div class="tags"><span>Clubes</span><span>Dónde dormir</span></div></a>
+      <a class="card zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1527869788.png)"></div><span class="place" style="margin-top:16px">Budapest</span><h4 class="ttl">Sziget en una isla del Danubio: siete días en la ciudad</h4><p>Pases, camping o hotel y qué ver fuera del festival.</p><div class="tags"><span>Festivales</span><span>Rutas</span></div></a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hd"><h3>Viaja con GEM2i</h3><p>Paquetes y guest lists para miembros.</p></div>
+    <div class="offers">
+      <a class="offer zoom"><div class="img" style="position:absolute;inset:0;background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png)"></div><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,36,68,.15),rgba(0,36,68,.92))"></div><div style="position:relative"><h4>Paquete festival: vuelo, hotel y entrada</h4><p>Elegimos el hotel, tú eliges el festival. Precio de miembro.</p><span class="cta">Ver viajes</span></div></a>
+      <a class="offer" style="background:var(--accent)"><h4>Guest list en clubes</h4><p>Entra en la lista de los clubes con los que trabajamos.</p><span class="cta">Ver eventos</span></a>
+      <a class="offer" style="background:#0E1620"><h4>Hazte miembro</h4><p>Puntos por cada entrada y acceso a los viajes de GEM2i.</p><span class="cta">Unirme</span></a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hdrow hd"><h3>Más historias</h3><a class="more">Cargar más</a></div>
+    <div class="grid2">
+      <a class="mini zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404147120.png)"></div><div><span class="place">Mykonos</span><h4 class="ttl">Paradise Club y la playa que no duerme en agosto</h4></div></a>
+      <a class="mini zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403279461.png)"></div><div><span class="place">Kuala Lumpur</span><h4 class="ttl">Zouk KL: un club como una ciudad pequeña</h4></div></a>
+      <a class="mini zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403884600.png)"></div><div><span class="place">Santa Catarina</span><h4 class="ttl">Green Valley y Warung: la costa sur de Brasil en un fin de semana</h4></div></a>
+      <a class="mini zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1446485144.png)"></div><div><span class="place">Bogotá</span><h4 class="ttl">Baum y la noche bogotana, para quien llega por primera vez</h4></div></a>
+    </div>
+  </div>
+
+  <div class="nl"><div><h3>La ruta, cada jueves</h3><p>Un destino, tres fiestas y dónde dormir. Sin spam.</p></div>
+    <div><label for="nl1">Tu correo</label><form onsubmit="return false"><input id="nl1" type="email" placeholder="nombre@correo.com"><button>Suscribirme</button></form></div></div>
+  <div class="foot"><span>GEM2i Travel, el magazine de viajes de GEM2i</span><span>Destinos · Festivales · Clubes · Guías</span></div>
+</div></div>
+
+<!-- ═══════════════ TR-2 ═══════════════ -->
+<div class="label" id="tr2"><b>TR-2 · Ruta nocturna (oscuro)</b>La misma estructura con la piel de beta.gem2i.com: portada a sangre completa con la nota principal a la izquierda y las tres siguientes en tarjetas de vidrio a la derecha. Sigue siendo "un solo producto" con el sitio y con MG-1.</div>
+<div class="frame"><div class="mz tr2">
+  <div class="kbar"><a class="logo">GEM2i<i>Travel</i></a><nav><a class="on">Destinos</a><a>Festivales</a><a>Clubes</a><a>Dónde dormir</a><a>Guías</a><a>Rutas</a></nav><div class="r"><a>Buscar</a><a class="btn" style="padding:9px 18px;font-size:14px">Entrar</a></div></div>
+  <div class="hero"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png)"></div><div class="veil"></div>
+    <div class="lead"><span class="place">Ibiza, España</span><h2 class="serif">Una semana en Ibiza, del amanecer a la <em>última sesión</em></h2><p>Siete días, cinco clubes y dos playas. La guía para hacerlo sin gastar media semana en traslados.</p><a class="btn">Leer la guía</a></div>
+    <div class="next">
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518715751.png)"></div><div><span class="place">Ámsterdam</span><h4 class="ttl">ADE sin perderse: 200 venues en cinco días</h4></div></a>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404150842.png)"></div><div><span class="place">Mykonos</span><h4 class="ttl">Cavo Paradiso al atardecer</h4></div></a>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1528307856.png)"></div><div><span class="place">Croacia</span><h4 class="ttl">La costa dálmata en verano</h4></div></a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="hd"><h3>Elige un <em style="font-style:italic;font-weight:500;color:var(--em)">destino</em></h3></div>
+    <div class="dest">
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142677.png)"></div><div><b>Norteamérica</b><small>24 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404144656.png)"></div><div><b>Sudamérica</b><small>18 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142338.png)"></div><div><b>Europa</b><small>41 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479757953.png)"></div><div><b>Medio Oriente</b><small>7 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403892346.png)"></div><div><b>Asia</b><small>12 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1516128182.png)"></div><div><b>África</b><small>4 notas</small></div></a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hdrow hd"><h3>En las noticias</h3><a class="more">Ver todo</a></div>
+    <div class="news">
+      <a class="zoom" style="border-radius:20px"><div class="img" style="aspect-ratio:4/3;border-radius:20px;background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1517430743.png)"></div>
+        <div style="padding-top:18px"><span class="place">Miami, Estados Unidos</span><h3 class="serif ttl" style="font-size:32px;line-height:1.12;margin:8px 0 10px">Miami Music Week: hoteles, rooftops y la agenda que vale la pena</h3><p style="color:var(--muted);font-size:16px;line-height:1.6;margin:0 0 12px">Dónde dormir cerca de Bayfront Park y cómo moverse sin perder la tarde en un taxi.</p><div class="tags"><span>Festivales</span><span>Dónde dormir</span></div></div></a>
+      <div>
+        <a class="row zoom"><div><span class="place">Berlín</span><h4 class="ttl">Berlín de domingo a domingo: la semana de clubes</h4><p>Qué abrir primero y dónde desayunar entre una y otra.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142338.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Londres</span><h4 class="ttl">De Printworks a Fabric: el Londres que todavía baila</h4><p>Barrios, metro nocturno y precios de entrada.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1555094350.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Tulum</span><h4 class="ttl">Tulum entre cenotes y fiestas en la selva</h4><p>Temporada, traslados y cómo reservar con tiempo.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1446485033.png)"></div></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hdrow hd"><div><h3>Europa</h3><p>Islas, capitales del techno y festivales junto al mar.</p></div><a class="more">Ver Europa</a></div>
+    <div class="ov">
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1527877267.png)"></div><div class="cap"><span class="place">Barcelona</span><h4>Sónar de día y de noche</h4></div></a>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404149560.png)"></div><div class="cap"><span class="place">Novalja, Croacia</span><h4>Zrće Beach: Papaya, Noa y una isla para el verano</h4></div></a>
+      <a class="zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1527869788.png)"></div><div class="cap"><span class="place">Budapest</span><h4>Sziget en una isla del Danubio</h4></div></a>
+    </div>
+  </div>
+
+  <a class="band zoom"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1520010786.png)"></div><div class="veil"></div>
+    <div class="txt"><span class="place">Ideas de viaje</span><h2 class="serif" style="font-size:clamp(32px,3.6vw,52px);line-height:1.08;margin:10px 0 0">Nueve festivales que justifican <em>el vuelo</em></h2><p>Cuándo comprar, dónde dormir y cuántos días reservar.</p></div></a>
+
+  <div class="wrap">
+    <div class="offers">
+      <a class="offer" style="background:linear-gradient(135deg,#002444,#0068b3)"><h4>Paquete festival: vuelo, hotel y entrada</h4><p>Elegimos el hotel, tú eliges el festival. Precio de miembro.</p><span class="cta">Ver viajes</span></a>
+      <a class="offer" style="background:#0D1721;border:1px solid #1C2631"><h4>Guest list en clubes</h4><p>Entra en la lista de los clubes con los que trabajamos.</p><span class="cta" style="color:#5AAFEA">Ver eventos</span></a>
+      <a class="offer" style="background:#0D1721;border:1px solid #1C2631"><h4>Hazte miembro</h4><p>Puntos por cada entrada y acceso a los viajes.</p><span class="cta" style="color:#5AAFEA">Unirme</span></a>
+    </div>
+  </div>
+
+  <div class="nl"><div><h3>La ruta, cada jueves</h3><p>Un destino, tres fiestas y dónde dormir.</p></div>
+    <div><label for="nl2">Tu correo</label><form onsubmit="return false"><input id="nl2" type="email" placeholder="nombre@correo.com"><button>Suscribirme</button></form></div></div>
+  <div class="foot"><span>GEM2i Travel, el magazine de viajes de GEM2i</span><span>Destinos · Festivales · Clubes · Guías</span></div>
+</div></div>
+
+<!-- ═══════════════ TR-3 ═══════════════ -->
+<div class="label" id="tr3"><b>TR-3 · Atlas (oscuro, con mapa)</b>La portada es un mapa: cada nota con lugar es un punto, y la destacada abre su tarjeta. Debajo, una tira de meses y "la ruta del mes" como itinerario de cuatro paradas. Es la más propia de GEM2i y aprovecha la geo que ya tenemos (países y ciudades).</div>
+<div class="frame"><div class="mz tr3">
+  <div class="kbar"><a class="logo">GEM2i<i>Travel</i></a><nav><a class="on">Destinos</a><a>Festivales</a><a>Clubes</a><a>Dónde dormir</a><a>Guías</a><a>Rutas</a></nav><div class="r"><a>Buscar</a><a class="btn" style="padding:9px 18px;font-size:14px">Entrar</a></div></div>
+  <div class="hero">
+    <div class="txt"><span class="place">El mapa de la noche</span><h2 class="serif">A dónde ir a bailar <em>este mes</em></h2><p>Cada punto es una guía: festival, club o ciudad. Toca uno para leerla.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn">Ver todas las guías</a><a class="btn ghost">Elegir continente</a></div></div>
+    <div class="map">
+      <svg class="dots" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="g" width="2" height="2" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".18" fill="#1d3550"/></pattern></defs><rect width="100" height="60" fill="url(#g)"/></svg>
+      <div class="pin" style="left:24%;top:42%"><span>Miami</span><i></i></div>
+      <div class="pin" style="left:33%;top:72%"><span>Florianópolis</span><i></i></div>
+      <div class="pin" style="left:49%;top:30%"><span>Berlín</span><i></i></div>
+      <div class="pin" style="left:44%;top:28%"><span>Londres</span><i></i></div>
+      <div class="pin" style="left:57%;top:38%"><span>Mykonos</span><i></i></div>
+      <div class="pin" style="left:83%;top:36%"><span>Seúl</span><i></i></div>
+      <div class="pin big" style="left:46%;top:44%"><div class="card-pop"><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png)"></div><div class="t">Una semana en Ibiza, del amanecer a la última sesión</div></div><span>Ibiza</span><i></i></div>
+    </div>
+  </div>
+  <div class="months"><a>Ene</a><a>Feb</a><a>Mar</a><a>Abr</a><a>May</a><a>Jun</a><a>Jul</a><a class="on">Ago</a><a>Sep</a><a>Oct</a><a>Nov</a><a>Dic</a></div>
+
+  <div class="wrap">
+    <div class="hdrow hd"><div><h3>La ruta de <em style="font-style:italic;font-weight:500;color:var(--em)">agosto</em></h3><p>Cuatro paradas por el Mediterráneo, en orden.</p></div><a class="more">Ver la ruta completa</a></div>
+    <div class="itin">
+      <a class="zoom"><div class="d">02<small>Ibiza</small></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403890399.png)"></div><h4 class="ttl">Amnesia y DC-10: la primera semana</h4></a>
+      <a class="zoom"><div class="d">09<small>Novalja</small></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1446484577.png)"></div><h4 class="ttl">Zrće Beach entre Noa y Papaya</h4></a>
+      <a class="zoom"><div class="d">15<small>Mykonos</small></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404150842.png)"></div><h4 class="ttl">Cavo Paradiso, el gran fin de semana</h4></a>
+      <a class="zoom"><div class="d">22<small>Limassol</small></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404141622.png)"></div><h4 class="ttl">Cerrar el verano en Guaba Beach Bar</h4></a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hdrow hd"><h3>En las noticias</h3><a class="more">Ver todo</a></div>
+    <div class="news">
+      <a class="zoom" style="border-radius:20px"><div class="img" style="aspect-ratio:4/3;border-radius:20px;background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1517430743.png)"></div>
+        <div style="padding-top:18px"><span class="place">Miami, Estados Unidos</span><h3 class="serif ttl" style="font-size:32px;line-height:1.12;margin:8px 0 10px">Miami Music Week: hoteles, rooftops y la agenda que vale la pena</h3><div class="tags"><span>Festivales</span><span>Dónde dormir</span></div></div></a>
+      <div>
+        <a class="row zoom"><div><span class="place">Berlín</span><h4 class="ttl">Berlín de domingo a domingo: la semana de clubes</h4><p>Qué abrir primero y dónde desayunar.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142338.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Londres</span><h4 class="ttl">De Printworks a Fabric: el Londres que todavía baila</h4><p>Barrios, metro nocturno y precios.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1555094350.png)"></div></a>
+        <a class="row zoom"><div><span class="place">Tulum</span><h4 class="ttl">Tulum entre cenotes y fiestas en la selva</h4><p>Temporada y traslados.</p></div><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1446485033.png)"></div></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="hd"><h3>Por continente</h3></div>
+    <div class="dest">
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142677.png)"></div><div><b>Norteamérica</b><small>24 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404144656.png)"></div><div><b>Sudamérica</b><small>18 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404142338.png)"></div><div><b>Europa</b><small>41 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1479757953.png)"></div><div><b>Medio Oriente</b><small>7 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403892346.png)"></div><div><b>Asia</b><small>12 notas</small></div></a>
+      <a><div class="img" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1516128182.png)"></div><div><b>África</b><small>4 notas</small></div></a>
+    </div>
+  </div>
+
+  <div class="nl"><div><h3>La ruta, cada jueves</h3><p>Un destino, tres fiestas y dónde dormir.</p></div>
+    <div><label for="nl3">Tu correo</label><form onsubmit="return false"><input id="nl3" type="email" placeholder="nombre@correo.com"><button>Suscribirme</button></form></div></div>
+  <div class="foot"><span>GEM2i Travel, el magazine de viajes de GEM2i</span><span>Destinos · Festivales · Clubes · Guías</span></div>
+</div></div>
+
+<div class="group" id="map" style="padding-bottom:64px">
+  <h1>De dónde sale cada bloque</h1>
+  <p><b style="color:#fff">Portada / En las noticias / Más historias:</b> posts del KMS (slider, destacados, recientes), igual que MG-1.<br>
+  <b style="color:#fff">Lugar de cada nota ("Ibiza, España"):</b> dato nuevo y opcional en el post (país + ciudad de la geo que ya tenemos). Sin él, se muestra la categoría.<br>
+  <b style="color:#fff">Destinos por continente:</b> categorías del KMS (una por continente) con su foto y el número de notas.<br>
+  <b style="color:#fff">Banda "Ideas de viaje" y sección "Europa":</b> una categoría elegida en el admin del tema.<br>
+  <b style="color:#fff">Viaja con GEM2i:</b> enlaces a /travels, /events y la membresía de beta.<br>
+  <b style="color:#fff">TR-3 mapa y ruta del mes:</b> necesitan coordenadas por nota y un orden de ruta. Es el que más trabajo de backend pide.<br>
+  <b style="color:#fff">Newsletter:</b> la del KMS (la misma de MG-1).</p>
+</div>
+</body>
+</html>

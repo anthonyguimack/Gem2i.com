@@ -1,0 +1,125 @@
+{% extends "admin/_base.html" %}
+{#
+  GEM2i Magazine - Travel Calendar: the month route shown under the map.
+  Stops are ordered with the Page Builder pattern (handle + label + eye + switch,
+  house rule D-GEM-2026-09): drag the handle, or focus it and use ArrowUp/ArrowDown.
+#}
+{% block content %}
+<style>
+  .tr-months { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+  .tr-months a { padding:6px 12px; border-radius:999px; border:1px solid var(--adm-border); font-size:13px; color:var(--adm-text); }
+  .tr-months a.on { background:var(--adm-heading); border-color:var(--adm-heading); color:#fff; }
+  .tr-months a.off { opacity:.55; }
+  .tr-list { list-style:none; margin:0 0 12px; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .tr-item { display:grid; grid-template-columns:28px 1fr 90px 140px 34px 44px 30px; gap:10px; align-items:center; padding:10px 12px;
+    background:#fff; border:1px solid var(--adm-border); border-radius:8px; }
+  .tr-item.dragging { opacity:.5; }
+  .tr-item.is-hidden .tr-title { opacity:.5; }
+  .tr-handle { cursor:grab; background:none; border:0; color:#94a3b8; padding:4px; line-height:0; }
+  .tr-handle:focus-visible { outline:2px solid var(--adm-primary); border-radius:4px; }
+  .tr-title { font-weight:600; color:var(--adm-heading); font-size:14px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tr-title small { display:block; font-weight:400; color:#64748b; }
+  .tr-item input[type=text] { padding:6px 8px; font-size:13px; }
+  .tr-eye { color:#64748b; line-height:0; }
+  .tr-switch { position:relative; width:40px; height:22px; border-radius:999px; background:#cbd5e1; border:0; cursor:pointer; padding:0; }
+  .tr-switch::after { content:''; position:absolute; left:3px; top:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .2s; }
+  .tr-switch[aria-checked=true] { background:var(--adm-primary); }
+  .tr-switch[aria-checked=true]::after { transform:translateX(18px); }
+  .tr-del { background:none; border:0; color:#94a3b8; cursor:pointer; font-size:18px; line-height:1; }
+  .tr-del:hover { color:#dc2626; }
+  .tr-add { display:flex; gap:8px; }
+  .tr-add select { flex:1; }
+  .tr-head { display:grid; grid-template-columns:28px 1fr 90px 140px 34px 44px 30px; gap:10px; padding:0 12px 4px; font-size:12px; color:#64748b; }
+</style>
+
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Travel routes</h3></div>
+  <div class="box-body">
+    {% if saved %}<div class="alert alert-success">Saved.</div>{% endif %}
+    <p class="text-muted">The route of each month appears under the map on GEM2i Magazine - Travel Calendar (month strip ?m=YYYY-MM).</p>
+    <div class="tr-months">
+      {% for r in routes %}<a href="?m={{ r.month }}" class="{{ 'on' if r.month == current.month }}{{ ' off' if r.active == false }}">{{ r.month }}{% if r.title %} · {{ r.title }}{% endif %}</a>{% endfor %}
+    </div>
+    <form method="get" class="tr-add" style="max-width:360px">
+      <input type="month" name="m" class="form-input" value="{{ current.month }}" aria-label="Month">
+      <button class="btn btn-default">Open month</button>
+    </form>
+  </div>
+</div>
+
+<form method="post" action="/admin/travel-routes" id="trForm">
+<input type="hidden" name="month" value="{{ current.month }}">
+<input type="hidden" name="stops_json" id="trJson">
+<div class="box">
+  <div class="box-header"><h3 class="box-title">Route · {{ current.month }}</h3></div>
+  <div class="box-body">
+    <div class="form-group"><label class="control-label" for="trTitle">Title</label>
+      <input type="text" id="trTitle" name="title" class="form-input" maxlength="160" placeholder="The route of August (blank = automatic)" value="{{ current.title or '' }}"></div>
+    <div class="form-group"><label class="control-label" for="trSub">Subtitle</label>
+      <input type="text" id="trSub" name="subtitle" class="form-input" maxlength="300" placeholder="Four stops around the Mediterranean, in order." value="{{ current.subtitle or '' }}"></div>
+    <div class="form-group"><label><input type="checkbox" name="active" value="1" {{ 'checked' if current.active != false }}> Show this route</label></div>
+
+    <label class="control-label">Stops</label>
+    <div class="tr-head" aria-hidden="true"><span></span><span>Post</span><span>Day</span><span>Label</span><span></span><span>Show</span><span></span></div>
+    <ul class="tr-list" id="trList"></ul>
+    <div class="tr-add">
+      <select id="trPick" class="form-input" aria-label="Post to add">
+        <option value="">Add a post…</option>
+        {% for p in posts %}<option value="{{ p.id }}" data-city="{{ p.city }}">{{ p.title }}{% if p.city %} ({{ p.city }}){% endif %}</option>{% endfor %}
+      </select>
+      <button type="button" class="btn btn-default" id="trAddBtn">Add stop</button>
+    </div>
+  </div>
+  <div class="box-footer" style="display:flex;gap:10px;justify-content:space-between">
+    <button type="submit" class="btn btn-primary">Save route</button>
+    {% if routes|selectattr('month','equalto',current.month)|list %}
+    <button type="submit" name="delete" value="1" class="btn btn-danger" onclick="return confirm('Delete the route of {{ current.month }}?')">Delete route</button>
+    {% endif %}
+  </div>
+</div>
+</form>
+
+<script>
+(function(){
+  var titles={ {% for p in posts %}"{{ p.id }}":{{ {'t': p.title, 'c': p.city}|tojson }}{{ ',' if not loop.last }}{% endfor %} };
+  var stops={{ (current.stops or [])|tojson }};
+  var list=document.getElementById('trList');
+  var EYE='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_OFF='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  var GRIP='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+  function esc(s){return String(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function row(st){
+    var info=titles[st.post_id]||{t:'Post #'+st.post_id,c:''};var vis=st.visible!==false;
+    var li=document.createElement('li');li.className='tr-item'+(vis?'':' is-hidden');li.dataset.id=st.post_id;li.draggable=false;
+    li.innerHTML='<button type="button" class="tr-handle" aria-label="Move stop (ArrowUp/ArrowDown)">'+GRIP+'</button>'+
+      '<span class="tr-title">'+esc(info.t)+(info.c?'<small>'+esc(info.c)+'</small>':'')+'</span>'+
+      '<input type="text" class="form-input tr-day" maxlength="12" placeholder="02" aria-label="Day" value="'+esc(st.day)+'">'+
+      '<input type="text" class="form-input tr-label" maxlength="60" placeholder="'+esc(info.c||'City')+'" aria-label="Label" value="'+esc(st.label)+'">'+
+      '<span class="tr-eye" aria-hidden="true">'+(vis?EYE:EYE_OFF)+'</span>'+
+      '<button type="button" class="tr-switch" role="switch" aria-label="Show stop" aria-checked="'+vis+'"></button>'+
+      '<button type="button" class="tr-del" aria-label="Remove stop">&times;</button>';
+    var h=li.querySelector('.tr-handle');
+    h.addEventListener('mousedown',function(){li.draggable=true;});
+    li.addEventListener('dragstart',function(e){li.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    li.addEventListener('dragend',function(){li.classList.remove('dragging');li.draggable=false;});
+    h.addEventListener('keydown',function(e){
+      if(e.key==='ArrowUp'&&li.previousElementSibling){list.insertBefore(li,li.previousElementSibling);h.focus();e.preventDefault();}
+      if(e.key==='ArrowDown'&&li.nextElementSibling){list.insertBefore(li.nextElementSibling,li);h.focus();e.preventDefault();}});
+    li.querySelector('.tr-switch').addEventListener('click',function(){var on=this.getAttribute('aria-checked')!=='true';
+      this.setAttribute('aria-checked',on);li.classList.toggle('is-hidden',!on);li.querySelector('.tr-eye').innerHTML=on?EYE:EYE_OFF;});
+    li.querySelector('.tr-del').addEventListener('click',function(){li.remove();});
+    return li;
+  }
+  list.addEventListener('dragover',function(e){e.preventDefault();var d=list.querySelector('.dragging');if(!d)return;
+    var after=[].slice.call(list.querySelectorAll('.tr-item:not(.dragging)')).find(function(el){var r=el.getBoundingClientRect();return e.clientY<r.top+r.height/2;});
+    list.insertBefore(d,after||null);});
+  stops.forEach(function(st){list.appendChild(row(st));});
+  document.getElementById('trAddBtn').addEventListener('click',function(){var s=document.getElementById('trPick');if(!s.value)return;
+    list.appendChild(row({post_id:+s.value,day:'',label:'',visible:true}));s.value='';});
+  document.getElementById('trForm').addEventListener('submit',function(){
+    document.getElementById('trJson').value=JSON.stringify([].map.call(list.children,function(li){return{
+      post_id:+li.dataset.id,day:li.querySelector('.tr-day').value,label:li.querySelector('.tr-label').value,
+      visible:li.querySelector('.tr-switch').getAttribute('aria-checked')==='true'};}));});
+})();
+</script>
+{% endblock %}

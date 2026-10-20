@@ -6,6 +6,7 @@ All screens are admin-only (Varient parity: authors only get the posts pipeline)
 Same conventions as admin.py: int `id` continuity, `lang_id` scoping, 303 redirects,
 `_render_admin` for chrome. Settings writes bust the core 30s cache immediately.
 """
+import json
 import logging
 import math
 import re
@@ -950,10 +951,34 @@ async def themes(request: Request):
     if r is not None:
         return r
     s = await core.kms_settings()
-    theme = core.active_theme(s.get("general") or {})
+    gs = s.get("general") or {}
+    theme = core.active_theme(gs)
+    lang_id = (await core.default_lang()).get("id", 1)
+    top_cats = [c for c in await core.categories(lang_id) if not c.get("parent_id")]
     return await _render_admin(request, user, "themes.html", active="themes",
-                               title="Themes", theme=theme,
+                               title="Themes", theme=theme, travel=gs.get("travel") or {},
+                               top_cats=top_cats,
                                saved=bool(request.query_params.get("saved")))
+
+
+@admin_router.post("/admin/travel-settings")
+async def travel_settings(request: Request):
+    """gem2i Travel themes: default reader mode + region / band categories."""
+    user, r = await _admin_gate(request, admin_only=True)
+    if r is not None:
+        return r
+    form = await request.form()
+    mode = form.get("default_mode") if form.get("default_mode") in ("light", "dark") else "dark"
+
+    def _cid(k):
+        v = str(form.get(k) or "").strip()
+        return int(v) if v.isdigit() else None
+
+    await db.kms_settings.update_one({"key": "kms"}, {"$set": {"general.travel": {
+        "default_mode": mode, "region_cat_id": _cid("region_cat_id"),
+        "band_cat_id": _cid("band_cat_id")}}})
+    await core.kms_settings(force=True)
+    return RedirectResponse("/admin/themes?saved=1", status_code=303)
 
 
 @admin_router.post("/admin/theme-activate")
@@ -1886,3 +1911,61 @@ async def translations_save(request: Request):
     back = form.get("back") or f"/admin/edit-translations/{lang_id}"
     sep = "&" if "?" in back else "?"
     return RedirectResponse(f"{back}{sep}saved=1", status_code=303)
+
+
+# ── gem2i Travel Calendar: month routes (kms_travel_routes) ─────────────────
+# One doc per month {month:"YYYY-MM", title, subtitle, active, stops:[{post_id,
+# day, label, visible}]}; stops keep the order the editor dragged them into
+# (Page Builder pattern: handle + label + eye + switch, D-GEM-2026-09).
+_MONTH_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+
+
+@admin_router.get("/admin/travel-routes", response_class=HTMLResponse)
+async def travel_routes(request: Request):
+    user, r = await _admin_gate(request, admin_only=True)
+    if r is not None:
+        return r
+    routes = [x async for x in db.kms_travel_routes.find({}, {"_id": 0}).sort("month", -1)]
+    m = (request.query_params.get("m") or "").strip()
+    if not _MONTH_RE.match(m):
+        m = routes[0]["month"] if routes else datetime.now(timezone.utc).strftime("%Y-%m")
+    current = next((x for x in routes if x["month"] == m), None) or {
+        "month": m, "title": "", "subtitle": "", "active": True, "stops": []}
+    posts = [{"id": p["id"], "title": p.get("title") or "", "city": (p.get("place") or {}).get("city") or ""}
+             async for p in db.kms_posts.find({"status": 1}, {"_id": 0, "id": 1, "title": 1, "place": 1})
+             .sort("created_at", -1).limit(400)]
+    return await _render_admin(request, user, "travel_routes.html", active="travel-routes",
+                               title="Travel routes", routes=routes, current=current, posts=posts,
+                               saved=bool(request.query_params.get("saved")))
+
+
+@admin_router.post("/admin/travel-routes")
+async def travel_routes_save(request: Request):
+    user, r = await _admin_gate(request, admin_only=True)
+    if r is not None:
+        return r
+    form = await request.form()
+    m = (form.get("month") or "").strip()
+    if not _MONTH_RE.match(m):
+        return RedirectResponse("/admin/travel-routes", status_code=303)
+    if form.get("delete") == "1":
+        await db.kms_travel_routes.delete_one({"month": m})
+        return RedirectResponse("/admin/travel-routes?saved=1", status_code=303)
+    try:
+        raw = json.loads(form.get("stops_json") or "[]")
+    except ValueError:
+        raw = []
+    stops = []
+    for st in raw[:20] if isinstance(raw, list) else []:
+        if not isinstance(st, dict) or not str(st.get("post_id") or "").isdigit():
+            continue
+        stops.append({"post_id": int(st["post_id"]),
+                      "day": str(st.get("day") or "").strip()[:12],
+                      "label": str(st.get("label") or "").strip()[:60],
+                      "visible": bool(st.get("visible", True))})
+    await db.kms_travel_routes.update_one({"month": m}, {"$set": {
+        "month": m, "title": (form.get("title") or "").strip()[:160],
+        "subtitle": (form.get("subtitle") or "").strip()[:300],
+        "active": form.get("active") == "1", "stops": stops,
+        "updated_at": _now_str()}, "$unset": {"sample": ""}}, upsert=True)  # edited = no longer demo
+    return RedirectResponse(f"/admin/travel-routes?m={m}&saved=1", status_code=303)

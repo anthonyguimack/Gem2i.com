@@ -197,6 +197,25 @@
       </div>
     </div>
 
+    {# Place (gem2i Travel themes, 2026-10-20): shown on cards as "City, Country";
+       lat/lng put the post on the Travel Calendar map. All optional. #}
+    {% set pl = (post.place if post else None) or {} %}
+    <div class="box">
+      <div class="box-header"><h3 class="box-title">Place</h3></div>
+      <div class="box-body">
+        <input type="hidden" name="place_form" value="1">
+        <div class="half-row form-group">
+          <div><label class="control-label" for="plCity">City</label><input type="text" id="plCity" name="place_city" class="form-input" maxlength="120" value="{{ pl.city or '' }}"></div>
+          <div><label class="control-label" for="plCountry">Country</label><input type="text" id="plCountry" name="place_country" class="form-input" maxlength="120" value="{{ pl.country or '' }}"></div>
+        </div>
+        <div class="half-row form-group">
+          <div><label class="control-label" for="plLat">Latitude</label><input type="text" id="plLat" name="place_lat" class="form-input" inputmode="decimal" placeholder="38.9067" value="{{ pl.lat if pl.lat is not none else '' }}"></div>
+          <div><label class="control-label" for="plLng">Longitude</label><input type="text" id="plLng" name="place_lng" class="form-input" inputmode="decimal" placeholder="1.4206" value="{{ pl.lng if pl.lng is not none else '' }}"></div>
+        </div>
+        <small class="text-muted">Latitude/longitude put the post on the Travel Calendar map (right-click a spot in Google Maps to copy them).</small>
+      </div>
+    </div>
+
     <style>
       .kms-picker-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
       .kms-picker-chips:empty { display: none; }

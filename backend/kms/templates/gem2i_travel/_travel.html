@@ -1,0 +1,128 @@
+{#
+  GEM2i Magazine - Travel: blocks shared by the Travel home (TR-1 light / TR-2 dark)
+  and the Travel Calendar home (TR-3). bocetos/kms-travel.html, approved 2026-10-20.
+  `travel` comes from public._travel_ctx. Light/dark variants of a block are both
+  rendered and gem2i-travel.css shows the one matching body[data-mode], so the
+  reader's switch is instant.
+#}
+{% macro cat_of(p) %}{% set c = all_categories|selectattr('id','equalto',p.category_id)|first %}{% if c %}{{ c.name }}{% endif %}{% endmacro %}
+
+{% macro place(p) %}{% set pl = p.place or {} %}{% set txt = ', '.join([pl.city, pl.country]|select|list) if (pl.city or pl.country) else cat_of(p)|trim %}{% if txt %}<span class="t-place"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>{{ txt }}</span>{% endif %}{% endmacro %}
+
+{% macro tags_of(p, n=2) %}{% if p.tags %}<span class="t-tags">{% for t in p.tags[:n] %}<span>{{ t.tag }}</span>{% endfor %}</span>{% endif %}{% endmacro %}
+
+{% macro img(p, size='mid', cls='') %}<span class="t-img {{ cls }}">{% if post_image(p, size) %}<img src="{{ post_image(p, size) }}" alt="" loading="lazy" class="g-hov">{% endif %}</span>{% endmacro %}
+
+{% macro destinations(title_html, sub='') %}
+{% if travel.dest %}
+<section class="g-wrap t-sec">
+  <div class="t-hd"><h2>{{ title_html|safe }}</h2>{% if sub %}<p>{{ sub }}</p>{% endif %}</div>
+  <div class="t-dest">
+    {% for d in travel.dest %}
+    <a href="/{{ d.cat.slug }}" class="t-dest-item">
+      <span class="t-dest-img">{% if d.image %}<img src="{{ d.image }}" alt="" loading="lazy">{% endif %}</span>
+      <span><b>{{ d.cat.name }}</b><small>{{ d.count }} {{ 'story' if d.count == 1 else 'stories' }}</small></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endmacro %}
+
+{% macro news(posts) %}
+{% if posts %}
+{% set lead = posts[0] %}
+<section class="g-wrap t-sec">
+  <div class="t-hd t-hdrow"><h2>In the news</h2><a href="/posts" class="t-more">View all</a></div>
+  <div class="t-news">
+    <a href="/{{ lead.slug }}" class="t-news-lead g-zoom">
+      {{ img(lead, 'big', 't-r20 t-43') }}
+      <span class="t-news-copy">{{ place(lead) }}
+        <span class="t-h3 g-ttl">{{ lead.title }}</span>
+        {% if lead.summary %}<span class="t-sum">{{ lead.summary|strip_tags(200) }}</span>{% endif %}
+        {{ tags_of(lead) }}</span>
+    </a>
+    <div class="t-news-list">
+      {% for p in posts[1:5] %}
+      <a href="/{{ p.slug }}" class="t-row g-zoom">
+        <span>{{ place(p) }}<span class="t-row-title g-ttl">{{ p.title|char_limit(90) }}</span>{% if p.summary %}<span class="t-row-sum">{{ p.summary|strip_tags(110) }}</span>{% endif %}</span>
+        {{ img(p, 'small', 't-r12 t-sq') }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endmacro %}
+
+{% macro band() %}
+{% set b = travel.band %}
+{% if b %}
+<a href="/{{ b.slug }}" class="t-band g-zoom">
+  {% if post_image(b, 'big') %}<img src="{{ post_image(b, 'big') }}" alt="" loading="lazy" class="t-band-img g-hov">{% endif %}
+  <span class="t-band-veil" aria-hidden="true"></span>
+  <span class="g-wrap t-band-copy"><span class="t-place t-place-on-photo">{{ travel.band_cat.name }}</span>
+    <span class="t-band-title">{{ b.title }}</span>
+    {% if b.summary %}<span class="t-band-sum">{{ b.summary|strip_tags(180) }}</span>{% endif %}</span>
+</a>
+{% endif %}
+{% endmacro %}
+
+{% macro region() %}
+{% set r = travel.region %}
+{% if r and travel.region_posts %}
+<section class="g-wrap t-sec">
+  <div class="t-hd t-hdrow"><div><h2>{{ r.name }}</h2>{% if r.description %}<p>{{ r.description|strip_tags(140) }}</p>{% endif %}</div><a href="/{{ r.slug }}" class="t-more">View {{ r.name }}</a></div>
+  {# light (TR-1): cards with text and tags #}
+  <div class="t-cards t-only-light">
+    {% for p in travel.region_posts %}
+    <a href="/{{ p.slug }}" class="t-card g-zoom">
+      {{ img(p, 'mid', 't-r16 t-43') }}
+      {{ place(p) }}
+      <span class="t-card-title g-ttl">{{ p.title|char_limit(90) }}</span>
+      {% if p.summary %}<span class="t-card-sum">{{ p.summary|strip_tags(120) }}</span>{% endif %}
+      {{ tags_of(p) }}
+    </a>
+    {% endfor %}
+  </div>
+  {# dark (TR-2): tall photos with the title on top #}
+  <div class="t-ov t-only-dark">
+    {% for p in travel.region_posts %}
+    <a href="/{{ p.slug }}" class="t-ov-item g-zoom">
+      {{ img(p, 'big', 't-ov-img') }}
+      <span class="t-ov-cap">{{ place(p) }}<span class="t-ov-title">{{ p.title|char_limit(80) }}</span></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endmacro %}
+
+{% macro offers() %}
+{% set home = (brand_home or '').rstrip('/') %}
+<section class="g-wrap t-sec">
+  <div class="t-hd"><h2>Travel with <em>GEM2i</em></h2><p>Trips and guest lists for members.</p></div>
+  <div class="t-offers">
+    <a href="{{ home }}/travels" class="t-offer t-offer-photo g-zoom">
+      {% if travel.region_posts and post_image(travel.region_posts[0], 'big') %}<img src="{{ post_image(travel.region_posts[0], 'big') }}" alt="" loading="lazy" class="t-offer-img g-hov">{% endif %}
+      <span class="t-offer-veil" aria-hidden="true"></span>
+      <span class="t-offer-copy"><span class="t-offer-title">Festival trips: flight, hotel and ticket</span><span class="t-offer-sum">We pick the hotel, you pick the festival. Member prices.</span><span class="t-offer-cta">See trips</span></span>
+    </a>
+    <a href="{{ home }}/events" class="t-offer t-offer-blue"><span class="t-offer-copy"><span class="t-offer-title">Club guest lists</span><span class="t-offer-sum">Get on the list at the clubs we work with.</span><span class="t-offer-cta">See events</span></span></a>
+    <a href="{{ home }}/membership-enrollment" class="t-offer t-offer-ink"><span class="t-offer-copy"><span class="t-offer-title">Become a member</span><span class="t-offer-sum">Points on every ticket and access to GEM2i trips.</span><span class="t-offer-cta">Join</span></span></a>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro more(posts) %}
+{% if posts %}
+<section class="g-wrap t-sec">
+  <div class="t-hd t-hdrow"><h2>More stories</h2><a href="/posts" class="t-more">Show more</a></div>
+  <div class="t-more-grid">
+    {% for p in posts %}
+    <a href="/{{ p.slug }}" class="t-mini g-zoom">{{ img(p, 'small', 't-r12 t-43') }}<span>{{ place(p) }}<span class="t-mini-title g-ttl">{{ p.title|char_limit(90) }}</span></span></a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endmacro %}

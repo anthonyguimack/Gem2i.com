@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% import "_travel.html" as t with context %}
+{#
+  GEM2i Magazine - Travel home (bocetos/kms-travel.html, approved 2026-10-20).
+  One template, two modes: light = TR-1 hero (carousel + "also on the cover"),
+  dark = TR-2 hero (full-bleed cover + glass cards). Everything from
+  "Choose a destination" down is shared; the region block swaps cards (light)
+  for tall photos (dark). Admin sets the default mode, the reader switches.
+#}
+{% block content %}
+<h1 class="title-index">{{ title }}</h1>
+{% set pool = (slider or []) + (featured or []) + (latest or []) %}
+{% set ns = namespace(slides=[], side=[], seen=[]) %}
+{% for p in pool %}{% if p.id not in ns.seen and ns.slides|length < 4 %}{% set ns.slides = ns.slides + [p] %}{% set ns.seen = ns.seen + [p.id] %}{% endif %}{% endfor %}
+{% for p in (featured or []) + (latest or []) %}{% if p.id not in ns.seen and ns.side|length < 3 %}{% set ns.side = ns.side + [p] %}{% set ns.seen = ns.seen + [p.id] %}{% endif %}{% endfor %}
+{% set cover = ns.slides[0] if ns.slides else None %}
+
+{% if ads.get('index_top') %}{% import "_macros.html" as m %}<div class="container-xl">{{ m.ad_space(ads['index_top']) }}</div>{% endif %}
+
+{% if cover %}
+{# ── light hero (TR-1) ── #}
+<section class="g-wrap t-hero-l t-only-light" aria-label="Featured stories">
+  <div class="t-hl-main">
+    <div class="t-slides" id="tSlides">
+      {% for p in ns.slides %}
+      <a href="/{{ p.slug }}" class="t-slide g-zoom{{ ' is-on' if loop.first }}"{% if not loop.first %} aria-hidden="true" tabindex="-1"{% endif %}>
+        {% if post_image(p, 'big') %}<img src="{{ post_image(p, 'big') }}" alt="" class="g-hov"{% if not loop.first %} loading="lazy"{% endif %}>{% endif %}
+        <span class="t-slide-veil" aria-hidden="true"></span>
+        <span class="t-slide-copy">{{ t.place(p) }}<span class="t-slide-title">{{ p.title }}</span><span class="g-meta">{{ p.author_username or '' }}</span></span>
+      </a>
+      {% endfor %}
+    </div>
+    {% if ns.slides|length > 1 %}
+    <div class="t-dots" role="tablist" aria-label="Featured stories">
+      {% for p in ns.slides %}<button type="button" role="tab" aria-label="Story {{ loop.index }}" aria-selected="{{ 'true' if loop.first else 'false' }}" data-i="{{ loop.index0 }}"{% if loop.first %} class="is-on"{% endif %}></button>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% if ns.side %}
+  <div class="t-hl-side"><span class="t-label">Also on the cover</span>
+    {% for p in ns.side %}
+    <a href="/{{ p.slug }}" class="t-hl-item g-zoom">{{ t.img(p, 'small', 't-r12 t-sq') }}<span>{{ t.place(p) }}<span class="t-hl-title g-ttl">{{ p.title|char_limit(80) }}</span></span></a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+{# ── dark hero (TR-2) ── #}
+<section class="t-hero-d t-only-dark" aria-label="Cover story">
+  {% if post_image(cover, 'big') %}<img src="{{ post_image(cover, 'big') }}" alt="" class="t-hd-img">{% endif %}
+  <span class="t-hd-veil" aria-hidden="true"></span>
+  <div class="g-wrap t-hd-grid">
+    <div class="t-hd-lead">{{ t.place(cover) }}
+      <h2 class="t-hd-title"><a href="/{{ cover.slug }}">{{ cover.title }}</a></h2>
+      {% if cover.summary %}<p>{{ cover.summary|strip_tags(180) }}</p>{% endif %}
+      <a href="/{{ cover.slug }}" class="g-btn">Read the story</a>
+    </div>
+    {% if ns.side %}
+    <div class="t-hd-next">
+      {% for p in ns.side %}
+      <a href="/{{ p.slug }}" class="t-glass g-zoom">{{ t.img(p, 'small', 't-r10 t-sq') }}<span>{{ t.place(p) }}<span class="t-glass-title">{{ p.title|char_limit(70) }}</span></span></a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% else %}
+<p class="g-wrap g-empty">No stories yet. Publish the first one from the KMS admin.</p>
+{% endif %}
+
+{{ t.destinations('Choose a <em>destination</em>', 'Festivals, clubs and routes by continent.') }}
+{% set used = ns.seen %}
+{% set rest = (latest or [])|rejectattr('id', 'in', used)|list %}
+{{ t.news(rest[:5] if rest|length >= 2 else latest[:5]) }}
+{{ t.band() }}
+{{ t.region() }}
+{{ t.offers() }}
+{{ t.more(rest[5:9]) }}
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+/* TR-1 carousel: 7s auto-advance, dots, pauses on hover/focus and when the tab is hidden. */
+(function(){var w=document.getElementById('tSlides');if(!w)return;var s=w.children,d=document.querySelectorAll('.t-dots button');if(s.length<2)return;
+var i=0,t=null,red=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function go(n){s[i].classList.remove('is-on');s[i].setAttribute('aria-hidden','true');s[i].tabIndex=-1;if(d[i]){d[i].classList.remove('is-on');d[i].setAttribute('aria-selected','false');}
+i=(n+s.length)%s.length;s[i].classList.add('is-on');s[i].removeAttribute('aria-hidden');s[i].removeAttribute('tabindex');if(d[i]){d[i].classList.add('is-on');d[i].setAttribute('aria-selected','true');}}
+function play(){if(red||t)return;t=setInterval(function(){if(!document.hidden)go(i+1);},7000);}function stop(){clearInterval(t);t=null;}
+d.forEach(function(b){b.addEventListener('click',function(){go(+b.dataset.i);stop();play();});});
+var box=w.parentNode;box.addEventListener('mouseenter',stop);box.addEventListener('mouseleave',play);box.addEventListener('focusin',stop);box.addEventListener('focusout',play);play();})();
+</script>
+{% endblock %}
