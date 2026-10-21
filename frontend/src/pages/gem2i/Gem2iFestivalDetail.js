@@ -6,6 +6,7 @@ import { useT } from '../../lib/i18n';
 import { normalizeRichText } from '../../lib/richText';
 import { gemImg, CardImage, SocialLinks, SkeletonGrid, ArtistCard } from '../../components/gem2i/GemCatalogBits';
 import { NotFoundShell } from './Gem2iArtistDetail';
+import { GemConferenceSchedule } from '../../components/gem2i/GemSections';
 
 const GEM_FONT = "'Manrope', sans-serif";
 
@@ -83,6 +84,8 @@ export default function Gem2iFestivalDetail({ kind = 'festival' }) {
             <div className="mt-10"><SocialLinks socials={doc.socials} /></div>
           </div>
         </div>
+
+        {isConf && <GemConferenceSchedule sessions={doc.sessions} />}
 
         {Array.isArray(doc.lineup_artists) && doc.lineup_artists.length > 0 && (
           <section className="mt-20" data-testid="festival-lineup">

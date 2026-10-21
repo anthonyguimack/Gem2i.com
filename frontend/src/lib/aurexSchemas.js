@@ -276,6 +276,58 @@ export const AUREX_SECTIONS = {
     ],
     itemPreview: (i) => `${i.step_number || '·'}. ${adminText(i.title)}`,
   },
+  gem_faq: {
+    label: 'FAQ',
+    icon: MessageCircle,
+    description: 'Home FAQ: heading on the left, questions on the right (the first one opens by default). Show/hide and position the section in Page Builder.',
+    configFields: [
+      { key: 'eyebrow',     label: 'Eyebrow (above title)', type: 'text', placeholder: 'Help' },
+      { key: 'title',       label: 'Section title',         type: 'text', placeholder: 'Frequently asked questions' },
+      { key: 'subtitle',    label: 'Subtitle',              type: 'textarea', placeholder: 'Having difficulties? Get expert advice.' },
+      { key: 'cta_text',    label: 'Button text (optional)', type: 'text', placeholder: 'Contact us' },
+      { key: 'cta_url',     label: 'Button URL',            type: 'url', placeholder: '/#contact' },
+      { key: 'cta_new_tab', label: 'Open in new window',    type: 'bool' },
+    ],
+    itemFields: [
+      { key: 'question', label: 'Question', type: 'text', required: true },
+      { key: 'answer',   label: 'Answer',   type: 'rich' },
+    ],
+    itemPreview: (i) => adminText(i.question),
+  },
+  gem_conf_reviews: {
+    label: 'Conference reviews',
+    icon: MessageCircle,
+    description: 'Home band under Conferences: one review at a time over a dark photo (arrows + dots). Its own list — not the site testimonials.',
+    configFields: [
+      { key: 'eyebrow',    label: 'Eyebrow (above title)', type: 'text', placeholder: 'Reviews' },
+      { key: 'title',      label: 'Section title',         type: 'text', placeholder: 'Conference review' },
+      { key: 'subtitle',   label: 'Subtitle',              type: 'textarea', placeholder: 'Here is what participants are saying.' },
+      { key: 'bg_image',   label: 'Background photo',      type: 'image' },
+      { key: 'bg_overlay', label: 'Dark veil over the photo (0-95, default 80)', type: 'number', placeholder: '80' },
+    ],
+    itemFields: [
+      { key: 'image',      label: 'Photo (round)',  type: 'image' },
+      { key: 'name',       label: 'Name',           type: 'text', required: true },
+      { key: 'role',       label: 'Role / company', type: 'text', placeholder: 'Booking agent' },
+      { key: 'conference', label: 'Conference (optional)', type: 'text', placeholder: 'WMC 2026' },
+      { key: 'text',       label: 'Review',         type: 'textarea', required: true },
+    ],
+    itemPreview: (i) => `${adminText(i.name)}${i.conference ? ` · ${adminText(i.conference)}` : ''}`,
+  },
+  aurex_blog_cfg: {
+    label: 'Latest news (Insights) — Section Configuration',
+    icon: Newspaper,
+    description: 'Header of the home "Latest news" block. The posts come from the KMS (Insights) through Settings → Blog API URL.',
+    configFields: [
+      { key: 'eyebrow',     label: 'Eyebrow (above title)', type: 'text', placeholder: 'Insights' },
+      { key: 'title',       label: 'Section title',         type: 'text', placeholder: 'Latest news' },
+      { key: 'subtitle',    label: 'Subtitle',              type: 'textarea', placeholder: 'Read latest news and important updates.' },
+      { key: 'cta_text',    label: 'View-all text',         type: 'text', placeholder: 'All news' },
+      { key: 'cta_url',     label: 'View-all URL',          type: 'url', placeholder: 'https://insightsbeta.gem2i.com' },
+      { key: 'cta_new_tab', label: 'Open in new window',    type: 'bool' },
+    ],
+    itemFields: null,
+  },
   // ── gem2i inner pages (2026-10-19, port of the legacy travels.php /
   //    services.php / partners.php — content was hardcoded in PHP there) ──
   gem_travels: {

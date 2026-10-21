@@ -20,6 +20,8 @@ Public catalogs `/api/public/gem/*`, member actions `/api/member/gem/*` (JWT ide
 
 **Session 10 (2026-10-20):** KMS themes `gem2i_travel` / `gem2i_travel_cal` (`core.KMS_THEMES`; `core.THEME_PARENTS` makes their Jinja env fall back to templates/gem2i_travel → templates/gem2i → shared). Home data `public._travel_ctx` / `_travel_cal_ctx`. Reader light/dark on `core.MODE_THEMES` (gem2i + travel): `mode` in render ctx from cookie `kms_mode` else `general.travel.default_mode`. New collection `kms_travel_routes`; new post field `place`.
 
+**Session 11 (2026-10-21):** `gem_conferences.sessions` (list, CMS SessionsEditor). Section Manager keys `gem_faq`, `gem_conf_reviews` (items) + schema for `aurex_blog_cfg`. Home Page Builder keys `gem_news`, `gem_faq`, `gem_conf_reviews`.
+
 ## Frontend (theme `gem2i`, dark entertainment)
 `components/gem2i/` layout + widgets; `pages/gem2i/` catalogs & details. Admin: `pages/admin/GemCatalogManager.js` — ONE config-driven CRUD screen mounted at `/admin/gem-{events,artists,venues,festivals,conferences,clients}` (client via `gemAdminAPI` in lib/api.js). CMS permissions: `gem_*` section keys in `backend/models/cms_sections.py` group `gem2i` (register new admin gem pages there FIRST — unmapped `/api/admin/*` paths are admin-only/fail-closed for operators). Public theme driven by the `website` color group (`--color-*`). Full list: plan §6. Catalog pages share `components/gem2i/GemCatalogCards.js` (HoverCard, SearchBar with geo PlaceSelects + `GemDateRange`, PageHero = same hero as home). CMS ordering widget = `components/admin/SortableSectionList.js` (house rule D-GEM-2026-09).
 

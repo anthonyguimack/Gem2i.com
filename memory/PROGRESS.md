@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-10-21 (session 11) — Template 01 home: events E-3, FAQ, Latest news (KMS), conferences CC-1 + sessions, Conference reviews RV-1 (DEPLOYED)
+- **Feature inventory for sales:** Excel with 59 features (all / sell today / pending), delivered to Anthony from the scratchpad, not in the repo.
+- **Upcoming events E-3** (`GemEventPosters` in `components/gem2i/GemSections.js`): square photo card under a brand-blue veil showing the "from" price (lowest tier, event currency), title, big date ("20th APR 2026"), `open_time`, and venue city. On hover (mouse only) the veil lifts and a CTA rises in: Get tickets / Join guest list / View event. On touch the CTA is always shown. The "list your event" tile is kept when there are 2 events or fewer.
+- **FAQ** (`GemFaq`, Section Manager `gem_faq`: question + rich answer; Page Builder key `gem_faq`, placed before the map): heading on the left, accordion on the right with the first question open.
+- **Latest news** (`GemNewsCards`, Page Builder key `gem_news`, header = Section Manager `aurex_blog_cfg`): 3 KMS posts through `/api/blog/latest`. `settings.blog_api_url` was ALREADY `https://insightsbeta.gem2i.com/api/latest-posts`. Each card: photo, date disc, title strip, summary, Read more. The feed has no category or comment count.
+- **Conferences CC-1** (boceto `work-plans-MD/bocetos/conferencias-carousel-horas.html`): carousel of all active conferences (home fetches `limit:100`, 28 live). Card = previous photo card + a "Schedule" block: first 3 sessions of the day, Day 1/2/3 tabs. Without sessions it shows address + description excerpt and "View conference". New conference field **`sessions`** `[{key,visible,date,start,end,title,description}]`, edited in Conferences manager → Sessions (`SessionsEditor` on `SortableSectionList`, house rule). Detail page `/conferences/:slug` gets `GemConferenceSchedule` (day columns) when sessions exist.
+- **Conference reviews RV-1** (`GemConferenceReviews`, Section Manager `gem_conf_reviews`: own list of photo/name/role/conference/text + config bg_image/bg_overlay; Page Builder key after `gem_conferences`): one quote at a time on a dark photo band, with arrows and dots.
+- Bocetos: `conferencias-schedule.html` (CS-1/CS-2/RV-1), `conferencias-carousel-horas.html` (CC-1 approved, CC-2 not chosen).
+- **Verified:** deploy green 4m50s, health 200, `/public/aurex/gem_faq|gem_conf_reviews|aurex_blog_cfg` 200 (empty), `/api/blog/latest` returns KMS posts. **Not browser-checked.** FAQ, sessions and reviews have no content yet, so those blocks stay hidden until filled in the CMS.
+- **Found, not fixed:** "All conferences" → `/conferences`, a page that doesn't exist. The Conferences manager "Schedule" field edits `conferences_schedule`, but the ETL stored the legacy text in `schedule`.
+
+---
+
 ## 2026-10-20 (session 10) — KMS themes "GEM2i Magazine - Travel" + "Travel Calendar", light/dark mode on all gem2i KMS themes (DEPLOYED)
 - **Bocetos** `work-plans-MD/bocetos/kms-travel.html` (inspired by foxiz.io/wandering, GEM2i identity): TR-1 Postal (light), TR-2 Ruta nocturna (dark), TR-3 Atlas (map). Anthony's ruling: TR-1 + TR-2 = ONE template with a light/dark switch; TR-3 = its own template.
 - **`gem2i_travel`** ("GEM2i Magazine - Travel"): light hero = TR-1 carousel + "Also on the cover"; dark hero = TR-2 full-bleed + glass cards; from "Choose a destination" down shared (destinations = top categories w/ count + photo, In the news, photo band, region block, Travel with GEM2i offers, More stories). Region block: light = cards with text (TR-1), dark = tall photos (TR-2). Both variants rendered, CSS shows the one for `body[data-mode]`.

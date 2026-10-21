@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Play } from 'lucide-react';
 import HeroSection from '../../components/HeroSection';
-import { publicAPI, gemAPI } from '../../lib/api';
+import { publicAPI, gemAPI, blogExternalAPI } from '../../lib/api';
 import { gemImg } from '../../components/gem2i/GemCatalogBits';
 import { useSettings } from '../../App';
 import { useT } from '../../lib/i18n';
@@ -19,7 +19,7 @@ import {
   GemEventPosters, GemArtistMosaic,
   GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemTicker, GemLocations, GemGallery,
-  GemIntroPhoto, GemFeaturedCards, GemServicesGrid,
+  GemIntroPhoto, GemFeaturedCards, GemServicesGrid, GemFaq, GemNewsCards, GemConferenceReviews,
 } from '../../components/gem2i/GemSections';
 
 // Section Manager content the home reads (one public call each, in parallel).
@@ -28,13 +28,13 @@ const SM_KEYS = [
   'aurex_partners', 'aurex_clients', 'aurex_testimonials_cfg', 'aurex_services_cfg',
   'gem_methodology', 'gem_events_cfg', 'gem_artists_cfg', 'gem_venues_cfg',
   'gem_festivals_cfg', 'gem_conferences_cfg', 'gem_clients_cfg',
-  'news_ticker', 'aurex_locations_cfg', 'aurex_gallery_cfg',
+  'news_ticker', 'aurex_locations_cfg', 'aurex_gallery_cfg', 'gem_faq', 'aurex_blog_cfg', 'gem_conf_reviews',
 ];
 const DEFAULT_ORDER = [
   'news_ticker', 'hero', 'gem_intro', 'gem_featured', 'gem_services_banner', 'services', 'gem_methodology',
   'aurex_audience', 'aurex_process', 'gem_events', 'gem_artists', 'gem_venues',
-  'gem_festivals', 'gem_conferences', 'aurex_video', 'aurex_pricing', 'aurex_team',
-  'testimonials', 'gem_media', 'gallery', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
+  'gem_festivals', 'gem_conferences', 'gem_conf_reviews', 'aurex_video', 'aurex_pricing', 'aurex_team',
+  'testimonials', 'gem_news', 'gem_media', 'gallery', 'gem_faq', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
 ];
 
 const GEM_FONT = "'Manrope', sans-serif";
@@ -65,6 +65,7 @@ export default function Gem2iHome() {
   const [layout, setLayout] = useState(null);      // {section_order, sections, section_configs}
   const [sm, setSm] = useState({});                // Section Manager content by key
   const [events, setEvents] = useState([]);
+  const [news, setNews] = useState([]); // KMS posts (Settings → Blog API URL)
   const [heroEvents, setHeroEvents] = useState([]); // events pinned to hero slides
   const [artists, setArtists] = useState([]);
   const [venues, setVenues] = useState([]);
@@ -78,7 +79,7 @@ export default function Gem2iHome() {
     publicAPI.getHeroSlides('home').then(r => setHeroSlides(r.data || [])).catch(() => {});
     // Phase-2 catalogs light up the legacy homepage carousels.
     gemAPI.festivals({ limit: 12 }).then(r => setFestivals(r.data?.items || [])).catch(() => {});
-    gemAPI.conferences({ limit: 12 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
+    gemAPI.conferences({ limit: 100 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
     gemAPI.clients().then(r => setClientLogos((r.data?.items || []).map(cl => ({
       name: cl.title, url: cl.url, description: cl.description ? cl.description.replace(/<[^>]+>/g, '').trim() : '', image: cl.image_urls?.on?.startsWith('/api')
         ? `${process.env.REACT_APP_BACKEND_URL || ''}${cl.image_urls.on}` : cl.image_urls?.on,
@@ -87,6 +88,7 @@ export default function Gem2iHome() {
     Promise.all(SM_KEYS.map(k => publicAPI.getSectionContent(k).then(r => [k, r.data]).catch(() => [k, null])))
       .then(rows => setSm(Object.fromEntries(rows.filter(([, v]) => v))));
     gemAPI.events({ limit: 12 }).then(r => setEvents(r.data?.items || [])).catch(() => {});
+    blogExternalAPI.getLatest().then(r => setNews(r.data?.posts || [])).catch(() => {});
     gemAPI.heroEvents().then(r => setHeroEvents(r.data?.items || [])).catch(() => {});
     gemAPI.artists({ limit: 12 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
     gemAPI.venues({ limit: 150 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
@@ -278,7 +280,7 @@ export default function Gem2iHome() {
         }))}
         testid="gem2i-festivals" />,
     gem_conferences: () => isTpl01
-      ? <GemConferenceCards config={smCfg('gem_conferences_cfg')} items={conferences} limit={Math.min(limitOf('gem_conferences_cfg', 4), 8)} />
+      ? <GemConferenceCards config={smCfg('gem_conferences_cfg')} items={conferences} />
       : <LogoCarousel
         section={withCatalogItems(override(c.conferences, 'gem_conferences_cfg'), conferences.slice(0, limitOf('gem_conferences_cfg')), cf => ({
           title: cf.title, url: `/conferences/${cf.slug}`, date: cf.range_dates || cf.event_date,
@@ -376,6 +378,9 @@ export default function Gem2iHome() {
     testimonials: () => (isTpl01 ? <GemTestimonialSpotlight config={smCfg('aurex_testimonials_cfg')} items={testimonials} /> : <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />),
     contact: () => <GemContactSection />,
     news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
+    gem_conf_reviews: () => <GemConferenceReviews config={smCfg('gem_conf_reviews')} items={sm.gem_conf_reviews?.items || []} />,
+    gem_faq: () => <GemFaq config={smCfg('gem_faq')} items={sm.gem_faq?.items || []} />,
+    gem_news: () => <GemNewsCards config={smCfg('aurex_blog_cfg')} items={news} />,
     map: () => (isTpl01
       ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
       : <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />),

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Switch } from '../../components/ui/switch';
 import ImageUpload from '../../components/ImageUpload';
 import RichTextEditor from '../../components/RichTextEditor';
+import SortableSectionList from '../../components/admin/SortableSectionList';
 import {
   Plus, Edit2, Trash2, Loader2, Search, RotateCcw, X,
   ChevronLeft, ChevronRight, Image as ImageIcon,
@@ -140,6 +141,7 @@ const CONFIGS = {
       ...geoFields,
       { key: 'description', label: 'Description', type: 'rich' },
       { key: 'conferences_schedule', label: 'Schedule', type: 'rich' },
+      { key: 'sessions', label: 'Sessions (hours shown on the home carousel)', type: 'sessions' },
       { key: 'video', label: 'Video URL', type: 'text', half: true },
       { key: 'website', label: 'Website', type: 'text', half: true },
     ],
@@ -332,6 +334,44 @@ function ImageSlot({ label, filename, url, onChange }) {
 
 /** Ticket-tier sub-editor for events (Phase 5): the 6 legacy tiers, each with
  *  label / price / internal cost / stock. A tier sells when price>0 AND stock>0. */
+/** Conference sessions (home CC-1 card): one row per session — day (date),
+ *  start / end time, title, description. Ordered with the house widget
+ *  (SortableSectionList); the eye hides a session without deleting it. On the
+ *  site, sessions are grouped by date (Day 1, Day 2…) in this order. */
+function SessionsEditor({ value, onChange }) {
+  const rows = Array.isArray(value) ? value : [];
+  const patch = (key, p) => onChange(rows.map(r => (r.key === key ? { ...r, ...p } : r)));
+  const add = () => {
+    const last = rows[rows.length - 1] || {};
+    onChange([...rows, { key: `s${Date.now().toString(36)}`, visible: true, date: last.date || '', start: '', end: '', title: '', description: '' }]);
+  };
+  const defs = Object.fromEntries(rows.map(r => [r.key, {
+    label: r.title || 'New session',
+    hint: [r.date, [r.start, r.end].filter(Boolean).join(' – ')].filter(Boolean).join(' · ') || 'Set the day and hours',
+  }]));
+  return (
+    <div className="border border-slate-200 rounded-sm p-3 mt-1">
+      {rows.length > 0 && (
+        <SortableSectionList items={rows} defs={defs} onChange={onChange} renderExtra={(r) => (
+          <div className="grid grid-cols-12 gap-2">
+            <Input type="date" className="col-span-4 h-8 text-xs" value={r.date || ''} onChange={(e) => patch(r.key, { date: e.target.value })} aria-label="Day" />
+            <Input type="time" className="col-span-2 h-8 text-xs" value={r.start || ''} onChange={(e) => patch(r.key, { start: e.target.value })} aria-label="Start" />
+            <Input type="time" className="col-span-2 h-8 text-xs" value={r.end || ''} onChange={(e) => patch(r.key, { end: e.target.value })} aria-label="End" />
+            <button type="button" onClick={() => onChange(rows.filter(x => x.key !== r.key))}
+              className="col-span-4 h-8 text-xs text-red-500 hover:text-red-600 inline-flex items-center justify-end gap-1"><Trash2 className="w-3.5 h-3.5" /> Remove</button>
+            <Input className="col-span-12 h-8 text-xs" placeholder="Session title" value={r.title || ''} onChange={(e) => patch(r.key, { title: e.target.value })} />
+            <Input className="col-span-12 h-8 text-xs" placeholder="Short description (optional)" value={r.description || ''} onChange={(e) => patch(r.key, { description: e.target.value })} />
+          </div>
+        )} />
+      )}
+      <button type="button" onClick={add} className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-[#0D9488] hover:underline">
+        <Plus className="w-3.5 h-3.5" /> Add session
+      </button>
+      <p className="text-[11px] text-slate-400 mt-2">Without sessions the card shows the duration and city instead. Hidden sessions (eye off) are not shown.</p>
+    </div>
+  );
+}
+
 const TIER_ROWS = [
   ['admission', 'G. Admission'], ['eprice', 'ePrice'], ['vip', 'VIP'],
   ['gold', 'Gold'], ['ultra', 'Ultra'], ['platinium', 'Platinium'],
@@ -674,6 +714,8 @@ export default function GemCatalogManager({ catalog }) {
       case 'guestList':
         return editing.type === 'guest_list' ? <GuestListEditor value={val} onChange={set} />
           : <p className="text-xs text-slate-400 mt-1">Set the event type to "Guest List" to configure it.</p>;
+      case 'sessions':
+        return <SessionsEditor value={val} onChange={set} />;
       case 'tiers':
         return editing.type === 'eticket' ? <TiersEditor value={val} onChange={set} />
           : <p className="text-xs text-slate-400 mt-1">Set the event type to "E-Ticket" to configure tiers.</p>;

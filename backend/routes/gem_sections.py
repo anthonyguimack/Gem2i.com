@@ -76,6 +76,10 @@ VALID_SECTIONS = {
     "gem_conferences_cfg", "gem_clients_cfg",
     # gem2i template — Methodology steps (itemized, like Our Process)
     "gem_methodology",
+    # gem2i home FAQ (question + answer items)
+    "gem_faq",
+    # gem2i home — Conference reviews band (own list, RV-1)
+    "gem_conf_reviews",
     # gem2i inner pages (2026-10-19, port of travels.php / services.php /
     # partners.php): Travels trips, Services cards + Works carousel, Partners header.
     "gem_travels", "gem_services_page", "gem_works", "gem_partners_page",

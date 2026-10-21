@@ -52,6 +52,9 @@ const sectionLabels = {
   gem_festivals: 'Festivals (catalog)',
   gem_conferences: 'Conferences (catalog)',
   gem_media: 'Media block',
+  gem_news: 'Latest news (Insights / KMS)',
+  gem_faq: 'FAQ',
+  gem_conf_reviews: 'Conference reviews',
   gem_clients: 'Clients logos (catalog)',
   // NOTE: pb_stats / pb_marquee were removed — they had no renderer in HomePage
   // (the marquee already lives inside PBHero). Re-add here + add a sectionMap
@@ -289,8 +292,8 @@ const PB_KNOWN_SECTIONS = [
 const GEM2I_KNOWN_SECTIONS = [
   'news_ticker', 'hero', 'gem_intro', 'gem_featured', 'gem_services_banner', 'services', 'gem_methodology',
   'aurex_audience', 'aurex_process', 'gem_events', 'gem_artists', 'gem_venues',
-  'gem_festivals', 'gem_conferences', 'aurex_video', 'aurex_pricing', 'aurex_team',
-  'testimonials', 'gem_media', 'gallery', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
+  'gem_festivals', 'gem_conferences', 'gem_conf_reviews', 'aurex_video', 'aurex_pricing', 'aurex_team',
+  'testimonials', 'gem_news', 'gem_media', 'gallery', 'gem_faq', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
 ];
 const isConfigurableTheme = (t) => t === 'aurex' || t === 'personalbrand' || isGem2iTheme(t);
 

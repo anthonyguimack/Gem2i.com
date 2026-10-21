@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as lucide from 'lucide-react';
-import { ArrowRight, Check, Quote, Linkedin, Twitter, Instagram, Globe, Calendar, MapPin } from 'lucide-react';
+import { ArrowRight, Check, Quote, Linkedin, Twitter, Instagram, Globe, Calendar, MapPin, Clock } from 'lucide-react';
 import { useT, useLang } from '../../lib/i18n';
 import { normalizeRichText } from '../../lib/richText';
 import { gemImg } from './GemCatalogBits';
@@ -456,15 +456,23 @@ function useDateParts() {
   };
 }
 
-const DateBadge = ({ parts, className = '' }) => (parts ? (
-  <span className={`inline-flex flex-col items-center justify-center w-16 h-[68px] rounded-xl text-white leading-none ${className}`} style={{ backgroundColor: ACCENT }}>
-    <b className="text-2xl tabular-nums">{parts.day}</b><span className="text-xs tracking-[0.2em] mt-1">{parts.month}</span>
-  </span>
-) : null);
+const ordinal = (n) => (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
 
-const ACCESS = {
-  guest_list: { en: 'Guest list', es: 'Guest list' },
-  eticket: { en: 'E-tickets', es: 'E-tickets' },
+// "22:00:00" → "10:00 PM" (en) / "22:00" (es); anything unparseable → null.
+const clock = (t, lang) => {
+  const m = /^(\d{1,2}):(\d{2})/.exec(t || '');
+  if (!m) return null;
+  const h = +m[1];
+  return lang === 'es' ? `${m[1].padStart(2, '0')}:${m[2]}` : `${h % 12 || 12}:${m[2]} ${h < 12 ? 'AM' : 'PM'}`;
+};
+
+// Lowest configured ticket price ("from"), in the event's currency.
+const fromPrice = (e) => {
+  const prices = Object.values(e.tiers || {}).map(t => Number(t?.price)).filter(n => n > 0);
+  if (!prices.length) return null;
+  try {
+    return new Intl.NumberFormat('en', { style: 'currency', currency: (e.payment?.currency || 'usd').toUpperCase(), maximumFractionDigits: 0 }).format(Math.min(...prices));
+  } catch { return `$${Math.min(...prices)}`; }
 };
 
 // ── E-2 Upcoming events: posters. ≤ 2 events → posters + "list your event"
@@ -472,6 +480,7 @@ const ACCESS = {
 export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-events' }) {
   const tt = useT();
   const parts = useDateParts();
+  const { lang } = useLang() || { lang: 'en' };
   const track = useRef(null);
   if (!items.length) return null;
   const carousel = items.length > 2;
@@ -479,19 +488,47 @@ export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-event
     const el = track.current;
     if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
   };
-  const Poster = ({ e }) => (
-    <Link to={`/events/${e.slug}`} className="group block">
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden" style={{ backgroundColor: CARD }}>
-        {gemImg(e.image_urls?.flyer || e.image_urls?.logo) && (
-          <img src={gemImg(e.image_urls?.flyer || e.image_urls?.logo)} alt={tt(e.title) || ''} loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none" />
-        )}
-        <DateBadge parts={parts(e.event_date)} className="absolute left-3.5 top-3.5" />
-      </div>
-      <h3 className="mt-4 text-white text-lg font-semibold leading-snug line-clamp-2 group-hover:text-[color:var(--color-link,#5FB2E0)] transition-colors">{tt(e.title)}</h3>
-      {ACCESS[e.type] && <p className="mt-1 text-[15px]" style={{ color: BODY }}>{tt(ACCESS[e.type])}</p>}
-    </Link>
-  );
+  // E-3 card: photo under a brand-colour veil with price / title / date / time /
+  // place. On hover (mouse only) the veil lifts and the CTA rises in; on touch
+  // the veil stays and the CTA is always shown.
+  const Poster = ({ e }) => {
+    const img = gemImg(e.image_urls?.flyer || e.image_urls?.logo);
+    const p = parts(e.event_date);
+    const year = (e.event_date || '').slice(0, 4);
+    const price = fromPrice(e);
+    const time = clock(e.open_time, lang);
+    const where = e.venue?.city || e.venue?.state || e.venue?.name;
+    const cta = e.type === 'eticket' || e.external_ticket_system ? { en: 'Get tickets', es: 'Comprar entradas' }
+      : e.type === 'guest_list' ? { en: 'Join guest list', es: 'Unirme a la lista' } : { en: 'View event', es: 'Ver evento' };
+    const hoverOnly = '[@media(hover:hover)]';
+    return (
+      <Link to={`/events/${e.slug}`} className="group relative block aspect-square rounded-2xl overflow-hidden isolate" style={{ backgroundColor: CARD }}>
+        {img && <img src={img} alt="" loading="lazy" className="absolute inset-0 -z-10 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none" />}
+        {/* Brand veil; a soft dark scrim stays underneath so the text holds contrast once it lifts. */}
+        <div className="absolute inset-0 -z-10" style={{ background: 'linear-gradient(180deg, rgba(4,8,12,0.15), rgba(4,8,12,0.55))' }} />
+        <div className={`absolute inset-0 -z-10 transition-opacity duration-300 ease-out ${hoverOnly}:group-hover:opacity-0`}
+          style={{ background: `linear-gradient(160deg, color-mix(in srgb, ${ACCENT} 88%, transparent), color-mix(in srgb, ${ACCENT} 72%, #04080C))` }} />
+        <div className="h-full flex flex-col p-5 text-white">
+          {price && <p className="self-end text-[22px] font-light tabular-nums">{price}</p>}
+          <h3 className={`${price ? 'mt-1' : 'mt-auto'} text-[15px] font-bold leading-snug line-clamp-2`}>{tt(e.title)}</h3>
+          <div className="mt-3 h-px bg-white/60" />
+          {p && (
+            <p className="mt-3 flex items-start gap-2 leading-none">
+              <span className="text-[34px] font-light tabular-nums">{p.day}{lang === 'es' ? '' : ordinal(p.day)}</span>
+              <span className="text-xs leading-tight pt-1">{p.month}<br />{year}</span>
+            </p>
+          )}
+          {time && <p className="mt-3 inline-flex items-center gap-1.5 text-[13px]"><Clock className="w-3.5 h-3.5" />{time}</p>}
+          {where && <p className="mt-1.5 inline-flex items-center gap-1.5 text-[13px] line-clamp-1"><MapPin className="w-3.5 h-3.5 shrink-0" />{where}</p>}
+          <span className={`mt-auto self-end inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-[opacity,transform] duration-200 ease-out group-active:scale-[0.97]
+            ${hoverOnly}:opacity-0 ${hoverOnly}:translate-y-2 ${hoverOnly}:group-hover:opacity-100 ${hoverOnly}:group-hover:translate-y-0 ${hoverOnly}:group-focus-visible:opacity-100 ${hoverOnly}:group-focus-visible:translate-y-0`}
+            style={{ backgroundColor: ACCENT }}>
+            {tt(cta)}
+          </span>
+        </div>
+      </Link>
+    );
+  };
   const arrows = carousel ? (
     <div className="flex items-center gap-4">
       <div className="hidden sm:flex gap-2">
@@ -678,46 +715,138 @@ export function GemFestivalBento({ config = {}, items = [] }) {
   );
 }
 
-// ── Conferences · photo cards (redesign 2026-10-17) ─────────────────────────
-// The event photo (flyer) on top with the conference logo on a white chip that
-// overlaps its bottom edge; name, dates and country below. Falls back to the
-// logo-only card when a conference has no photo.
-export function GemConferenceCards({ config = {}, items = [], limit = 8 }) {
+// ── Conferences · CC-1 carousel (2026-10-21) ────────────────────────────────
+// Every active conference in a swipeable carousel (arrows when > 4). Each card
+// keeps the photo-card design (flyer, dates chip, logo plate, name, place) and
+// adds a "Schedule" block fed by the CMS sessions (Conferences → Sessions).
+export function GemConferenceCards({ config = {}, items = [] }) {
   const tt = useT();
-  const photo = (c) => gemImg(c.image_urls?.flyer);
-  const logo = (c) => gemImg(c.image_urls?.logo);
-  const list = items.filter(c => photo(c) || logo(c)).slice(0, limit);
+  const track = useRef(null);
+  const list = items.filter(c => gemImg(c.image_urls?.flyer) || gemImg(c.image_urls?.logo));
   if (!list.length) return null;
+  const scroll = (dir) => {
+    const el = track.current;
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
+  };
   return (
     <Wrap testid="gem2i-conferences">
-      <CatalogHead config={config} fallbackTitle={{ en: 'Conferences', es: 'Conferencias' }} allText={{ en: 'All conferences', es: 'Todas las conferencias' }} allUrl="/conferences" />
-      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <GemHeading eyebrow={config.eyebrow} title={config.title || { en: 'Conferences', es: 'Conferencias' }} subtitle={config.subtitle}
+        action={(
+          <div className="flex items-center gap-4">
+            {list.length > 4 && (
+              <div className="hidden sm:flex gap-2">
+                {[-1, 1].map(d => (
+                  <button key={d} type="button" onClick={() => scroll(d)} aria-label={d < 0 ? tt({ en: 'Previous', es: 'Anterior' }) : tt({ en: 'Next', es: 'Siguiente' })}
+                    className="w-10 h-10 rounded-full inline-flex items-center justify-center text-white transition-[background-color,transform] hover:bg-white/10 active:scale-95"
+                    style={{ border: `1px solid ${BORDER}` }}>
+                    <ArrowRight className={`w-4 h-4 ${d < 0 ? 'rotate-180' : ''}`} />
+                  </button>
+                ))}
+              </div>
+            )}
+            <GemCta text={config.cta_text || { en: 'All conferences', es: 'Todas las conferencias' }} url={config.cta_url || '/conferences'} newTab={config.cta_new_tab} />
+          </div>
+        )} />
+      <div ref={track} className="mt-12 flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {list.map(c => (
-          <Link key={c.id} to={`/conferences/${c.slug}`} className="group flex flex-col rounded-2xl overflow-hidden transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-white/20"
-            style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
-            <div className="relative aspect-[7/5] overflow-hidden" style={{ backgroundColor: '#0A121A' }}>
-              {photo(c)
-                ? <img src={photo(c)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none" />
-                : <div className="absolute inset-0 bg-white flex items-center justify-center p-8"><img src={logo(c)} alt="" className="max-h-full max-w-full object-contain" /></div>}
-              {(c.range_dates || c.event_date) && (
-                <span className="absolute left-4 top-4 text-[13px] font-semibold text-white px-3 py-1.5 rounded-full" style={{ backgroundColor: 'rgba(4,8,12,.72)' }}>
-                  {tt(c.range_dates) || c.event_date}
-                </span>
-              )}
-            </div>
-            <div className="relative px-5 pb-5 pt-10 flex-1">
-              {photo(c) && logo(c) && (
-                <span className="absolute -top-8 left-5 w-16 h-16 rounded-xl bg-white flex items-center justify-center p-2 shadow-[0_10px_24px_-10px_rgba(0,0,0,.6)]">
-                  <img src={logo(c)} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
-                </span>
-              )}
-              <h3 className="text-white text-lg font-semibold leading-snug">{tt(c.title)}</h3>
-              {c.country && <p className="mt-1.5 inline-flex items-center gap-1.5 text-[15px]" style={{ color: BODY }}><MapPin className="w-4 h-4" aria-hidden="true" />{[tt(c.city), tt(c.country)].filter(Boolean).join(', ')}</p>}
-            </div>
-          </Link>
+          <div key={c.id} className="snap-start shrink-0 w-[80%] sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]">
+            <ConferenceCard c={c} />
+          </div>
         ))}
       </div>
     </Wrap>
+  );
+}
+
+// Visible sessions grouped by date, in the CMS order → [{ date, rows }].
+const sessionDays = (sessions) => {
+  const days = [];
+  (Array.isArray(sessions) ? sessions : []).filter(s => s && s.visible !== false && s.title).forEach(s => {
+    const k = s.date || '';
+    let d = days.find(x => x.date === k);
+    if (!d) { d = { date: k, rows: [] }; days.push(d); }
+    d.rows.push(s);
+  });
+  return days;
+};
+
+const plainText = (html) => (html || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+// One CC-1 card. With sessions: first 3 of the chosen day (Day 1/2/3 tabs when
+// the conference runs several days). Without: address + a short description.
+function ConferenceCard({ c }) {
+  const tt = useT();
+  const parts = useDateParts();
+  const [day, setDay] = useState(0);
+  const photo = gemImg(c.image_urls?.flyer);
+  const logo = gemImg(c.image_urls?.logo);
+  const url = `/conferences/${c.slug}`;
+  const days = sessionDays(c.sessions);
+  const current = days[Math.min(day, days.length - 1)];
+  const dayLabel = (iso) => { const p = parts(iso); return p ? `${p.day} ${p.month}` : ''; };
+  const place = [tt(c.city), tt(c.country)].filter(Boolean).join(', ');
+  const about = plainText(tt(c.description));
+  const LINK = 'var(--color-link, #5FB2E0)';
+  return (
+    <div className="h-full flex flex-col rounded-2xl overflow-hidden" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+      <Link to={url} tabIndex={-1} aria-hidden="true" className="group relative block aspect-[7/5] overflow-hidden" style={{ backgroundColor: '#0A121A' }}>
+        {photo
+          ? <img src={photo} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none" />
+          : <div className="absolute inset-0 bg-white flex items-center justify-center p-8"><img src={logo} alt="" className="max-h-full max-w-full object-contain" /></div>}
+        {(c.range_dates || c.event_date) && (
+          <span className="absolute left-4 top-4 text-[13px] font-semibold text-white px-3 py-1.5 rounded-full" style={{ backgroundColor: 'rgba(4,8,12,.72)' }}>
+            {tt(c.range_dates) || c.event_date}
+          </span>
+        )}
+      </Link>
+      <div className="relative px-5 pb-5 pt-10 flex-1 flex flex-col">
+        {photo && logo && (
+          <span className="absolute -top-8 left-5 w-16 h-16 rounded-xl bg-white flex items-center justify-center p-2 shadow-[0_10px_24px_-10px_rgba(0,0,0,.6)]">
+            <img src={logo} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
+          </span>
+        )}
+        <h3 className="text-white text-lg font-semibold leading-snug"><Link to={url} className="transition-colors hover:text-[color:var(--color-link,#5FB2E0)]">{tt(c.title)}</Link></h3>
+        {place && <p className="mt-1.5 inline-flex items-center gap-1.5 text-[15px]" style={{ color: BODY }}><MapPin className="w-4 h-4 shrink-0" aria-hidden="true" />{place}</p>}
+
+        <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${BORDER}` }}>
+          {current ? (
+            <>
+              <p className="flex items-baseline justify-between gap-2 text-[11px] font-bold tracking-[0.14em] uppercase" style={{ color: BODY }}>
+                {tt({ en: 'Schedule', es: 'Programa' })}
+                {current.date && <span className="text-sm font-semibold normal-case tracking-normal" style={{ color: LINK }}>{dayLabel(current.date)}</span>}
+              </p>
+              {days.length > 1 && (
+                <div className="mt-2.5 flex flex-wrap gap-1.5" role="tablist">
+                  {days.map((d, i) => (
+                    <button key={d.date || i} type="button" role="tab" aria-selected={d === current} onClick={() => setDay(i)}
+                      className="px-2.5 py-1 rounded-full text-xs font-semibold text-white transition-[background-color,transform] duration-150 active:scale-95"
+                      style={d === current ? { backgroundColor: ACCENT } : { border: `1px solid ${BORDER}` }}>
+                      {tt({ en: 'Day', es: 'Día' })} {i + 1}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <ul className="mt-1.5">
+                {current.rows.slice(0, 3).map((s, i) => (
+                  <li key={s.key || i} className="grid grid-cols-[6.25rem_1fr] gap-2.5 py-2 text-sm" style={i ? { borderTop: `1px dashed ${BORDER}` } : undefined}>
+                    <time className="font-semibold tabular-nums" style={{ color: LINK }}>{[s.start, s.end].filter(Boolean).join(' – ')}</time>
+                    <span className="text-white/90 leading-snug">{s.title}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <div className="text-sm leading-[1.6] space-y-1" style={{ color: BODY }}>
+              {tt(c.address) && <p className="line-clamp-1">{tt(c.address)}</p>}
+              {about && <p className="line-clamp-3">{about}</p>}
+            </div>
+          )}
+        </div>
+        <Link to={url} className="mt-auto pt-4 self-start inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-white" style={{ color: LINK }}>
+          {current ? tt({ en: 'Full schedule', es: 'Programa completo' }) : tt({ en: 'View conference', es: 'Ver conferencia' })} <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -1332,5 +1461,178 @@ export function GemServicesGrid({ services, banner }) {
         </ul>
       </div>
     </section>
+  );
+}
+
+// ── FAQ: heading on the left, accordion on the right (CMS → Section Manager → FAQ).
+export function GemFaq({ config = {}, items = [] }) {
+  const tt = useT();
+  const [open, setOpen] = useState(0);
+  if (!items.length) return null;
+  return (
+    <Wrap testid="gem2i-faq">
+      <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
+        <GemHeading eyebrow={config.eyebrow} title={config.title || { en: 'Frequently asked questions', es: 'Preguntas frecuentes' }} subtitle={config.subtitle}
+          action={<GemCta text={config.cta_text} url={config.cta_url} newTab={config.cta_new_tab} />} />
+        <div className="flex flex-col gap-3">
+          {items.map((q, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={q.id || i} className="rounded-xl" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+                <button type="button" onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left text-white text-[15px] md:text-base font-semibold">
+                  {tt(q.question)}
+                  <span aria-hidden className="relative w-3.5 h-3.5 shrink-0">
+                    <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-current" />
+                    <span className={`absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-current transition-transform duration-200 ease-out ${isOpen ? 'scale-y-0' : ''}`} />
+                  </span>
+                </button>
+                <div className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                  <div className="overflow-hidden"><Rich html={q.answer} className="px-5 pb-5" /></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Wrap>
+  );
+}
+
+// ── Latest news: KMS posts via the External Blog feed (Settings → Blog API).
+// Photo with a date disc + title strip, then the summary and "Read more".
+export function GemNewsCards({ config = {}, items = [] }) {
+  const tt = useT();
+  const parts = useDateParts();
+  if (!items.length) return null;
+  return (
+    <Wrap testid="gem2i-news">
+      <GemHeading eyebrow={config.eyebrow} title={config.title || { en: 'Latest news', es: 'Últimas noticias' }} subtitle={config.subtitle}
+        action={<GemCta text={config.cta_text} url={config.cta_url} newTab={config.cta_new_tab} />} />
+      <div className="mt-12 grid gap-6 md:grid-cols-3">
+        {items.map((p, i) => {
+          const d = parts((p.date || '').slice(0, 10));
+          return (
+            <a key={p.url || i} href={p.url} className="group flex flex-col rounded-2xl overflow-hidden" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {p.image && <img src={p.image} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none" />}
+                <div className="absolute left-4 right-4 bottom-4 flex items-center gap-3">
+                  {d && (
+                    <span className="shrink-0 w-14 h-14 rounded-full flex flex-col items-center justify-center text-white leading-none" style={{ backgroundColor: ACCENT }}>
+                      <b className="text-xl tabular-nums">{d.day}</b><span className="text-[10px] tracking-[0.15em] mt-0.5">{d.month}</span>
+                    </span>
+                  )}
+                  <h3 className="flex-1 rounded-lg px-3 py-2 text-white text-[15px] font-semibold leading-snug line-clamp-2 backdrop-blur-sm" style={{ backgroundColor: 'rgba(4,8,12,0.62)' }}>{p.title}</h3>
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col p-6">
+                {p.summary && <p className="text-[15px] leading-[1.7] line-clamp-3" style={{ color: BODY }}>{p.summary}</p>}
+                <span className="mt-auto pt-5 text-xs font-bold tracking-[0.15em] uppercase text-white group-hover:text-[color:var(--color-link,#5FB2E0)] transition-colors">
+                  {tt({ en: 'Read more', es: 'Leer más' })}
+                </span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </Wrap>
+  );
+}
+
+// Conference detail page: the full programme, one column per day (CS reference).
+export function GemConferenceSchedule({ sessions }) {
+  const tt = useT();
+  const { lang } = useLang() || { lang: 'en' };
+  const days = sessionDays(sessions);
+  if (!days.length) return null;
+  const longDate = (iso) => (/^\d{4}-\d{2}-\d{2}/.test(iso || '')
+    ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString(lang === 'es' ? 'es' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '');
+  return (
+    <section className="mt-20" data-testid="conference-schedule">
+      <h2 className="text-white font-bold mb-8" style={{ fontSize: 'clamp(1.4rem, 2.6vw, 2rem)' }}>{tt({ en: 'Conference schedule', es: 'Programa de la conferencia' })}</h2>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {days.map((d, i) => (
+          <div key={d.date || i} className="rounded-2xl p-6" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+            <p className="pb-4 text-white font-semibold" style={{ borderBottom: `1px solid ${BORDER}` }}>
+              <span className="text-xl mr-1.5" style={{ color: 'var(--color-link, #5FB2E0)' }}>{tt({ en: 'Day', es: 'Día' })} {i + 1}</span>
+              {d.date && <span className="text-sm">/ {longDate(d.date)}</span>}
+            </p>
+            {d.rows.map((s, j) => (
+              <div key={s.key || j} className="py-4" style={j ? { borderTop: `1px solid ${BORDER}` } : undefined}>
+                {(s.start || s.end) && <time className="text-sm font-semibold tabular-nums" style={{ color: 'var(--color-link, #5FB2E0)' }}>{[s.start, s.end].filter(Boolean).join(' – ')}</time>}
+                <h3 className="mt-1 text-white font-semibold">{s.title}</h3>
+                {s.description && <p className="mt-1.5 text-sm leading-[1.65]" style={{ color: BODY }}>{s.description}</p>}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── RV-1 Conference reviews: one quote at a time over a dark photo band.
+// CMS → Section Manager → Conference reviews (own list, not the testimonials).
+export function GemConferenceReviews({ config = {}, items = [] }) {
+  const tt = useT();
+  const [i, setI] = useState(0);
+  if (!items.length) return null;
+  const n = items.length;
+  const r = items[Math.min(i, n - 1)];
+  const go = (d) => setI((Math.min(i, n - 1) + d + n) % n);
+  const veil = Math.min(Math.max(parseInt(config.bg_overlay, 10) || 80, 0), 95);
+  return (
+    <div className="relative isolate overflow-hidden" data-testid="gem2i-conf-reviews"
+      style={{ backgroundColor: '#04080C', backgroundImage: config.bg_image ? `url(${config.bg_image})` : undefined, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <style>{`@media (prefers-reduced-motion: no-preference){.gem-fade-in{animation:gemFade .3s cubic-bezier(.23,1,.32,1)}}@keyframes gemFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}`}</style>
+      <div className="absolute inset-0 -z-10" style={{ backgroundColor: `color-mix(in srgb, #04080C ${veil}%, transparent)` }} />
+      <div className="max-w-5xl mx-auto px-6 md:px-10 py-20 md:py-28 text-center">
+        <GemHeadingCenter eyebrow={config.eyebrow} title={config.title || { en: 'Conference review', es: 'Opiniones de conferencias' }} subtitle={config.subtitle} />
+        <figure key={r.id || i} className="mt-12 grid gap-8 md:grid-cols-[150px_1fr] items-center text-center md:text-left gem-fade-in">
+          {r.image
+            ? <img src={r.image} alt="" className="mx-auto w-[120px] h-[120px] md:w-[150px] md:h-[150px] rounded-full object-cover" style={{ border: '3px solid rgba(255,255,255,.15)' }} />
+            : <span className="hidden md:block" />}
+          <div>
+            <blockquote className="text-white text-lg md:text-[21px] leading-[1.6] italic" style={{ fontFamily: "'Playfair Display', serif" }}>“{tt(r.text)}”</blockquote>
+            <figcaption className="mt-5">
+              <span className="text-white font-semibold">{tt(r.name)}</span>
+              {(tt(r.role) || tt(r.conference)) && <span className="text-sm" style={{ color: BODY }}> · {[tt(r.role), tt(r.conference)].filter(Boolean).join(', ')}</span>}
+            </figcaption>
+          </div>
+        </figure>
+        {n > 1 && (
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <button type="button" onClick={() => go(-1)} aria-label={tt({ en: 'Previous', es: 'Anterior' })}
+              className="w-11 h-11 rounded-full inline-flex items-center justify-center text-white transition-[background-color,transform] hover:bg-white/10 active:scale-95" style={{ border: '1px solid rgba(255,255,255,.25)' }}>
+              <ArrowRight className="w-4 h-4 rotate-180" />
+            </button>
+            <div className="flex gap-2">
+              {items.map((x, k) => (
+                <button key={x.id || k} type="button" onClick={() => setI(k)} aria-label={`${k + 1} / ${n}`} aria-current={k === Math.min(i, n - 1)}
+                  className="h-2 rounded-full transition-[width,background-color] duration-200 ease-out"
+                  style={{ width: k === Math.min(i, n - 1) ? 22 : 8, backgroundColor: k === Math.min(i, n - 1) ? 'var(--color-link, #5FB2E0)' : 'rgba(255,255,255,.3)' }} />
+              ))}
+            </div>
+            <button type="button" onClick={() => go(1)} aria-label={tt({ en: 'Next', es: 'Siguiente' })}
+              className="w-11 h-11 rounded-full inline-flex items-center justify-center text-white transition-[background-color,transform] hover:bg-white/10 active:scale-95" style={{ border: '1px solid rgba(255,255,255,.25)' }}>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GemHeadingCenter({ eyebrow, title, subtitle }) {
+  const tt = useT();
+  const e = tt(eyebrow); const t = tt(title); const s = tt(subtitle);
+  return (
+    <div>
+      {e && <p className="gem-eyebrow mb-3 justify-center" style={{ color: ACCENT }}>{e}</p>}
+      {t && <h2 className="text-white font-bold leading-[1.08]" style={{ fontSize: 'clamp(1.9rem, 3.6vw, 2.9rem)', textWrap: 'balance' }}><AccentTitle text={t} /></h2>}
+      {s && <p className="mt-4 text-base md:text-[17px]" style={{ color: BODY }}>{s}</p>}
+    </div>
   );
 }
