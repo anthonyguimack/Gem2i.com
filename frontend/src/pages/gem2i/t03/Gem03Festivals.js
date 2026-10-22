@@ -1,0 +1,123 @@
+/* Gem2i - 03 (`gem2i_03`) — own copy of this inner page (template = package, D-GEM-2026-15). */
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Music2 } from 'lucide-react';
+import { gemAPI } from '../../../lib/api';
+import { useT } from '../../../lib/i18n';
+import { Paginator, SkeletonGrid, EmptyState, CardImage, gemImg } from '../../../components/gem2i/GemCatalogBits';
+import {
+  PageHero, PageHead, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, Where, When,
+  useFmtDate, place, CARD_CSS, LINK, BODY,
+} from '../../../components/gem2i/t03/GemCatalogCards';
+
+const GEM_FONT = "'Manrope', sans-serif";
+const EMPTY = { q: '', date_from: '', date_to: '', country: '', state: '', city: '' };
+
+/** Festivals (/festivals) — FE-1: featured first card (bento) + grid, legacy
+ *  search (name, date, country, city) + continent tabs, hover cards with
+ *  date range, place and the first lineup names. Upcoming/Past only when
+ *  there is something upcoming. Conferences strip kept below. */
+export default function Gem03Festivals() {
+  const tt = useT();
+  const fmt = useFmtDate();
+  const [filters, setFilters] = useState(EMPTY);
+  const [tab, setTab] = useState('');
+  const [scope, setScope] = useState('');
+  const [hasUpcoming, setHasUpcoming] = useState(false);
+  const [page, setPage] = useState(1);
+  const [data, setData] = useState(null);
+  const [conferences, setConferences] = useState([]);
+
+  useEffect(() => {
+    gemAPI.conferences({ limit: 12 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
+    gemAPI.festivalsMeta().then(r => {
+      const n = r.data?.upcoming || 0;
+      setHasUpcoming(n > 0);
+      if (n > 0) setScope('upcoming');
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    setData(null);
+    const params = { page, limit: 24, ...continentParams(tab) };
+    if (scope) params.scope = scope;
+    Object.entries(filters).forEach(([k, v]) => { if (v) params[k] = v; });
+    gemAPI.festivals(params).then(r => { if (alive) setData(r.data); }).catch(() => { if (alive) setData({ items: [], pages: 1 }); });
+    return () => { alive = false; };
+  }, [filters, tab, scope, page]);
+
+  const featured = page === 1 && !filters.q;
+  const dates = (f) => f.range_dates || fmt(f.event_date, { month: 'long', day: 'numeric', year: 'numeric' });
+  const where = (f) => place(f.city || f.state, f.country);
+
+  return (
+    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-festivals-page">
+      <PageHero page="festivals" />
+      <PageHead eyebrow={tt({ en: 'Global', es: 'Global' })} title={tt({ en: 'Festivals worldwide', es: 'Festivales del mundo' })}>
+        {hasUpcoming && (
+          <div className="mt-8">
+            <Segmented value={scope} onChange={v => { setScope(v); setPage(1); }} label={tt({ en: 'Festivals period', es: 'Periodo' })} options={[
+              { value: 'upcoming', label: tt({ en: 'Upcoming', es: 'Próximos' }) },
+              { value: 'past', label: tt({ en: 'Past', es: 'Pasados' }) },
+            ]} />
+          </div>
+        )}
+        <SearchBar values={filters} onSearch={v => { setFilters(v); setPage(1); }} onReset={() => { setFilters(EMPTY); setTab(''); setPage(1); }} fields={[
+          { key: 'q', placeholder: tt({ en: 'by name…', es: 'por nombre…' }) },
+          { type: 'daterange', key: 'dates', catalog: 'festivals' },
+          { type: 'places', key: 'places', catalog: 'festivals' },
+        ]} />
+        <ContinentTabs value={tab} onChange={v => { setTab(v); setPage(1); }} />
+      </PageHead>
+
+      <section className="max-w-7xl mx-auto px-6 md:px-10">
+        {!data ? <SkeletonGrid count={8} aspect="aspect-square" /> : data.items.length === 0 ? (
+          <EmptyState>{tt({ en: 'We have not found a festival. Press Reset to see the full list.', es: 'No encontramos festivales. Pulsa Limpiar para ver la lista completa.' })}</EmptyState>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:auto-rows-[300px]">
+              {data.items.map((f, i) => {
+                const big = featured && i === 0;
+                const wide = featured && i === 1;
+                return (
+                  <HoverCard key={f.id} to={`/festivals/${f.slug}`} testid="festival-card"
+                    aspect="aspect-[4/3] sm:aspect-auto"
+                    className={big ? 'sm:col-span-2 sm:row-span-2' : wide ? 'sm:col-span-2' : ''}
+                    img={gemImg(f.image_urls?.view) || gemImg(f.image_urls?.flyer)}
+                    logo={gemImg(f.image_urls?.logo)} title={f.title} strip={f.title}
+                    meta={[<When>{dates(f)}</When>, where(f) && <Where>{where(f)}</Where>]}
+                    extra={f.lineup_names?.length > 0 && (
+                      <span className="mt-1.5 inline-flex items-start gap-1.5 text-[14px]" style={{ color: LINK }}>
+                        <Music2 className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />{f.lineup_names.join(' · ')}
+                      </span>
+                    )} />
+                );
+              })}
+            </div>
+            <Paginator page={data.page} pages={data.pages} onPage={setPage} />
+          </>
+        )}
+      </section>
+
+      {conferences.length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 md:px-10 pt-20" data-testid="gem2i-conferences-strip">
+          <p className="gem-eyebrow mb-3" style={{ color: LINK }}>{tt({ en: 'Music', es: 'Música' })}</p>
+          <h2 className="text-white font-bold mb-8" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.6rem, 2.8vw, 2.2rem)' }}>
+            {tt({ en: 'Conferences', es: 'Conferencias' })}
+          </h2>
+          <div className="flex gap-6 overflow-x-auto pb-4">
+            {conferences.map(c => (
+              <Link key={c.id} to={`/conferences/${c.slug}`} className="shrink-0 w-48 group">
+                <CardImage src={gemImg(c.image_urls?.logo) || gemImg(c.image_urls?.flyer)} alt={c.title} aspect="aspect-square" fit="object-contain p-4" />
+                <p className="mt-3 text-white/85 text-sm font-medium group-hover:text-white transition-colors">{c.title}</p>
+                {(c.range_dates || c.event_date) && <p className="text-xs mt-0.5" style={{ color: BODY }}>{c.range_dates || c.event_date}</p>}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+      <style>{CARD_CSS}</style>
+    </div>
+  );
+}

@@ -100,10 +100,36 @@ const Gem2iEvents = lazy(() => import('./pages/gem2i/Gem2iEvents'));
 const Gem2iEventDetail = lazy(() => import('./pages/gem2i/Gem2iEventDetail'));
 const Gem2iTicketSuccess = lazy(() => import('./pages/gem2i/Gem2iTicketSuccess'));
 const Gem2iAbout = lazy(() => import('./pages/gem2i/Gem2iAbout'));
-const NorulesAbout = lazy(() => import('./pages/gem2i/NorulesAbout'));
 const Gem2iTravels = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iTravels })));
 const Gem2iServices = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iServices })));
 const Gem2iPartners = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iPartners })));
+// Each template owns its inner pages (D-GEM-2026-15): Norules and Gem2i - 03 copies; Gem2i keeps the originals.
+const NorulesArtists = lazy(() => import('./pages/gem2i/norules/NorulesArtists'));
+const NorulesArtistDetail = lazy(() => import('./pages/gem2i/norules/NorulesArtistDetail'));
+const NorulesVenues = lazy(() => import('./pages/gem2i/norules/NorulesVenues'));
+const NorulesVenueDetail = lazy(() => import('./pages/gem2i/norules/NorulesVenueDetail'));
+const NorulesFestivals = lazy(() => import('./pages/gem2i/norules/NorulesFestivals'));
+const NorulesFestivalDetail = lazy(() => import('./pages/gem2i/norules/NorulesFestivalDetail'));
+const NorulesEvents = lazy(() => import('./pages/gem2i/norules/NorulesEvents'));
+const NorulesEventDetail = lazy(() => import('./pages/gem2i/norules/NorulesEventDetail'));
+const NorulesTicketSuccess = lazy(() => import('./pages/gem2i/norules/NorulesTicketSuccess'));
+const NorulesTravels = lazy(() => import('./pages/gem2i/norules/NorulesInnerPages').then(m => ({ default: m.NorulesTravels })));
+const NorulesServices = lazy(() => import('./pages/gem2i/norules/NorulesInnerPages').then(m => ({ default: m.NorulesServices })));
+const NorulesPartners = lazy(() => import('./pages/gem2i/norules/NorulesInnerPages').then(m => ({ default: m.NorulesPartners })));
+const NorulesAbout = lazy(() => import('./pages/gem2i/norules/NorulesAbout'));
+const Gem03Artists = lazy(() => import('./pages/gem2i/t03/Gem03Artists'));
+const Gem03ArtistDetail = lazy(() => import('./pages/gem2i/t03/Gem03ArtistDetail'));
+const Gem03Venues = lazy(() => import('./pages/gem2i/t03/Gem03Venues'));
+const Gem03VenueDetail = lazy(() => import('./pages/gem2i/t03/Gem03VenueDetail'));
+const Gem03Festivals = lazy(() => import('./pages/gem2i/t03/Gem03Festivals'));
+const Gem03FestivalDetail = lazy(() => import('./pages/gem2i/t03/Gem03FestivalDetail'));
+const Gem03Events = lazy(() => import('./pages/gem2i/t03/Gem03Events'));
+const Gem03EventDetail = lazy(() => import('./pages/gem2i/t03/Gem03EventDetail'));
+const Gem03TicketSuccess = lazy(() => import('./pages/gem2i/t03/Gem03TicketSuccess'));
+const Gem03Travels = lazy(() => import('./pages/gem2i/t03/Gem03InnerPages').then(m => ({ default: m.Gem03Travels })));
+const Gem03Services = lazy(() => import('./pages/gem2i/t03/Gem03InnerPages').then(m => ({ default: m.Gem03Services })));
+const Gem03Partners = lazy(() => import('./pages/gem2i/t03/Gem03InnerPages').then(m => ({ default: m.Gem03Partners })));
+const Gem03About = lazy(() => import('./pages/gem2i/t03/Gem03About'));
 
 import { injectThemeColors } from './lib/themeColors';
 import { LanguageProvider } from './lib/i18n';
@@ -445,6 +471,8 @@ function RouteFallback() {
 function AppRouter() {
   const location = useLocation();
   const settings = useSettings();
+  // Inner pages per template: Norules (`gem2i`), Gem2i - 03 (`gem2i_03`), Gem2i (`gem2i_02`) keeps the originals.
+  const tplPage = (N, T, G, props = {}) => { const C = settings.active_theme === 'gem2i' ? N : settings.active_theme === 'gem2i_03' ? T : G; return <C {...props} />; };
   const landingActive = useLandingActive(settings);
 
   if (!settings._loaded) {
@@ -511,21 +539,21 @@ function AppRouter() {
               {/* gem2i catalogs take over these URLs when the theme is active;
                   other themes fall through to the CMS placeholder pages. */}
               {isGem2iTheme(settings.active_theme) && <>
-                {/* Each template is a package: its own home AND its own inner pages (Norules = `gem2i`). */}
-                <Route path="/about" element={settings.active_theme === 'gem2i' ? <NorulesAbout /> : <Gem2iAbout />} />
-                <Route path="/travels" element={<Gem2iTravels />} />
-                <Route path="/services" element={<Gem2iServices />} />
-                <Route path="/partners" element={<Gem2iPartners />} />
-                <Route path="/artists" element={<Gem2iArtists />} />
-                <Route path="/artists/:slug" element={<Gem2iArtistDetail />} />
-                <Route path="/venues" element={<Gem2iVenues />} />
-                <Route path="/venues/:slug" element={<Gem2iVenueDetail />} />
-                <Route path="/festivals" element={<Gem2iFestivals />} />
-                <Route path="/festivals/:slug" element={<Gem2iFestivalDetail kind="festival" />} />
-                <Route path="/conferences/:slug" element={<Gem2iFestivalDetail kind="conference" />} />
-                <Route path="/events" element={<Gem2iEvents />} />
-                <Route path="/events/:slug" element={<Gem2iEventDetail />} />
-                <Route path="/tickets/success" element={<Gem2iTicketSuccess />} />
+                {/* Each template is a package: its own home AND inner pages (Norules = `gem2i`, 03 = `gem2i_03`). */}
+                <Route path="/about" element={tplPage(NorulesAbout, Gem03About, Gem2iAbout)} />
+                <Route path="/travels" element={tplPage(NorulesTravels, Gem03Travels, Gem2iTravels)} />
+                <Route path="/services" element={tplPage(NorulesServices, Gem03Services, Gem2iServices)} />
+                <Route path="/partners" element={tplPage(NorulesPartners, Gem03Partners, Gem2iPartners)} />
+                <Route path="/artists" element={tplPage(NorulesArtists, Gem03Artists, Gem2iArtists)} />
+                <Route path="/artists/:slug" element={tplPage(NorulesArtistDetail, Gem03ArtistDetail, Gem2iArtistDetail)} />
+                <Route path="/venues" element={tplPage(NorulesVenues, Gem03Venues, Gem2iVenues)} />
+                <Route path="/venues/:slug" element={tplPage(NorulesVenueDetail, Gem03VenueDetail, Gem2iVenueDetail)} />
+                <Route path="/festivals" element={tplPage(NorulesFestivals, Gem03Festivals, Gem2iFestivals)} />
+                <Route path="/festivals/:slug" element={tplPage(NorulesFestivalDetail, Gem03FestivalDetail, Gem2iFestivalDetail, { kind: 'festival' })} />
+                <Route path="/conferences/:slug" element={tplPage(NorulesFestivalDetail, Gem03FestivalDetail, Gem2iFestivalDetail, { kind: 'conference' })} />
+                <Route path="/events" element={tplPage(NorulesEvents, Gem03Events, Gem2iEvents)} />
+                <Route path="/events/:slug" element={tplPage(NorulesEventDetail, Gem03EventDetail, Gem2iEventDetail)} />
+                <Route path="/tickets/success" element={tplPage(NorulesTicketSuccess, Gem03TicketSuccess, Gem2iTicketSuccess)} />
               </>}
               <Route path="/reading-list" element={<ReadingListPage />} />
               <Route path="/gallery" element={<GalleryPage />} />

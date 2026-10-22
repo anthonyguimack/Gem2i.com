@@ -1,14 +1,15 @@
+/* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { aboutSectionOrder } from '../../lib/gemAboutSections';
-import { publicAPI } from '../../lib/api';
-import { useT } from '../../lib/i18n';
-import { normalizeRichText } from '../../lib/richText';
-import { gemImg } from '../../components/gem2i/GemCatalogBits';
-import { GemMethodCycle } from '../../components/gem2i/GemSections';
-import AccentTitle from '../../components/gem2i/AccentTitle';
-import { PageHero, ACCENT, LINK, BODY, CARD, LINE } from '../../components/gem2i/GemCatalogCards';
+import { aboutSectionOrder } from '../../../lib/gemAboutSections';
+import { publicAPI } from '../../../lib/api';
+import { useT } from '../../../lib/i18n';
+import { normalizeRichText } from '../../../lib/richText';
+import { gemImg } from '../../../components/gem2i/GemCatalogBits';
+import { GemMethodCycle } from '../../../components/gem2i/GemSections';
+import AccentTitle from '../../../components/gem2i/AccentTitle';
+import { PageHero, ACCENT, LINK, BODY, CARD, LINE } from '../../../components/gem2i/norules/GemCatalogCards';
 
 const GEM_FONT = "'Manrope', sans-serif";
 const SERIF = "'Playfair Display', Georgia, serif";
