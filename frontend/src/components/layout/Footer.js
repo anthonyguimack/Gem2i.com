@@ -10,6 +10,7 @@ import { resolveActivePersonality, scopePagesForPersonality } from '../../lib/pb
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iFooter from '../gem2i/Gem2iFooter';
 import NorulesFooter from '../gem2i/NorulesFooter';
+import Gem03Footer from '../gem2i/Gem03Footer';
 
 // Categories exclusive to the Personal Brand mini-sites — hidden from other themes.
 const PB_CATS = new Set(['business', 'lifestyle', 'personal']);
@@ -225,7 +226,9 @@ function PersonalBrandFooter() {
 
 function Gem2iFooterWrapper() {
   const { settings, socialLinks, footerPages, isExternal, isAdmin } = useFooterData();
-  const Foot = useTheme() === 'gem2i' ? NorulesFooter : Gem2iFooter; // Norules has its own footer
+  const theme = useTheme();
+  // One footer per template: Norules F3, Gem2i - 03 F1, Gem2i (frozen) its own.
+  const Foot = theme === 'gem2i' ? NorulesFooter : theme === 'gem2i_03' ? Gem03Footer : Gem2iFooter;
   if (isAdmin) return null;
   return <Foot settings={settings} socialLinks={socialLinks} footerPages={footerPages} isExternal={isExternal} />;
 }

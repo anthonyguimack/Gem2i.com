@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Footer F1 y F3</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--dark:#0d0f12;--acc:#3287B7;--link:#5FB2E0;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input{font:inherit;color:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.note{max-width:1240px;margin:0 auto;padding:22px 24px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+/* last section of the page, to see the transition */
+.lastsec{position:relative;z-index:2;background:#f3f4f6;padding:80px 24px 90px;text-align:center}
+.lastsec h2{font:700 clamp(2rem,4vw,3rem) 'Playfair Display',serif;margin:0}.lastsec p{color:var(--body)}
+.lnk{position:relative;display:inline-block}.lnk::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}.lnk:hover::after{transform:scaleX(1);transform-origin:left}
+.soc{display:flex;gap:10px}.soc a{width:42px;height:42px;border-radius:99px;display:grid;place-items:center;border:1px solid currentColor;opacity:.8;transition:opacity .2s,transform .3s var(--ease),background .3s,color .3s}
+.soc a:hover{opacity:1;transform:translateY(-3px)}
+.soc svg{width:18px;height:18px;fill:currentColor}
+.logo{height:46px;width:auto;display:block}
+.blurb{font-size:15px;line-height:1.75;margin:20px 0 0;max-width:34ch}
+.contact{margin-top:18px;display:grid;gap:6px;font-weight:700;font-size:15px}
+h5{margin:0 0 16px;font-size:11.5px;letter-spacing:.24em;font-weight:800}
+.lang{display:inline-flex;gap:4px;align-items:center}.lang b{font-weight:800}
+
+/* ═ F1 · Telón ═ */
+.f1-wrap{position:relative}
+.f1-page{position:relative;z-index:2;border-radius:0 0 36px 36px;box-shadow:0 40px 60px -30px rgba(0,0,0,.35);overflow:hidden}
+.f1{position:sticky;bottom:0;z-index:1;background:var(--dark);color:#fff;margin-top:-36px;padding:110px 0 26px}
+.f1-top{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:end;padding-bottom:48px;border-bottom:1px solid #1d232b}
+.f1-top h3{margin:0;font:800 clamp(2.6rem,6vw,5.2rem)/.95 Manrope;letter-spacing:-.05em}.f1-top h3 em{font:italic 700 1em 'Playfair Display',serif;color:var(--link);letter-spacing:-.02em}
+.f1-top p{color:#9aa3ab;margin:0 0 16px;line-height:1.65}
+.sub{display:flex;gap:8px;background:#161b22;border:1px solid #232a32;border-radius:99px;padding:6px;transition:border-color .3s}
+.sub:focus-within{border-color:var(--link)}
+.sub input{flex:1;min-width:0;background:none;border:0;outline:none;padding:12px 18px;color:#fff}.sub input::placeholder{color:#6d767f}
+.sub button{border:0;border-radius:99px;background:#fff;color:var(--dark);font-weight:800;padding:12px 22px}
+.f1-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr .8fr;gap:32px;padding-top:48px}
+.f1-grid h5{color:#6d767f}.f1-grid .col a{display:block;margin-bottom:10px;color:#d6dbe0;font-weight:600}
+.f1 .blurb{color:#aab2ba}.f1 .contact a:hover{color:var(--link)}
+.off{display:grid;gap:10px;color:#d6dbe0;font-weight:600}.off span{display:flex;gap:8px}.off i{font-style:normal;color:var(--link);font-size:12px;font-weight:800;letter-spacing:.1em}
+.f1 .soc a:hover{background:#fff;color:var(--dark)}
+.f1-word{font:800 clamp(5rem,21vw,20rem)/.78 Manrope;letter-spacing:-.07em;text-align:center;margin:56px 0 0;color:transparent;-webkit-text-stroke:1.5px #262c33;user-select:none;transition:-webkit-text-stroke-color .5s}
+.f1:hover .f1-word{-webkit-text-stroke-color:#3c4652}
+.f1-bot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:#6d767f;margin-top:22px;padding-top:20px;border-top:1px solid #1d232b}
+.f1-bot nav{display:flex;gap:22px;align-items:center}.f1-bot .lang b{color:#fff}
+
+/* ═ F3 · Cinta y escenario ═ */
+.f3{background:var(--acc);color:#fff;overflow:hidden}
+.f3-band{padding:24px 0;border-bottom:1px solid rgba(255,255,255,.25);overflow:hidden}
+.f3-band .tr{display:flex;gap:44px;width:max-content;animation:run 24s linear infinite;font:800 clamp(2.6rem,7vw,6rem)/1 Manrope;letter-spacing:-.05em;white-space:nowrap}
+.f3-band:hover .tr{animation-play-state:paused}
+.f3-band .tr span:nth-child(even){color:transparent;-webkit-text-stroke:2px #fff}
+@keyframes run{to{transform:translateX(-50%)}}
+.f3-news{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;padding:40px 32px;border-bottom:1px solid rgba(255,255,255,.25)}
+.f3-news h3{margin:0;font:700 clamp(1.8rem,3vw,2.6rem)/1.1 'Playfair Display',serif}.f3-news h3 em{font-style:italic}
+.f3-news p{margin:10px 0 0;opacity:.85;line-height:1.6;max-width:52ch}
+.f3 .sub{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}.f3 .sub input::placeholder{color:rgba(255,255,255,.7)}.f3 .sub button{color:var(--acc)}
+.f3-body{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:0}
+.f3-body>div{padding:40px 32px;border-right:1px solid rgba(255,255,255,.25)}.f3-body>div:last-child{border:0}
+.f3 h5{opacity:.75}
+.f3 .blurb{opacity:.92}
+.f3 .big a{display:block;font:800 clamp(1.3rem,2.1vw,1.8rem)/1.45 Manrope;letter-spacing:-.03em;transition:color .25s,transform .3s var(--ease)}
+.f3 .big a:hover{color:#0d0f12;transform:translateX(6px)}
+.f3 .small a{display:block;font-weight:700;margin-bottom:10px}
+.f3 .off{color:#fff}.f3 .off i{color:#0d0f12;background:#fff;border-radius:99px;padding:2px 7px;font-size:10.5px}
+.f3 .soc a:hover{background:#fff;color:var(--acc)}
+.f3-cta{display:inline-flex;gap:10px;margin-top:22px;background:#fff;color:var(--acc);border-radius:99px;padding:13px 20px;font-weight:800}
+.f3-bot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:18px 32px;font-size:13px;background:rgba(0,0,0,.2)}
+.f3-bot nav{display:flex;gap:22px;align-items:center}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px;margin-right:8px;vertical-align:-2px}.eq i{width:3px;background:#fff;animation:eq 1s ease-in-out infinite}.eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+
+@media(max-width:960px){.f1-top,.f3-news{grid-template-columns:1fr;gap:24px}.f1-grid{grid-template-columns:1fr 1fr}.f1-grid>div:first-child{grid-column:1/-1}
+ .f3-body{grid-template-columns:1fr 1fr}.f3-body>div{border-right:0;border-bottom:1px solid rgba(255,255,255,.25)}.f3-body>div:first-child{grid-column:1/-1}}
+@media(max-width:560px){.f1-grid,.f3-body{grid-template-columns:1fr}.f3-news,.f3-body>div{padding-left:24px;padding-right:24px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<nav class="switch"><button data-v="f1" class="on">F1 · Telón (real)</button><button data-v="f3">F3 · Cinta y escenario (real)</button></nav>
+
+<!-- ═════════ F1 ═════════ -->
+<div class="v on" id="f1">
+ <p class="note"><b>F1 · Telón, con todo el contenido real:</b> la última sección sube como un telón y descubre el footer negro. Arriba, "Be part of the <i>night</i>" con su texto y la suscripción. Debajo, cinco columnas: <b>logo + el texto "GEM2i is the leading full service…" + email y teléfono</b>, Discover, Company, Offices (con HQ marcado) y Follow. Al fondo, "GEM2i" gigante en contorno y la barra legal (© 2017 – 2026, Terms, Privacy, EN / ES). Todo sale del CMS como hoy. <i>Haz scroll hasta abajo.</i></p>
+ <div class="f1-wrap">
+  <div class="f1-page"><section class="lastsec"><h2>Last section of the page</h2><p>(e.g. Contact us) — scroll on to lift the curtain.</p></section></div>
+  <footer class="f1"><div class="w">
+   <div class="f1-top">
+    <h3>Be part of the <em>night.</em></h3>
+    <div><p>Guest lists, QR e-passes and e-tickets for members. Get the next events in your inbox.</p>
+     <form class="sub" onsubmit="this.querySelector('button').textContent='Subscribed ✓';return false"><input type="email" required placeholder="Your email for news and events" aria-label="Email"><button>Subscribe</button></form></div>
+   </div>
+   <div class="f1-grid">
+    <div><img class="logo" src="https://beta.gem2i.com/api/uploads/c4eb100bfe434b30b99540fe1a8eea67.png" alt="GEM2i">
+     <p class="blurb">GEM2i is the leading full service marketing, media and business integration company focusing exclusively on the entertainment and service industry.</p>
+     <div class="contact"><a class="lnk" href="mailto:main@gem2i.com" style="justify-self:start">main@gem2i.com</a><a class="lnk" href="tel:8622013636" style="justify-self:start">862-201-3636</a></div></div>
+    <div class="col"><h5>DISCOVER</h5><a class="lnk" href="#">Events</a><a class="lnk" href="#">Festivals</a><a class="lnk" href="#">Artists</a><a class="lnk" href="#">Venues</a></div>
+    <div class="col"><h5>COMPANY</h5><a class="lnk" href="#">About Us</a><a class="lnk" href="#">Services</a><a class="lnk" href="#">Media</a><a class="lnk" href="#">Contact</a></div>
+    <div><h5>OFFICES</h5><div class="off"><span>New York, USA <i>HQ</i></span><span>Spain</span><span>Lima, Peru</span><span>Buenos Aires, Argentina</span><span>Santo Domingo, Dominican Republic</span></div></div>
+    <div><h5>FOLLOW</h5><div class="soc"><a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3c-2.8 0-4 1.8-4 4.3V10H7v4h3v8h4v-8h3l1-4h-4V8.6c0-.4.3-.6.6-.6z"/></svg></a></div></div>
+   </div>
+   <p class="f1-word">GEM2i</p>
+   <div class="f1-bot"><span>2017 – 2026 © Gem2i. All Rights Reserved.</span><nav><a class="lnk" href="#">Terms of Service</a><a class="lnk" href="#">Privacy Policy</a><span class="lang"><b>EN</b> / ES</span></nav></div>
+  </div></footer>
+ </div>
+</div>
+
+<!-- ═════════ F3 ═════════ -->
+<div class="v" id="f3">
+ <p class="note"><b>F3 · Cinta y escenario, con todo el contenido real:</b> footer azul (color de acento de la paleta). Arriba la cinta enorme "GEM2i · LET'S PARTY" que corre sin parar. Luego la franja de suscripción "Be part of the <i>night</i>" con su texto. Después cuatro bloques: <b>logo + el texto "GEM2i is the leading full service…" + email, teléfono y redes</b>, Discover en letra grande, Company y Offices. Abajo, el ecualizador con "Now playing: your next night out" y la barra legal.</p>
+ <section class="lastsec"><h2>Last section of the page</h2><p>(e.g. Contact us)</p></section>
+ <footer class="f3">
+  <div class="f3-band"><div class="tr" id="tr"></div></div>
+  <div class="f3-news">
+   <div><h3>Be part of the <em>night</em></h3><p>Guest lists, QR e-passes and e-tickets for members. Get the next events in your inbox.</p></div>
+   <form class="sub" onsubmit="this.querySelector('button').textContent='Subscribed ✓';return false"><input type="email" required placeholder="Your email for news and events" aria-label="Email"><button>Subscribe</button></form>
+  </div>
+  <div class="f3-body">
+   <div><img class="logo" src="https://beta.gem2i.com/api/uploads/c4eb100bfe434b30b99540fe1a8eea67.png" alt="GEM2i">
+    <p class="blurb">GEM2i is the leading full service marketing, media and business integration company focusing exclusively on the entertainment and service industry.</p>
+    <div class="contact"><a class="lnk" href="mailto:main@gem2i.com" style="justify-self:start">main@gem2i.com</a><a class="lnk" href="tel:8622013636" style="justify-self:start">862-201-3636</a></div>
+    <div class="soc" style="margin-top:18px"><a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3c-2.8 0-4 1.8-4 4.3V10H7v4h3v8h4v-8h3l1-4h-4V8.6c0-.4.3-.6.6-.6z"/></svg></a></div></div>
+   <div><h5>DISCOVER</h5><div class="big"><a href="#">Events</a><a href="#">Festivals</a><a href="#">Artists</a><a href="#">Venues</a></div></div>
+   <div><h5>COMPANY</h5><div class="small"><a class="lnk" href="#">About Us</a><a class="lnk" href="#">Services</a><a class="lnk" href="#">Media</a><a class="lnk" href="#">Contact</a></div><a class="f3-cta" href="#">Become a member →</a></div>
+   <div><h5>OFFICES</h5><div class="off"><span>New York, USA <i>HQ</i></span><span>Spain</span><span>Lima, Peru</span><span>Buenos Aires, Argentina</span><span>Santo Domingo, Dominican Republic</span></div></div>
+  </div>
+  <div class="f3-bot"><span><span class="eq"><i></i><i></i><i></i></span>Now playing: your next night out · 2017 – 2026 © Gem2i. All Rights Reserved.</span><nav><a class="lnk" href="#">Terms of Service</a><a class="lnk" href="#">Privacy Policy</a><span class="lang"><b>EN</b> / ES</span></nav></div>
+ </footer>
+</div>
+
+<script>
+document.getElementById('tr').innerHTML=Array(8).fill(0).map((_,i)=>`<span>${i%2?"LET'S PARTY":'GEM2i'}</span>`).join('');
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b));scrollTo(0,0)});
+</script></body></html>
