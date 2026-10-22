@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Cinco secciones</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:12px 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 12.5px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:8px 13px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.switch .g{font:800 11px Manrope;letter-spacing:.16em;color:var(--body);align-self:center;margin:0 4px 0 12px}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.sub{color:var(--body);font-size:17px;margin:12px 0 0;max-width:56ch;line-height:1.7}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:88px 0 40px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:99px;padding:13px 22px;font-weight:700;font-size:15px;text-decoration:none;border:0}
+.swap{animation:swap .55s var(--ease) both}@keyframes swap{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* CR1 · Cita que se escribe */
+.cr1{margin-top:48px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end}
+.cr1 q{display:block;font:700 clamp(2rem,4.2vw,3.6rem)/1.15 'Playfair Display',serif;quotes:"“" "”";min-height:3.5em}
+.cr1 q span{opacity:.12;transition:opacity .35s}.cr1 q span.on{opacity:1}
+.who{display:flex;gap:14px;align-items:center;margin-top:28px}
+.av{width:56px;height:56px;border-radius:99px;background:linear-gradient(135deg,#1d3a52,#0f1d2a);color:#5FB2E0;display:grid;place-items:center;font-weight:800;flex:0 0 auto;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.who b{display:block}.who span{color:var(--body);font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:13px;font-weight:700}
+.badge i{width:8px;height:8px;border-radius:99px;background:#e2493c;animation:pulse 1.6s infinite}@keyframes pulse{50%{opacity:.3}}
+.dots{display:flex;gap:8px}.dots button{width:44px;height:4px;border-radius:4px;border:0;background:var(--line);padding:0;overflow:hidden}
+.dots button i{display:block;height:100%;width:0;background:var(--ink)}.dots button.on i{animation:fill 7s linear forwards}@keyframes fill{to{width:100%}}
+
+/* CR2 · Muro de acreditaciones */
+.wall{margin-top:44px;height:560px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;-webkit-mask:linear-gradient(transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+.col{display:flex;flex-direction:column;gap:18px;animation:up 38s linear infinite}.col:nth-child(2){animation-duration:46s;animation-direction:reverse}.col:nth-child(3){animation-duration:42s}
+.wall:hover .col{animation-play-state:paused}@keyframes up{to{transform:translateY(-50%)}}
+.lan{position:relative;background:var(--soft);border-radius:22px;padding:30px 24px 22px;transition:transform .3s var(--ease),background .3s}
+.lan:hover{transform:scale(1.03);background:#fff;box-shadow:0 20px 50px -25px rgba(0,0,0,.35)}
+.lan::before{content:"";position:absolute;left:50%;top:12px;width:44px;height:6px;margin-left:-22px;border-radius:99px;background:#d5d9dd}
+.lan p{margin:0 0 18px;font-size:16px;line-height:1.6}
+.lan small{display:block;font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--acc);text-transform:uppercase;margin-top:4px}
+
+/* P1 · ¿Cuánto sales? */
+.p1-ask{margin-top:44px;background:var(--soft);border-radius:28px;padding:32px 36px}
+.p1-ask label{font:800 clamp(1.3rem,2.2vw,1.8rem) Manrope;letter-spacing:-.02em}
+.p1-ask output{color:var(--acc)}
+input[type=range]{width:100%;margin-top:22px;accent-color:var(--ink);height:28px}
+.ticks{display:flex;justify-content:space-between;font-size:12.5px;color:var(--body);font-weight:600}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.plan{border:1px solid var(--line);border-radius:24px;padding:30px;transition:transform .5s var(--ease),border-color .4s,box-shadow .4s,opacity .4s;opacity:.55}
+.plan.rec{opacity:1;border-color:var(--ink);transform:translateY(-8px);box-shadow:0 30px 60px -30px rgba(0,0,0,.35)}
+.plan .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;background:var(--ink);color:#fff;border-radius:99px;padding:6px 10px;opacity:0;transition:opacity .3s;margin-bottom:12px}
+.plan.rec .tag{opacity:1}
+.plan h3{margin:0;font-size:22px}.plan .for{color:var(--body);margin:4px 0 18px}
+.plan .pr{font:800 48px/1 Manrope;letter-spacing:-.04em}.plan .pr small{font-size:14px;color:var(--body);letter-spacing:0;font-weight:600}
+.plan ul{list-style:none;padding:0;margin:22px 0 26px;display:grid;gap:9px;font-size:15px}.plan li::before{content:"✓  ";color:var(--acc);font-weight:800}
+
+/* P2 · Una tarjeta, precio que rueda */
+.p2{margin:48px auto 0;max-width:760px;background:var(--dark);color:#fff;border-radius:32px;padding:14px}
+.tabs{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:#1a1f26;border-radius:22px;padding:6px}
+.tabs button{position:relative;z-index:1;border:0;background:none;padding:14px;font-weight:800;color:#8a939b;border-radius:16px;transition:color .3s}
+.tabs button.on{color:var(--dark)}
+.tabs .pill{position:absolute;top:6px;bottom:6px;width:calc((100% - 12px)/3);background:#fff;border-radius:16px;transition:left .5s var(--ease)}
+.p2-body{padding:40px 36px 30px;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+.odo{display:flex;align-items:flex-start;font:800 96px/1 Manrope;letter-spacing:-.05em;height:96px;overflow:hidden}
+.odo .dg{display:flex;flex-direction:column;transition:transform .8s var(--ease)}
+.odo .cur{font-size:28px;margin:10px 6px 0 0;color:#8a939b}
+.per{color:#8a939b;margin-top:8px}
+.p2 ul{list-style:none;padding:0;margin:0;display:grid;gap:12px}.p2 li{display:flex;gap:10px;font-weight:600}.p2 li::before{content:"✓";color:#5FB2E0}
+.p2-cta{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid #262c33;padding:22px 36px 18px;flex-wrap:wrap}
+.yr{display:flex;align-items:center;gap:10px;color:#8a939b;font-weight:600;font-size:14px}
+.sw{width:46px;height:26px;border-radius:99px;background:#2a3038;border:0;position:relative;padding:0}.sw i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:99px;background:#fff;transition:left .3s var(--ease)}.sw.on{background:var(--acc)}.sw.on i{left:23px}
+
+/* T1 · Mapa */
+.map{position:relative;margin-top:44px;aspect-ratio:2.1/1;border-radius:28px;background:var(--dark);overflow:hidden}
+.map::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,#2a3038 1.2px,transparent 1.4px);background-size:14px 14px;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 95'%3E%3Cpath d='M20 15h35l10 10-5 15-15 5-5 10 10 15-5 15-15-20-5-20-10-10zM70 55l15 5 5 15-5 20-10-5-5-15zM95 15h25l5 10-10 5 5 10 15 5 5 15-10 10-15-5-10-15-10-10-5-10zM140 15h40l10 15-15 10-5 15-15-5-10-15z' fill='%23000'/%3E%3C/svg%3E") center/100% 100% no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 95'%3E%3Cpath d='M20 15h35l10 10-5 15-15 5-5 10 10 15-5 15-15-20-5-20-10-10zM70 55l15 5 5 15-5 20-10-5-5-15zM95 15h25l5 10-10 5 5 10 15 5 5 15-10 10-15-5-10-15-10-10-5-10zM140 15h40l10 15-15 10-5 15-15-5-10-15z' fill='%23000'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+.pin{position:absolute;transform:translate(-50%,-50%);border:0;background:none;padding:0}
+.pin i{display:block;width:16px;height:16px;border-radius:99px;background:#5FB2E0;box-shadow:0 0 0 6px rgba(95,178,224,.2);animation:ring 2.4s infinite}
+@keyframes ring{50%{box-shadow:0 0 0 12px rgba(95,178,224,0)}}
+.pin.on i{background:#fff}
+.card{position:absolute;right:24px;top:24px;bottom:24px;width:min(340px,42%);background:#fff;border-radius:22px;padding:26px;display:flex;flex-direction:column}
+.card .av{width:84px;height:84px;font-size:24px}
+.card h3{margin:16px 0 2px;font-size:22px}.card .r{color:var(--acc);font-size:14px;font-weight:700}
+.card p{color:var(--body);font-size:15px;line-height:1.65;margin:14px 0 0}
+.card .ppl{margin-top:auto;display:flex;gap:6px;flex-wrap:wrap}.card .ppl button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:700}.card .ppl button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* T2 · Órbita */
+.orb{position:relative;width:min(620px,92vw);aspect-ratio:1;margin:40px auto 0}
+.ring{position:absolute;inset:0;border-radius:99px;border:1px dashed var(--line);animation:spin 60s linear infinite}
+.orb:hover .ring,.orb:hover .face{animation-play-state:paused}
+@keyframes spin{to{transform:rotate(360deg)}}
+.face{position:absolute;left:50%;top:50%;width:92px;height:92px;margin:-46px;border-radius:99px;border:0;padding:0;background:none;animation:spin 60s linear infinite reverse}
+.face .av{width:100%;height:100%;font-size:24px;border:4px solid #fff;box-shadow:0 14px 30px -14px rgba(0,0,0,.4);transition:transform .3s var(--ease)}
+.face:hover .av,.face.on .av{transform:scale(1.15)}
+.core{position:absolute;inset:26%;border-radius:99px;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px}
+.core h3{margin:0;font-size:22px}.core .r{color:var(--acc);font-size:13px;font-weight:700;margin-top:4px}.core p{color:var(--body);font-size:14px;line-height:1.55;margin:10px 0 0}
+
+/* TS1 · Notas de voz */
+.vm{margin-top:44px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.memo{background:var(--soft);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.pl{display:flex;align-items:center;gap:12px;background:#fff;border-radius:99px;padding:8px 14px 8px 8px}
+.pl button{width:40px;height:40px;border-radius:99px;border:0;background:var(--ink);color:#fff;flex:0 0 auto}
+.bars{flex:1;display:flex;align-items:center;gap:2px;height:28px}.bars b{flex:1;border-radius:2px;background:#cfd4d9;transition:background .15s}.bars b.lit{background:var(--acc)}
+.pl small{font-size:12px;color:var(--body);font-weight:700}
+.tr{font-size:16px;line-height:1.6;margin:0}.tr span{opacity:.25;transition:opacity .2s}.tr span.on{opacity:1}
+
+/* TS2 · Mazo que se desliza */
+.deck{position:relative;height:420px;max-width:680px;margin:48px auto 0}
+.tc{position:absolute;inset:0;border-radius:30px;padding:44px;display:flex;flex-direction:column;justify-content:space-between;background:var(--dark);color:#fff;transition:transform .6s var(--ease),opacity .6s;cursor:grab;touch-action:pan-y;user-select:none}
+.tc:nth-child(2n){background:var(--acc)}.tc:nth-child(3n){background:var(--soft);color:var(--ink)}
+.tc q{font:700 clamp(1.4rem,2.6vw,2.1rem)/1.35 'Playfair Display',serif;quotes:"“" "”"}
+.tc .who span{color:inherit;opacity:.7}
+.hint{text-align:center;color:var(--body);font-size:13.5px;margin-top:22px}
+
+/* N1 · Portada de revista */
+.n1{margin-top:44px;display:grid;grid-template-columns:1.25fr 1fr;gap:36px}
+.lead{position:relative;border-radius:28px;overflow:hidden;min-height:520px;background:#000}
+.lead img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:opacity .6s,transform 1.2s var(--ease)}.lead img.on{opacity:1;transform:none}
+.lead::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.85))}
+.lead .t{position:absolute;left:30px;right:30px;bottom:28px;z-index:2;color:#fff}
+.lead .t small{font-size:12px;font-weight:800;letter-spacing:.18em}.lead .t h3{margin:8px 0 0;font:700 clamp(1.6rem,2.8vw,2.4rem)/1.15 'Playfair Display',serif}
+.heads{border-top:1px solid var(--line)}
+.hd{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:24px 0}
+.hd small{font-size:12px;font-weight:800;letter-spacing:.16em;color:var(--body)}
+.hd h4{margin:8px 0 6px;font-size:20px;line-height:1.3;color:#a3a9b0;transition:color .3s}.hd p{margin:0;color:#b4bac0;font-size:14.5px;line-height:1.6;transition:color .3s}
+.hd.on h4{color:var(--ink)}.hd.on p{color:var(--body)}
+.hd .rm{display:inline-block;margin-top:10px;font-size:13px;font-weight:800;opacity:0;transform:translateX(-8px);transition:opacity .3s,transform .4s var(--ease)}.hd.on .rm{opacity:1;transform:none}
+
+/* N2 · Stories */
+.st-row{margin-top:40px;display:flex;gap:26px;flex-wrap:wrap}
+.ring2{border:0;background:none;padding:0;text-align:center;width:120px}
+.ring2 span{display:block;width:120px;height:120px;border-radius:99px;padding:4px;background:conic-gradient(var(--acc),#a855f7,#f43f5e,var(--acc));transition:transform .3s var(--ease)}
+.ring2:hover span{transform:scale(1.06)}
+.ring2 img{width:100%;height:100%;border-radius:99px;object-fit:cover;border:4px solid #fff}
+.ring2 b{display:block;font-size:13px;margin-top:10px;line-height:1.3}
+.viewer{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center}
+.viewer.on{display:flex}
+.story{position:relative;width:min(400px,92vw);aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#000;color:#fff}
+.story img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.story::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5),transparent 25%,transparent 50%,rgba(0,0,0,.9))}
+.prog{position:absolute;left:12px;right:12px;top:12px;z-index:3;display:flex;gap:4px}.prog i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.35);overflow:hidden}.prog i b{display:block;height:100%;width:0;background:#fff}
+.prog i.done b{width:100%}.prog i.run b{animation:fill 5s linear forwards}
+.story .tx{position:absolute;left:22px;right:22px;bottom:26px;z-index:3}.story .tx h3{font:700 24px/1.2 'Playfair Display',serif;margin:0 0 10px}.story .tx p{margin:0 0 16px;font-size:14px;opacity:.85}
+.story .tx a{display:inline-block;background:#fff;color:#000;border-radius:99px;padding:10px 18px;font-weight:800;font-size:13px;text-decoration:none}
+.story .nav{position:absolute;inset:0;z-index:2;display:grid;grid-template-columns:1fr 1fr}.story .nav button{border:0;background:none}
+.x{position:absolute;right:20px;top:20px;width:44px;height:44px;border-radius:99px;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px}
+
+@media(max-width:900px){.cr1{grid-template-columns:1fr}.wall{grid-template-columns:1fr 1fr}.wall .col:nth-child(3){display:none}
+ .plans,.vm{grid-template-columns:1fr}.p2-body{grid-template-columns:1fr}.odo{font-size:72px;height:72px}
+ .map{aspect-ratio:auto;height:560px}.card{left:16px;right:16px;top:auto;bottom:16px;width:auto}
+ .n1{grid-template-columns:1fr}.lead{min-height:380px}.st-row{gap:16px}.ring2,.ring2 span{width:92px}.ring2 span{height:92px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+
+<nav class="switch">
+ <span class="g">REVIEW</span><button data-v="cr1" class="on">CR1 · Cita que se escribe</button><button data-v="cr2">CR2 · Muro de acreditaciones</button>
+ <span class="g">PLANES</span><button data-v="p1">P1 · ¿Cuánto sales?</button><button data-v="p2">P2 · Precio que rueda</button>
+ <span class="g">EQUIPO</span><button data-v="t1">T1 · Mapa</button><button data-v="t2">T2 · Órbita</button>
+ <span class="g">TESTIMONIOS</span><button data-v="ts1">TS1 · Notas de voz</button><button data-v="ts2">TS2 · Mazo</button>
+ <span class="g">NOTICIAS</span><button data-v="n1">N1 · Portada</button><button data-v="n2">N2 · Stories</button>
+</nav>
+
+<!-- CONFERENCE REVIEW -->
+<div class="v on" id="cr1"><section class="w sec">
+ <div style="display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap"><div><p class="eb">Reviews</p><h2 class="h">Conference <em>review</em></h2></div><span class="badge"><i></i>Amsterdam Dance Event · live from the floor</span></div>
+ <div class="cr1"><div><q id="q1"></q><div class="who" id="w1"></div></div><div class="dots" id="d1"></div></div>
+</section>
+<p class="note"><b>CR1 · Cita que se escribe:</b> una sola opinión, enorme. Las palabras se van encendiendo una a una, como si la persona hablara, y abajo aparece quién lo dice. Las barras de la derecha avanzan solas y pasan a la siguiente opinión (también se pueden tocar). Una insignia con punto rojo latiendo da sensación de "en directo".</p></div>
+
+<div class="v" id="cr2"><section class="w sec">
+ <p class="eb">Reviews</p><h2 class="h">Conference <em>review</em></h2><p class="sub">Here is what participants are saying.</p>
+ <div class="wall" id="wall"></div>
+</section>
+<p class="note"><b>CR2 · Muro de acreditaciones:</b> las opiniones son acreditaciones de congreso que suben en tres columnas a distinta velocidad (una baja), como un muro que no para. Al pasar el ratón se detiene y la tarjeta señalada se acerca. Transmite volumen: muchísima gente opinando.</p></div>
+
+<!-- PRICING -->
+<div class="v" id="p1"><section class="w sec">
+ <p class="eb">Plans</p><h2 class="h">Pick your <em>membership</em></h2>
+ <div class="p1-ask"><label for="rg">How many nights out a month? <output id="out">2</output></label><input id="rg" type="range" min="0" max="12" value="2"><div class="ticks"><span>Rarely</span><span>Every weekend</span><span>I run the party</span></div></div>
+ <div class="plans" id="pls"></div>
+</section>
+<p class="note"><b>P1 · ¿Cuánto sales?:</b> en vez de comparar tablas, la sección pregunta "¿Cuántas noches sales al mes?". Al mover la barra, el plan recomendado se eleva y se marca "FOR YOU", y los demás se apagan. El usuario encuentra su plan jugando.</p></div>
+
+<div class="v" id="p2"><section class="w sec" style="text-align:center">
+ <p class="eb" style="justify-content:center">Plans</p><h2 class="h">Pick your <em>membership</em></h2>
+ <div class="p2" style="text-align:left"><div class="tabs" id="tabs"><span class="pill" id="pill"></span></div>
+  <div class="p2-body"><div><div class="odo" id="odo"></div><div class="per" id="per"></div></div><ul id="feat"></ul></div>
+  <div class="p2-cta"><div class="yr"><button class="sw" id="sw" aria-label="Annual billing"><i></i></button>Annual · 2 months free</div><a class="btn" id="go" href="#" style="background:#fff;color:#0d0f12"></a></div></div>
+</section>
+<p class="note"><b>P2 · Precio que rueda:</b> una sola tarjeta negra con tres pestañas (Member · Premium · Promoter). Al cambiar de plan, los números del precio ruedan como un cuentakilómetros hasta el nuevo valor y la lista de ventajas se renueva. El interruptor mensual/anual también hace rodar el precio. Limpio, táctil y muy de app.</p></div>
+
+<!-- TEAM -->
+<div class="v" id="t1"><section class="w sec">
+ <p class="eb">Team</p><h2 class="h">The people behind <em>GEM2i</em></h2><p class="sub">A network of entertainment professionals across North America, Europe, South and Central America.</p>
+ <div class="map" id="map"><div class="card" id="pc"></div></div>
+</section>
+<p class="note"><b>T1 · Mapa:</b> un mapa del mundo en puntos sobre fondo negro, con un pin latiendo en cada país donde hay alguien del equipo. Al tocar un pin (o un nombre), la tarjeta de la derecha muestra a esa persona: foto, cargo y descripción. Cuenta a la vez quiénes son y dónde están. <i>El contorno del mapa es simplificado en el boceto.</i></p></div>
+
+<div class="v" id="t2"><section class="w sec" style="text-align:center">
+ <p class="eb" style="justify-content:center">Team</p><h2 class="h">The people behind <em>GEM2i</em></h2>
+ <div class="orb" id="orb"><div class="ring" id="ringE"></div><div class="core" id="core"></div></div>
+</section>
+<p class="note"><b>T2 · Órbita:</b> las caras del equipo giran despacio en órbita alrededor de un círculo central. Al pasar el ratón la órbita se detiene; al tocar una cara, el centro muestra su nombre, cargo y descripción. Una red de personas alrededor de GEM2i, dicho visualmente.</p></div>
+
+<!-- TESTIMONIALS -->
+<div class="v" id="ts1"><section class="w sec">
+ <p class="eb">Testimonials</p><h2 class="h">What the night <em>says</em></h2>
+ <div class="vm" id="vm"></div>
+</section>
+<p class="note"><b>TS1 · Notas de voz:</b> cada testimonio es una nota de voz, como en WhatsApp. Al darle play, la onda se llena de azul y el texto se va "transcribiendo" palabra por palabra al ritmo del audio. (En el boceto no hay sonido; con audio real del cliente sería aún más potente.) Cercano y auténtico.</p></div>
+
+<div class="v" id="ts2"><section class="w sec">
+ <p class="eb">Testimonials</p><h2 class="h">What the night <em>says</em></h2>
+ <div class="deck" id="deck"></div><p class="hint">Drag the card aside — or tap it — to see the next one</p>
+</section>
+<p class="note"><b>TS2 · Mazo:</b> los testimonios son un mazo de tarjetas grandes (negro, azul, gris). Se arrastra la de arriba hacia un lado —o se toca— y sale volando, dejando ver la siguiente; al terminar, el mazo vuelve a empezar. Divertido y muy natural en el móvil.</p></div>
+
+<!-- NEWS -->
+<div class="v" id="n1"><section class="w sec">
+ <div style="display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap"><div><p class="eb">Insights</p><h2 class="h">Latest <em>news</em></h2></div><a class="btn" href="#">All news →</a></div>
+ <div class="n1"><div class="lead" id="lead"></div><div class="heads" id="heads"></div></div>
+</section>
+<p class="note"><b>N1 · Portada:</b> como la portada de una revista: a la izquierda la foto grande de la noticia activa con su titular; a la derecha la lista de titulares. Al pasar por un titular, la foto grande cambia con un fundido y aparece "Read more →". Editorial y elegante.</p></div>
+
+<div class="v" id="n2"><section class="w sec">
+ <div style="display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap"><div><p class="eb">Insights</p><h2 class="h">Latest <em>news</em></h2></div><a class="btn" href="#">All news →</a></div>
+ <div class="st-row" id="srow"></div>
+</section>
+<p class="note"><b>N2 · Stories:</b> las noticias son "stories" como en Instagram: círculos con aro de colores. Al tocar uno se abre a pantalla completa en vertical, con barras de progreso arriba que avanzan solas; se toca a la izquierda o derecha para ir atrás o adelante, y un botón lleva a la noticia completa. El formato que el público de la noche ya usa cada día.</p></div>
+
+<div class="viewer" id="vw"><button class="x" id="vx" aria-label="Close">×</button><div class="story" id="story"></div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const R=[['Five days that are worth the whole year: we closed two tours and met the venues we work with today.','Laura Méndez','Booking agent, Amsterdam Dance Event'],
+ ['The guest list worked perfectly — QR at the door, no queue, straight to the floor.','Diego Ríos','Promoter, Miami Music Week'],
+ ['Best networking of the season. Every panel had someone I needed to meet.','Sofia Lund','Label manager, IMS Ibiza'],
+ ['From the first email to the closing party, everything was handled.','Marco Bianchi','Venue owner, Milan'],
+ ['I discovered three artists I booked the following month.','Ana Costa','Festival curator, Lisbon'],
+ ['GEM2i made a five-day conference feel like one long, well-run night.','James Okafor','DJ & producer, London']];
+const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2);
+// CR1
+let r1=0,tm1;function cr1(i){r1=i;const [t,n,r]=R.slice(0,4)[i];$('q1').innerHTML=t.split(' ').map(w=>`<span>${w}</span>`).join(' ');
+ $('w1').innerHTML=`<span class="av">${ini(n)}</span><div><b>${n}</b><span>${r}</span></div>`;
+ [...$('q1').children].forEach((s,k)=>setTimeout(()=>s.classList.add('on'),80*k));
+ [...$('d1').children].forEach((b,k)=>{b.classList.remove('on');void b.offsetWidth;b.classList.toggle('on',k===i)});
+ clearTimeout(tm1);tm1=setTimeout(()=>cr1((r1+1)%4),7000)}
+$('d1').innerHTML=R.slice(0,4).map((_,i)=>`<button data-i="${i}" aria-label="Review ${i+1}"><i></i></button>`).join('');$('d1').onclick=e=>{const b=e.target.closest('button');b&&cr1(+b.dataset.i)};cr1(0);
+// CR2
+const lan=x=>`<div class="lan"><p>“${x[0]}”</p><div class="who" style="margin:0"><span class="av" style="width:42px;height:42px;font-size:14px">${ini(x[1])}</span><div><b style="font-size:14.5px">${x[1]}</b><small>${x[2]}</small></div></div></div>`;
+$('wall').innerHTML=[0,1,2].map(c=>{const L=R.filter((_,i)=>i%3===c).concat(R.filter((_,i)=>i%3!==c).slice(0,2));const h=L.map(lan).join('');return `<div class="col">${h}${h}</div>`}).join('');
+// P1
+const P=[['Member','Free with an invite',0,0,['Guest lists','QR e-passes','Event calendar'],'Join'],['Premium','For the regulars',19,190,['Everything in Member','Priority guest lists','Member discounts'],'Go Premium'],['Promoter','Run your own events',49,490,['Event pages','Guest-list management','E-ticket sales'],'Contact us']];
+$('pls').innerHTML=P.map(p=>`<div class="plan"><span class="tag">FOR YOU</span><h3>${p[0]}</h3><div class="for">${p[1]}</div><div class="pr">$${p[2]}<small> / month</small></div><ul>${p[4].map(f=>`<li>${f}</li>`).join('')}</ul><a class="btn" href="#">${p[5]} →</a></div>`).join('');
+function rec(){const v=+$('rg').value;$('out').textContent=v>=12?'12+':v;const k=v<=2?0:v<=8?1:2;[...$('pls').children].forEach((c,i)=>c.classList.toggle('rec',i===k))}
+$('rg').oninput=rec;rec();
+// P2
+let pk=1,ann=false;$('tabs').insertAdjacentHTML('beforeend',P.map((p,i)=>`<button data-i="${i}">${p[0]}</button>`).join(''));
+function digits(n){const s=String(n).padStart(3,' ');$('odo').innerHTML=`<span class="cur">$</span>`+[...s].map(c=>c===' '?'':`<span class="dg" data-d="${c}">${[...'0123456789'].map(d=>`<span>${d}</span>`).join('')}</span>`).join('');
+ requestAnimationFrame(()=>$('odo').querySelectorAll('.dg').forEach(g=>g.style.transform=`translateY(${-g.dataset.d*96}px)`))}
+function p2(){const p=P[pk];const n=ann?p[3]:p[2];digits(n);$('per').textContent=ann?'per year':'per month';
+ $('feat').innerHTML=p[4].map(f=>`<li class="swap">${f}</li>`).join('');$('go').textContent=p[5]+' →';
+ [...$('tabs').querySelectorAll('button')].forEach((b,i)=>b.classList.toggle('on',i===pk));$('pill').style.left=`calc(6px + ${pk} * (100% - 12px) / 3)`;$('sw').classList.toggle('on',ann)}
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b){pk=+b.dataset.i;p2()}};$('sw').onclick=()=>{ann=!ann;p2()};
+// TEAM
+const T=[['Carlos Artiles','Principal Manager · United States','Leads GEM2i in North America and oversees global operations, partners and strategy.',29,33,'https://beta.gem2i.com/api/uploads/2a68cf0b07794bf3b6627777d095adcc.jpg'],
+ ['Walter Garcia','Business Development · United States','Drives business development and new partnerships for GEM2i in the United States.',22,38],
+ ['Kike Sanchez','Commercial Management · Spain','Manages commercial relations with venues, promoters and brands across Spain and Europe.',49,30],
+ ['JP See','Corporate Representative · Peru','Represents GEM2i in Peru, connecting local venues, promoters and members.',36,70],
+ ['Paola Nos','Corporate Representative · Argentina','Represents GEM2i in Argentina, connecting local venues, promoters and members.',39,86],
+ ['Melodi Brugal','Corporate Representative · Dominican Republic','Represents GEM2i in the Dominican Republic and the Central American market.',33,47]];
+const av=t=>`<span class="av">${t[5]?`<img src="${t[5]}" alt="">`:ini(t[0])}</span>`;
+$('map').insertAdjacentHTML('beforeend',T.map((t,i)=>`<button class="pin" data-i="${i}" style="left:${t[3]}%;top:${t[4]}%" aria-label="${t[0]}"><i></i></button>`).join(''));
+function person(i){const t=T[i];$('pc').innerHTML=`<div class="swap">${av(t)}<h3>${t[0]}</h3><div class="r">${t[1]}</div><p>${t[2]}</p></div><div class="ppl">${T.map((x,k)=>`<button data-i="${k}" class="${k===i?'on':''}">${x[0].split(' ')[0]}</button>`).join('')}</div>`;
+ $('map').querySelectorAll('.pin').forEach((p,k)=>p.classList.toggle('on',k===i))}
+$('map').onclick=e=>{const b=e.target.closest('[data-i]');b&&person(+b.dataset.i)};person(0);
+const N=T.length;$('orb').insertAdjacentHTML('afterbegin',`<div class="ring" style="border:0">${T.map((t,i)=>{const a=i/N*Math.PI*2-Math.PI/2;return `<button class="face" data-i="${i}" style="left:${50+46*Math.cos(a)}%;top:${50+46*Math.sin(a)}%">${av(t)}</button>`}).join('')}</div>`);
+function core(i){const t=T[i];$('core').innerHTML=`<div class="swap"><h3>${t[0]}</h3><div class="r">${t[1]}</div><p>${t[2]}</p></div>`;$('orb').querySelectorAll('.face').forEach((f,k)=>f.classList.toggle('on',k===i))}
+$('orb').onclick=e=>{const b=e.target.closest('.face');b&&core(+b.dataset.i)};core(0);
+// TS1
+const TS=[['Booking through GEM2i saved us weeks every season.','Rita Gómez','Venue manager, Madrid','0:14'],['My guest list filled in two hours — and everyone showed up.','Tomás Vidal','Promoter, Buenos Aires','0:11'],['The QR e-pass is the smoothest door I have ever walked through.','Kim Park','Member, New York','0:09']];
+$('vm').innerHTML=TS.map((t,i)=>`<div class="memo"><div class="pl"><button data-i="${i}" aria-label="Play">▶</button><span class="bars">${Array.from({length:34},(_,k)=>`<b style="height:${25+Math.abs(Math.sin(k*.7+i)*60+Math.sin(k*.23)*15)}%"></b>`).join('')}</span><small>${t[3]}</small></div><p class="tr">${t[0].split(' ').map(w=>`<span>${w}</span>`).join(' ')}</p><div class="who" style="margin:0"><span class="av" style="width:44px;height:44px;font-size:14px">${ini(t[1])}</span><div><b>${t[1]}</b><span>${t[2]}</span></div></div></div>`).join('');
+$('vm').onclick=e=>{const b=e.target.closest('button');if(!b)return;const m=b.closest('.memo');const bars=[...m.querySelectorAll('.bars b')],ws=[...m.querySelectorAll('.tr span')];bars.forEach(x=>x.classList.remove('lit'));ws.forEach(x=>x.classList.remove('on'));b.textContent='❚❚';
+ let k=0;const iv=setInterval(()=>{k++;bars.forEach((x,j)=>x.classList.toggle('lit',j<k*bars.length/40));ws.forEach((x,j)=>x.classList.toggle('on',j<k*ws.length/36));if(k>=40){clearInterval(iv);b.textContent='▶'}},90)};
+// TS2
+const DK=R.slice(1).concat(TS.map(t=>[t[0],t[1],t[2]]));let deckTop=0;
+function deck(){$('deck').innerHTML=DK.map((t,i)=>{const o=(i-deckTop+DK.length)%DK.length;return `<div class="tc" data-o="${o}" style="z-index:${DK.length-o};transform:translateY(${Math.min(o,3)*14}px) scale(${1-Math.min(o,3)*.04});opacity:${o>3?0:1}"><q>${t[0]}</q><div class="who" style="margin:0"><span class="av">${ini(t[1])}</span><div><b>${t[1]}</b><span>${t[2]}</span></div></div></div>`}).join('');
+ const c=$('deck').querySelector('[data-o="0"]');let sx=0,dx=0,drag=false;
+ c.onpointerdown=e=>{drag=true;sx=e.clientX;c.setPointerCapture(e.pointerId);c.style.transition='none'};
+ c.onpointermove=e=>{if(!drag)return;dx=e.clientX-sx;c.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`};
+ c.onpointerup=()=>{drag=false;c.style.transition='';if(Math.abs(dx)>90||Math.abs(dx)<4){const d=dx<0?-1:1;c.style.transform=`translateX(${d*700}px) rotate(${d*30}deg)`;c.style.opacity=0;setTimeout(()=>{deckTop=(deckTop+1)%DK.length;deck()},350)}else c.style.transform='';dx=0}}
+deck();
+// NEWS
+const NW=[['Ultra Miami at 25: how a beach festival changed the industry','From the first stage in Collins Park to a global circuit moving 170,000 people per edition.','https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png','19 OCT'],
+ ['Carl Cox: “the dance floor is still the best lab”','Three decades on, he still tests every track in front of a crowd before releasing it.','https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400182806.png','19 OCT'],
+ ['Green Valley: a night from the booth','Video: how the peak of the night feels from behind the DJ.','https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403884600.png','19 OCT']];
+$('lead').innerHTML=NW.map(n=>`<img src="${n[2]}" alt="">`).join('')+'<div class="t" id="lt"></div>';
+$('heads').innerHTML=NW.map((n,i)=>`<button class="hd" data-i="${i}"><small>${n[3]}</small><h4>${n[0]}</h4><p>${n[1]}</p><span class="rm">Read more →</span></button>`).join('');
+function lead(i){[...$('lead').querySelectorAll('img')].forEach((m,k)=>m.classList.toggle('on',k===i));$('lt').innerHTML=`<div class="swap"><small>${NW[i][3]} · INSIGHTS</small><h3>${NW[i][0]}</h3></div>`;$('heads').querySelectorAll('.hd').forEach((h,k)=>h.classList.toggle('on',k===i))}
+$('heads').querySelectorAll('.hd').forEach(h=>{h.onmouseenter=()=>lead(+h.dataset.i);h.onclick=()=>lead(+h.dataset.i)});lead(0);
+$('srow').innerHTML=NW.map((n,i)=>`<button class="ring2" data-i="${i}"><span><img src="${n[2]}" alt=""></span><b>${n[0].split(':')[0]}</b></button>`).join('');
+let si=0,stm;function story(i){si=i;if(i>=NW.length||i<0){$('vw').classList.remove('on');return}$('vw').classList.add('on');const n=NW[i];
+ $('story').innerHTML=`<div class="prog">${NW.map((_,k)=>`<i class="${k<i?'done':k===i?'run':''}"><b></b></i>`).join('')}</div><img src="${n[2]}" alt=""><div class="nav"><button aria-label="Previous" id="sp"></button><button aria-label="Next" id="sn"></button></div><div class="tx"><h3>${n[0]}</h3><p>${n[1]}</p><a href="#">Read the story →</a></div>`;
+ $('sp').onclick=()=>story(si-1);$('sn').onclick=()=>story(si+1);clearTimeout(stm);stm=setTimeout(()=>story(si+1),5000)}
+$('srow').onclick=e=>{const b=e.target.closest('.ring2');b&&story(+b.dataset.i)};$('vx').onclick=()=>{clearTimeout(stm);$('vw').classList.remove('on')};
+// switch
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b));if(b.dataset.v==='p2')p2()});
+p2();
+</script></body></html>

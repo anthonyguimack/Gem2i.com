@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Explore the scene</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.sub{color:var(--body);font-size:17px;margin:12px 0 0}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:96px 0 40px}
+
+/* ═ X1 · Lista tipográfica + imagen que sigue al cursor ═ */
+.x1-list{margin-top:56px;border-top:1px solid var(--line)}
+.x1-row{position:relative;display:grid;grid-template-columns:60px 1fr auto;align-items:center;gap:24px;padding:26px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);cursor:none}
+.x1-n{font:600 13px monospace;color:var(--body)}
+.x1-t{font:800 clamp(3rem,9vw,8.5rem)/.9 Manrope;letter-spacing:-.05em;transition:transform .6s var(--ease),color .3s}
+.x1-t i{font:italic 700 .5em 'Playfair Display',serif;letter-spacing:0;color:var(--acc);margin-left:.25em;opacity:0;transition:opacity .4s}
+.x1-d{max-width:300px;font-size:14px;line-height:1.6;color:var(--body);opacity:0;transform:translateX(-12px);transition:opacity .4s,transform .5s var(--ease)}
+.x1-row:hover .x1-t{transform:translateX(28px)}
+.x1-row:hover .x1-t i,.x1-row:hover .x1-d{opacity:1;transform:none}
+.x1-list:hover .x1-row:not(:hover) .x1-t{color:#c9cdd2}
+.x1-float{position:fixed;left:0;top:0;width:300px;aspect-ratio:4/5;border-radius:18px;overflow:hidden;pointer-events:none;z-index:40;opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(-6deg);transition:opacity .3s,transform .5s var(--ease)}
+.x1-float.on{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-3deg)}
+.x1-float img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}
+.x1-float img.on{opacity:1}
+.x1-cur{position:fixed;z-index:41;pointer-events:none;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:99px;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 12px Manrope;letter-spacing:.1em;opacity:0;transform:scale(.4);transition:opacity .25s,transform .35s var(--ease)}
+.x1-cur.on{opacity:1;transform:scale(1)}
+
+/* ═ X2 · Escenario oscuro con foco que sigue al cursor ═ */
+.x2{background:var(--dark);color:#fff;padding:96px 0}
+.x2 .sub{color:#8b939c}
+.x2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px}
+.x2-c{--x:50%;--y:50%;position:relative;aspect-ratio:3/4;border-radius:22px;overflow:hidden;background:#000;text-decoration:none;color:#fff;isolation:isolate}
+.x2-c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.22);transition:filter .6s}
+.x2-c .lit{filter:none;-webkit-mask:radial-gradient(circle 0px at var(--x) var(--y),#000 0,transparent 100%);mask:radial-gradient(circle 0px at var(--x) var(--y),#000 0,transparent 100%);transition:-webkit-mask .1s}
+.x2-c:hover .lit{-webkit-mask:radial-gradient(circle 190px at var(--x) var(--y),#000 40%,transparent 100%);mask:radial-gradient(circle 190px at var(--x) var(--y),#000 40%,transparent 100%)}
+.x2-c .in{position:absolute;inset:0;padding:26px;display:flex;flex-direction:column;justify-content:space-between;z-index:2;pointer-events:none}
+.x2-c .k{font:600 12px monospace;letter-spacing:.14em;color:#8b939c}
+.x2-c h3{font:800 clamp(2.4rem,4.2vw,3.6rem)/.9 Manrope;letter-spacing:-.04em;margin:0}
+.x2-c p{font-size:14px;line-height:1.6;color:#c4cad0;margin:14px 0 0;max-width:30ch;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .5s var(--ease)}
+.x2-c:hover p{opacity:1;transform:none}
+.x2-c .go{position:absolute;right:22px;top:22px;width:44px;height:44px;border-radius:99px;border:1px solid rgba(255,255,255,.3);display:grid;place-items:center;z-index:2;transition:background .3s,transform .4s var(--ease)}
+.x2-c:hover .go{background:#fff;color:#000;transform:rotate(-45deg)}
+.x2-c .count{font:800 13px Manrope;letter-spacing:.1em;color:var(--acc);margin-top:10px}
+
+/* ═ X3 · Paneles que se expanden (acordeón horizontal) con número gigante ═ */
+.x3{display:flex;gap:12px;height:560px;margin-top:56px}
+.x3-p{position:relative;flex:1;min-width:0;border-radius:24px;overflow:hidden;text-decoration:none;color:#fff;transition:flex-grow .7s var(--ease)}
+.x3-p img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);transition:transform 1s var(--ease),filter .6s}
+.x3-p::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.75))}
+.x3-p .vt{position:absolute;left:24px;bottom:24px;z-index:2;font:800 30px Manrope;letter-spacing:-.02em;writing-mode:vertical-rl;transform:rotate(180deg);transition:opacity .3s}
+.x3-p .big{position:absolute;right:-10px;top:-30px;z-index:2;font:800 150px/1 Manrope;letter-spacing:-.08em;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.55);opacity:0;transform:translateY(-20px);transition:opacity .5s,transform .7s var(--ease)}
+.x3-p .body{position:absolute;left:32px;right:32px;bottom:30px;z-index:2;opacity:0;transform:translateY(20px);transition:opacity .4s .1s,transform .6s var(--ease) .1s}
+.x3-p h3{font:800 clamp(2.6rem,4.6vw,4.2rem)/.9 Manrope;letter-spacing:-.04em;margin:0}
+.x3-p p{font-size:15px;line-height:1.6;max-width:42ch;color:rgba(255,255,255,.85);margin:14px 0 18px}
+.x3-p .cta{display:inline-flex;gap:10px;align-items:center;background:#fff;color:#000;border-radius:99px;padding:10px 18px;font:700 14px Manrope}
+.x3-p.on{flex-grow:4}
+.x3-p.on img{transform:scale(1)}
+.x3-p.on .vt{opacity:0}
+.x3-p.on .big,.x3-p.on .body{opacity:1;transform:none}
+
+@media(hover:none),(max-width:820px){
+ .x1-row{cursor:pointer;grid-template-columns:40px 1fr}.x1-d{grid-column:2;opacity:1;transform:none;max-width:none}.x1-t i{opacity:1}.x1-float,.x1-cur{display:none}
+ .x2-grid{grid-template-columns:1fr}.x2-c{aspect-ratio:4/3}.x2-c img{filter:grayscale(.2) brightness(.5)}.x2-c p{opacity:1;transform:none}
+ .x3{flex-direction:column;height:auto}.x3-p{flex:none;height:120px;transition:height .6s var(--ease)}.x3-p.on{height:440px}.x3-p .vt{writing-mode:horizontal-tb;transform:none}
+}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important}}
+</style></head><body>
+
+<nav class="switch"><button data-v="x1" class="on">X1 · Tipografía + cursor</button><button data-v="x2">X2 · Escenario con foco</button><button data-v="x3">X3 · Paneles expansibles</button></nav>
+
+<!-- X1 -->
+<div class="v on" id="x1"><section class="w sec">
+ <p class="eb">Featured</p><h2 class="h">Explore the <em>scene</em></h2><p class="sub">Sort through the best of the scene.</p>
+ <div class="x1-list" id="x1list"></div>
+</section>
+<div class="x1-float" id="x1f"></div><div class="x1-cur" id="x1c">EXPLORE</div>
+<p class="note"><b>X1 · Tipografía + cursor:</b> tres palabras gigantes (VENUES · EVENTS · ARTISTS) ocupan la sección como un cartel. Al pasar el ratón por una fila, las otras se apagan, la palabra se desliza, aparece su cifra en cursiva y la descripción, y una foto inclinada sigue al cursor, que se convierte en un círculo "EXPLORE". En móvil se ve como una lista limpia con descripción visible.</p></div>
+
+<!-- X2 -->
+<div class="v" id="x2"><section class="x2"><div class="w">
+ <p class="eb">Featured</p><h2 class="h">Explore the <em>scene</em></h2><p class="sub">Sort through the best of the scene.</p>
+ <div class="x2-grid" id="x2g"></div>
+</div></section>
+<p class="note"><b>X2 · Escenario con foco:</b> la sección se vuelve un escenario negro. Las tres fotos están casi apagadas en blanco y negro, y donde pasa el ratón se enciende un foco circular que muestra la foto a todo color, como una luz de discoteca. La descripción sube y la flecha gira. En móvil las fotos se ven encendidas a media luz.</p></div>
+
+<!-- X3 -->
+<div class="v" id="x3"><section class="w sec">
+ <p class="eb">Featured</p><h2 class="h">Explore the <em>scene</em></h2><p class="sub">Sort through the best of the scene.</p>
+ <div class="x3" id="x3p"></div>
+</section>
+<p class="note"><b>X3 · Paneles expansibles:</b> tres paneles verticales de foto con el nombre girado. El que tocas se abre a lo ancho: aparece su cifra gigante en contorno (340+, 1,700+, 500+), el título, la descripción y el botón; los otros se quedan como franjas. Uno siempre está abierto. En móvil se apilan y se abren hacia abajo.</p></div>
+
+<script>
+const IMG='https://beta.gem2i.com/api/uploads/gem2i/site/';
+const D=[
+ {t:'Venues',n:'340+',img:IMG+'gem_venues.jpg',d:'Our venue selection highlights some of the best and trendiest entertainment spaces from around the globe.'},
+ {t:'Events',n:'1,700+',img:IMG+'gem_events.jpg',d:"A comprehensive list of the world's best festivals and events, curated for our community."},
+ {t:'Artists',n:'500+',img:IMG+'gem_artists.jpg',d:'Current ranked worldwide artists as well as recently discovered talents in electronic music.'}];
+// X1
+x1list.innerHTML=D.map((x,i)=>`<a class="x1-row" href="#" data-i="${i}"><span class="x1-n">${x.t[0]}</span><span class="x1-t">${x.t}<i>${x.n}</i></span><span class="x1-d">${x.d}</span></a>`).join('');
+x1f.innerHTML=D.map(x=>`<img src="${x.img}" alt="">`).join('');
+let mx=0,my=0,fx=0,fy=0;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;x1c.style.left=mx+'px';x1c.style.top=my+'px'});
+(function loop(){fx+=(mx-fx)*.12;fy+=(my-fy)*.12;x1f.style.left=(fx+150)+'px';x1f.style.top=fy+'px';requestAnimationFrame(loop)})();
+document.querySelectorAll('.x1-row').forEach(r=>{
+ r.onmouseenter=()=>{x1f.classList.add('on');x1c.classList.add('on');[...x1f.children].forEach((im,k)=>im.classList.toggle('on',k==r.dataset.i))};
+ r.onmouseleave=()=>{x1f.classList.remove('on');x1c.classList.remove('on')};});
+// X2
+x2g.innerHTML=D.map((x,i)=>`<a class="x2-c" href="#"><img src="${x.img}" alt=""><img class="lit" src="${x.img}" alt="">
+ <span class="go">→</span><div class="in"><span class="k">GEM2i · ${x.t.toUpperCase()}</span><div><h3>${x.t}</h3><div class="count">${x.n}</div><p>${x.d}</p></div></div></a>`).join('');
+document.querySelectorAll('.x2-c').forEach(c=>c.onmousemove=e=>{const r=c.getBoundingClientRect();c.style.setProperty('--x',(e.clientX-r.left)+'px');c.style.setProperty('--y',(e.clientY-r.top)+'px')});
+// X3
+x3p.innerHTML=D.map((x,i)=>`<a class="x3-p ${i==1?'on':''}" href="#"><img src="${x.img}" alt=""><span class="vt">${x.t}</span><span class="big">${x.n}</span>
+ <div class="body"><h3>${x.t}</h3><p>${x.d}</p><span class="cta">Explore ${x.t.toLowerCase()} →</span></div></a>`).join('');
+document.querySelectorAll('.x3-p').forEach(p=>{const open=()=>document.querySelectorAll('.x3-p').forEach(q=>q.classList.toggle('on',q===p));p.onmouseenter=open;p.onclick=e=>{if(!p.classList.contains('on')){e.preventDefault();open()}}});
+// switch
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+</script></body></html>

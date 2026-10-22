@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:96px 0 40px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:99px;padding:13px 22px;font-weight:700;font-size:15px;text-decoration:none;transition:transform .2s}
+.btn:active{transform:scale(.97)}
+.ico{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ═ S1 · Marquesina cinética ═ */
+.s1-head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap}
+.mq{margin-top:56px;display:flex;flex-direction:column;gap:6px}
+.track{display:flex;width:max-content;animation:run 46s linear infinite}
+.track.rev{animation-direction:reverse;animation-duration:54s}
+.mq:hover .track{animation-play-state:paused}
+@keyframes run{to{transform:translateX(-50%)}}
+.it{display:flex;align-items:center;gap:28px;padding:0 28px;font:800 clamp(2.6rem,6vw,5.2rem)/1.15 Manrope;letter-spacing:-.045em;white-space:nowrap;color:var(--ink);text-decoration:none;transition:color .3s}
+.it .ico{width:clamp(28px,3vw,44px);height:clamp(28px,3vw,44px);color:var(--acc);stroke-width:1.4;transition:transform .5s var(--ease)}
+.it.o{color:transparent;-webkit-text-stroke:1.4px #c3c8ce}
+.mq:hover .it{color:#d4d8dc;-webkit-text-stroke:0}
+.mq .it:hover{color:var(--ink)}
+.mq .it:hover .ico{transform:rotate(-12deg) scale(1.15)}
+.s1-cta{margin-top:64px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:28px}
+.s1-cta p{margin:0;font-size:17px;color:var(--body)}.s1-cta p b{color:var(--ink)}
+
+/* ═ S2 · Índice + panel vivo ═ */
+.s2{display:grid;grid-template-columns:1fr 1.15fr;gap:56px;margin-top:56px;align-items:start}
+.s2-list{border-top:1px solid var(--line)}
+.s2-i{width:100%;display:flex;align-items:center;gap:16px;background:none;border:0;border-bottom:1px solid var(--line);padding:18px 4px;text-align:left;font-weight:700;font-size:17px;color:#9aa1a8;transition:color .25s,padding .4s var(--ease)}
+.s2-i .bar{width:0;height:2px;background:var(--acc);transition:width .45s var(--ease)}
+.s2-i.on{color:var(--ink)}
+.s2-i.on .bar{width:28px}
+.s2-p{position:sticky;top:100px;min-height:470px;border-radius:28px;background:var(--dark);color:#fff;padding:44px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.s2-p .glow{position:absolute;width:420px;height:420px;border-radius:99px;right:-120px;top:-120px;background:radial-gradient(circle,rgba(50,135,183,.55),transparent 65%);transition:transform .9s var(--ease)}
+.s2-p .big{position:relative;width:96px;height:96px;border-radius:26px;background:rgba(255,255,255,.08);display:grid;place-items:center}
+.s2-p .big .ico{width:44px;height:44px;stroke-width:1.3}
+.s2-p h3{position:relative;font:800 clamp(2rem,3.4vw,3rem)/1.02 Manrope;letter-spacing:-.04em;margin:0 0 14px;max-width:16ch}
+.s2-p p{position:relative;margin:0 0 26px;color:#b9c0c7;font-size:16px;line-height:1.7;max-width:46ch}
+.s2-p .btn{position:relative;background:#fff;color:var(--dark)}
+.s2-p .meta{position:relative;font:600 12px Manrope;letter-spacing:.2em;color:#7d868f;text-transform:uppercase}
+.swap{animation:swap .55s var(--ease) both}
+@keyframes swap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ═ S3 · Rejilla con luz que sigue al cursor ═ */
+.s3{--mx:-999px;--my:-999px;position:relative;margin-top:56px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-radius:24px;overflow:hidden}
+.s3::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(260px circle at var(--mx) var(--my),rgba(50,135,183,.9),transparent 70%);z-index:0}
+.s3-c{position:relative;z-index:1;background:#fff;padding:30px 26px 28px;min-height:230px;display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;color:var(--ink);transition:background .35s}
+.s3-c::after{content:"";position:absolute;inset:0;background:radial-gradient(220px circle at var(--lx,50%) var(--ly,50%),rgba(50,135,183,.08),transparent 70%);opacity:0;transition:opacity .3s}
+.s3-c:hover::after{opacity:1}
+.s3-c .ico{color:var(--acc);width:32px;height:32px;transition:transform .5s var(--ease)}
+.s3-c:hover .ico{transform:translateY(-4px) rotate(-8deg)}
+.s3-c h3{margin:0;font-size:19px;line-height:1.25;letter-spacing:-.015em}
+.s3-c .ar{position:absolute;right:22px;top:24px;opacity:0;transform:translate(-6px,6px);transition:opacity .3s,transform .4s var(--ease)}
+.s3-c:hover .ar{opacity:1;transform:none}
+.s3-c.cta{grid-column:span 2;background:var(--dark);color:#fff}
+.s3-c.cta h3{font:700 clamp(1.6rem,2.6vw,2.2rem)/1.1 'Playfair Display',serif;max-width:18ch}
+.s3-c.cta p{color:#9aa3ab;margin:10px 0 0;font-size:15px}
+.s3-c.cta .btn{align-self:flex-start;background:#fff;color:var(--dark);margin-top:22px}
+
+@media(max-width:900px){
+ .s2{grid-template-columns:1fr;gap:28px}.s2-p{position:relative;top:0;min-height:380px;padding:30px;order:-1}
+ .s3{grid-template-columns:1fr 1fr}.s3-c{min-height:180px;padding:22px}.s3-c.cta{grid-column:span 2}.s3-c .ar{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+
+<nav class="switch"><button data-v="s1" class="on">S1 · Marquesina cinética</button><button data-v="s2">S2 · Índice + panel vivo</button><button data-v="s3">S3 · Rejilla con luz</button></nav>
+
+<div class="v on" id="s1"><section class="sec">
+ <div class="w s1-head"><div><p class="eb">Services · What we do</p><h2 class="h">Everything an event <em>needs</em></h2></div><a class="btn" href="#">All services →</a></div>
+ <div class="mq" id="mq"></div>
+ <div class="w s1-cta"><p><b>Need marketing for your event?</b> Tell us what you are planning.</p><a class="btn" href="#">Contact us →</a></div>
+</section>
+<p class="note"><b>S1 · Marquesina cinética:</b> los 8 servicios corren en dos filas gigantes que van en sentidos opuestos, una en tinta y otra solo en contorno, cada uno con su icono en azul. Al pasar el ratón la marquesina se detiene, todo se apaga y solo se enciende el servicio que señalas; el icono gira. Debajo, una línea fina con el "Contact us". Es la más vibrante: tiene energía de festival.</p></div>
+
+<div class="v" id="s2"><section class="w sec">
+ <p class="eb">Services · What we do</p><h2 class="h">Everything an event <em>needs</em></h2>
+ <div class="s2"><div class="s2-list" id="s2l"></div><div class="s2-p" id="s2p"></div></div>
+</section>
+<p class="note"><b>S2 · Índice + panel vivo:</b> a la izquierda, la lista de los 8 servicios en gris; a la derecha, un panel negro fijo. Al pasar por un servicio (o tocarlo en móvil), el panel cambia con una transición suave: icono grande, título, una frase y el botón de contacto, con un resplandor azul que se mueve. Sobria y elegante, como una agencia premium. <i>Las frases de cada servicio son de ejemplo; saldrían del CMS.</i></p></div>
+
+<div class="v" id="s3"><section class="w sec">
+ <p class="eb">Services · What we do</p><h2 class="h">Everything an event <em>needs</em></h2>
+ <div class="s3" id="s3g"></div>
+</section>
+<p class="note"><b>S3 · Rejilla con luz:</b> una rejilla blanca separada por líneas finísimas. Al mover el ratón, una luz azul recorre las líneas siguiendo el cursor (el efecto de sitios como Linear o Vercel) y la celda bajo el ratón se ilumina levemente, con el icono que sube y una flecha. El bloque de contacto ocupa dos celdas en negro. Minimalista con un detalle técnico que impresiona.</p></div>
+
+<script>
+const I={
+ pm:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ sm:'<path d="M21 12a9 9 0 1 1-3.5-7.1L21 3v6h-6"/><circle cx="12" cy="12" r="2"/>',
+ br:'<path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.5 6.5 19.5l1-6.3L3 8.9 9 8z"/>',
+ vn:'<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/>',
+ ar:'<path d="M12 3v12"/><path d="M8 7a4 4 0 0 1 8 0v4a4 4 0 0 1-8 0z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+ cp:'<path d="M4 4h16v12H4z"/><path d="M8 20h8M12 16v4"/><path d="M9 10l2 2 4-4"/>',
+ ev:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ sp:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'};
+const svg=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+const S=[
+ ['pm','Project Management and Strategic Development','From the first idea to the final count: timelines, budgets and the strategy that holds it together.'],
+ ['sm','Social Media & Influence Marketing','Campaigns and creators that fill the room before the doors open.'],
+ ['br','Brand Development & Management','Names, identities and voices for events and venues that people remember.'],
+ ['vn','Venue Marketing Management & Consulting','Programming, positioning and promotion that keep a venue full every week.'],
+ ['ar','Artist Management & Public Relations','Bookings, press and careers handled with the network of a global team.'],
+ ['cp','Concept & Productions Development','Show concepts, stage and production built around the audience.'],
+ ['ev','Event Management, Marketing & Consulting','Guest lists, ticketing, marketing and operations — one partner for the whole night.'],
+ ['sp','Sponsorship and Endorsement','Brands matched to the events, venues and artists that fit their audience.']];
+// S1
+const row=(arr,o)=>{const h=arr.map(s=>`<a class="it ${o?'o':''}" href="#">${svg(s[0])}${s[1]}</a>`).join('');return `<div class="track ${o?'rev':''}">${h}${h}</div>`};
+mq.innerHTML=row(S.slice(0,4),0)+row(S.slice(4),1);
+// S2
+s2l.innerHTML=S.map((s,i)=>`<button class="s2-i ${i?'':'on'}" data-i="${i}"><span class="bar"></span>${s[1]}</button>`).join('');
+function show(i){const s=S[i];s2p.innerHTML=`<span class="glow" style="transform:translate(${-i*22}px,${i*26}px)"></span>
+ <div class="swap" style="display:flex;justify-content:space-between;align-items:flex-start"><div class="big">${svg(s[0])}</div><span class="meta">GEM2i services</span></div>
+ <div class="swap" style="animation-delay:.06s"><h3>${s[1]}</h3><p>${s[2]}</p><a class="btn" href="#">Talk to us →</a></div>`;
+ s2l.querySelectorAll('.s2-i').forEach(b=>b.classList.toggle('on',b.dataset.i==i))}
+show(0);
+s2l.querySelectorAll('.s2-i').forEach(b=>{b.onmouseenter=()=>show(b.dataset.i);b.onclick=()=>show(b.dataset.i)});
+// S3
+s3g.innerHTML=S.slice(0,6).map(s=>`<a class="s3-c" href="#">${svg(s[0])}<span class="ar">↗</span><h3>${s[1]}</h3></a>`).join('')
+ +`<div class="s3-c cta"><div><h3>If you need marketing, let's talk</h3><p>Tell us about your event, venue or artist.</p></div><a class="btn" href="#">Contact us →</a></div>`
+ +S.slice(6).map(s=>`<a class="s3-c" href="#">${svg(s[0])}<span class="ar">↗</span><h3>${s[1]}</h3></a>`).join('');
+s3g.onmousemove=e=>{const r=s3g.getBoundingClientRect();s3g.style.setProperty('--mx',(e.clientX-r.left)+'px');s3g.style.setProperty('--my',(e.clientY-r.top)+'px');
+ const c=e.target.closest('.s3-c');if(c){const q=c.getBoundingClientRect();c.style.setProperty('--lx',(e.clientX-q.left)+'px');c.style.setProperty('--ly',(e.clientY-q.top)+'px')}};
+s3g.onmouseleave=()=>{s3g.style.setProperty('--mx','-999px');s3g.style.setProperty('--my','-999px')};
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+</script></body></html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Team</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}.h em{font-style:italic}
+.sub{color:var(--body);font-size:17px;margin:12px 0 0;max-width:58ch;line-height:1.7}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:88px 0 40px}
+.av{border-radius:99px;background:linear-gradient(135deg,#1d3a52,#0f1d2a);color:#5FB2E0;display:grid;place-items:center;font-weight:800;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.swap{animation:swap .55s var(--ease) both}@keyframes swap{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* T2 · Órbita automática */
+.orb{position:relative;width:min(620px,92vw);aspect-ratio:1;margin:36px auto 0}
+.ringE{position:absolute;inset:0;border-radius:99px;border:1px dashed var(--line)}
+.spin{position:absolute;inset:0;animation:spin 60s linear infinite}
+.orb:hover .spin,.orb:hover .face{animation-play-state:paused}
+@keyframes spin{to{transform:rotate(360deg)}}
+.face{position:absolute;width:92px;height:92px;margin:-46px;border:0;padding:0;background:none;animation:spin 60s linear infinite reverse}
+.face .av{width:100%;height:100%;font-size:24px;border:4px solid #fff;box-shadow:0 14px 30px -14px rgba(0,0,0,.4);transition:transform .4s var(--ease),box-shadow .4s}
+.face.on .av{transform:scale(1.2);box-shadow:0 0 0 4px var(--acc),0 14px 30px -14px rgba(0,0,0,.4)}
+.core{position:absolute;inset:25%;border-radius:99px;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.core h3{margin:0;font-size:22px}.core .r{color:var(--acc);font-size:13px;font-weight:700;margin-top:4px}.core p{color:var(--body);font-size:14px;line-height:1.55;margin:10px 0 0}
+.core .tm{position:absolute;inset:-4px;border-radius:99px;pointer-events:none}
+.core svg{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);transform:rotate(-90deg)}
+.core circle{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round}
+.core circle.run{animation:dash 5s linear forwards}
+
+/* T3 · Créditos de película */
+.credits{position:relative;margin-top:40px;height:560px;border-radius:28px;background:var(--dark);color:#fff;overflow:hidden;display:grid;grid-template-columns:1fr 1fr}
+.roll{position:relative;overflow:hidden;-webkit-mask:linear-gradient(transparent,#000 18%,#000 82%,transparent);mask:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
+.roll .tr{position:absolute;left:0;right:0;animation:roll 26s linear infinite;text-align:center}
+.credits:hover .tr{animation-play-state:paused}
+@keyframes roll{from{transform:translateY(560px)}to{transform:translateY(-100%)}}
+.cr{display:block;width:100%;border:0;background:none;padding:22px 0;color:#fff;text-align:center}
+.cr small{display:block;font-size:11.5px;font-weight:800;letter-spacing:.24em;color:#7d868f;text-transform:uppercase}
+.cr b{display:block;font:700 clamp(1.6rem,2.6vw,2.2rem) 'Playfair Display',serif;margin-top:6px;transition:color .25s}
+.cr:hover b,.cr.on b{color:#5FB2E0}
+.spot{display:flex;flex-direction:column;justify-content:center;padding:40px;border-left:1px solid #1d232b}
+.spot .av{width:150px;height:150px;font-size:40px}
+.spot h3{margin:22px 0 4px;font:800 30px Manrope;letter-spacing:-.03em}.spot .r{color:#5FB2E0;font-weight:700;font-size:14px}.spot p{color:#aab2ba;line-height:1.7;margin:14px 0 0;max-width:40ch}
+
+/* T4 · Tarjetas de visita */
+.deck{display:flex;justify-content:center;flex-wrap:wrap;gap:22px;margin-top:48px;perspective:1300px}
+.bc{width:300px;height:180px;border:0;padding:0;background:none;transition:transform .5s var(--ease)}
+.bc:nth-child(odd){transform:rotate(-2deg)}.bc:nth-child(even){transform:rotate(2deg)}
+.bc:hover{transform:translateY(-8px) rotate(0)}
+.bc .in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s var(--ease)}
+.bc.flip .in{transform:rotateY(180deg)}
+.fc{position:absolute;inset:0;border-radius:16px;padding:22px;backface-visibility:hidden;text-align:left;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 18px 36px -20px rgba(0,0,0,.45)}
+.fr{background:#fff;border:1px solid var(--line)}
+.fr .top{display:flex;gap:14px;align-items:center}.fr .av{width:56px;height:56px;font-size:18px;flex:0 0 auto}
+.fr b{display:block;font-size:17px}.fr span{font-size:12.5px;color:var(--acc);font-weight:700}
+.fr .bot{display:flex;justify-content:space-between;font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--body)}
+.bk{background:var(--dark);color:#fff;transform:rotateY(180deg)}.bk p{margin:0;font-size:14px;line-height:1.6;color:#c4cad0}.bk small{font-size:11px;font-weight:800;letter-spacing:.18em;color:#5FB2E0}
+
+/* T5 · Por región */
+.regions{display:flex;gap:8px;flex-wrap:wrap;margin-top:36px}
+.regions button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:10px 18px;font-weight:700;font-size:14px;transition:background .25s,color .25s}
+.regions button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.regions button i{font-style:normal;opacity:.5;margin-left:6px}
+.reg{display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:start;margin-top:36px}
+.big{font:800 clamp(3rem,7vw,6rem)/.92 Manrope;letter-spacing:-.05em;margin:0;max-width:7ch}
+.big small{display:block;font:700 13px Manrope;letter-spacing:.2em;color:var(--acc);margin-bottom:12px}
+.ppl{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.pc{background:var(--soft);border-radius:22px;padding:24px;transition:opacity .4s,transform .5s var(--ease)}
+.pc .av{width:72px;height:72px;font-size:22px}
+.pc b{display:block;margin-top:16px;font-size:18px}.pc span{font-size:13px;color:var(--acc);font-weight:700}.pc p{color:var(--body);font-size:14.5px;line-height:1.6;margin:10px 0 0}
+.pc.out{opacity:0;transform:scale(.96)}
+
+@media(max-width:900px){.credits{grid-template-columns:1fr;height:auto}.roll{height:300px}.spot{border-left:0;border-top:1px solid #1d232b}.reg{grid-template-columns:1fr;gap:20px}.face{width:70px;height:70px;margin:-35px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+@keyframes dash{from{stroke-dashoffset:var(--L)}to{stroke-dashoffset:0}}
+</style></head><body>
+<nav class="switch"><button data-v="t2" class="on">T2 · Órbita (automática)</button><button data-v="t3">T3 · Créditos de película</button><button data-v="t4">T4 · Tarjetas de visita</button><button data-v="t5">T5 · Por región</button></nav>
+
+<div class="v on" id="t2"><section class="w sec" style="text-align:center"><p class="eb" style="justify-content:center">Team</p><h2 class="h">The people behind <em>GEM2i</em></h2>
+ <div class="orb" id="orb"><div class="ringE"></div><div class="spin" id="spin"></div><div class="core" id="core"></div></div></section>
+<p class="note"><b>T2 · Órbita automática:</b> igual que antes (las caras giran despacio alrededor del centro), pero ahora el centro cambia solo de persona cada 5 segundos: la cara activa crece con un aro azul, y un anillo alrededor del círculo central marca el tiempo hasta la siguiente. Si tocas una cara, salta a esa persona y sigue desde ahí; al pasar el ratón, todo se detiene.</p></div>
+
+<div class="v" id="t3"><section class="w sec"><p class="eb">Team</p><h2 class="h">The people behind <em>GEM2i</em></h2><p class="sub">A network of entertainment professionals across North America, Europe, South and Central America.</p>
+ <div class="credits"><div class="roll"><div class="tr" id="roll"></div></div><div class="spot" id="spot"></div></div></section>
+<p class="note"><b>T3 · Créditos de película:</b> el equipo aparece como los créditos finales de una película: cargo en pequeño y nombre grande, subiendo sin parar sobre fondo negro. Al pasar el ratón el rollo se detiene; al tocar un nombre, a la derecha aparece su foto, cargo y descripción. Elegante y cinematográfico.</p></div>
+
+<div class="v" id="t4"><section class="w sec" style="text-align:center"><p class="eb" style="justify-content:center">Team</p><h2 class="h">The people behind <em>GEM2i</em></h2>
+ <div class="deck" id="deck"></div><p class="sub" style="margin:26px auto 0;font-size:14px">Tap a card to flip it</p></section>
+<p class="note"><b>T4 · Tarjetas de visita:</b> cada persona es una tarjeta de visita, un poco torcida como si estuvieran sobre una mesa. Al pasar el ratón se endereza y sube; al tocarla gira y por detrás muestra su descripción sobre fondo negro. Directo y con un guiño profesional.</p></div>
+
+<div class="v" id="t5"><section class="w sec"><p class="eb">Team</p><h2 class="h">The people behind <em>GEM2i</em></h2>
+ <div class="regions" id="regs"></div><div class="reg"><p class="big" id="big"></p><div class="ppl" id="ppl"></div></div></section>
+<p class="note"><b>T5 · Por región:</b> el equipo se ordena por región (All · North America · Europe · South America · Central America). Al elegir una, el nombre de la región aparece enorme a la izquierda y las tarjetas de esa zona entran con una transición suave. Útil cuando el equipo crezca.</p></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const T=[['Carlos Artiles','Principal Manager · United States','Leads GEM2i in North America and oversees global operations, partners and strategy.','North America','https://beta.gem2i.com/api/uploads/2a68cf0b07794bf3b6627777d095adcc.jpg'],
+ ['Walter Garcia','Business Development · United States','Drives business development and new partnerships for GEM2i in the United States.','North America'],
+ ['Kike Sanchez','Commercial Management · Spain','Manages commercial relations with venues, promoters and brands across Spain and Europe.','Europe'],
+ ['JP See','Corporate Representative · Peru','Represents GEM2i in Peru, connecting local venues, promoters and members.','South America'],
+ ['Paola Nos','Corporate Representative · Argentina','Represents GEM2i in Argentina, connecting local venues, promoters and members.','South America'],
+ ['Melodi Brugal','Corporate Representative · Dominican Republic','Represents GEM2i in the Dominican Republic and the Central American market.','Central America']];
+const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2);
+const av=(t,s='')=>`<span class="av" style="${s}">${t[4]?`<img src="${t[4]}" alt="">`:ini(t[0])}</span>`;
+// T2
+const N=T.length;$('spin').innerHTML=T.map((t,i)=>{const a=i/N*Math.PI*2-Math.PI/2;return `<button class="face" data-i="${i}" style="left:${50+46*Math.cos(a)}%;top:${50+46*Math.sin(a)}%">${av(t)}</button>`}).join('');
+let ci=0,ctm,paused=false;
+function core(i){ci=i;const t=T[i];$('core').innerHTML=`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="49" class="run" style="--L:308;stroke-dasharray:308"></circle></svg><div class="swap"><h3>${t[0]}</h3><div class="r">${t[1]}</div><p>${t[2]}</p></div>`;
+ $('spin').querySelectorAll('.face').forEach((f,k)=>f.classList.toggle('on',k===i));clearTimeout(ctm);if(!paused)ctm=setTimeout(()=>core((ci+1)%N),5000)}
+$('spin').onclick=e=>{const b=e.target.closest('.face');b&&core(+b.dataset.i)};
+$('orb').onmouseenter=()=>{paused=true;clearTimeout(ctm);const c=$('core').querySelector('circle');c&&(c.style.animationPlayState='paused')};
+$('orb').onmouseleave=()=>{paused=false;core((ci+1)%N)};core(0);
+// T3
+const roll=T.map((t,i)=>`<button class="cr" data-i="${i}"><small>${t[1]}</small><b>${t[0]}</b></button>`).join('');$('roll').innerHTML=roll+roll;
+function spot(i){const t=T[i];$('spot').innerHTML=`<div class="swap">${av(t,'width:150px;height:150px;font-size:40px')}<h3>${t[0]}</h3><div class="r">${t[1]}</div><p>${t[2]}</p></div>`;$('roll').querySelectorAll('.cr').forEach(b=>b.classList.toggle('on',+b.dataset.i===i))}
+$('roll').onclick=e=>{const b=e.target.closest('.cr');b&&spot(+b.dataset.i)};spot(0);
+// T4
+$('deck').innerHTML=T.map(t=>`<button class="bc"><div class="in"><div class="fc fr"><div class="top">${av(t)}<div><b>${t[0]}</b><span>${t[1].split(' · ')[0]}</span></div></div><div class="bot"><span>GEM2i</span><span>${t[1].split(' · ')[1].toUpperCase()}</span></div></div><div class="fc bk"><small>${t[0].toUpperCase()}</small><p>${t[2]}</p></div></div></button>`).join('');
+$('deck').onclick=e=>{const b=e.target.closest('.bc');b&&b.classList.toggle('flip')};
+// T5
+const R=['All','North America','Europe','South America','Central America'];
+$('regs').innerHTML=R.map((r,i)=>`<button data-r="${r}" class="${i?'':'on'}">${r}<i>${r==='All'?T.length:T.filter(t=>t[3]===r).length}</i></button>`).join('');
+function region(r){$('regs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.r===r));$('big').innerHTML=`<small>${r==='All'?'WORLDWIDE':'REGION'}</small>${r==='All'?'Every<br>market':r}`;
+ const L=T.filter(t=>r==='All'||t[3]===r);$('ppl').innerHTML=L.map((t,k)=>`<div class="pc swap" style="animation-delay:${k*.06}s">${av(t,'width:72px;height:72px;font-size:22px')}<b>${t[0]}</b><span>${t[1]}</span><p>${t[2]}</p></div>`).join('')}
+$('regs').onclick=e=>{const b=e.target.closest('button');b&&region(b.dataset.r)};region('All');
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+</script></body></html>

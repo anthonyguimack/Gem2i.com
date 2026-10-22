@@ -43,7 +43,11 @@ function MapView({ pts, sel, padLeft = 0 }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   React.useEffect(() => {
-    if (sel == null || !pts[sel]) return;
+    if (sel == null) {
+      if (pts.length > 1) map.flyToBounds(L.latLngBounds(pts.map(p => [p.lat, p.lng])), { paddingTopLeft: [48 + padLeft, 48], paddingBottomRight: [48, 48], maxZoom: 5, duration: 0.8 });
+      return;
+    }
+    if (!pts[sel]) return;
     map.flyTo([pts[sel].lat, pts[sel].lng], Math.max(map.getZoom(), 5), { duration: 0.8 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel]);
@@ -72,6 +76,12 @@ function LeafletMap({ pts, sel, setSel, mapsLang, dark, padLeft = 0, className =
           </Marker>
         ))}
       </MapContainer>
+      {sel != null && pts.length > 1 && (
+        <button type="button" onClick={() => setSel(null)} data-testid="map-see-all"
+          className="absolute right-3 bottom-8 z-[500] rounded-full bg-white px-4 py-2 text-[13px] font-bold shadow-[0_8px_20px_-10px_rgba(0,0,0,.4)]" style={{ color: '#16191D' }}>
+          🌐 {tt({ en: 'See all', es: 'Ver todas' })}
+        </button>
+      )}
     </div>
   );
 }

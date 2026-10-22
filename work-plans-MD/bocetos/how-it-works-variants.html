@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · How it works</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:96px 0 40px}
+
+/* H1 · Teléfono */
+.h1{display:grid;grid-template-columns:1fr auto 1fr;gap:48px;align-items:center;margin-top:56px}
+.h1-col{display:grid;gap:18px}
+.h1-s{border:0;background:none;text-align:left;padding:18px 20px;border-radius:18px;transition:background .3s}
+.h1-s h3{margin:0 0 6px;font-size:19px;letter-spacing:-.015em;color:#a3a9b0;transition:color .3s}
+.h1-s p{margin:0;font-size:14.5px;line-height:1.6;color:#b4bac0;transition:color .3s}
+.h1-s .bar{display:block;height:2px;background:var(--line);margin-top:14px;border-radius:2px;overflow:hidden}
+.h1-s .bar i{display:block;height:100%;width:0;background:var(--acc)}
+.h1-s.on{background:var(--soft)}.h1-s.on h3{color:var(--ink)}.h1-s.on p{color:var(--body)}
+.h1-s.on .bar i{animation:fill 3.6s linear forwards}
+@keyframes fill{to{width:100%}}
+.phone{width:290px;height:590px;border-radius:46px;background:var(--dark);padding:12px;box-shadow:0 40px 80px -30px rgba(0,0,0,.45)}
+.scr{position:relative;width:100%;height:100%;border-radius:36px;background:#fff;overflow:hidden}
+.scr::before{content:"";position:absolute;left:50%;top:10px;width:90px;height:24px;margin-left:-45px;border-radius:99px;background:var(--dark);z-index:5}
+.sc{position:absolute;inset:0;padding:54px 20px 20px;opacity:0;transform:translateY(20px) scale(.98);transition:opacity .5s,transform .6s var(--ease);display:flex;flex-direction:column;gap:12px}
+.sc.on{opacity:1;transform:none}
+.sc .t{font:800 20px Manrope;letter-spacing:-.02em}
+.sc .mut{font-size:12.5px;color:var(--body)}
+.code{display:flex;gap:6px;margin-top:6px}.code span{flex:1;height:52px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font:800 22px Manrope}
+.ev{display:flex;gap:10px;align-items:center;padding:8px;border-radius:14px;background:var(--soft)}
+.ev i{width:52px;height:52px;border-radius:10px;background-size:cover;background-position:center;flex:0 0 auto}
+.ev b{display:block;font-size:13.5px}.ev span{font-size:11.5px;color:var(--body)}
+.qr{margin:8px auto 0;width:170px;height:170px;border-radius:16px;background:
+ conic-gradient(from 90deg at 18% 18%,var(--ink) 25%,transparent 0) 0 0/34px 34px,
+ linear-gradient(var(--ink),var(--ink)) 50% 50%/40px 40px no-repeat,var(--soft);border:10px solid var(--soft)}
+.pt{font:800 54px/1 Manrope;letter-spacing:-.04em;color:var(--acc);text-align:center;margin-top:20px}
+.pbtn{margin-top:auto;background:var(--ink);color:#fff;border-radius:99px;padding:13px;text-align:center;font-weight:700;font-size:14px}
+
+/* H2 · Recorrido con línea que se dibuja */
+.h2-wrap{position:relative;margin-top:64px}
+.h2-svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.h2-svg path{fill:none;stroke-width:2.5;stroke-linecap:round}
+.h2-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.h2-s{padding-top:0}
+.h2-s:nth-child(even){margin-top:120px}
+.dot{width:58px;height:58px;border-radius:99px;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-size:22px;transition:background .4s,border-color .4s,color .4s,transform .5s var(--ease)}
+.h2-s.on .dot{background:var(--acc);border-color:var(--acc);color:#fff;transform:scale(1.1)}
+.h2-s h3{margin:22px 0 8px;font:800 22px/1.15 Manrope;letter-spacing:-.025em;color:#b0b6bc;transition:color .4s}
+.h2-s p{margin:0;font-size:15px;line-height:1.65;color:#c0c5ca;transition:color .4s;max-width:26ch}
+.h2-s.on h3{color:var(--ink)}.h2-s.on p{color:var(--body)}
+.h2-end{display:flex;align-items:center;gap:14px;margin-top:56px;font:800 clamp(1.4rem,2.4vw,2rem) Manrope;letter-spacing:-.03em}
+.h2-end i{font-style:normal;font-size:1.4em}
+
+/* H3 · Scroll horizontal */
+.h3-out{height:340vh;position:relative}
+.h3-stick{position:sticky;top:64px;height:calc(100vh - 64px);overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.h3-head{display:flex;justify-content:space-between;align-items:end;gap:20px}
+.h3-cnt{font:800 clamp(3rem,7vw,6rem)/1 Manrope;letter-spacing:-.05em;color:var(--acc)}
+.h3-cnt small{font-size:.35em;color:#c3c8ce;letter-spacing:0}
+.h3-track{display:flex;gap:24px;margin-top:40px;padding-left:max(24px,calc((100vw - 1240px)/2 + 24px));will-change:transform}
+.h3-c{flex:0 0 min(78vw,520px);height:min(52vh,420px);border-radius:28px;padding:36px;display:flex;flex-direction:column;justify-content:space-between;background:var(--soft);position:relative;overflow:hidden}
+.h3-c:nth-child(2){background:var(--acc);color:#fff}.h3-c:nth-child(3){background:var(--dark);color:#fff}
+.h3-c .ic{font-size:44px}
+.h3-c h3{margin:0 0 10px;font:800 clamp(2rem,3.4vw,2.8rem)/1 Manrope;letter-spacing:-.04em}
+.h3-c p{margin:0;font-size:17px;line-height:1.6;opacity:.8;max-width:30ch}
+.h3-c.end{background:transparent;border:2px dashed var(--line);justify-content:center;align-items:flex-start}
+.h3-c.end b{font:700 clamp(1.8rem,3vw,2.6rem)/1.1 'Playfair Display',serif;margin-bottom:22px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:99px;padding:13px 22px;font-weight:700;font-size:15px;text-decoration:none}
+
+@media(max-width:900px){.h1{grid-template-columns:1fr;justify-items:center}.h1-col{width:100%}.phone{width:250px;height:510px}
+ .h2-grid{grid-template-columns:1fr 1fr}.h2-s:nth-child(even){margin-top:60px}.h2-svg{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<nav class="switch"><button data-v="h1" class="on">H1 · El teléfono</button><button data-v="h2">H2 · Recorrido dibujado</button><button data-v="h3">H3 · Scroll horizontal</button></nav>
+
+<div class="v on" id="h1"><section class="w sec">
+ <p class="eb">How it works</p><h2 class="h">From invite to the dance <em>floor</em></h2>
+ <div class="h1"><div class="h1-col" id="cl"></div>
+  <div class="phone"><div class="scr" id="scr">
+   <div class="sc"><div class="t">Join with an invite</div><div class="mut">Enter the code a member shared with you</div><div class="code"><span>G</span><span>E</span><span>M</span><span>2</span><span>i</span></div><div class="pbtn">Create my account</div></div>
+   <div class="sc"><div class="t">This week</div><div class="ev"><i style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png)"></i><div><b>Deadmau5cubev3</b><span>Nov 7 · New York</span></div></div><div class="ev"><i style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1569001290.png)"></i><div><b>Nora En Pure</b><span>Nov 14 · New York</span></div></div><div class="ev"><i style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568999844.png)"></i><div><b>Audien</b><span>Nov 21 · New York</span></div></div><div class="pbtn">Join guest list</div></div>
+   <div class="sc"><div class="t">Your e-pass</div><div class="mut">Deadmau5cubev3 · Nov 7 · 8:00 PM</div><div class="qr"></div><div class="mut" style="text-align:center">Show this QR at the door</div></div>
+   <div class="sc"><div class="t">Rewards</div><div class="mut">Your community</div><div class="pt">+250</div><div class="mut" style="text-align:center">points · 3 friends joined</div><div class="pbtn">Share my invite code</div></div>
+  </div></div>
+  <div class="h1-col" id="cr"></div></div>
+</section>
+<p class="note"><b>H1 · El teléfono:</b> en el centro, un móvil con la app; a los lados, los 4 pasos. Los pasos avanzan solos (una barra azul marca el tiempo) y la pantalla del teléfono cambia con cada uno: código de invitación → lista de eventos → el QR del pase → los puntos ganados. Se puede pulsar cualquier paso. Enseña el producto real en vez de describirlo.</p></div>
+
+<div class="v" id="h2"><section class="w sec">
+ <p class="eb">How it works</p><h2 class="h">From invite to the dance <em>floor</em></h2>
+ <div class="h2-wrap" id="h2w"><svg class="h2-svg" id="svg"><path id="pbg" stroke="#e3e5e8"/><path id="pfg" stroke="#3287B7"/></svg><div class="h2-grid" id="h2g"></div></div>
+ <div class="h2-end"><i>🪩</i>You're on the dance floor.</div>
+</section>
+<p class="note"><b>H2 · Recorrido dibujado:</b> los 4 pasos en zigzag unidos por una línea curva. Al hacer scroll, la línea azul se va dibujando de un paso a otro y cada círculo se enciende cuando la línea llega a él, hasta terminar en "You're on the dance floor". Es el camino del usuario hecho literal. <i>Haz scroll para verlo.</i></p></div>
+
+<div class="v" id="h3"><div class="h3-out" id="h3o"><div class="h3-stick"><div class="w h3-head"><div><p class="eb">How it works</p><h2 class="h">From invite to the dance <em>floor</em></h2></div><div class="h3-cnt" id="cnt">1<small> / 4</small></div></div><div class="h3-track" id="trk"></div></div></div>
+<p class="note"><b>H3 · Scroll horizontal:</b> al llegar a la sección, la página se "engancha" y al seguir bajando los pasos se desplazan de lado, como un carrusel que mueves con la rueda, con un contador grande que va 1 → 4. Cada tarjeta tiene un color (gris, azul, negro…) y al final una tarjeta invita a unirse. <i>Haz scroll para verlo.</i></p></div>
+
+<script>
+const S=[['🎟️','Join with an invite','A member shares their code; you register in a minute.'],['🗓️','Pick your events','Browse festivals, parties and conferences worldwide.'],['📲','Get your pass','Guest list or e-ticket — your QR arrives by email.'],['✨','Earn rewards','Invite friends and grow your community.']];
+// H1
+const btn=(s,i)=>`<button class="h1-s" data-i="${i}"><h3>${s[1]}</h3><p>${s[2]}</p><span class="bar"><i></i></span></button>`;
+cl.innerHTML=S.slice(0,2).map((s,i)=>btn(s,i)).join('');cr.innerHTML=S.slice(2).map((s,i)=>btn(s,i+2)).join('');
+let cur=0,tm;function go(i){cur=i;document.querySelectorAll('.h1-s').forEach(b=>{b.classList.remove('on');void b.offsetWidth;b.classList.toggle('on',b.dataset.i==i)});
+ [...scr.querySelectorAll('.sc')].forEach((s,k)=>s.classList.toggle('on',k==i));clearTimeout(tm);tm=setTimeout(()=>go((cur+1)%4),3600)}
+document.querySelectorAll('.h1-s').forEach(b=>b.onclick=()=>go(+b.dataset.i));go(0);
+// H2
+h2g.innerHTML=S.map(s=>`<div class="h2-s"><div class="dot">${s[0]}</div><h3>${s[1]}</h3><p>${s[2]}</p></div>`).join('');
+function path(){const W=h2w.getBoundingClientRect();const D=[...h2g.querySelectorAll('.dot')].map(d=>{const r=d.getBoundingClientRect();return[r.left-W.left+r.width/2,r.top-W.top+r.height/2]});
+ if(!D.length)return;let d=`M${D[0][0]},${D[0][1]}`;for(let i=1;i<D.length;i++){const[a,b]=D[i-1],[c,e]=D[i];const m=(a+c)/2;d+=` C${m},${b} ${m},${e} ${c},${e}`}
+ pbg.setAttribute('d',d);pfg.setAttribute('d',d);const L=pfg.getTotalLength();pfg.style.strokeDasharray=L;h2draw()}
+function h2draw(){if(!document.getElementById('h2').classList.contains('on'))return;const L=pfg.getTotalLength();if(!L)return;const r=h2w.getBoundingClientRect();
+ const p=Math.max(0,Math.min(1,(innerHeight*.7-r.top)/(r.height*.9)));pfg.style.strokeDashoffset=L*(1-p);
+ [...h2g.children].forEach((s,i)=>s.classList.toggle('on',p>=i/(S.length-1)-.02))}
+addEventListener('scroll',h2draw,{passive:true});addEventListener('resize',path);
+// H3
+trk.innerHTML=S.map(s=>`<div class="h3-c"><span class="ic">${s[0]}</span><div><h3>${s[1]}</h3><p>${s[2]}</p></div></div>`).join('')+`<div class="h3-c end"><b>Ready for the night?</b><a class="btn" href="#">Join GEM2i →</a></div>`;
+function h3(){if(!document.getElementById('h3').classList.contains('on'))return;const r=h3o.getBoundingClientRect();const tot=h3o.offsetHeight-innerHeight;const p=Math.max(0,Math.min(1,-r.top/tot));
+ const max=trk.scrollWidth-innerWidth+48;trk.style.transform=`translateX(${-p*Math.max(0,max)}px)`;cnt.firstChild.nodeValue=Math.min(4,1+Math.floor(p*4))}
+addEventListener('scroll',h3,{passive:true});
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b));scrollTo(0,0);if(b.dataset.v==='h2')requestAnimationFrame(path);h3()});
+</script></body></html>

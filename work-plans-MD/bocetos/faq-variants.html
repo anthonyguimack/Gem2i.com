@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · FAQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.sub{color:var(--body);font-size:17px;margin:12px 0 0}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:96px 0 40px}
+
+/* ═ F1 · Conversación ═ */
+.f1{display:grid;grid-template-columns:1fr 1.25fr;gap:64px;align-items:start}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:11px 18px;font-weight:600;font-size:14.5px;transition:background .25s,color .25s,border-color .25s,transform .2s}
+.chip:hover{border-color:var(--ink)}
+.chip:active{transform:scale(.97)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.phone{background:var(--soft);border-radius:28px;padding:28px;min-height:460px;display:flex;flex-direction:column;gap:14px;justify-content:flex-end;overflow:hidden}
+.msg{max-width:78%;padding:14px 18px;border-radius:20px;font-size:15px;line-height:1.6;animation:pop .45s var(--ease) both}
+.msg.q{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:6px}
+.msg.a{align-self:flex-start;background:#fff;border-bottom-left-radius:6px;box-shadow:0 6px 20px -10px rgba(0,0,0,.18)}
+.msg.a .who{display:block;font-size:11.5px;font-weight:800;letter-spacing:.12em;color:var(--acc);margin-bottom:4px}
+.typing{align-self:flex-start;background:#fff;border-radius:20px;padding:14px 18px;display:flex;gap:5px;animation:pop .3s var(--ease) both}
+.typing i{width:7px;height:7px;border-radius:99px;background:#aab1b8;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+.hint{align-self:center;color:var(--body);font-size:13.5px;margin:auto 0}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ═ F2 · Buscador gigante ═ */
+.f2-search{margin-top:40px;position:relative}
+.f2-search input{width:100%;border:0;border-bottom:2px solid var(--ink);background:transparent;font:800 clamp(1.8rem,4.4vw,3.4rem) Manrope;letter-spacing:-.03em;padding:10px 0 18px;outline:none;color:var(--ink)}
+.f2-search input::placeholder{color:#c9cdd2}
+.f2-search span{position:absolute;right:0;bottom:22px;font-size:13px;color:var(--body)}
+.f2-list{margin-top:12px}
+.f2-it{border-bottom:1px solid var(--line)}
+.f2-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:24px;background:none;border:0;padding:26px 0;text-align:left;font:700 clamp(1.25rem,2.2vw,1.7rem) Manrope;letter-spacing:-.02em;transition:color .25s}
+.f2-list:hover .f2-q{color:#b9bec4}.f2-list .f2-q:hover,.f2-it.open .f2-q{color:var(--ink)}
+.f2-q .pl{flex:0 0 auto;width:44px;height:44px;border-radius:99px;border:1px solid var(--line);display:grid;place-items:center;font-size:20px;transition:transform .4s var(--ease),background .25s,color .25s}
+.f2-it.open .pl{transform:rotate(45deg);background:var(--ink);color:#fff}
+.f2-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease)}
+.f2-it.open .f2-a{grid-template-rows:1fr}
+.f2-a>div{overflow:hidden}
+.f2-a p{margin:0 0 28px;max-width:62ch;font-size:16.5px;line-height:1.75;color:var(--body)}
+mark{background:rgba(50,135,183,.18);color:inherit;border-radius:3px;padding:0 2px}
+.f2-empty{padding:40px 0;color:var(--body)}
+.f2-empty a{color:var(--ink);font-weight:700}
+
+/* ═ F3 · Tarjetas que giran ═ */
+.f3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.card{perspective:1200px;height:260px;border:0;background:none;padding:0;text-align:left}
+.card .in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s var(--ease)}
+.card.flip .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:22px;padding:28px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.front{background:var(--soft);transition:background .3s}
+.card:hover .front{background:#eceef1}
+.front b{font:700 clamp(1.3rem,2vw,1.6rem)/1.2 'Playfair Display',serif}
+.front small{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;letter-spacing:.14em;color:var(--body);text-transform:uppercase}
+.front small i{font-style:normal;width:36px;height:36px;border-radius:99px;background:#fff;display:grid;place-items:center;font-size:16px;letter-spacing:0;color:var(--ink);transition:transform .4s var(--ease)}
+.card:hover .front small i{transform:rotate(180deg)}
+.back{background:var(--dark);color:#fff;transform:rotateY(180deg)}
+.back p{margin:0;font-size:15.5px;line-height:1.7;color:#d3d8dd}
+.back small{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.card.cta .front{background:var(--acc);color:#fff}.card.cta .front small{color:rgba(255,255,255,.8)}.card.cta .front small i{background:#fff;color:var(--acc)}
+.card.cta:hover .front{background:#2a77a3}
+
+@media(max-width:860px){.f1{grid-template-columns:1fr;gap:32px}.phone{min-height:380px}.f3{grid-template-columns:1fr}.card{height:220px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+
+<nav class="switch"><button data-v="f1" class="on">F1 · Conversación</button><button data-v="f2">F2 · Buscador gigante</button><button data-v="f3">F3 · Tarjetas que giran</button></nav>
+
+<div class="v on" id="f1"><section class="w sec f1">
+ <div>
+  <p class="eb">Help</p><h2 class="h">Frequently asked <em>questions</em></h2>
+  <p class="sub">Tap a question — we answer like we would at the door.</p>
+  <div class="chips" id="chips"></div>
+ </div>
+ <div class="phone" id="chat" aria-live="polite"><p class="hint">Pick a question to start the chat ↖</p></div>
+</section>
+<p class="note"><b>F1 · Conversación:</b> las preguntas son chips. Al pulsar uno, la pregunta entra como un mensaje tuyo, aparecen los tres puntos de "escribiendo…" y GEM2i responde en una burbuja, como un chat. Se pueden encadenar preguntas y la conversación se va acumulando. Cercano, moderno y muy distinto a un acordeón.</p></div>
+
+<div class="v" id="f2"><section class="w sec">
+ <p class="eb">Help</p><h2 class="h">Frequently asked <em>questions</em></h2>
+ <div class="f2-search"><input id="q" placeholder="Ask anything…" aria-label="Search the FAQ"><span id="cnt"></span></div>
+ <div class="f2-list" id="f2l"></div>
+</section>
+<p class="note"><b>F2 · Buscador gigante:</b> la sección empieza con un campo de búsqueda enorme: escribes "ticket" y la lista se filtra al momento, resaltando la palabra. Al pasar el ratón, las otras preguntas se apagan, y la respuesta se despliega suave con un "+" que gira. Si no hay resultados, ofrece contactar. Minimalista y útil cuando las preguntas crezcan.</p></div>
+
+<div class="v" id="f3"><section class="w sec">
+ <p class="eb">Help</p><h2 class="h">Frequently asked <em>questions</em></h2>
+ <p class="sub">Having difficulties? Flip a card.</p>
+ <div class="f3" id="f3g"></div>
+</section>
+<p class="note"><b>F3 · Tarjetas que giran:</b> cada pregunta es una tarjeta gris claro. Al pulsarla gira en 3D y por detrás muestra la respuesta sobre fondo negro, como una entrada de evento. La última tarjeta, en azul, es "¿Otra pregunta?" y abre el contacto. Visual y lúdico.</p></div>
+
+<script>
+const F=[['Who can join GEM2i?','Anyone who lives the entertainment industry: artists, venues, promoters, brands and fans. Registration is free; paid plans add extra benefits.'],
+['How do I get on an event guest list?','Log in, open the event and press "Join guest list". You receive a QR e-pass by email that is scanned at the door.'],
+['How do I buy tickets?','On events with e-tickets choose the ticket type and quantity and pay by card. Your tickets arrive by email with a QR code and stay in My Account.'],
+['Can I list my own event on GEM2i?','Yes. Write to us from the contact section and we publish it with guest list, QR e-passes and e-tickets.'],
+['How can I sponsor an event?','Contact our team with your brand and goals; we propose events, venues and artists that fit your audience.']];
+// F1
+chips.innerHTML=F.map((f,i)=>`<button class="chip" data-i="${i}">${f[0]}</button>`).join('');
+let busy=false;
+chips.onclick=e=>{const b=e.target.closest('.chip');if(!b||busy)return;busy=true;b.classList.add('on');
+ const h=chat.querySelector('.hint');h&&h.remove();const f=F[b.dataset.i];
+ chat.insertAdjacentHTML('beforeend',`<div class="msg q">${f[0]}</div>`);
+ setTimeout(()=>{chat.insertAdjacentHTML('beforeend','<div class="typing"><i></i><i></i><i></i></div>');
+  setTimeout(()=>{chat.querySelector('.typing').remove();chat.insertAdjacentHTML('beforeend',`<div class="msg a"><span class="who">GEM2i</span>${f[1]}</div>`);
+   while(chat.children.length>6)chat.firstElementChild.remove();busy=false},900)},350)};
+// F2
+const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function draw(t=''){const re=t?new RegExp(`(${esc(t)})`,'ig'):null;const hl=s=>re?s.replace(re,'<mark>$1</mark>'):s;
+ const L=F.filter(f=>!t||(f[0]+f[1]).toLowerCase().includes(t.toLowerCase()));
+ cnt.textContent=t?`${L.length} result${L.length===1?'':'s'}`:`${F.length} questions`;
+ f2l.innerHTML=L.length?L.map((f,i)=>`<div class="f2-it ${t&&i===0?'open':''}"><button class="f2-q">${hl(f[0])}<span class="pl">+</span></button><div class="f2-a"><div><p>${hl(f[1])}</p></div></div></div>`).join('')
+ :`<p class="f2-empty">No answer for “${t}” yet — <a href="#">ask us directly →</a></p>`}
+draw();q.oninput=()=>draw(q.value.trim());
+f2l.onclick=e=>{const b=e.target.closest('.f2-q');if(!b)return;const it=b.parentElement;const o=it.classList.contains('open');f2l.querySelectorAll('.f2-it').forEach(x=>x.classList.remove('open'));if(!o)it.classList.add('open')};
+// F3
+f3g.innerHTML=F.map(f=>`<button class="card"><div class="in"><div class="face front"><b>${f[0]}</b><small>Tap to answer <i>↻</i></small></div><div class="face back"><small>GEM2i</small><p>${f[1]}</p></div></div></button>`).join('')
+ +`<button class="card cta"><div class="in"><div class="face front"><b>Another question?</b><small>Contact us <i>→</i></small></div></div></button>`;
+f3g.onclick=e=>{const c=e.target.closest('.card:not(.cta)');c&&c.classList.toggle('flip')};
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+</script></body></html>

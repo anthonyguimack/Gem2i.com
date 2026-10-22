@@ -15,6 +15,7 @@ import { AUREX_FONTS, websitePaletteFor } from '../../lib/themeColors';
 import { GemHeroU } from '../../components/gem2i/GemHeroVariants';
 import GemModernMaps from '../../components/gem2i/GemModernMaps';
 import GemContactSection from '../../components/gem2i/GemContactSection';
+import { GemGalleryMasonry, GemMapTabs, GemLogoWall, GemClientCases, GemContactEditorial, GemTeamRegions } from '../../components/gem2i/NorulesEnd';
 import AccentTitle from '../../components/gem2i/AccentTitle';
 import { LOOKS, readLook, toneOf } from '../../lib/gemLook';
 import {
@@ -22,7 +23,7 @@ import {
   GemEventPosters,
   GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemTicker, GemLocations, GemGallery,
-  GemIntroPhoto, GemServicesGrid, GemFeaturedCircles, GemFaq, GemNewsCards, GemConferenceReviews,
+  GemIntroPhoto, GemServicesGrid, GemTestimonialBoard, GemNewsCover, GemAudiencePasses, GemProcessPhone, GemEventCoverflow, GemMethodDeck, GemFeaturedCircles, GemFeaturedType, GemFeaturedStage, GemFaq, GemNewsCards, GemConferenceReviews,
   NorulesArtistCards, NorulesVenueAww, NorulesFestivalAww,
 } from '../../components/gem2i/NorulesSections';
 
@@ -175,7 +176,7 @@ export default function NorulesHome() {
       )}
 
       </>),
-    gem_intro: () => <GemIntroPhoto intro={c.intro} />,
+    gem_intro: () => <GemIntroPhoto intro={c.intro} featured={c.featured} />,
     legacy_gem_intro: () => (<>
       {/* INTRO */}
       {c.intro && (
@@ -190,7 +191,12 @@ export default function NorulesHome() {
       )}
 
       </>),
-    gem_featured: () => <GemFeaturedCircles items={Array.isArray(c.featured) ? c.featured : []} />,
+    // Client preview: the same Featured content in two formats (X1 type list, X2 dark stage).
+    // When the client picks one, delete the other line.
+    gem_featured: () => (<>
+      <GemFeaturedType items={Array.isArray(c.featured) ? c.featured : []} />
+      <GemFeaturedStage items={Array.isArray(c.featured) ? c.featured : []} />
+    </>),
     gem_faq: () => <GemFaq config={smCfg('gem_faq')} items={sm.gem_faq?.items || []} />,
     legacy_gem_featured: () => (<>
       {/* FEATURED — venues / events / artists */}
@@ -249,9 +255,7 @@ export default function NorulesHome() {
 
       </>),
     gem_methodology: () => (methodologyItems.length > 0
-      ? (isTpl01
-        ? <GemMethodCycle config={smCfg('gem_methodology')} items={methodologyItems} brand={brand} />
-        : <GemSteps config={smCfg('gem_methodology')} items={methodologyItems} testid="gem2i-methodology" />)
+      ? <GemMethodDeck config={smCfg('gem_methodology')} items={methodologyItems} />
       : (<>
       {/* METHODOLOGY — a real 3-step sequence (legacy 1/2/3) */}
       {c.methodology && Array.isArray(c.methodology.steps) && c.methodology.steps.length > 0 && (
@@ -322,7 +326,7 @@ export default function NorulesHome() {
       // Section Manager (Clients — Section Configuration) wins over the gem_config defaults.
       const cfg = smCfg('gem_clients_cfg');
       const logos = (cl.logos?.length > 0 ? cl.logos : clientLogos).slice(0, limitOf('gem_clients_cfg', 12));
-      return <GemClientsGrid kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cfg.subtitle) || tt(cl.text)} logos={logos}
+      return <GemClientCases kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cfg.subtitle) || tt(cl.text)} logos={logos}
         ctaText={tt(cfg.cta_text)} ctaUrl={cfg.cta_url} ctaNewTab={!!cfg.cta_new_tab} />;
     })() : (<>
       {/* CLIENTS */}
@@ -345,7 +349,7 @@ export default function NorulesHome() {
       )}
       </>)),
     gem_events: () => (isTpl01
-      ? <GemEventPosters config={smCfg('gem_events_cfg')} items={events.slice(0, limitOf('gem_events_cfg'))} />
+      ? <GemEventCoverflow config={smCfg('gem_events_cfg')} items={events.slice(0, limitOf('gem_events_cfg'))} />
       : <GemCatalogStrip config={smCfg('gem_events_cfg')} fallbackTitle={{ en: 'Upcoming events', es: 'Próximos eventos' }} testid="gem2i-events"
         items={events.slice(0, limitOf('gem_events_cfg')).map(e => ({
           title: e.title, url: `/events/${e.slug}`, meta: e.event_date, metaIcon: 'date',
@@ -369,22 +373,22 @@ export default function NorulesHome() {
         }))} />
     ),
     // Template 01 = approved bocetos A-3 / P-1; P-2 is reserved for 02/03.
-    aurex_audience: () => (isTpl01 ? <GemAudienceList {...(sm.aurex_audience || {})} /> : <GemAudience {...(sm.aurex_audience || {})} />),
-    aurex_process: () => (isTpl01 ? <GemTimeline {...(sm.aurex_process || {})} /> : <GemSteps {...(sm.aurex_process || {})} />),
+    aurex_audience: () => <GemAudiencePasses {...(sm.aurex_audience || {})} />,
+    aurex_process: () => <GemProcessPhone {...(sm.aurex_process || {})} events={events} />,
     aurex_pricing: () => (isTpl01 ? <GemPricingTiers {...(sm.aurex_pricing || {})} /> : <GemPricing {...(sm.aurex_pricing || {})} />),
-    aurex_team: () => (isTpl01 ? <GemTeamPortraits {...(sm.aurex_team || {})} /> : <GemTeam {...(sm.aurex_team || {})} />),
+    aurex_team: () => <GemTeamRegions {...(sm.aurex_team || {})} />,
     aurex_video: () => (isTpl01 ? <GemVideoCover {...(sm.aurex_video || {})} /> : <GemVideo {...(sm.aurex_video || {})} />),
-    aurex_partners: () => (isTpl01 ? <GemLogoMarquee {...(sm.aurex_partners || {})} testid="gem2i-partners" /> : <GemLogos {...(sm.aurex_partners || {})} testid="gem2i-partners" />),
+    aurex_partners: () => <GemLogoWall {...(sm.aurex_partners || {})} testid="gem2i-partners" />,
     aurex_clients: () => <GemLogos {...(sm.aurex_clients || {})} testid="gem2i-aurex-clients" />,
-    testimonials: () => (isTpl01 ? <GemTestimonialSpotlight config={smCfg('aurex_testimonials_cfg')} items={testimonials} /> : <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />),
-    contact: () => <GemContactSection />,
+    testimonials: () => <GemTestimonialBoard config={smCfg('aurex_testimonials_cfg')} items={testimonials} />,
+    contact: () => <GemContactEditorial settings={settings} />,
     news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
     gem_conf_reviews: () => <GemConferenceReviews config={smCfg('gem_conf_reviews')} items={sm.gem_conf_reviews?.items || []} />,
-    gem_news: () => <GemNewsCards config={smCfg('aurex_blog_cfg')} items={news} />,
+    gem_news: () => <GemNewsCover config={smCfg('aurex_blog_cfg')} items={news} />,
     map: () => (isTpl01
-      ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
+      ? <GemMapTabs tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
       : <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />),
-    gallery: () => (isTpl01 ? <GemGalleryMosaic config={smCfg('aurex_gallery_cfg')} items={gallery} /> : <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />),
+    gallery: () => <GemGalleryMasonry config={smCfg('aurex_gallery_cfg')} items={gallery} />,
   };
 
   // A saved Page Builder order predates sections added later: slot each missing
@@ -423,8 +427,9 @@ export default function NorulesHome() {
         // section colour (or the night default) at bg_overlay %, so the text
         // tone still follows that colour. No image → plain colour as before.
         const img = paintable && cfg.bg_image ? gemImg(cfg.bg_image) : null;
-        // No section colour: veil the photo with the palette's page colour (light palettes stay light).
-        const veilBase = bg && !String(bg).startsWith('linear') ? bg : (pageTone === 'light' ? pal.page_bg : '#04080C');
+        // No section colour: veil the photo with the night default, as in the Gem2i template — a light veil
+        // over a photo washed it out (Anthony, 2026-10-22).
+        const veilBase = bg && !String(bg).startsWith('linear') ? bg : '#04080C';
         const tone = toneOf(img ? veilBase : bg);
         const veil = img ? `color-mix(in srgb, ${veilBase} ${Math.min(95, Math.max(0, Number(cfg.bg_overlay ?? 70)))}%, transparent)` : null;
         const paint = img

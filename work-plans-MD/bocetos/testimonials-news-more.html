@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Testimonios y noticias</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Monoton&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:12px 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 12.5px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:8px 13px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.switch .g{font:800 11px Manrope;letter-spacing:.16em;color:var(--body);align-self:center;margin:0 4px 0 12px}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:88px 0 40px}
+.av{width:48px;height:48px;border-radius:99px;background:linear-gradient(135deg,#1d3a52,#0f1d2a);color:#5FB2E0;display:grid;place-items:center;font-weight:800;flex:0 0 auto}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:99px;padding:13px 22px;font-weight:700;font-size:15px;text-decoration:none;border:0}
+
+/* TS3 · Tablón de polaroids */
+.board{position:relative;margin-top:40px;height:620px;border-radius:28px;background:#efe9df radial-gradient(circle at 20% 30%,rgba(0,0,0,.04),transparent 40%);overflow:hidden}
+.pol{position:absolute;width:250px;background:#fff;padding:12px 12px 18px;box-shadow:0 18px 30px -14px rgba(0,0,0,.35);cursor:grab;touch-action:none;transition:box-shadow .2s;user-select:none}
+.pol:active{cursor:grabbing;box-shadow:0 30px 50px -18px rgba(0,0,0,.45)}
+.pol::before{content:"";position:absolute;left:50%;top:-10px;width:22px;height:22px;margin-left:-11px;border-radius:99px;background:radial-gradient(circle at 35% 35%,#ff8a7a,#c0392b);box-shadow:0 3px 5px rgba(0,0,0,.3)}
+.pol img{width:100%;aspect-ratio:1;object-fit:cover;filter:saturate(.9)}
+.pol p{font:600 15px/1.45 'Playfair Display',serif;font-style:italic;margin:12px 4px 8px}
+.pol b{font-size:12.5px;margin:0 4px}
+
+/* TS4 · Letrero de neón */
+.neon{margin-top:40px;border-radius:28px;min-height:520px;padding:60px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#0b0b10 repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 2px,transparent 2px 46px),repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 2px,transparent 2px 92px)}
+.neon q{display:block;max-width:900px;font:400 clamp(1.6rem,3.4vw,2.8rem)/1.35 Monoton,cursive;color:#ffd6f5;quotes:"“" "”";text-shadow:0 0 6px #ff4fd8,0 0 18px #ff4fd8,0 0 40px #c026d3}
+.neon q.off{animation:flick 1.1s steps(1) both}
+@keyframes flick{0%{opacity:0}10%{opacity:1}14%{opacity:.2}20%{opacity:1}55%{opacity:.4}58%,100%{opacity:1}}
+.neon .who{margin-top:34px;color:#7dd3fc;font-weight:800;letter-spacing:.2em;font-size:13px;text-transform:uppercase;text-shadow:0 0 8px #38bdf8}
+.neon .dots{display:flex;gap:10px;margin-top:30px}.neon .dots button{width:10px;height:10px;border-radius:99px;border:0;padding:0;background:#3a3a46}.neon .dots button.on{background:#ff4fd8;box-shadow:0 0 10px #ff4fd8}
+
+/* TS5 · Plano de cine */
+.cine{margin-top:40px;position:relative;border-radius:28px;overflow:hidden;height:560px;background:#000;color:#fff}
+.cine img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.08);transition:opacity .9s,transform 6s linear}
+.cine img.on{opacity:.75;transform:scale(1)}
+.cine::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.85),rgba(0,0,0,.2) 70%);pointer-events:none}
+.cine .bars::before,.cine .bars::after{content:"";position:absolute;left:0;right:0;height:46px;background:#000;z-index:2}.cine .bars::before{top:0}.cine .bars::after{bottom:0}
+.cine .tx{position:absolute;left:56px;bottom:90px;z-index:3;max-width:640px}
+.cine q{display:block;font:700 clamp(1.6rem,3vw,2.6rem)/1.25 'Playfair Display',serif;quotes:"“" "”"}
+.cine .who{margin-top:20px;font-weight:700}.cine .who span{opacity:.7;font-weight:500}
+.cine .sub{position:absolute;right:40px;bottom:66px;z-index:3;display:flex;gap:10px}
+.cine .sub button{width:70px;height:46px;border-radius:8px;overflow:hidden;border:2px solid transparent;padding:0;opacity:.6;transition:opacity .3s,border-color .3s}
+.cine .sub button.on{opacity:1;border-color:#fff}.cine .sub img{position:static;opacity:1;transform:none;width:100%;height:100%;object-fit:cover}
+.cine .tc{position:absolute;left:56px;top:66px;z-index:3;font:600 12px monospace;letter-spacing:.14em;opacity:.7}
+
+/* N3 · Portada de periódico */
+.paper{margin-top:40px;background:#f7f4ee;border-radius:10px;padding:34px 40px 40px;color:#1a1a1a;box-shadow:0 30px 60px -40px rgba(0,0,0,.4)}
+.mast{text-align:center;border-bottom:3px double #1a1a1a;padding-bottom:12px}
+.mast h3{margin:0;font:900 clamp(2.4rem,6vw,5rem)/1 'Playfair Display',serif;letter-spacing:-.02em}
+.mast .ln{display:flex;justify-content:space-between;font:700 11px Manrope;letter-spacing:.16em;margin-top:10px;border-top:1px solid #1a1a1a;padding-top:8px}
+.cols{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0;margin-top:24px}
+.cols>a{padding:0 22px;border-left:1px solid #cfc9bd;text-decoration:none;color:inherit}.cols>a:first-child{padding-left:0;border:0}
+.cols img{width:100%;aspect-ratio:16/10;object-fit:cover;filter:grayscale(1) contrast(1.1);transition:filter .5s}
+.cols a:hover img{filter:none}
+.cols h4{font:700 clamp(1.1rem,1.6vw,1.4rem)/1.2 'Playfair Display',serif;margin:12px 0 8px}
+.cols a:first-child h4{font-size:clamp(1.8rem,3vw,2.6rem)}
+.cols p{font:400 14px/1.6 Georgia,serif;margin:0;text-align:justify;hyphens:auto}
+.cols a:first-child p{column-count:2;column-gap:22px}
+.cols small{font:800 10.5px Manrope;letter-spacing:.18em;color:#8a7f6c}
+
+/* N4 · Rejilla con filtro */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 16px;font-weight:700;font-size:14px;transition:background .25s,color .25s}
+.chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:220px;gap:14px;margin-top:22px}
+.bt{position:relative;border-radius:22px;overflow:hidden;background:#000;color:#fff;text-decoration:none;transition:opacity .4s,transform .5s var(--ease)}
+.bt.big{grid-column:span 2;grid-row:span 2}.bt.wide{grid-column:span 2}
+.bt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 4s ease-out}
+.bt:hover img{transform:scale(1.12) translate(-2%,-2%)}
+.bt::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.85))}
+.bt .t{position:absolute;left:20px;right:20px;bottom:18px;z-index:2}
+.bt small{font-size:11px;font-weight:800;letter-spacing:.16em;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);padding:5px 9px;border-radius:99px}
+.bt h4{margin:10px 0 0;font:700 17px/1.25 Manrope}.bt.big h4{font:700 clamp(1.5rem,2.4vw,2rem)/1.15 'Playfair Display',serif}
+.bt.hide{opacity:.12;transform:scale(.97);pointer-events:none}
+
+/* N5 · Titulares que suben */
+.n5{margin-top:40px;position:relative;border-radius:28px;overflow:hidden;height:560px;background:var(--dark);color:#fff;display:grid;grid-template-columns:1.1fr 1fr}
+.n5-tx{padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:2}
+.n5-h{font:700 clamp(2rem,3.6vw,3.2rem)/1.08 'Playfair Display',serif;margin:0;overflow:hidden}
+.n5-h .ln{display:block;overflow:hidden}.n5-h .ln span{display:inline-block;transform:translateY(105%);animation:rise .8s var(--ease) forwards}
+@keyframes rise{to{transform:none}}
+.n5-tx p{color:#aab2ba;font-size:16px;line-height:1.65;max-width:42ch;opacity:0;animation:fade .6s .5s forwards}@keyframes fade{to{opacity:1}}
+.n5-nav{display:flex;align-items:center;gap:18px}
+.n5-nav .cnt{font:800 14px Manrope;letter-spacing:.1em}.n5-nav .cnt i{font-style:normal;opacity:.4}
+.n5-line{flex:1;height:2px;background:#262c33;border-radius:2px;overflow:hidden}.n5-line b{display:block;height:100%;width:0;background:#5FB2E0}.n5-line b.run{animation:fill 6s linear forwards}@keyframes fill{to{width:100%}}
+.n5-nav button{width:44px;height:44px;border-radius:99px;border:1px solid #333a42;background:none;color:#fff}
+.n5-ph{position:relative;clip-path:inset(0 0 0 0)}
+.n5-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;clip-path:inset(0 0 100% 0);transition:clip-path .9s var(--ease)}
+.n5-ph img.on{clip-path:inset(0 0 0 0)}
+
+@media(max-width:900px){.board{height:900px}.pol{width:200px}.cine .tx{left:24px;right:24px}.cine .sub{right:24px}.cine .tc{left:24px}
+ .cols{grid-template-columns:1fr}.cols>a{padding:18px 0;border:0;border-top:1px solid #cfc9bd}.cols a:first-child p{column-count:1}
+ .bento{grid-template-columns:1fr 1fr;grid-auto-rows:180px}.n5{grid-template-columns:1fr;height:auto}.n5-ph{height:260px;order:-1}.n5-tx{padding:28px;gap:24px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}.n5-h .ln span{transform:none}.n5-tx p{opacity:1}}
+</style></head><body>
+<nav class="switch">
+ <span class="g">TESTIMONIOS</span><button data-v="ts3" class="on">TS3 · Tablón de polaroids</button><button data-v="ts4">TS4 · Neón</button><button data-v="ts5">TS5 · Plano de cine</button>
+ <span class="g">NOTICIAS</span><button data-v="n3">N3 · Periódico</button><button data-v="n4">N4 · Rejilla con filtro</button><button data-v="n5">N5 · Titulares que suben</button>
+</nav>
+
+<div class="v on" id="ts3"><section class="w sec"><p class="eb">Testimonials</p><h2 class="h">What the night <em>says</em></h2><div class="board" id="board"></div></section>
+<p class="note"><b>TS3 · Tablón de polaroids:</b> los testimonios son polaroids con chincheta, sueltas y algo torcidas sobre un tablón de corcho, como en el backstage. Se pueden arrastrar y reordenar con el ratón o el dedo; la que tocas pasa al frente. Cálido, humano y muy fotográfico.</p></div>
+
+<div class="v" id="ts4"><section class="w sec"><p class="eb">Testimonials</p><h2 class="h">What the night <em>says</em></h2>
+ <div class="neon"><q id="nq"></q><div class="who" id="nw"></div><div class="dots" id="nd"></div></div></section>
+<p class="note"><b>TS4 · Neón:</b> cada testimonio se escribe como un letrero de neón rosa sobre pared oscura. Al cambiar (solo o con los puntos), el neón parpadea al apagarse y vuelve a encenderse con la siguiente frase, como un cartel de club. Pura estética nocturna.</p></div>
+
+<div class="v" id="ts5"><section class="w sec"><p class="eb">Testimonials</p><h2 class="h">What the night <em>says</em></h2>
+ <div class="cine" id="cine"><div class="bars"></div><span class="tc" id="ctc"></span><div class="tx" id="ctx"></div><div class="sub" id="csub"></div></div></section>
+<p class="note"><b>TS5 · Plano de cine:</b> cada testimonio es una escena de película: foto a pantalla ancha con franjas negras de cine, un lento zoom, la cita como subtítulo y un código de tiempo. Abajo a la derecha, miniaturas para cambiar de escena (también cambia sola). Cinematográfico y emocional.</p></div>
+
+<div class="v" id="n3"><section class="w sec"><p class="eb">Insights</p><h2 class="h">Latest <em>news</em></h2>
+ <div class="paper"><div class="mast"><h3>The GEM2i Times</h3><div class="ln"><span>VOL. XXXIII</span><span id="today"></span><span>NIGHTLIFE · MUSIC · CULTURE</span></div></div><div class="cols" id="cols"></div></div></section>
+<p class="note"><b>N3 · Periódico:</b> las noticias se presentan como la portada de un diario impreso: cabecera "The GEM2i Times", fecha del día, la noticia principal a dos columnas y las demás al lado, con fotos en blanco y negro que se colorean al pasar el ratón. Editorial y con mucha personalidad.</p></div>
+
+<div class="v" id="n4"><section class="w sec"><div style="display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap"><div><p class="eb">Insights</p><h2 class="h">Latest <em>news</em></h2></div><a class="btn" href="#">All news →</a></div>
+ <div class="chips" id="chips"></div><div class="bento" id="bento"></div></section>
+<p class="note"><b>N4 · Rejilla con filtro:</b> un mosaico de noticias de distintos tamaños (una grande, otras anchas o cuadradas) con fotos que hacen un zoom lento al pasar el ratón. Arriba, filtros por categoría (Festivals, Artists, Venues…): al elegir uno, las demás se apagan. Útil cuando haya muchas noticias.</p></div>
+
+<div class="v" id="n5"><section class="w sec"><p class="eb">Insights</p><h2 class="h">Latest <em>news</em></h2>
+ <div class="n5"><div class="n5-tx" id="n5t"></div><div class="n5-ph" id="n5p"></div></div></section>
+<p class="note"><b>N5 · Titulares que suben:</b> una noticia a la vez en un bloque negro: el titular aparece subiendo línea a línea, como en los créditos de un tráiler, y la foto se revela de arriba abajo. Una línea azul marca el tiempo hasta la siguiente; también hay flechas. Dramático y muy de marca.</p></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const IMG='https://beta.gem2i.com/api/uploads/gem2i/';
+const TS=[['Booking through GEM2i saved us weeks every season.','Rita Gómez','Venue manager, Madrid',IMG+'site/gem_venues.jpg'],
+ ['My guest list filled in two hours — and everyone showed up.','Tomás Vidal','Promoter, Buenos Aires',IMG+'site/gem_events.jpg'],
+ ['The QR e-pass is the smoothest door I have ever walked through.','Kim Park','Member, New York',IMG+'site/gem_intro.jpg'],
+ ['GEM2i put my sets in front of the right promoters.','James Okafor','DJ & producer, London',IMG+'site/gem_artists.jpg']];
+const ini=n=>n.split(' ').map(x=>x[0]).join('');
+// TS3
+const pos=[[6,8,-6],[30,26,4],[56,6,-3],[76,30,7]];
+$('board').innerHTML=TS.map((t,i)=>`<div class="pol" style="left:${pos[i][0]}%;top:${pos[i][1]}%;transform:rotate(${pos[i][2]}deg)"><img src="${t[3]}" alt="" draggable="false"><p>“${t[0]}”</p><b>${t[1]}</b> <span style="font-size:12px;color:#777">· ${t[2]}</span></div>`).join('');
+let zi=10;$('board').querySelectorAll('.pol').forEach(p=>{let sx,sy,ox,oy;p.onpointerdown=e=>{p.setPointerCapture(e.pointerId);p.style.zIndex=++zi;sx=e.clientX;sy=e.clientY;ox=p.offsetLeft;oy=p.offsetTop;
+ p.onpointermove=m=>{p.style.left=ox+m.clientX-sx+'px';p.style.top=oy+m.clientY-sy+'px'}};p.onpointerup=()=>{p.onpointermove=null}});
+// TS4
+let ni=0,ntm;function neon(i){ni=i;const q=$('nq');q.classList.remove('off');void q.offsetWidth;q.textContent=TS[i][0];q.classList.add('off');$('nw').textContent=`${TS[i][1]} · ${TS[i][2]}`;
+ [...$('nd').children].forEach((b,k)=>b.classList.toggle('on',k===i));clearTimeout(ntm);ntm=setTimeout(()=>neon((ni+1)%TS.length),6000)}
+$('nd').innerHTML=TS.map((_,i)=>`<button data-i="${i}" aria-label="${i+1}"></button>`).join('');$('nd').onclick=e=>{const b=e.target.closest('button');b&&neon(+b.dataset.i)};neon(0);
+// TS5
+$('cine').insertAdjacentHTML('afterbegin',TS.map(t=>`<img src="${t[3]}" alt="">`).join(''));$('csub').innerHTML=TS.map((t,i)=>`<button data-i="${i}"><img src="${t[3]}" alt=""></button>`).join('');
+let ci=0,ctm;function cine(i){ci=i;[...$('cine').querySelectorAll(':scope>img')].forEach((m,k)=>m.classList.toggle('on',k===i));[...$('csub').children].forEach((b,k)=>b.classList.toggle('on',k===i));
+ $('ctx').innerHTML=`<div style="animation:fade .8s both"><q>${TS[i][0]}</q><div class="who">${TS[i][1]} <span>— ${TS[i][2]}</span></div></div>`;$('ctc').textContent=`SCENE ${String(i+1).padStart(2,'0')} · 00:0${i}:${(17+i*13)%60}`;
+ clearTimeout(ctm);ctm=setTimeout(()=>cine((ci+1)%TS.length),7000)}
+$('csub').onclick=e=>{const b=e.target.closest('button');b&&cine(+b.dataset.i)};cine(0);
+// NEWS
+const NW=[['Ultra Miami at 25: how a beach festival changed the industry','From the first stage in Collins Park to a global circuit moving 170,000 people per edition. The festival that started on a beach now sets the calendar for the whole electronic scene, with editions on five continents.','legacy/images_festivals/photo/1518136932.png','Festivals'],
+ ['Carl Cox: “the dance floor is still the best lab”','Three decades on, he still tests every track in front of a crowd before releasing it.','legacy/djs_images/big/1400182806.png','Artists'],
+ ['Green Valley: a night from the booth','Video: how the peak of the night feels from behind the DJ.','legacy/venues_view/1403884600.png','Venues'],
+ ['Amsterdam Dance Event closes its biggest edition','Five days, 400 venues and a record number of conference delegates.','site/gem_events.jpg','Conferences'],
+ ['Five rooftops to watch this summer','Our picks for open-air nights from Miami to Ibiza.','site/gem_venues.jpg','Venues'],
+ ['The new wave of Latin house','Producers from Lima to Bogotá are reshaping the sound of the clubs.','site/gem_artists.jpg','Artists']];
+$('today').textContent=new Date().toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+$('cols').innerHTML=NW.slice(0,3).map(n=>`<a href="#"><img src="${IMG+n[2]}" alt=""><small>${n[3].toUpperCase()}</small><h4>${n[0]}</h4><p>${n[1]}</p></a>`).join('');
+const CATS=['All',...new Set(NW.map(n=>n[3]))];$('chips').innerHTML=CATS.map((c,i)=>`<button class="${i?'':'on'}" data-c="${c}">${c}</button>`).join('');
+const sz=['big','','','wide','',''];$('bento').innerHTML=NW.map((n,i)=>`<a class="bt ${sz[i]}" data-c="${n[3]}" href="#"><img src="${IMG+n[2]}" alt=""><div class="t"><small>${n[3].toUpperCase()}</small><h4>${n[0]}</h4></div></a>`).join('');
+$('chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;$('chips').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('bento').querySelectorAll('.bt').forEach(t=>t.classList.toggle('hide',b.dataset.c!=='All'&&t.dataset.c!==b.dataset.c))};
+$('n5p').innerHTML=NW.slice(0,4).map(n=>`<img src="${IMG+n[2]}" alt="">`).join('');
+let ki=0,ktm;function n5(i){ki=(i+4)%4;const n=NW[ki];const lines=n[0].match(/.{1,26}(\s|$)/g)||[n[0]];
+ $('n5t').innerHTML=`<div><p style="opacity:1;animation:none;color:#5FB2E0;font-weight:800;font-size:12px;letter-spacing:.18em;margin:0 0 18px">${n[3].toUpperCase()} · 19 OCT</p><h3 class="n5-h">${lines.map((l,k)=>`<span class="ln"><span style="animation-delay:${k*.09}s">${l}</span></span>`).join('')}</h3><p style="margin-top:20px">${n[1]}</p></div>
+ <div class="n5-nav"><span class="cnt">${ki+1} <i>/ 4</i></span><span class="n5-line"><b class="run"></b></span><button id="kp" aria-label="Previous">←</button><button id="kn" aria-label="Next">→</button></div>`;
+ [...$('n5p').children].forEach((m,k)=>m.classList.toggle('on',k===ki));$('kp').onclick=()=>n5(ki-1);$('kn').onclick=()=>n5(ki+1);clearTimeout(ktm);ktm=setTimeout(()=>n5(ki+1),6000)}
+n5(0);
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+</script></body></html>

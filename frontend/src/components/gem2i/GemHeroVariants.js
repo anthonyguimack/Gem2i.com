@@ -354,6 +354,8 @@ export function GemHeroU({ slide, slides, linked = [] }) {
   const [pick, setPick] = React.useState(0);
   const [muted, setMuted] = React.useState(true);
   const [zoom, setZoom] = React.useState(false);
+  // Natural width/height of the uploaded flyer: the frame keeps the hero height and takes this proportion.
+  const [ratio, setRatio] = React.useState(2 / 3);
   React.useEffect(() => { setPick(0); }, [c.at]);
   React.useEffect(() => {
     if (!zoom) return undefined;
@@ -386,8 +388,8 @@ export function GemHeroU({ slide, slides, linked = [] }) {
           <div className="absolute inset-0" style={{ background: U_VEIL }} />
         </div>
 
-        <div className={`h-full grid gap-8 lg:gap-10 px-5 py-6 md:px-12 md:py-12 ${flyer ? 'lg:grid-cols-[1fr_1.05fr] items-center' : 'items-end min-h-[70svh] lg:min-h-0'}`}>
-          <div key={`${c.at}-${pick}`} className="order-2 lg:order-1 self-end lg:pb-6 gem-hero-in" aria-live="polite">
+        <div className={`h-full gap-8 lg:gap-12 px-5 py-6 md:px-12 md:py-12 ${flyer ? 'grid lg:flex lg:items-center' : 'grid items-end min-h-[70svh] lg:min-h-0'}`}>
+          <div key={`${c.at}-${pick}`} className="order-2 lg:order-1 lg:flex-1 lg:min-w-0 self-end lg:pb-6 gem-hero-in" aria-live="polite">
             <span className="inline-block text-xs md:text-[13px] font-extrabold tracking-[0.04em] uppercase px-3.5 py-1.5 rounded-full text-white border border-white/20 backdrop-blur-sm" style={{ backgroundColor: 'rgba(4,8,12,.6)' }}>{chip}</span>
             <Title text={title} className="mt-5" style={{ fontSize: 'clamp(2.2rem, min(4.2vw, 7vh), 3.9rem)' }} />
             {bigDate && <p className="mt-5 text-white font-extrabold leading-[.95] tracking-[-0.02em] tabular-nums" style={{ fontSize: 'clamp(2.8rem, min(6.4vw, 10vh), 6rem)' }}>{bigDate}</p>}
@@ -409,10 +411,13 @@ export function GemHeroU({ slide, slides, linked = [] }) {
           </div>
 
           {flyer && (
-            <div className="order-1 lg:order-2 relative w-full aspect-[4/5] lg:aspect-auto lg:h-full rounded-[18px] md:rounded-[22px] overflow-hidden"
-              style={{ backgroundColor: '#0D1721', boxShadow: '0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 0 40px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 30px 60px -20px rgba(0,0,0,.8)' }}>
+            <div className="order-1 lg:order-2 relative w-full max-h-[70svh] mx-auto lg:mx-0 lg:w-auto lg:max-h-none lg:h-full lg:max-w-[50%] lg:shrink-0 rounded-[18px] md:rounded-[22px] overflow-hidden transition-[aspect-ratio] duration-500 ease-out motion-reduce:transition-none"
+              style={{ aspectRatio: ratio, backgroundColor: '#0D1721', boxShadow: '0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 0 40px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 30px 60px -20px rgba(0,0,0,.8)' }}>
               <Link to={`/events/${ev.slug}`} aria-label={tt(ev.title)} className="block w-full h-full">
-                <img key={flyer} src={flyer} alt="" className="w-full h-full object-cover object-top gem-hero-in" />
+                {/* Wider than the 50% cap: shown whole over a blurred copy of itself. */}
+                <img src={flyer} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl brightness-[.6]" />
+                <img key={flyer} src={flyer} alt="" onLoad={(e) => { const { naturalWidth: w, naturalHeight: h } = e.currentTarget; if (w && h) setRatio(w / h); }}
+                  className="relative w-full h-full object-contain gem-hero-in" />
               </Link>
               <button type="button" onClick={() => setZoom(true)} aria-label={tt({ en: 'Enlarge flyer', es: 'Ampliar flyer' })}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full inline-flex items-center justify-center text-white transition-transform active:scale-95" style={{ backgroundColor: 'rgba(4,8,12,.65)' }}>

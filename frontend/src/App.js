@@ -100,6 +100,7 @@ const Gem2iEvents = lazy(() => import('./pages/gem2i/Gem2iEvents'));
 const Gem2iEventDetail = lazy(() => import('./pages/gem2i/Gem2iEventDetail'));
 const Gem2iTicketSuccess = lazy(() => import('./pages/gem2i/Gem2iTicketSuccess'));
 const Gem2iAbout = lazy(() => import('./pages/gem2i/Gem2iAbout'));
+const NorulesAbout = lazy(() => import('./pages/gem2i/NorulesAbout'));
 const Gem2iTravels = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iTravels })));
 const Gem2iServices = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iServices })));
 const Gem2iPartners = lazy(() => import('./pages/gem2i/Gem2iInnerPages').then(m => ({ default: m.Gem2iPartners })));
@@ -510,7 +511,8 @@ function AppRouter() {
               {/* gem2i catalogs take over these URLs when the theme is active;
                   other themes fall through to the CMS placeholder pages. */}
               {isGem2iTheme(settings.active_theme) && <>
-                <Route path="/about" element={<Gem2iAbout />} />
+                {/* Each template is a package: its own home AND its own inner pages (Norules = `gem2i`). */}
+                <Route path="/about" element={settings.active_theme === 'gem2i' ? <NorulesAbout /> : <Gem2iAbout />} />
                 <Route path="/travels" element={<Gem2iTravels />} />
                 <Route path="/services" element={<Gem2iServices />} />
                 <Route path="/partners" element={<Gem2iPartners />} />

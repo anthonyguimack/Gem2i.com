@@ -711,9 +711,9 @@ body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[
 .gem-has-bg > section > div[style*="section-bg"] { background:transparent !important; }
 .gem-tone-light { --color-body-text:#4A5866; --color-card-bg:#ffffff; --color-card-border:rgba(11,22,34,.1);
   --color-link:#1F6390; --color-section-bg:transparent; color:#0B1622; }
-.gem-tone-light :is(.text-white, [class*="text-white/"], h1, h2, h3, h4, blockquote, figcaption, [style*="color: rgb(255, 255, 255)"], [style*="color: rgba(255, 255, 255"]):not(.gem-tone-light :is([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg):not(.gem-has-bg > *):not(.gem-has-bg > section > div), .absolute, [class^="bg-"]:not([class*="bg-transparent"]), [class*=" bg-"]:not([class*="bg-transparent"])) *):not(.absolute):not([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg > *)) {
+.gem-tone-light :is(.text-white, [class*="text-white/"], h1, h2, h3, h4, blockquote, figcaption, [style*="color: rgb(255, 255, 255)"], [style*="color: rgba(255, 255, 255"]):not(.gem-tone-dark *):not(.gem-tone-light :is([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg):not(.gem-has-bg > *):not(.gem-has-bg > section > div), .absolute, [class^="bg-"]:not([class*="bg-transparent"]), [class*=" bg-"]:not([class*="bg-transparent"])) *):not(.absolute):not([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg > *)) {
   color:#0B1622 !important; }
-.gem-tone-light :is([class*="border-white"]):not(.gem-tone-light :is([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg):not(.gem-has-bg > *):not(.gem-has-bg > section > div), .absolute) *) { border-color:rgba(11,22,34,.22) !important; }
+.gem-tone-light :is([class*="border-white"]):not(.gem-tone-dark *):not(.gem-tone-light :is([style*="background"]:not([style*="--color-card-bg"]):not([style*="--color-section-bg"]):not(.gem-has-bg):not(.gem-has-bg > *):not(.gem-has-bg > section > div), .absolute) *) { border-color:rgba(11,22,34,.22) !important; }
 .gem-tone-light [style*="--color-card-bg"] { box-shadow:0 10px 28px -16px rgba(11,22,34,.25); }
 .gem-tone-blue { --color-card-bg:rgba(255,255,255,.1); --color-card-border:rgba(255,255,255,.22);
   --color-body-text:#e3f1fa; --color-link:#ffffff; --color-section-bg:transparent; }
@@ -725,6 +725,8 @@ body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[
    sections, deeper blue on light sections (both ≥ 4.5:1). Eyebrows always use
    the text-safe link colour, never the raw accent. */
 [data-testid="gem2i-home"], .gem-tone-dark { --color-link:#5AAFEA; }
+/* A photo section veiled dark inside a light palette (Norules): night text colours again (2026-10-22). */
+.gem-tone-light .gem-tone-dark { --color-body-text:#9AA6B2; --color-card-bg:#0D1721; --color-card-border:rgba(255,255,255,.08); --color-heading:#ffffff; color:#fff; }
 .gem-tone-light { --color-link:#1F6390; }
 .gem-tone-blue { --color-link:#ffffff; }
 .gem-eyebrow { color:var(--color-link,#5AAFEA) !important; }

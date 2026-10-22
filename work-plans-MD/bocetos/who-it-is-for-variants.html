@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Who it is for</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0;max-width:20ch}
+.h em{font-style:italic}
+.sub{color:var(--body);font-size:17px;margin:12px 0 0;max-width:56ch;line-height:1.7}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:96px 0 40px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:99px;padding:13px 22px;font-weight:700;font-size:15px;text-decoration:none;border:0;transition:transform .2s}
+.btn:active{transform:scale(.97)}
+
+/* W1 · "I am a…" */
+.w1-q{margin-top:48px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;font:800 clamp(1.8rem,3.6vw,3rem) Manrope;letter-spacing:-.04em}
+.seg{position:relative;display:inline-flex;background:var(--soft);border-radius:99px;padding:6px}
+.seg button{position:relative;z-index:1;border:0;background:none;padding:12px 24px;border-radius:99px;font:800 clamp(1rem,1.6vw,1.25rem) Manrope;letter-spacing:-.01em;color:var(--body);transition:color .3s}
+.seg button.on{color:#fff}
+.seg .pill{position:absolute;top:6px;bottom:6px;border-radius:99px;background:var(--ink);transition:left .5s var(--ease),width .5s var(--ease)}
+.w1-stage{margin-top:36px;display:grid;grid-template-columns:1.2fr 1fr;gap:20px;min-height:460px}
+.w1-ph{position:relative;border-radius:28px;overflow:hidden;background:var(--dark)}
+.w1-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.08);transition:opacity .6s,transform 1.2s var(--ease)}
+.w1-ph img.on{opacity:1;transform:none}
+.w1-card{border-radius:28px;background:var(--soft);padding:40px;display:flex;flex-direction:column;justify-content:space-between}
+.w1-card h3{font:800 clamp(1.8rem,3vw,2.6rem)/1.05 Manrope;letter-spacing:-.04em;margin:0 0 14px}
+.w1-card p{margin:0;color:var(--body);font-size:17px;line-height:1.7}
+.w1-card ul{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:10px}
+.w1-card li{display:flex;gap:10px;font-weight:600;font-size:15px}
+.w1-card li::before{content:"✓";color:var(--acc);font-weight:800}
+.swap{animation:swap .55s var(--ease) both}
+@keyframes swap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* W2 · Foto dentro de la palabra */
+.w2{margin-top:48px;border-top:1px solid var(--line)}
+.w2-r{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.w2-word{font:800 clamp(3.6rem,11vw,10rem)/.86 Manrope;letter-spacing:-.06em;text-transform:uppercase;background-size:cover;background-position:center;-webkit-background-clip:text;background-clip:text;color:var(--ink);transition:color .5s,letter-spacing .6s var(--ease)}
+.w2-r:hover .w2-word{color:transparent;letter-spacing:-.04em}
+.w2-r p{margin:0;color:var(--body);font-size:16px;line-height:1.7;transition:color .3s}
+.w2-r:hover p{color:var(--ink)}
+.w2-r p b{display:block;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.w2-end{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding-top:32px}
+
+/* W3 · Pases VIP */
+.w3{margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;perspective:1200px}
+.pass{position:relative;border-radius:24px;background:var(--dark);color:#fff;overflow:hidden;transform-style:preserve-3d;transition:transform .2s;aspect-ratio:3/4.4;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.pass::before{content:"";position:absolute;left:50%;top:16px;width:56px;height:8px;margin-left:-28px;border-radius:99px;background:rgba(255,255,255,.18);z-index:3}
+.pass img{position:absolute;left:0;right:0;top:0;height:58%;width:100%;object-fit:cover}
+.pass .holo{position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:color-dodge;opacity:0;transition:opacity .3s;background:linear-gradient(115deg,transparent 20%,rgba(120,220,255,.55) 38%,rgba(255,120,220,.45) 50%,rgba(255,240,140,.45) 62%,transparent 80%);background-size:250% 250%;background-position:var(--hx,50%) var(--hy,50%)}
+.pass:hover .holo{opacity:.8}
+.pass .in{position:absolute;left:0;right:0;bottom:0;height:46%;padding:24px;display:flex;flex-direction:column;justify-content:space-between;background:var(--dark);border-top:2px dashed rgba(255,255,255,.18)}
+.pass .in::before,.pass .in::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:99px;background:#fff}
+.pass .in::before{left:-12px}.pass .in::after{right:-12px}
+.pass small{font:700 11px Manrope;letter-spacing:.24em;color:var(--acc)}
+.pass h3{margin:6px 0 8px;font:800 30px/1 Manrope;letter-spacing:-.03em}
+.pass p{margin:0;font-size:14px;line-height:1.6;color:#aeb6bd}
+.pass .bar{display:flex;justify-content:space-between;align-items:end;margin-top:12px}
+.pass .code{height:26px;width:120px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px,#fff 4px 5px,transparent 5px 8px);opacity:.7}
+.pass .bar span{font:700 12px Manrope}
+.w3-end{text-align:center;margin-top:44px}
+
+@media(max-width:860px){.w1-stage{grid-template-columns:1fr}.w1-ph{min-height:300px}.w1-card{padding:28px}
+ .w2-r{grid-template-columns:1fr;gap:10px}.w2-word{color:transparent}
+ .w3{grid-template-columns:1fr;max-width:380px;margin-inline:auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<nav class="switch"><button data-v="w1" class="on">W1 · "Yo soy…"</button><button data-v="w2">W2 · Foto dentro de la palabra</button><button data-v="w3">W3 · Pases VIP</button></nav>
+
+<div class="v on" id="w1"><section class="w sec">
+ <p class="eb">Who it is for</p><h2 class="h">Built for the people who move the <em>night</em></h2>
+ <div class="w1-q"><span>I am a</span><div class="seg" id="seg"><span class="pill" id="pill"></span></div></div>
+ <div class="w1-stage"><div class="w1-ph" id="ph"></div><div class="w1-card" id="card"></div></div>
+</section>
+<p class="note"><b>W1 · "Yo soy…":</b> la sección le pregunta al visitante quién es: "I am a [Promoter | Venue | Artist]". Un selector con una píldora negra que se desliza cambia toda la escena: la foto se funde, y la tarjeta muestra el texto, 3 ventajas y un botón personalizado ("Join as a promoter"). Cada público siente que la página le habla a él.</p></div>
+
+<div class="v" id="w2"><section class="w sec">
+ <p class="eb">Who it is for</p><h2 class="h">Built for the people who move the <em>night</em></h2>
+ <p class="sub">One network for promoters, venues, artists and the crowd that follows them.</p>
+ <div class="w2" id="w2l"></div>
+ <div class="w2-end"><p class="sub" style="margin:0">Pick your side of the night.</p><a class="btn" href="#">Join GEM2i →</a></div>
+</section>
+<p class="note"><b>W2 · Foto dentro de la palabra:</b> PROMOTERS, VENUES y ARTISTS en letras enormes. Al pasar el ratón, la palabra se vacía y por dentro aparece la foto del público (la foto "rellena" las letras), mientras el texto de al lado se enciende. En móvil las palabras ya se ven rellenas de foto. Tipográfico, editorial y muy de cartel.</p></div>
+
+<div class="v" id="w3"><section class="w sec">
+ <p class="eb">Who it is for</p><h2 class="h">Built for the people who move the <em>night</em></h2>
+ <p class="sub">One network for promoters, venues, artists and the crowd that follows them.</p>
+ <div class="w3" id="w3g"></div>
+ <div class="w3-end"><a class="btn" href="#">Join GEM2i →</a></div>
+</section>
+<p class="note"><b>W3 · Pases VIP:</b> cada público es una acreditación de backstage: foto arriba, troquel perforado, nombre, texto y un código de barras. Al mover el ratón encima, el pase se inclina en 3D siguiendo el cursor y aparece un brillo holográfico como el de las credenciales reales. Habla directamente del producto (pases, QR, guest lists).</p></div>
+
+<script>
+const IMG='https://beta.gem2i.com/api/uploads/gem2i/site/';
+const A=[{k:'Promoter',t:'Promoters',img:'gem_intro.jpg',d:'Guest lists, QR e-passes and e-tickets for every event you run.',b:['Guest lists with waiting list','QR e-passes scanned at the door','E-tickets with your own tiers']},
+ {k:'Venue',t:'Venues',img:'gem_venues.jpg',d:'Publish your calendar and fill the room with members who actually show up.',b:['Your calendar on the network','Members who really attend','Promoters and artists in reach']},
+ {k:'Artist',t:'Artists',img:'gem_artists.jpg',d:'Your profile, line-ups and fans in one place.',b:['A profile fans can follow','Every line-up you play','Bookings through the network']}];
+// W1
+seg.insertAdjacentHTML('beforeend',A.map((a,i)=>`<button data-i="${i}">${a.k}</button>`).join(''));
+ph.innerHTML=A.map(a=>`<img src="${IMG+a.img}" alt="">`).join('');
+function pick(i){const bs=[...seg.querySelectorAll('button')];bs.forEach((b,k)=>b.classList.toggle('on',k==i));const b=bs[i];pill.style.left=b.offsetLeft+'px';pill.style.width=b.offsetWidth+'px';
+ [...ph.children].forEach((im,k)=>im.classList.toggle('on',k==i));const a=A[i];
+ card.innerHTML=`<div class="swap"><h3>${a.t}</h3><p>${a.d}</p><ul>${a.b.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="swap" style="animation-delay:.08s;margin-top:28px"><button class="btn">Join as ${/^[AEIOU]/.test(a.k)?'an':'a'} ${a.k.toLowerCase()} →</button></div>`}
+seg.onclick=e=>{const b=e.target.closest('button');b&&pick(b.dataset.i)};
+// W2
+w2l.innerHTML=A.map(a=>`<a class="w2-r" href="#"><span class="w2-word" style="background-image:url(${IMG+a.img})">${a.t}</span><p><b>For ${a.t.toLowerCase()}</b>${a.d}</p></a>`).join('');
+// W3
+w3g.innerHTML=A.map(a=>`<div class="pass"><img src="${IMG+a.img}" alt=""><span class="holo"></span><div class="in"><div><small>GEM2i · ALL ACCESS</small><h3>${a.t}</h3><p>${a.d}</p></div><div class="bar"><span class="code"></span><span>MEMBER</span></div></div></div>`).join('');
+w3g.querySelectorAll('.pass').forEach(p=>{p.onmousemove=e=>{const r=p.getBoundingClientRect();const x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+ p.style.transform=`rotateY(${(x-.5)*16}deg) rotateX(${(.5-y)*16}deg)`;p.style.setProperty('--hx',x*100+'%');p.style.setProperty('--hy',y*100+'%')};
+ p.onmouseleave=()=>{p.style.transform=''}});
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b));if(b.dataset.v==='w1')pick(seg.querySelector('.on')?.dataset.i||0)});
+pick(0);
+</script></body></html>

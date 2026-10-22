@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Footer</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input{font:inherit;color:inherit}button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.note{max-width:1240px;margin:0 auto;padding:22px 24px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.spacer{height:38vh;display:grid;place-items:center;color:#b9bfc5;font-weight:700;letter-spacing:.2em;font-size:12px;background:repeating-linear-gradient(135deg,#fafafa 0 12px,#f4f5f6 12px 24px)}
+.lnk{position:relative;display:inline-block}.lnk::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}.lnk:hover::after{transform:scaleX(1);transform-origin:left}
+.soc{display:flex;gap:10px}.soc a{width:40px;height:40px;border-radius:99px;display:grid;place-items:center;border:1px solid currentColor;opacity:.75;font-weight:800;font-size:13px;transition:opacity .2s,transform .3s var(--ease)}.soc a:hover{opacity:1;transform:translateY(-3px)}
+
+/* F1 · Reveal: el footer queda "debajo" de la página y se descubre */
+.f1-page{position:relative;z-index:2;background:#fff;box-shadow:0 30px 60px -20px rgba(0,0,0,.25);border-radius:0 0 32px 32px}
+.f1{position:sticky;bottom:0;z-index:1;background:var(--dark);color:#fff;padding:64px 0 26px;margin-top:-32px;padding-top:96px}
+.f1-top{display:grid;grid-template-columns:1.3fr 1fr;gap:56px;align-items:end}
+.f1 h3{margin:0;font:800 clamp(2.6rem,6vw,5.4rem)/.95 Manrope;letter-spacing:-.05em}.f1 h3 em{font:italic 700 1em 'Playfair Display',serif;color:#5FB2E0;letter-spacing:-.02em}
+.sub{display:flex;gap:8px;background:#161b22;border:1px solid #232a32;border-radius:99px;padding:6px}
+.sub input{flex:1;min-width:0;background:none;border:0;outline:none;padding:12px 16px;color:#fff}
+.sub button{border:0;border-radius:99px;background:#fff;color:var(--dark);font-weight:800;padding:12px 20px}
+.f1-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:56px;padding-top:36px;border-top:1px solid #1d232b}
+.f1-cols h5{margin:0 0 14px;font-size:11.5px;letter-spacing:.2em;color:#6d767f}.f1-cols a{display:block;margin-bottom:9px;color:#d6dbe0;font-weight:600}
+.f1-word{font:800 clamp(5rem,22vw,21rem)/.78 Manrope;letter-spacing:-.07em;text-align:center;margin:40px 0 0;color:transparent;-webkit-text-stroke:1.5px #262c33;user-select:none;transition:-webkit-text-stroke-color .4s}
+.f1:hover .f1-word{-webkit-text-stroke-color:#3a4450}
+.f1-bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#6d767f;margin-top:18px}
+
+/* F2 · Tarjeta flotante clara */
+.f2{padding:40px 24px 30px;background:var(--soft)}
+.f2-card{max-width:1240px;margin:0 auto;background:#fff;border-radius:32px;padding:44px;box-shadow:0 30px 60px -40px rgba(0,0,0,.3);display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:32px}
+.f2-card .logo{font:800 30px Manrope;letter-spacing:-.04em}.f2-card .logo span{color:var(--acc)}
+.f2-card p{color:var(--body);line-height:1.7;margin:12px 0 18px;font-size:14.5px}
+.f2-card h5{margin:0 0 14px;font-size:11.5px;letter-spacing:.2em;color:var(--body)}.f2-card .col a{display:block;margin-bottom:9px;font-weight:600}
+.f2-off{display:grid;gap:6px}.f2-off button{display:flex;justify-content:space-between;align-items:center;border:0;background:none;padding:6px 0;font-weight:600;text-align:left}
+.f2-off button i{font-style:normal;font-size:12px;color:var(--body)}
+.clock{font:600 12px monospace;color:var(--acc)}
+.f2-bar{max-width:1240px;margin:22px auto 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--body);padding:0 8px}
+.lang{display:inline-flex;background:#fff;border-radius:99px;padding:4px;border:1px solid var(--line)}.lang button{border:0;background:none;border-radius:99px;padding:6px 12px;font-weight:800;font-size:12px}.lang button.on{background:var(--ink);color:#fff}
+
+/* F3 · Cinta + escenario */
+.f3{background:var(--acc);color:#fff;overflow:hidden}
+.f3-band{padding:22px 0;border-bottom:1px solid rgba(255,255,255,.25);overflow:hidden}
+.f3-band .tr{display:flex;gap:44px;width:max-content;animation:run 22s linear infinite;font:800 clamp(2.6rem,7vw,6rem)/1 Manrope;letter-spacing:-.05em;white-space:nowrap}
+.f3-band:hover .tr{animation-play-state:paused}
+.f3-band .tr span:nth-child(even){color:transparent;-webkit-text-stroke:2px #fff}
+@keyframes run{to{transform:translateX(-50%)}}
+.f3-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.f3-body>div{padding:40px 32px;border-right:1px solid rgba(255,255,255,.25)}.f3-body>div:last-child{border:0}
+.f3 h5{margin:0 0 16px;font-size:11.5px;letter-spacing:.2em;opacity:.75}
+.f3 .big a{display:block;font:800 clamp(1.4rem,2.4vw,2rem)/1.35 Manrope;letter-spacing:-.03em}
+.f3 .big a:hover{color:#0d0f12}
+.f3-cta{display:flex;flex-direction:column;gap:14px}
+.f3-cta .btn{display:inline-flex;align-self:flex-start;gap:10px;background:#fff;color:var(--acc);border-radius:99px;padding:14px 22px;font-weight:800}
+.f3-bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:18px 32px;font-size:13px;background:rgba(0,0,0,.18)}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px;margin-right:8px;vertical-align:-2px}.eq i{width:3px;background:#fff;animation:eq 1s ease-in-out infinite}.eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+
+@media(max-width:900px){.f1-top,.f2-card{grid-template-columns:1fr}.f1-cols{grid-template-columns:1fr 1fr}.f3-body{grid-template-columns:1fr}.f3-body>div{border-right:0;border-bottom:1px solid rgba(255,255,255,.25)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<nav class="switch"><button data-v="f1" class="on">F1 · Telón que se descubre</button><button data-v="f2">F2 · Tarjeta clara</button><button data-v="f3">F3 · Cinta y escenario</button></nav>
+
+<div class="v on" id="f1">
+ <p class="note"><b>F1 · Telón que se descubre:</b> el footer está "debajo" de la página: al llegar al final, la página sube como un telón con esquinas redondeadas y deja ver el footer negro fijo detrás. Arriba, un titular gigante "Be part of the <i>night</i>" con la suscripción en una cápsula; después las columnas (Discover, Company, Offices, Follow) y, al fondo, "GEM2i" enorme en contorno que se ilumina al pasar el ratón. <i>Haz scroll hasta abajo.</i></p>
+ <div class="f1-page"><div class="spacer">… FINAL DEL CONTENIDO DE LA PÁGINA …</div></div>
+ <footer class="f1"><div class="w">
+  <div class="f1-top"><h3>Be part of the <em>night.</em></h3><div><p style="color:#8b939c;margin:0 0 14px">Guest lists, QR e-passes and e-tickets for members. The next events in your inbox.</p><form class="sub" onsubmit="return false"><input type="email" placeholder="Your email"><button>Subscribe</button></form></div></div>
+  <div class="f1-cols">
+   <div><h5>DISCOVER</h5><a class="lnk" href="#">Events</a><a class="lnk" href="#">Festivals</a><a class="lnk" href="#">Artists</a><a class="lnk" href="#">Venues</a></div>
+   <div><h5>COMPANY</h5><a class="lnk" href="#">About us</a><a class="lnk" href="#">Services</a><a class="lnk" href="#">Media</a><a class="lnk" href="#">Contact</a></div>
+   <div><h5>OFFICES</h5><a href="#">New York · HQ</a><a href="#">Spain</a><a href="#">Lima</a><a href="#">Buenos Aires</a><a href="#">Santo Domingo</a></div>
+   <div><h5>FOLLOW</h5><div class="soc"><a href="#">f</a><a href="#">ig</a><a href="#">in</a></div><p style="color:#8b939c;font-size:14px;margin-top:18px">main@gem2i.com<br>862-201-3636</p></div>
+  </div>
+  <p class="f1-word">GEM2i</p>
+  <div class="f1-bot"><span>2017 – 2026 © GEM2i. All rights reserved.</span><span>Terms of Service · Privacy Policy · EN / ES</span></div>
+ </div></footer>
+</div>
+
+<div class="v" id="f2">
+ <p class="note"><b>F2 · Tarjeta clara:</b> footer limpio y luminoso: una gran tarjeta blanca flotando sobre gris claro. Logo y descripción, columnas con subrayado animado al pasar el ratón, y las oficinas con la <b>hora local en vivo</b> de cada ciudad (New York 10:42 PM, Madrid 4:42 AM…), un guiño a "la noche nunca acaba en algún lugar". Abajo, selector de idioma tipo píldora. Ideal para paletas claras como Norules.</p>
+ <div class="spacer">… FINAL DEL CONTENIDO DE LA PÁGINA …</div>
+ <footer class="f2"><div class="f2-card">
+  <div><div class="logo">GEM<span>2i</span></div><p>The leading full service marketing, media and business integration company focusing exclusively on the entertainment industry.</p><div class="soc" style="color:var(--ink)"><a href="#">f</a><a href="#">ig</a><a href="#">in</a></div></div>
+  <div class="col"><h5>DISCOVER</h5><a class="lnk" href="#">Events</a><a class="lnk" href="#">Festivals</a><a class="lnk" href="#">Artists</a><a class="lnk" href="#">Venues</a></div>
+  <div class="col"><h5>COMPANY</h5><a class="lnk" href="#">About us</a><a class="lnk" href="#">Services</a><a class="lnk" href="#">Media</a><a class="lnk" href="#">Contact</a></div>
+  <div><h5>OFFICES · LOCAL TIME</h5><div class="f2-off" id="off"></div></div>
+ </div>
+ <div class="f2-bar"><span>2017 – 2026 © GEM2i · main@gem2i.com · 862-201-3636</span><span style="display:flex;gap:18px;align-items:center"><a class="lnk" href="#">Terms</a><a class="lnk" href="#">Privacy</a><span class="lang"><button class="on">EN</button><button>ES</button></span></span></div></footer>
+</div>
+
+<div class="v" id="f3">
+ <p class="note"><b>F3 · Cinta y escenario:</b> footer de color con mucha energía: arriba una cinta enorme que corre sin parar ("GEM2i · LET'S PARTY", una palabra llena y otra en contorno). Debajo, tres bloques: enlaces en letra grande (Events, Festivals, Artists, Venues), oficinas y contacto, y un bloque "Join the night" con botón. En la barra final, un pequeño ecualizador animado junto a "Now playing: your next night out".</p>
+ <div class="spacer">… FINAL DEL CONTENIDO DE LA PÁGINA …</div>
+ <footer class="f3">
+  <div class="f3-band"><div class="tr" id="tr"></div></div>
+  <div class="f3-body">
+   <div><h5>DISCOVER</h5><div class="big"><a href="#">Events</a><a href="#">Festivals</a><a href="#">Artists</a><a href="#">Venues</a></div></div>
+   <div><h5>OFFICES & CONTACT</h5><p style="line-height:1.9;margin:0;font-weight:600">New York · HQ<br>Spain · Lima · Buenos Aires<br>Santo Domingo</p><p style="margin:18px 0 0;font-weight:800">main@gem2i.com<br>862-201-3636</p><div class="soc" style="margin-top:18px"><a href="#">f</a><a href="#">ig</a><a href="#">in</a></div></div>
+   <div class="f3-cta"><h5>MEMBERSHIP</h5><b style="font:800 clamp(1.6rem,2.6vw,2.2rem)/1.1 Manrope;letter-spacing:-.03em">Join the night. Guest lists, e-passes, e-tickets.</b><a class="btn" href="#">Become a member →</a></div>
+  </div>
+  <div class="f3-bot"><span><span class="eq"><i></i><i></i><i></i></span>Now playing: your next night out</span><span>2017 – 2026 © GEM2i · Terms · Privacy · EN / ES</span></div>
+ </footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const OFF=[['New York · HQ','America/New_York'],['Madrid','Europe/Madrid'],['Lima','America/Lima'],['Buenos Aires','America/Argentina/Buenos_Aires'],['Santo Domingo','America/Santo_Domingo']];
+function clocks(){$('off').innerHTML=OFF.map(o=>`<button type="button">${o[0]}<i class="clock">${new Date().toLocaleTimeString('en-US',{timeZone:o[1],hour:'numeric',minute:'2-digit'})}</i></button>`).join('')}
+clocks();setInterval(clocks,30000);
+$('tr').innerHTML=Array(8).fill(0).map((_,i)=>`<span>${i%2?"LET'S PARTY":'GEM2i'}</span>`).join('');
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+</script></body></html>

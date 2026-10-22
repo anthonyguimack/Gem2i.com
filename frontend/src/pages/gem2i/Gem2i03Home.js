@@ -15,6 +15,7 @@ import { AUREX_FONTS } from '../../lib/themeColors';
 import { GemHeroC } from '../../components/gem2i/GemHeroVariants';
 import GemModernMaps from '../../components/gem2i/GemModernMaps';
 import GemContactSection from '../../components/gem2i/GemContactSection';
+import { GemGalleryScroll, GemMapTour, GemLogoOrbit, GemClientPicker, GemContactMadlib, GemTeamMap } from '../../components/gem2i/Gem03End';
 import AccentTitle from '../../components/gem2i/AccentTitle';
 import { LOOKS, readLook, toneOf } from '../../lib/gemLook';
 import {
@@ -22,7 +23,7 @@ import {
   GemEventPosters, GemArtistMosaic,
   GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemTicker, GemLocations, GemGallery,
-  GemIntroPhoto, GemServicesGrid, GemFeaturedCircles, GemFaq, GemNewsCards, GemConferenceReviews,
+  GemIntroPhoto, GemServicesGrid, GemAudienceWords, GemProcessPath, GemEventCalendar, GemMethodScroll, GemFeaturedCircles, GemFaq, GemNewsCards, GemConferenceReviews,
 } from '../../components/gem2i/Gem2i03Sections';
 
 // Section Manager content the home reads (one public call each, in parallel).
@@ -174,7 +175,7 @@ export default function Gem2i03Home() {
       )}
 
       </>),
-    gem_intro: () => <GemIntroPhoto intro={c.intro} />,
+    gem_intro: () => <GemIntroPhoto intro={c.intro} featured={c.featured} />,
     legacy_gem_intro: () => (<>
       {/* INTRO */}
       {c.intro && (
@@ -248,9 +249,7 @@ export default function Gem2i03Home() {
 
       </>),
     gem_methodology: () => (methodologyItems.length > 0
-      ? (isTpl01
-        ? <GemMethodCycle config={smCfg('gem_methodology')} items={methodologyItems} brand={brand} />
-        : <GemSteps config={smCfg('gem_methodology')} items={methodologyItems} testid="gem2i-methodology" />)
+      ? <GemMethodScroll config={smCfg('gem_methodology')} items={methodologyItems} />
       : (<>
       {/* METHODOLOGY — a real 3-step sequence (legacy 1/2/3) */}
       {c.methodology && Array.isArray(c.methodology.steps) && c.methodology.steps.length > 0 && (
@@ -321,7 +320,7 @@ export default function Gem2i03Home() {
       // Section Manager (Clients — Section Configuration) wins over the gem_config defaults.
       const cfg = smCfg('gem_clients_cfg');
       const logos = (cl.logos?.length > 0 ? cl.logos : clientLogos).slice(0, limitOf('gem_clients_cfg', 12));
-      return <GemClientsGrid kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cfg.subtitle) || tt(cl.text)} logos={logos}
+      return <GemClientPicker kicker={tt(cl.kicker)} title={tt(cl.title)} text={tt(cfg.subtitle) || tt(cl.text)} logos={logos}
         ctaText={tt(cfg.cta_text)} ctaUrl={cfg.cta_url} ctaNewTab={!!cfg.cta_new_tab} />;
     })() : (<>
       {/* CLIENTS */}
@@ -344,7 +343,7 @@ export default function Gem2i03Home() {
       )}
       </>)),
     gem_events: () => (isTpl01
-      ? <GemEventPosters config={smCfg('gem_events_cfg')} items={events.slice(0, limitOf('gem_events_cfg'))} />
+      ? <GemEventCalendar config={smCfg('gem_events_cfg')} items={events.slice(0, limitOf('gem_events_cfg'))} />
       : <GemCatalogStrip config={smCfg('gem_events_cfg')} fallbackTitle={{ en: 'Upcoming events', es: 'Próximos eventos' }} testid="gem2i-events"
         items={events.slice(0, limitOf('gem_events_cfg')).map(e => ({
           title: e.title, url: `/events/${e.slug}`, meta: e.event_date, metaIcon: 'date',
@@ -368,22 +367,22 @@ export default function Gem2i03Home() {
         }))} />
     ),
     // Template 01 = approved bocetos A-3 / P-1; P-2 is reserved for 02/03.
-    aurex_audience: () => (isTpl01 ? <GemAudienceList {...(sm.aurex_audience || {})} /> : <GemAudience {...(sm.aurex_audience || {})} />),
-    aurex_process: () => (isTpl01 ? <GemTimeline {...(sm.aurex_process || {})} /> : <GemSteps {...(sm.aurex_process || {})} />),
+    aurex_audience: () => <GemAudienceWords {...(sm.aurex_audience || {})} />,
+    aurex_process: () => <GemProcessPath {...(sm.aurex_process || {})} />,
     aurex_pricing: () => (isTpl01 ? <GemPricingTiers {...(sm.aurex_pricing || {})} /> : <GemPricing {...(sm.aurex_pricing || {})} />),
-    aurex_team: () => (isTpl01 ? <GemTeamPortraits {...(sm.aurex_team || {})} /> : <GemTeam {...(sm.aurex_team || {})} />),
+    aurex_team: () => <GemTeamMap {...(sm.aurex_team || {})} mapsLang={settings.maps_language || 'local'} />,
     aurex_video: () => (isTpl01 ? <GemVideoCover {...(sm.aurex_video || {})} /> : <GemVideo {...(sm.aurex_video || {})} />),
-    aurex_partners: () => (isTpl01 ? <GemLogoMarquee {...(sm.aurex_partners || {})} testid="gem2i-partners" /> : <GemLogos {...(sm.aurex_partners || {})} testid="gem2i-partners" />),
+    aurex_partners: () => <GemLogoOrbit {...(sm.aurex_partners || {})} testid="gem2i-partners" />,
     aurex_clients: () => <GemLogos {...(sm.aurex_clients || {})} testid="gem2i-aurex-clients" />,
     testimonials: () => (isTpl01 ? <GemTestimonialSpotlight config={smCfg('aurex_testimonials_cfg')} items={testimonials} /> : <GemTestimonials config={smCfg('aurex_testimonials_cfg')} items={testimonials} />),
-    contact: () => <GemContactSection />,
+    contact: () => <GemContactMadlib settings={settings} />,
     news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
     gem_conf_reviews: () => <GemConferenceReviews config={smCfg('gem_conf_reviews')} items={sm.gem_conf_reviews?.items || []} />,
     gem_news: () => <GemNewsCards config={smCfg('aurex_blog_cfg')} items={news} />,
     map: () => (isTpl01
-      ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
+      ? <GemMapTour tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
       : <GemLocations config={smCfg('aurex_locations_cfg')} maps={maps} />),
-    gallery: () => (isTpl01 ? <GemGalleryMosaic config={smCfg('aurex_gallery_cfg')} items={gallery} /> : <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />),
+    gallery: () => <GemGalleryScroll config={smCfg('aurex_gallery_cfg')} items={gallery} />,
   };
 
   // A saved Page Builder order predates sections added later: slot each missing

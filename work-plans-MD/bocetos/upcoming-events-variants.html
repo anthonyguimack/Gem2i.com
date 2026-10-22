@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Upcoming events</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#16191d;--body:#5b636c;--line:#e3e5e8;--soft:#f3f4f6;--dark:#0d0f12;--acc:#3287B7;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:50;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px}
+.switch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{display:flex;align-items:center;gap:14px;font-size:12px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 16px}
+.eb::before{content:"";width:32px;height:1px;background:currentColor}
+.h{font:700 clamp(2.2rem,4.4vw,3.6rem)/1.05 'Playfair Display',serif;margin:0}
+.h em{font-style:italic}
+.head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+.lnk{font-weight:700;color:var(--ink);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px 48px;color:var(--body);font-size:13.5px;line-height:1.6}.note b{color:var(--ink)}
+.sec{padding:96px 0 40px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:99px;padding:13px 22px;font-weight:700;font-size:15px;text-decoration:none;border:0}
+
+/* U1 · Panel de salidas */
+.board{margin-top:48px;background:var(--dark);border-radius:28px;padding:28px 32px 18px;color:#fff;font-family:'JetBrains Mono',monospace}
+.b-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.2em;color:#7d868f;padding-bottom:16px;border-bottom:1px solid #222830}
+.b-top b{color:#ffd23f;letter-spacing:.2em}
+.clock{color:#fff}
+.b-row{display:grid;grid-template-columns:120px 1fr 170px 90px 190px;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid #1a1f26;text-decoration:none;color:#fff;transition:background .25s;border-radius:10px}
+.b-row.th{font-size:11px;letter-spacing:.2em;color:#5f6870;padding:14px 0 6px;border:0}
+.b-row:not(.th):hover{background:#161b22}
+.fl{display:flex;gap:3px;flex-wrap:wrap}
+.fl span{display:inline-grid;place-items:center;min-width:.8em;height:1.45em;padding:0 .08em;border-radius:3px;background:#1b2028;font-weight:700;font-size:clamp(13px,1.35vw,18px);text-transform:uppercase;position:relative;overflow:hidden}
+.fl span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.6)}
+.fl span.flip{animation:flip .09s linear}
+@keyframes flip{50%{transform:scaleY(.1)}}
+.st{font-size:12px;font-weight:700;letter-spacing:.12em;padding:7px 10px;border-radius:6px;justify-self:start}
+.st.on{color:#0d0f12;background:#4ade80}.st.gl{color:#0d0f12;background:#ffd23f}
+.b-row .go{opacity:0;transition:opacity .2s;color:var(--acc);font-size:12px;letter-spacing:.1em}
+.b-row:hover .go{opacity:1}
+
+/* U2 · Coverflow */
+.cf{position:relative;height:540px;margin-top:40px;perspective:1600px}
+.cf-i{position:absolute;left:50%;top:10px;width:300px;aspect-ratio:2/3;margin-left:-150px;border-radius:20px;overflow:hidden;transition:transform .8s var(--ease),filter .8s,opacity .8s;box-shadow:0 40px 70px -30px rgba(0,0,0,.55);cursor:pointer;background:#000}
+.cf-i img{width:100%;height:100%;object-fit:cover}
+.cf-i::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(255,255,255,.18));pointer-events:none}
+.cf-info{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center;max-width:860px;margin:0 auto;border-top:1px solid var(--line);padding-top:26px}
+.cf-d{font:800 54px/.9 Manrope;letter-spacing:-.04em;text-align:center}
+.cf-d small{display:block;font-size:13px;letter-spacing:.2em;color:var(--body);margin-top:6px}
+.cf-t h3{margin:0 0 6px;font:800 26px/1.1 Manrope;letter-spacing:-.025em}
+.cf-t p{margin:0;color:var(--body)}
+.arr{display:flex;gap:8px}
+.arr button{width:46px;height:46px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:18px;transition:background .2s}
+.arr button:hover{background:var(--soft)}
+.swap{animation:swap .5s var(--ease) both}
+@keyframes swap{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* U3 · Tira de calendario */
+.cal{margin-top:44px;display:flex;gap:8px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:none;scroll-snap-type:x mandatory}
+.day{flex:0 0 74px;scroll-snap-align:start;border:1px solid var(--line);background:#fff;border-radius:18px;padding:12px 0;text-align:center;transition:background .25s,color .25s,border-color .25s,transform .3s var(--ease)}
+.day small{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--body)}
+.day b{display:block;font:800 26px/1.2 Manrope;letter-spacing:-.03em}
+.day i{display:block;width:6px;height:6px;border-radius:99px;margin:4px auto 0;background:transparent}
+.day.has i{background:var(--acc)}
+.day:not(.has){opacity:.45;cursor:default}
+.day.has:hover{transform:translateY(-3px)}
+.day.on{background:var(--ink);color:#fff;border-color:var(--ink)}.day.on small{color:#9aa1a8}.day.on i{background:#fff}
+.month{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--acc);margin-top:28px}
+.u3-card{margin-top:22px;display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center;background:var(--soft);border-radius:28px;padding:24px}
+.u3-card img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:18px}
+.u3-card .tag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.14em;padding:7px 12px;border-radius:99px;background:#fff;margin-bottom:16px}
+.u3-card h3{margin:0;font:800 clamp(2rem,4vw,3.4rem)/1 Manrope;letter-spacing:-.04em}
+.u3-card p{color:var(--body);font-size:17px;margin:14px 0 26px}
+.meta{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:26px}
+.meta div small{display:block;font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--body)}
+.meta div b{font-size:18px}
+
+@media(max-width:900px){
+ .board{padding:20px}.b-row{grid-template-columns:1fr auto;gap:8px}.b-row>:nth-child(3),.b-row>:nth-child(4),.b-row .go,.b-row.th{display:none}
+ .cf{height:430px}.cf-i{width:230px;margin-left:-115px}.cf-info{grid-template-columns:auto 1fr;gap:18px}.arr{grid-column:1/-1;justify-content:center}
+ .u3-card{grid-template-columns:1fr}.u3-card img{max-width:260px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<nav class="switch"><button data-v="u1" class="on">U1 · Panel de salidas</button><button data-v="u2">U2 · Coverflow de flyers</button><button data-v="u3">U3 · Tira de calendario</button></nav>
+
+<div class="v on" id="u1"><section class="w sec">
+ <div class="head"><div><p class="eb">Calendar</p><h2 class="h">Upcoming <em>events</em></h2></div><a class="lnk" href="#">All events →</a></div>
+ <div class="board"><div class="b-top"><b>● GEM2i DEPARTURES</b><span class="clock" id="clk"></span></div>
+  <div class="b-row th"><span>DATE</span><span>EVENT</span><span>CITY</span><span>DOORS</span><span>STATUS</span></div><div id="rows"></div></div>
+</section>
+<p class="note"><b>U1 · Panel de salidas:</b> los próximos eventos como el tablero de un aeropuerto: fecha, evento, ciudad, hora de puertas y estado (ON SALE en verde, GUEST LIST en amarillo). Al aparecer, las letras "giran" como un panel split-flap hasta formar cada nombre, con reloj en vivo. Al pasar el ratón la fila se ilumina y aparece "GET TICKETS →". Nostálgico, original y muy legible.</p></div>
+
+<div class="v" id="u2"><section class="w sec">
+ <div class="head"><div><p class="eb">Calendar</p><h2 class="h">Upcoming <em>events</em></h2></div><a class="lnk" href="#">All events →</a></div>
+ <div class="cf" id="cf"></div>
+ <div class="cf-info" id="cfi"></div>
+</section>
+<p class="note"><b>U2 · Coverflow de flyers:</b> los flyers en su proporción real (2:3), en una galería 3D: el del centro grande y de frente, los de los lados girados y en penumbra. Con las flechas, el teclado o tocando un flyer, la galería gira y abajo cambian la fecha grande, el nombre y el botón. Pone el arte del evento en primer plano, como una cartelera.</p></div>
+
+<div class="v" id="u3"><section class="w sec">
+ <div class="head"><div><p class="eb">Calendar</p><h2 class="h">Upcoming <em>events</em></h2></div><a class="lnk" href="#">All events →</a></div>
+ <div class="month" id="mon"></div>
+ <div class="cal" id="cal"></div>
+ <div class="u3-card" id="u3c"></div>
+</section>
+<p class="note"><b>U3 · Tira de calendario:</b> una tira de días que se desliza de lado; los días con evento llevan un punto azul y los demás se ven apagados. Al tocar un día, la tarjeta de abajo cambia al evento de esa fecha: flyer, nombre, hora, ciudad, precio y botón. Funciona como una agenda: el usuario elige su noche.</p></div>
+
+<script>
+const F='https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/';
+const E=[
+ {t:'Deadmau5cubev3',d:'2026-11-07',h:'20:00',c:'New York',v:'Avant Gardner',s:'on',p:'$45',img:'1568415075'},
+ {t:'Nora En Pure',d:'2026-11-14',h:'22:00',c:'New York',v:'Brooklyn Mirage',s:'on',p:'$30',img:'1569001290'},
+ {t:'Audien',d:'2026-11-21',h:'22:00',c:'New York',v:'Avant Gardner',s:'on',p:'$35',img:'1568999844'},
+ {t:'Elrow Art',d:'2026-11-28',h:'19:00',c:'New York',v:'Brooklyn Mirage',s:'on',p:'$60',img:'1568998950'},
+ {t:'Loud Luxury',d:'2026-12-05',h:'22:00',c:'New York',v:'Marquee',s:'on',p:'$40',img:'1568670611'},
+ {t:'Superflu, Sasha Barbot',d:'2026-12-12',h:'22:00',c:'New York',v:'Output',s:'gl',p:'Guest list',img:'1555028828'}];
+const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'],WD=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const dt=s=>new Date(s+'T12:00:00');
+// U1
+const CH='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const cells=(txt,cls='')=>`<span class="fl ${cls}">${[...txt].map(c=>`<span data-c="${c===' '?' ':c.toUpperCase()}">${c===' '?'&nbsp;':' '}</span>`).join('')}</span>`;
+rows.innerHTML=E.map(e=>{const d=dt(e.d);return `<a class="b-row" href="#">${cells(String(d.getDate()).padStart(2,'0')+' '+MON[d.getMonth()])}${cells(e.t.slice(0,18))}${cells(e.c)}${cells(e.h)}<span style="display:flex;gap:12px;align-items:center"><span class="st ${e.s}">${e.s==='on'?'ON SALE':'GUEST LIST'}</span><span class="go">GET →</span></span></a>`}).join('');
+function flap(){const S=[...rows.querySelectorAll('[data-c]')];S.forEach((s,i)=>{const target=s.dataset.c;if(target===' ')return;let n=0;const max=6+Math.floor(Math.random()*10);
+ setTimeout(function tick(){s.classList.remove('flip');void s.offsetWidth;s.classList.add('flip');s.textContent=n>=max?target:CH[Math.floor(Math.random()*CH.length)];if(n++<max)setTimeout(tick,55)},i*6)})}
+flap();setInterval(()=>{const d=new Date();clk.textContent=d.toTimeString().slice(0,8)},1000);
+// U2
+cf.innerHTML=E.map((e,i)=>`<div class="cf-i" data-i="${i}"><img src="${F+e.img}.png" alt=""></div>`).join('');
+let at=0;function cfDraw(){[...cf.children].forEach((c,i)=>{const o=i-at,a=Math.abs(o);
+ c.style.transform=o===0?'translateZ(80px)':`translateX(${o*190+Math.sign(o)*90}px) translateZ(${-a*120}px) rotateY(${-Math.sign(o)*42}deg)`;
+ c.style.zIndex=10-a;c.style.filter=o===0?'none':`brightness(${1-a*.22})`;c.style.opacity=a>3?0:1});
+ const e=E[at],d=dt(e.d);cfi.innerHTML=`<div class="cf-d swap">${d.getDate()}<small>${MON[d.getMonth()]} · ${WD[d.getDay()]}</small></div><div class="cf-t swap"><h3>${e.t}</h3><p>${e.v}, ${e.c} · ${e.h}</p><a class="btn" style="margin-top:14px" href="#">${e.s==='on'?'Get tickets · from '+e.p:'Join guest list'} →</a></div><div class="arr"><button id="pv" aria-label="Previous">←</button><button id="nx" aria-label="Next">→</button></div>`;
+ pv.onclick=()=>{at=Math.max(0,at-1);cfDraw()};nx.onclick=()=>{at=Math.min(E.length-1,at+1);cfDraw()}}
+cf.onclick=e=>{const c=e.target.closest('.cf-i');if(c){at=+c.dataset.i;cfDraw()}};
+addEventListener('keydown',e=>{if(!document.getElementById('u2').classList.contains('on'))return;if(e.key==='ArrowLeft'){at=Math.max(0,at-1);cfDraw()}if(e.key==='ArrowRight'){at=Math.min(E.length-1,at+1);cfDraw()}});
+at=1;cfDraw();
+// U3
+const start=dt('2026-11-02'),days=[];for(let i=0;i<45;i++){const d=new Date(start);d.setDate(d.getDate()+i);days.push(d)}
+const key=d=>d.toISOString().slice(0,10);
+cal.innerHTML=days.map(d=>{const has=E.some(e=>dt(e.d).toDateString()===d.toDateString());return `<button class="day ${has?'has':''}" data-k="${d.toDateString()}" ${has?'':'tabindex="-1"'}><small>${WD[d.getDay()]}</small><b>${d.getDate()}</b><i></i></button>`}).join('');
+function pickDay(k){const e=E.find(x=>dt(x.d).toDateString()===k);if(!e)return;cal.querySelectorAll('.day').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+ const d=dt(e.d);mon.textContent=`${MON[d.getMonth()]} ${d.getFullYear()}`;
+ u3c.innerHTML=`<img class="swap" src="${F+e.img}.png" alt=""><div class="swap" style="animation-delay:.06s"><span class="tag">${WD[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}</span><h3>${e.t}</h3><p>${e.v}, ${e.c}</p><div class="meta"><div><small>DOORS</small><b>${e.h}</b></div><div><small>CITY</small><b>${e.c}</b></div><div><small>FROM</small><b>${e.p}</b></div></div><a class="btn" href="#">${e.s==='on'?'Get tickets':'Join guest list'} →</a></div>`}
+cal.onclick=e=>{const b=e.target.closest('.day.has');b&&pickDay(b.dataset.k)};
+pickDay(dt(E[0].d).toDateString());
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b));if(b.dataset.v==='u1')flap();if(b.dataset.v==='u2')cfDraw()});
+</script></body></html>

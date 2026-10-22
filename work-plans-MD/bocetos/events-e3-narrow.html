@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Eventos E-3 estrecho</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0f14;--card:#131a22;--text:#fff;--body:#9aa7b4;--border:rgba(255,255,255,.12);--brand:#1f6fc0;--link:#5FB2E0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;padding:48px 16px}
+.wrap{max-width:1200px;margin:0 auto}
+.label{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--link);margin:0 0 6px}
+.note{color:var(--body);font-size:14px;margin:0 0 24px}
+h2{font-size:34px;margin:0}
+.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:32px}
+.cta{color:var(--link);font-size:15px;font-weight:500}
+.row{display:flex;gap:24px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.card{position:relative;flex:0 0 auto;height:282px;border-radius:16px;overflow:hidden;background:var(--card);cursor:pointer}
+.now .card{width:282px}
+.new .card{width:200px}            /* 282 alto · 200 ancho ≈ 5:7 */
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(31,111,192,.35),rgba(10,40,80,.85));transition:opacity .35s}
+.in{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column}
+.price{align-self:flex-start;font-size:12px;font-weight:600;background:rgba(0,0,0,.45);padding:4px 10px;border-radius:99px}
+.date{margin-top:auto;line-height:.9}
+.d{font-size:44px;font-weight:800;letter-spacing:-.02em}
+.d sup{font-size:15px;font-weight:600;margin-left:2px}
+.m{font-size:15px;font-weight:700;letter-spacing:.14em;margin-top:6px}
+.t{font-size:15px;font-weight:600;margin:12px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:12.5px;color:rgba(255,255,255,.75)}
+.go{margin-top:12px;height:0;opacity:0;transform:translateY(8px);transition:all .3s cubic-bezier(.2,.8,.2,1);font-size:13px;font-weight:600;background:#fff;color:#0b0f14;border-radius:99px;padding:0 14px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card:hover img{transform:scale(1.05)}
+.card:hover .veil{opacity:.55}
+.card:hover .go{height:34px;opacity:1;transform:none}
+.sep{height:1px;background:var(--border);margin:56px 0}
+.dim{display:inline-block;font:500 12px/1 monospace;color:var(--body);border:1px dashed var(--border);padding:6px 8px;border-radius:6px;margin-bottom:14px}
+</style></head><body><div class="wrap">
+
+<p class="label">Actual · E-3</p>
+<p class="note">Tarjeta cuadrada 282 × 282 px — 4 visibles en 1200 px.</p>
+<div class="row now" id="now"></div>
+
+<div class="sep"></div>
+
+<p class="label">Propuesta · E-3 estrecho</p>
+<p class="note">Misma altura (282 px), ancho 200 px (proporción ≈ 5:7, tipo cartel) — caben 5 y asoma la 6ª, invitando a deslizar. Fecha grande abajo, título y ciudad debajo; la CTA sube al pasar el ratón (en táctil siempre visible).</p>
+<span class="dim">282 alto × 200 ancho · gap 24</span>
+<div class="head"><div><p class="label">Calendar</p><h2>Upcoming events</h2></div><span class="cta">All events →</span></div>
+<div class="row new" id="new"></div>
+
+</div>
+<script>
+const B='https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/';
+const E=[['1568415075','Deadmau5cubev3','7','th','NOV','8:00 PM','Get tickets','$45'],
+['1569001290','NORA EN PURE','14','th','NOV','10:00 PM','Get tickets','$30'],
+['1568999844','AUDIEN','21','st','NOV','10:00 PM','Get tickets','$35'],
+['1568998950','ELROW ART','28','th','NOV','7:00 PM','Get tickets','$60'],
+['1568670611','LOUD LUXURY','5','th','DEC','10:00 PM','Get tickets','$40'],
+['1555028828','Superflu, Sasha Barbot, Playsuit, NSR','20','th','APR','10:00 PM','View event','Guest list']];
+const html=e=>`<div class="card"><img src="${B+e[0]}.png" alt=""><div class="veil"></div><div class="in">
+<span class="price">From ${e[7]}</span><div class="date"><div class="d">${e[2]}<sup>${e[3]}</sup></div><div class="m">${e[4]} 2026</div></div>
+<div class="t">${e[1]}</div><div class="meta">${e[5]} · New York</div><div class="go">${e[6]} →</div></div></div>`;
+now.innerHTML=E.slice(0,4).map(html).join('');new_=document.getElementById('new');new_.innerHTML=E.map(html).join('');
+</script></body></html>
