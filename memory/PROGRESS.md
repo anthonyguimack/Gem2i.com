@@ -2,6 +2,18 @@
 
 ---
 
+## 2026-10-21 (session 11, part 2) — templates split (Norules / Gem2i / 03), hero U, H-1, FAQ section, demo content, legacy banner (DEPLOYED)
+- **Templates renamed + isolated (D-GEM-2026-13):** `gem2i` → **Norules**, `gem2i_02` → **Gem2i** (APPROVED, frozen), `gem2i_03` keeps its name. One home + one sections file each: `NorulesHome.js`/`NorulesSections.js` (hero U), `Gem2iHome.js`/`GemSections.js` (hero B), `Gem2i03Home.js`/`Gem2i03Sections.js` (hero C); `pages/HomePage.js` picks by theme. Header/footer/catalogs/My Account still shared.
+- **Gem2i restored:** Upcoming events = original E-2 posters (from git 7142d4e); Explore the scene = original GemFeaturedCards. FAQ/news/conference reviews/conferences carousel stay in Gem2i (content sections).
+- **Norules:** hero **U-2** (`GemHeroU` in GemHeroVariants: rounded stage, YouTube/MP4 background muted loop + sound toggle, pinned-event flyer + thumbnails, holds on video slides); Upcoming events **H-1** hover (`EventPosterCard`, text drops onto bottom shadow, measured `--drop`); Explore the scene = circles (`GemFeaturedCircles`).
+- **Shared fixes:** FAQ is its own section again (`gem_faq`, after Featured); Page Builder saved order now auto-inserts new default keys; Tailwind classes built with `${...}` were never generated (write variants literally); CMS dialog date/time inputs were white-on-white (index.css override); conference excerpts decode entities (`&#39;`); video section W-1 full screen + plays in place (YouTube `vy-k0FopsmY` is blocked for embedding by the rights owner); legacy `open_time` ISO parsed.
+- **Catalog `legacy_id` index:** plain unique → partial unique `legacy_id_partial` on 7 gem_* catalogs (2nd CMS-created row used to fail E11000); loader aligned.
+- **Demo content on beta (seed-tagged, scripts in `scripts/`):** 5 events cloned to Nov–Dec 2026 (`gem2i_demo_events_2026-10-21`), FAQ 5 Q&A (`gem2i_seed_faq.js`), conference sessions on 4 conferences (`gem2i_seed_conf_sessions.js`), 4 conference reviews (`gem2i_seed_conf_reviews.js`), hero slide `gem2i-hero-ultra-demo` with the official Ultra Miami 2025 aftermovie + the 5 events pinned (`gem2i_seed_hero_ultra_demo.js`; slides are shared → also shows on Gem2i with hero B).
+- **Legacy PHP (100.59.20.123, DB `gem2ica_training`, Anthony's OK):** promotertraininggem2i.exclusivesession.com = promoter 24; its slides had expired (2020). Assigned slide **353 Amnesia Ibiza** to promoter 24 (home, 2026-10-21 → 2030-12-31); a short-lived assignment of 375 (Lul "Noche Dorada", not GEM2i content) was removed. Undo: `DELETE FROM promoter_slide_homepage_detail WHERE id_slide_homepage=353 AND id_promoter=24 AND date_start='2026-10-21 00:00:00';`
+- **Open:** design Norules (waiting on Anthony); two junk hero slides ("asasas", "Gem2i") to hide; own GEM2i video for the hero; /conferences listing page; conferences `conferences_schedule` vs `schedule` field.
+
+---
+
 ## 2026-10-21 (session 11) — Template 01 home: events E-3, FAQ, Latest news (KMS), conferences CC-1 + sessions, Conference reviews RV-1 (DEPLOYED)
 - **Feature inventory for sales:** Excel with 59 features (all / sell today / pending), delivered to Anthony from the scratchpad, not in the repo.
 - **Upcoming events E-3** (`GemEventPosters` in `components/gem2i/GemSections.js`): square photo card under a brand-blue veil showing the "from" price (lowest tier, event currency), title, big date ("20th APR 2026"), `open_time`, and venue city. On hover (mouse only) the veil lifts and a CTA rises in: Get tickets / Join guest list / View event. On touch the CTA is always shown. The "list your event" tile is kept when there are 2 events or fewer.

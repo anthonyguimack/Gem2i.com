@@ -130,7 +130,10 @@ def main():
         if name == "gem_follows":
             db[name].create_index([("id", ASC)], unique=True)
         else:
-            db[name].create_index([("legacy_id", ASC)], unique=True)
+            # Partial: rows created in the CMS have no legacy_id, and a plain
+            # unique index lets only ONE such row exist (2026-10-21 fix).
+            db[name].create_index([("legacy_id", ASC)], unique=True, name="legacy_id_partial",
+                                  partialFilterExpression={"legacy_id": {"$type": ["number", "string"]}})
     print("indexes ensured.")
 
     client.close()

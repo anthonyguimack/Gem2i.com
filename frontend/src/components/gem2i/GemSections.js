@@ -1,3 +1,7 @@
+/* Gem2i template (`gem2i_02`) — APPROVED 2026-10-21, frozen: change only on
+   Anthony's explicit request. Norules (`gem2i`) and Gem2i - 03 (`gem2i_03`)
+   have their own copies (NorulesSections.js / Gem2i03Sections.js). The conference
+   detail page and About also import from here (shared inner pages). */
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as lucide from 'lucide-react';
@@ -456,23 +460,15 @@ function useDateParts() {
   };
 }
 
-const ordinal = (n) => (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
+const DateBadge = ({ parts, className = '' }) => (parts ? (
+  <span className={`inline-flex flex-col items-center justify-center w-16 h-[68px] rounded-xl text-white leading-none ${className}`} style={{ backgroundColor: ACCENT }}>
+    <b className="text-2xl tabular-nums">{parts.day}</b><span className="text-xs tracking-[0.2em] mt-1">{parts.month}</span>
+  </span>
+) : null);
 
-// "22:00:00" → "10:00 PM" (en) / "22:00" (es); anything unparseable → null.
-const clock = (t, lang) => {
-  const m = /^(\d{1,2}):(\d{2})/.exec(t || '');
-  if (!m) return null;
-  const h = +m[1];
-  return lang === 'es' ? `${m[1].padStart(2, '0')}:${m[2]}` : `${h % 12 || 12}:${m[2]} ${h < 12 ? 'AM' : 'PM'}`;
-};
-
-// Lowest configured ticket price ("from"), in the event's currency.
-const fromPrice = (e) => {
-  const prices = Object.values(e.tiers || {}).map(t => Number(t?.price)).filter(n => n > 0);
-  if (!prices.length) return null;
-  try {
-    return new Intl.NumberFormat('en', { style: 'currency', currency: (e.payment?.currency || 'usd').toUpperCase(), maximumFractionDigits: 0 }).format(Math.min(...prices));
-  } catch { return `$${Math.min(...prices)}`; }
+const ACCESS = {
+  guest_list: { en: 'Guest list', es: 'Guest list' },
+  eticket: { en: 'E-tickets', es: 'E-tickets' },
 };
 
 // ── E-2 Upcoming events: posters. ≤ 2 events → posters + "list your event"
@@ -480,7 +476,6 @@ const fromPrice = (e) => {
 export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-events' }) {
   const tt = useT();
   const parts = useDateParts();
-  const { lang } = useLang() || { lang: 'en' };
   const track = useRef(null);
   if (!items.length) return null;
   const carousel = items.length > 2;
@@ -488,47 +483,19 @@ export function GemEventPosters({ config = {}, items = [], testid = 'gem2i-event
     const el = track.current;
     if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' });
   };
-  // E-3 card: photo under a brand-colour veil with price / title / date / time /
-  // place. On hover (mouse only) the veil lifts and the CTA rises in; on touch
-  // the veil stays and the CTA is always shown.
-  const Poster = ({ e }) => {
-    const img = gemImg(e.image_urls?.flyer || e.image_urls?.logo);
-    const p = parts(e.event_date);
-    const year = (e.event_date || '').slice(0, 4);
-    const price = fromPrice(e);
-    const time = clock(e.open_time, lang);
-    const where = e.venue?.city || e.venue?.state || e.venue?.name;
-    const cta = e.type === 'eticket' || e.external_ticket_system ? { en: 'Get tickets', es: 'Comprar entradas' }
-      : e.type === 'guest_list' ? { en: 'Join guest list', es: 'Unirme a la lista' } : { en: 'View event', es: 'Ver evento' };
-    const hoverOnly = '[@media(hover:hover)]';
-    return (
-      <Link to={`/events/${e.slug}`} className="group relative block aspect-square rounded-2xl overflow-hidden isolate" style={{ backgroundColor: CARD }}>
-        {img && <img src={img} alt="" loading="lazy" className="absolute inset-0 -z-10 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none" />}
-        {/* Brand veil; a soft dark scrim stays underneath so the text holds contrast once it lifts. */}
-        <div className="absolute inset-0 -z-10" style={{ background: 'linear-gradient(180deg, rgba(4,8,12,0.15), rgba(4,8,12,0.55))' }} />
-        <div className={`absolute inset-0 -z-10 transition-opacity duration-300 ease-out ${hoverOnly}:group-hover:opacity-0`}
-          style={{ background: `linear-gradient(160deg, color-mix(in srgb, ${ACCENT} 88%, transparent), color-mix(in srgb, ${ACCENT} 72%, #04080C))` }} />
-        <div className="h-full flex flex-col p-5 text-white">
-          {price && <p className="self-end text-[22px] font-light tabular-nums">{price}</p>}
-          <h3 className={`${price ? 'mt-1' : 'mt-auto'} text-[15px] font-bold leading-snug line-clamp-2`}>{tt(e.title)}</h3>
-          <div className="mt-3 h-px bg-white/60" />
-          {p && (
-            <p className="mt-3 flex items-start gap-2 leading-none">
-              <span className="text-[34px] font-light tabular-nums">{p.day}{lang === 'es' ? '' : ordinal(p.day)}</span>
-              <span className="text-xs leading-tight pt-1">{p.month}<br />{year}</span>
-            </p>
-          )}
-          {time && <p className="mt-3 inline-flex items-center gap-1.5 text-[13px]"><Clock className="w-3.5 h-3.5" />{time}</p>}
-          {where && <p className="mt-1.5 inline-flex items-center gap-1.5 text-[13px] line-clamp-1"><MapPin className="w-3.5 h-3.5 shrink-0" />{where}</p>}
-          <span className={`mt-auto self-end inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-[opacity,transform] duration-200 ease-out group-active:scale-[0.97]
-            ${hoverOnly}:opacity-0 ${hoverOnly}:translate-y-2 ${hoverOnly}:group-hover:opacity-100 ${hoverOnly}:group-hover:translate-y-0 ${hoverOnly}:group-focus-visible:opacity-100 ${hoverOnly}:group-focus-visible:translate-y-0`}
-            style={{ backgroundColor: ACCENT }}>
-            {tt(cta)}
-          </span>
-        </div>
-      </Link>
-    );
-  };
+  const Poster = ({ e }) => (
+    <Link to={`/events/${e.slug}`} className="group block">
+      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden" style={{ backgroundColor: CARD }}>
+        {gemImg(e.image_urls?.flyer || e.image_urls?.logo) && (
+          <img src={gemImg(e.image_urls?.flyer || e.image_urls?.logo)} alt={tt(e.title) || ''} loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none" />
+        )}
+        <DateBadge parts={parts(e.event_date)} className="absolute left-3.5 top-3.5" />
+      </div>
+      <h3 className="mt-4 text-white text-lg font-semibold leading-snug line-clamp-2 group-hover:text-[color:var(--color-link,#5FB2E0)] transition-colors">{tt(e.title)}</h3>
+      {ACCESS[e.type] && <p className="mt-1 text-[15px]" style={{ color: BODY }}>{tt(ACCESS[e.type])}</p>}
+    </Link>
+  );
   const arrows = carousel ? (
     <div className="flex items-center gap-4">
       <div className="hidden sm:flex gap-2">
@@ -770,7 +737,10 @@ const sessionDays = (sessions) => {
   return days;
 };
 
-const plainText = (html) => (html || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+// Rich text → one plain line; the parser also decodes entities (legacy rows carry &#39; etc.).
+const plainText = (html) => (html
+  ? (new DOMParser().parseFromString(html, 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim()
+  : '');
 
 // One CC-1 card. With sessions: first 3 of the chosen day (Day 1/2/3 tabs when
 // the conference runs several days). Without: address + a short description.
@@ -866,41 +836,50 @@ function useOverlay(open, onClose, onKey) {
 
 const ytId = (url) => (url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/)?.[1];
 
-// ── W-1 Watch: full-width cover + play; the player loads only on click.
+// ── W-1 Watch: full-screen cover (100% width × viewport height) + play. The
+// player loads only on click and plays in place, filling the same section
+// (no modal); the X / Escape returns to the cover.
 export function GemVideoCover({ config = {} }) {
   const tt = useT();
-  const [open, setOpen] = useState(false);
-  const close = React.useCallback(() => setOpen(false), []);
-  useOverlay(open, close);
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    if (!playing) return undefined;
+    const h = (e) => { if (e.key === 'Escape') setPlaying(false); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [playing]);
   if (!config.video_url) return null;
   const id = ytId(config.video_url);
   const poster = gemImg(config.poster_url) || (id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null);
   const src = embedUrl(config.video_url, true);
   return (
-    <section data-testid="gem2i-video" className="relative overflow-hidden" style={{ backgroundColor: '#000' }}>
-      {poster && <img src={poster} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-70"
-        // YouTube answers a missing maxres thumbnail with a 120px grey placeholder: fall back to hq.
-        onLoad={e => { if (id && e.currentTarget.naturalWidth <= 120 && !e.currentTarget.src.includes('hqdefault')) e.currentTarget.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }} />}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(4,8,12,0.25), rgba(4,8,12,0.85))' }} />
-      <div className="relative min-h-[420px] md:min-h-[560px] flex flex-col items-center justify-center text-center px-6 py-20 gap-7">
-        <button type="button" onClick={() => setOpen(true)} aria-label={tt({ en: 'Play video', es: 'Reproducir video' })}
-          className="w-[84px] h-[84px] rounded-full inline-flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95"
-          style={{ backgroundColor: ACCENT, boxShadow: '0 0 0 12px rgba(50,135,183,0.22)' }}>
-          <lucide.Play className="w-8 h-8 ml-1" fill="currentColor" />
-        </button>
-        {tt(config.title) && <h2 className="text-white font-bold max-w-3xl" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', textWrap: 'balance' }}>{tt(config.title)}</h2>}
-        {tt(config.subtitle) && <p className="max-w-xl text-base md:text-[17px]" style={{ color: 'rgba(255,255,255,0.75)' }}>{tt(config.subtitle)}</p>}
-      </div>
-      {open && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10" style={{ backgroundColor: 'rgba(0,0,0,0.92)' }}
-          role="dialog" aria-modal="true" onClick={close}>
-          <button type="button" onClick={close} aria-label={tt({ en: 'Close', es: 'Cerrar' })} className="absolute top-4 right-4 w-11 h-11 rounded-full inline-flex items-center justify-center text-white hover:bg-white/10"><lucide.X className="w-6 h-6" /></button>
-          <div className="w-full max-w-5xl aspect-video" onClick={e => e.stopPropagation()}>
-            {src
-              ? <iframe src={src.replace('mute=1', 'mute=0')} title={tt(config.title) || 'video'} className="w-full h-full rounded-lg" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />
-              : <video src={gemImg(config.video_url)} autoPlay controls className="w-full h-full rounded-lg bg-black" />}
+    <section data-testid="gem2i-video" className="relative overflow-hidden h-[100svh] min-h-[420px]" style={{ backgroundColor: '#000' }}>
+      {playing ? (
+        <>
+          {src
+            ? <iframe src={src.replace('mute=1', 'mute=0')} title={tt(config.title) || 'video'} className="absolute inset-0 w-full h-full border-0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />
+            : <video src={gemImg(config.video_url)} autoPlay controls playsInline className="absolute inset-0 w-full h-full object-contain bg-black" />}
+          <button type="button" onClick={() => setPlaying(false)} aria-label={tt({ en: 'Close video', es: 'Cerrar video' })}
+            className="absolute top-4 right-4 z-10 w-11 h-11 rounded-full inline-flex items-center justify-center text-white bg-black/60 hover:bg-black/80 transition-[background-color,transform] active:scale-95">
+            <lucide.X className="w-6 h-6" />
+          </button>
+        </>
+      ) : (
+        <>
+          {poster && <img src={poster} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-70"
+            // YouTube answers a missing maxres thumbnail with a 120px grey placeholder: fall back to hq.
+            onLoad={e => { if (id && e.currentTarget.naturalWidth <= 120 && !e.currentTarget.src.includes('hqdefault')) e.currentTarget.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }} />}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(4,8,12,0.25), rgba(4,8,12,0.85))' }} />
+          <div className="relative h-full flex flex-col items-center justify-center text-center px-6 gap-7">
+            <button type="button" onClick={() => setPlaying(true)} aria-label={tt({ en: 'Play video', es: 'Reproducir video' })}
+              className="w-[84px] h-[84px] rounded-full inline-flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95"
+              style={{ backgroundColor: ACCENT, boxShadow: '0 0 0 12px rgba(50,135,183,0.22)' }}>
+              <lucide.Play className="w-8 h-8 ml-1" fill="currentColor" />
+            </button>
+            {tt(config.title) && <h2 className="text-white font-bold max-w-3xl" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', textWrap: 'balance' }}>{tt(config.title)}</h2>}
+            {tt(config.subtitle) && <p className="max-w-xl text-base md:text-[17px]" style={{ color: 'rgba(255,255,255,0.75)' }}>{tt(config.subtitle)}</p>}
           </div>
-        </div>
+        </>
       )}
     </section>
   );
@@ -1634,5 +1613,77 @@ function GemHeadingCenter({ eyebrow, title, subtitle }) {
       {t && <h2 className="text-white font-bold leading-[1.08]" style={{ fontSize: 'clamp(1.9rem, 3.6vw, 2.9rem)', textWrap: 'balance' }}><AccentTitle text={t} /></h2>}
       {s && <p className="mt-4 text-base md:text-[17px]" style={{ color: BODY }}>{s}</p>}
     </div>
+  );
+}
+
+// ── Featured "Explore the scene" + FAQ (2026-10-21, reference "Event Categories
+// + FAQ"): round photo per featured card with a white label pill on the left;
+// FAQ panel on the right (Section Manager → FAQ). No questions → full width.
+export function GemFeaturedCircles({ items = [], faq, heading }) {
+  const tt = useT();
+  const [open, setOpen] = useState(0);
+  const questions = faq?.items || [];
+  const fcfg = faq?.config || {};
+  if (!items.length && !questions.length) return null;
+  return (
+    <section className="max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28" data-testid="gem2i-featured">
+      <div className={`grid gap-12 ${questions.length ? 'lg:grid-cols-[1.6fr_1fr] lg:gap-14 items-start' : ''}`}>
+        {items.length > 0 && (
+          <div>
+            <GemHeading eyebrow={heading?.kicker || items[0]?.kicker || { en: 'Featured', es: 'Destacados' }}
+              title={heading?.title || { en: 'Explore the scene', es: 'Explora la escena' }}
+              subtitle={heading?.subtitle || { en: 'Sort through the best of the scene.', es: 'Lo mejor de la escena, por categoría.' }} />
+            <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-8">
+              {items.map((f, i) => {
+                const img = gemImg(f.image) || DEFAULT_FEATURED_IMG[f.url] || DEFAULT_INTRO_IMG;
+                const label = String(tt(f.title) || '').toLowerCase();
+                const inner = (
+                  <>
+                    <span className="relative block aspect-square rounded-full overflow-hidden shadow-[0_18px_40px_-18px_rgba(0,0,0,.8)]" style={{ backgroundColor: CARD }}>
+                      <img src={img} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06] motion-reduce:transition-none" />
+                      <span className="absolute inset-0 bg-black/20 transition-opacity duration-300 group-hover:opacity-0" />
+                      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-[15px] font-bold capitalize text-[#0B121B] transition-transform duration-200 ease-out group-active:scale-[0.97]">
+                        {label}
+                      </span>
+                    </span>
+                    {tt(f.text) && <span className="mt-4 block text-sm leading-[1.6] line-clamp-2 text-center" style={{ color: BODY }}>{tt(f.text)}</span>}
+                  </>
+                );
+                return f.url
+                  ? <Link key={i} to={f.url} className="group block" data-testid={`gem2i-featured-${i}`}>{inner}</Link>
+                  : <div key={i} className="group">{inner}</div>;
+              })}
+            </div>
+          </div>
+        )}
+        {questions.length > 0 && (
+          <aside className="rounded-2xl p-6 md:p-8" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }} data-testid="gem2i-faq">
+            <h3 className="text-white text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>{tt(fcfg.title) || 'FAQ'}</h3>
+            {tt(fcfg.subtitle) && <p className="mt-2 text-sm" style={{ color: BODY }}>{tt(fcfg.subtitle)}</p>}
+            <div className="mt-6 flex flex-col gap-2.5">
+              {questions.map((q, i) => {
+                const isOpen = open === i;
+                return (
+                  <div key={q.id || i} className="rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,.04)' }}>
+                    <button type="button" onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}
+                      className="w-full flex items-center justify-between gap-4 px-4 py-3.5 text-left text-white text-[15px] font-semibold">
+                      {tt(q.question)}
+                      <span aria-hidden className="relative w-3 h-3 shrink-0">
+                        <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-current" />
+                        <span className={`absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-current transition-transform duration-200 ease-out ${isOpen ? 'scale-y-0' : ''}`} />
+                      </span>
+                    </button>
+                    <div className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                      <div className="overflow-hidden"><Rich html={q.answer} className="px-4 pb-4 !text-sm" /></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <GemCta text={fcfg.cta_text} url={fcfg.cta_url} newTab={fcfg.cta_new_tab} className="mt-6" />
+          </aside>
+        )}
+      </div>
+    </section>
   );
 }

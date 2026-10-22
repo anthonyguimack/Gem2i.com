@@ -9,7 +9,7 @@ import { useT } from '../../lib/i18n';
 import { useAuth } from '../../lib/auth';
 import { slideForAudience, isLoggedInUser } from '../../lib/heroAudience';
 import { AUREX_FONTS } from '../../lib/themeColors';
-import { GemHeroA, GemHeroB, GemHeroC } from '../../components/gem2i/GemHeroVariants';
+import { GemHeroB, GemHeroC, GemHeroU } from '../../components/gem2i/GemHeroVariants';
 import GemModernMaps from '../../components/gem2i/GemModernMaps';
 import GemContactSection from '../../components/gem2i/GemContactSection';
 import AccentTitle from '../../components/gem2i/AccentTitle';
@@ -19,7 +19,7 @@ import {
   GemEventPosters, GemArtistMosaic,
   GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemTicker, GemLocations, GemGallery,
-  GemIntroPhoto, GemFeaturedCards, GemServicesGrid, GemFaq, GemNewsCards, GemConferenceReviews,
+  GemIntroPhoto, GemServicesGrid, GemFeaturedCards, GemFaq, GemNewsCards, GemConferenceReviews,
 } from '../../components/gem2i/GemSections';
 
 // Section Manager content the home reads (one public call each, in parallel).
@@ -31,10 +31,10 @@ const SM_KEYS = [
   'news_ticker', 'aurex_locations_cfg', 'aurex_gallery_cfg', 'gem_faq', 'aurex_blog_cfg', 'gem_conf_reviews',
 ];
 const DEFAULT_ORDER = [
-  'news_ticker', 'hero', 'gem_intro', 'gem_featured', 'gem_services_banner', 'services', 'gem_methodology',
+  'news_ticker', 'hero', 'gem_intro', 'gem_featured', 'gem_faq', 'gem_services_banner', 'services', 'gem_methodology',
   'aurex_audience', 'aurex_process', 'gem_events', 'gem_artists', 'gem_venues',
   'gem_festivals', 'gem_conferences', 'gem_conf_reviews', 'aurex_video', 'aurex_pricing', 'aurex_team',
-  'testimonials', 'gem_news', 'gem_media', 'gallery', 'gem_faq', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
+  'testimonials', 'gem_news', 'gem_media', 'gallery', 'map', 'aurex_partners', 'gem_clients', 'aurex_clients', 'contact',
 ];
 
 const GEM_FONT = "'Manrope', sans-serif";
@@ -154,7 +154,7 @@ export default function Gem2iHome() {
       const slide = heroSlides[0];
       if (tpl === 'gem2i_02') return <GemHeroB slide={slide} slides={heroSlides} event={events[0]} linked={heroEvents} />;
       if (tpl === 'gem2i_03') return <GemHeroC slide={slide} slides={heroSlides} events={events} linked={heroEvents} />;
-      return <GemHeroA slide={slide} slides={heroSlides} linked={heroEvents} />;
+      return <GemHeroU slide={slide} slides={heroSlides} linked={heroEvents} />;
     },
     legacy_hero: () => (<>
       {/* HERO — CMS hero-canvas slides; branded static fallback until slides are entered */}
@@ -191,6 +191,7 @@ export default function Gem2iHome() {
 
       </>),
     gem_featured: () => <GemFeaturedCards items={Array.isArray(c.featured) ? c.featured : []} />,
+    gem_faq: () => <GemFaq config={smCfg('gem_faq')} items={sm.gem_faq?.items || []} />,
     legacy_gem_featured: () => (<>
       {/* FEATURED — venues / events / artists */}
       {Array.isArray(c.featured) && c.featured.length > 0 && (
@@ -379,7 +380,6 @@ export default function Gem2iHome() {
     contact: () => <GemContactSection />,
     news_ticker: () => <GemTicker config={smCfg('news_ticker')} />,
     gem_conf_reviews: () => <GemConferenceReviews config={smCfg('gem_conf_reviews')} items={sm.gem_conf_reviews?.items || []} />,
-    gem_faq: () => <GemFaq config={smCfg('gem_faq')} items={sm.gem_faq?.items || []} />,
     gem_news: () => <GemNewsCards config={smCfg('aurex_blog_cfg')} items={news} />,
     map: () => (isTpl01
       ? <GemModernMaps tabs={mapTabs} cmsConfig={smCfg('aurex_locations_cfg')} mapsLang={settings.maps_language || 'local'} />
@@ -387,8 +387,15 @@ export default function Gem2iHome() {
     gallery: () => (isTpl01 ? <GemGalleryMosaic config={smCfg('aurex_gallery_cfg')} items={gallery} /> : <GemGallery config={smCfg('aurex_gallery_cfg')} items={gallery} />),
   };
 
-  const order = (layout.section_order && layout.section_order.some(k => renderers[k]))
-    ? layout.section_order : DEFAULT_ORDER;
+  // A saved Page Builder order predates sections added later: slot each missing
+  // default key right after its predecessor so new sections show up.
+  const saved = (layout.section_order && layout.section_order.some(k => renderers[k])) ? layout.section_order : null;
+  const order = saved ? DEFAULT_ORDER.reduce((acc, k, i) => {
+    if (acc.includes(k)) return acc;
+    const prev = DEFAULT_ORDER.slice(0, i).reverse().find(p => acc.includes(p));
+    const at = prev ? acc.indexOf(prev) + 1 : 0;
+    return [...acc.slice(0, at), k, ...acc.slice(at)];
+  }, [...saved]) : DEFAULT_ORDER;
   const visibility = layout.sections || {};
   const sectionCfg = layout.section_configs || {};
 

@@ -596,6 +596,13 @@ body:has([data-testid="membership-enrollment"]) [role="dialog"][data-state="open
 [role="dialog"][data-state="open"] input[type="datetime-local"] {
   color: var(--ma-text-primary, #ffffff);
 }
+/* …but CMS dialogs are light: the rule above painted their date/time values
+   white on white (Conferences → Date / Sessions looked empty). */
+body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[type="date"],
+body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[type="time"],
+body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[type="datetime-local"] {
+  color: inherit;
+}
 
 /* === Rich Text Editor — Dark theme inside member-area modals === */
 [data-testid="myaccount-layout"] .ma-quill-dark .ql-toolbar,

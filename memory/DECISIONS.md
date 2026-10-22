@@ -61,3 +61,9 @@ The KMS public site must look exactly like beta.gem2i.com — same fonts (Manrop
 
 ## D-GEM-2026-12 — Travel magazine templates + light/dark (2026-10-20, Anthony)
 Bocetos `kms-travel.html` approved: TR-1 (light) and TR-2 (dark) are ONE KMS template "GEM2i Magazine - Travel" — only the hero differs, plus the region block (light cards / dark tall photos); TR-3 is a separate template "GEM2i Magazine - Travel Calendar". Readers can switch light/dark from the frontend; the admin picks the default. Same switch enabled on the first template "GEM2i Magazine" (MG-1).
+
+## D-GEM-2026-13 — One face per template; Gem2i approved & frozen (2026-10-21, Anthony)
+Supersedes the "sections shared, templates differ by hero" part of D-GEM-2026-08. **Every template has its own design for every section; only the CONTENT is shared** (Section Manager, slides, catalogs, FAQ, reviews). Renamed: `gem2i_02` "Gem2i - 02" → **Gem2i** (APPROVED: change only on Anthony's explicit request), `gem2i` "Gem2i - 01" → **Norules** (the template we design now). `gem2i_03` keeps "Gem2i - 03".
+Implementation: one home + one sections file per template — Norules = `pages/gem2i/NorulesHome.js` + `components/gem2i/NorulesSections.js` (hero U); Gem2i = `Gem2iHome.js` + `GemSections.js` (hero B); Gem2i - 03 = `Gem2i03Home.js` + `Gem2i03Sections.js` (hero C). `pages/HomePage.js` picks by theme. Never import one template's sections from another. Header, footer, catalog pages and My Account are still shared: copy them per template the first time one template needs its own version (never edit the shared one for a single template).
+Why: on 2026-10-21 the Norules work edited shared components and changed the approved Gem2i too (`isTpl01 = true` made all templates render the same sections).
+

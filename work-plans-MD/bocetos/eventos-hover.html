@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bocetos · Upcoming events hover</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0B121B; --accent:#0068b3; --veil:rgba(53,130,190,.9); --link:#5FB2E0; --ease:cubic-bezier(.23,1,.32,1); }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:#fff; font-family:Manrope, sans-serif; }
+  .tag { position:sticky; top:0; z-index:5; background:#000; color:#ffd166; font:600 13px Manrope; padding:10px 24px; }
+  .wrap { max-width:1240px; margin:0 auto; padding:40px 24px 56px; }
+  .note { color:#ffd166; font-size:14px; line-height:1.6; margin-top:20px; max-width:900px; }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+  @media (max-width:1000px){ .grid{ grid-template-columns:repeat(2,1fr);} }
+  .card { position:relative; aspect-ratio:1; border-radius:16px; overflow:hidden; isolation:isolate; color:#fff; text-decoration:none; display:block; }
+  .card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-3; transition:transform .5s var(--ease), filter .3s var(--ease); }
+  .card:hover img { transform:scale(1.04); }
+  .veil { position:absolute; inset:0; z-index:-1; background:var(--veil); transition:opacity .3s var(--ease); }
+  .body { height:100%; display:flex; flex-direction:column; padding:20px; }
+  .t { font-family:'Playfair Display', serif; font-size:16px; font-weight:700; }
+  .rule { height:1px; background:rgba(255,255,255,.6); margin:12px 0; }
+  .d { display:flex; align-items:flex-start; gap:8px; } .d b { font-size:36px; font-weight:300; line-height:1; } .d span { font-size:12px; line-height:1.25; padding-top:4px; }
+  .m { font-size:13px; margin-top:10px; display:flex; gap:6px; align-items:center; }
+  .cta { margin-top:auto; align-self:flex-end; background:#3f8fcf; border-radius:99px; padding:10px 20px; font-weight:600; font-size:14px; opacity:0; transform:translateY(8px); transition:opacity .2s var(--ease), transform .2s var(--ease); }
+  .card:hover .cta { opacity:1; transform:none; }
+
+  /* H-1 · veil lifts, dark gradient rises from the bottom; text moves down onto it */
+  /* the text block drops exactly to the bottom edge (JS measures --drop) so it sits on the darkest part of the shadow */
+  .h1 .scrim, .h1b .scrim { position:absolute; inset:0; z-index:-2; background:linear-gradient(180deg, rgba(4,8,12,0) 30%, rgba(4,8,12,.55) 52%, rgba(4,8,12,.94) 78%, rgba(4,8,12,.97) 100%); opacity:0; transition:opacity .3s var(--ease); }
+  .h1:hover .veil, .h1b:hover .veil { opacity:0; } .h1:hover .scrim, .h1b:hover .scrim { opacity:1; }
+  .h1 .info, .h1b .info { position:absolute; left:0; right:0; top:0; height:auto; transition:transform .38s var(--ease); }
+  .h1:hover .info, .h1b:hover .info { transform:translateY(var(--drop,0px)); }
+  .h1:hover .rule, .h1b:hover .rule { background:rgba(255,255,255,.35); }
+  .h1 .cta { position:absolute; right:16px; top:16px; box-shadow:0 8px 20px -8px rgba(0,0,0,.6); }
+  /* H-1b: same, but the date block becomes a row and the button sits bottom-right next to it */
+  .h1b .cta { position:absolute; right:20px; bottom:20px; margin:0; }
+  .h1b:hover .d b { font-size:30px; }
+  .h1b .d b { transition:font-size .3s var(--ease); }
+
+  /* H-2 · veil lifts; only a compact glass panel stays at the bottom (title + date + CTA) */
+  .h2 .full, .h2 .panel { transition:opacity .25s var(--ease), transform .3s var(--ease); }
+  .h2 .panel { position:absolute; left:12px; right:12px; bottom:12px; padding:14px 16px; border-radius:12px; background:rgba(4,8,12,.62); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); display:flex; align-items:center; gap:12px; opacity:0; transform:translateY(10px); }
+  .h2 .panel .dd { flex:none; width:48px; height:52px; border-radius:10px; background:var(--accent); display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1; }
+  .h2 .panel .dd b { font-size:20px; } .h2 .panel .dd small { font-size:10px; letter-spacing:.15em; margin-top:3px; }
+  .h2 .panel .pt { flex:1; min-width:0; } .h2 .panel .pt p { font-size:12px; color:#c9d3dc; margin-top:3px; }
+  .h2 .panel .go { flex:none; background:#3f8fcf; border-radius:99px; padding:8px 14px; font-size:13px; font-weight:600; }
+  .h2:hover .veil, .h2:hover .full { opacity:0; } .h2:hover .panel { opacity:1; transform:none; }
+
+  /* H-3 · veil becomes dark (not removed); photo shows through at ~45% — text never moves */
+  .h3:hover .veil { background:rgba(4,8,12,.55); }
+  .h3 .veil { transition:background-color .3s var(--ease); }
+
+  /* H-4 · split: photo takes the top, a solid info strip slides up at the bottom */
+  .h4 .full { transition:opacity .2s var(--ease); }
+  .h4 .strip { position:absolute; left:0; right:0; bottom:0; padding:16px 20px; background:#0D1721; transform:translateY(100%); transition:transform .3s var(--ease); }
+  .h4 .strip .row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .h4 .strip p { font-size:13px; color:#9AA6B2; margin-top:4px; }
+  .h4 .strip .go { background:#3f8fcf; border-radius:99px; padding:8px 14px; font-size:13px; font-weight:600; flex:none; }
+  .h4:hover .veil, .h4:hover .full { opacity:0; } .h4:hover .strip { transform:none; }
+
+  @media (prefers-reduced-motion:reduce){ * { transition-duration:0s !important; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  const B = 'https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/';
+  const EV = [
+    ['Deadmau5cubev3','7th','NOV','8:00 PM','1568415075.png'],
+    ['NORA EN PURE','14th','NOV','10:00 PM','1569001290.png'],
+    ['AUDIEN','21st','NOV','10:00 PM','1568999844.png'],
+    ['ELROW ART','28th','NOV','7:00 PM','1568998950.png'],
+  ];
+  const full = (e) => `<div class="body full info"><p class="t">${e[0]}</p><div class="rule"></div><div class="d"><b>${e[1]}</b><span>${e[2]}<br>2026</span></div><p class="m">🕘 ${e[3]}</p><p class="m">📍 New York</p></div>`;
+  const V = {
+    h1: ['H-1 (mejorado) · El velo se va, sube un degradado oscuro y el texto baja hasta el borde inferior, justo sobre la sombra. Botón arriba a la derecha.',
+      e => `${full(e)}<span class="scrim"></span><span class="cta">Get tickets</span>`,
+      'El bloque de texto termina pegado al borde de abajo, donde la sombra es más oscura (≈95 %); la mitad de arriba queda limpia para el flyer.'],
+    h1b: ['H-1b · Igual que H-1, pero el botón va abajo a la derecha, junto a la fecha (no tapa el flyer).',
+      e => `${full(e)}<span class="scrim"></span><span class="cta">Get tickets</span>`,
+      'Todo lo que se lee queda en la franja oscura de abajo; arriba solo el flyer. La fecha se reduce un poco al bajar para dejar sitio al botón.'],
+    h2: ['H-2 · El velo se va y queda solo un panel de vidrio abajo: fecha, nombre, hora/ciudad y botón.',
+      e => `${full(e)}<div class="panel"><span class="dd"><b>${parseInt(e[1])}</b><small>${e[2]}</small></span><div class="pt"><b class="t" style="font-size:14px">${e[0]}</b><p>${e[3]} · New York</p></div><span class="go">Tickets</span></div>`,
+      'El flyer se ve casi entero; el panel compacto con desenfoque se lee sobre cualquier imagen. Recomendado: es el más limpio.'],
+    h3: ['H-3 · El velo no desaparece: pasa de azul a oscuro translúcido y deja ver la foto detrás. El texto no se mueve.',
+      e => `${full(e)}<span class="cta">Get tickets</span>`,
+      'El cambio más pequeño respecto a hoy. La foto se “intuye” pero no se ve tan nítida como en H-1/H-2.'],
+    h4: ['H-4 · El velo se va; una franja sólida sube desde abajo con nombre, fecha y botón.',
+      e => `${full(e)}<div class="strip"><div class="row"><div><b class="t" style="font-size:15px">${e[0]}</b><p>${e[1]} ${e[2]} · ${e[3]} · New York</p></div><span class="go">Tickets</span></div></div>`,
+      'Máxima legibilidad (fondo sólido) y foto visible arriba; tapa un poco más del flyer que H-2.'],
+  };
+  document.getElementById('app').innerHTML = Object.entries(V).map(([k, [tag, inner, note]]) =>
+    `<div class="tag">${tag}</div><section class="wrap"><div class="grid">${EV.map(e => `<a class="card ${k}" href="#"><img src="${B + e[4]}" alt=""><span class="veil"></span>${inner(e)}</a>`).join('')}</div><p class="note">${note} — pasa el mouse por las tarjetas.</p></section>`).join('');
+  // H-1/H-1b: how far the text block must drop to touch the bottom padding.
+  const measure = () => document.querySelectorAll('.h1, .h1b').forEach(c => {
+    const info = c.querySelector('.info');
+    c.style.setProperty('--drop', `${c.clientHeight - info.offsetHeight}px`);
+  });
+  measure(); addEventListener('resize', measure); addEventListener('load', measure);
+</script>
+</body>
+</html>

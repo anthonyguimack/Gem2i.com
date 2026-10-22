@@ -279,7 +279,7 @@ export const AUREX_SECTIONS = {
   gem_faq: {
     label: 'FAQ',
     icon: MessageCircle,
-    description: 'Home FAQ: heading on the left, questions on the right (the first one opens by default). Show/hide and position the section in Page Builder.',
+    description: 'Home FAQ section (right after "Explore the scene"): heading on the left, questions on the right, the first one open. Show/hide and move it in Page Builder.',
     configFields: [
       { key: 'eyebrow',     label: 'Eyebrow (above title)', type: 'text', placeholder: 'Help' },
       { key: 'title',       label: 'Section title',         type: 'text', placeholder: 'Frequently asked questions' },

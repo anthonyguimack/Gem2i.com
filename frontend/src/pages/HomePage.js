@@ -3,12 +3,18 @@ import { publicAPI } from '../lib/api';
 import { useTheme } from '../App';
 import { isGem2iTheme } from '../lib/themeColors';
 import Gem2iHome from './gem2i/Gem2iHome';
+import NorulesHome from './gem2i/NorulesHome';
+import Gem2i03Home from './gem2i/Gem2i03Home';
 
 // gem2i homepage: the real dark-entertainment home (Phase 1) when the gem2i
 // theme is active; otherwise the Phase-0 placeholder (kept as the fallback
 // for any other theme selected in CMS Settings).
 export default function HomePage() {
   const theme = useTheme();
+  // One home per template (own section designs; content shared):
+  // gem2i = Norules · gem2i_02 = Gem2i (approved) · gem2i_03 = Gem2i - 03.
+  if (theme === 'gem2i') return <NorulesHome />;
+  if (theme === 'gem2i_03') return <Gem2i03Home />;
   if (isGem2iTheme(theme)) return <Gem2iHome />;
   return <PlaceholderHome />;
 }

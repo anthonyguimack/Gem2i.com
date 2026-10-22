@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bocetos · Hero estilo Ultra (template 01)</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04080C; --accent:#0068b3; --accent2:#3f8fcf; --link:#5FB2E0; --ease:cubic-bezier(.23,1,.32,1); }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:#fff; font-family:Manrope, sans-serif; }
+  .tag { position:sticky; top:0; z-index:50; background:#000; color:#ffd166; font:600 13px Manrope; padding:10px 24px; }
+  .note { max-width:1240px; margin:0 auto; padding:18px 24px 48px; color:#ffd166; font-size:14px; line-height:1.6; }
+
+  /* header (as on beta) */
+  header { position:relative; z-index:5; height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 40px; background:#000; }
+  header nav { display:flex; gap:28px; font-size:15px; font-weight:600; } header nav a { color:#fff; text-decoration:none; } header nav a.on { color:var(--link); }
+  .logo { font:italic 800 26px Manrope; letter-spacing:-.02em; }
+  .hdr-r { display:flex; gap:12px; align-items:center; font-size:14px; font-weight:600; }
+  .pill-o { border:1px solid rgba(255,255,255,.25); border-radius:99px; padding:9px 18px; }
+  .pill-b { background:var(--accent2); border-radius:99px; padding:9px 18px; }
+  @media (max-width:1100px){ header nav { display:none; } }
+
+  /* HERO — rounded inset stage (Ultra-style) */
+  .stage { position:relative; margin:0 18px; height:calc(100svh - 76px - 18px); min-height:620px; border-radius:28px; overflow:hidden; isolation:isolate; background:#000; }
+  .stage .bgv { position:absolute; inset:0; z-index:-3; overflow:hidden; pointer-events:none; }
+  /* YouTube iframe sized to COVER the stage at 16:9 */
+  .stage .bgv iframe { position:absolute; top:50%; left:50%; width:max(100%, calc((100svh - 94px) * 16 / 9)); height:max(100%, calc(100vw * 9 / 16)); transform:translate(-50%,-50%); border:0; }
+  .stage .shade { position:absolute; inset:0; z-index:-2; background:linear-gradient(90deg, rgba(4,8,12,.82) 0%, rgba(4,8,12,.55) 38%, rgba(4,8,12,.25) 60%, rgba(4,8,12,.45) 100%), linear-gradient(0deg, rgba(4,8,12,.7), rgba(4,8,12,0) 45%); }
+  .grid { height:100%; display:grid; grid-template-columns:1fr 1.05fr; gap:40px; align-items:center; padding:48px 48px 48px 56px; }
+  .left { align-self:end; padding-bottom:28px; }
+  .chip { display:inline-block; font-size:13px; font-weight:800; letter-spacing:.04em; padding:7px 14px; border-radius:99px; background:rgba(4,8,12,.6); border:1px solid rgba(255,255,255,.18); backdrop-filter:blur(6px); }
+  .brand { margin-top:22px; font-family:'Playfair Display', serif; font-size:clamp(2.2rem,4vw,3.6rem); line-height:1.02; }
+  .brand em { color:var(--link); }
+  .date { margin-top:22px; font-weight:800; font-size:clamp(3rem,6.4vw,6rem); line-height:.95; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .place { margin-top:12px; font-weight:700; font-size:clamp(1.3rem,2.2vw,2.1rem); letter-spacing:.04em; text-transform:uppercase; }
+  .lead { margin-top:28px; font-size:clamp(1.1rem,1.5vw,1.45rem); font-weight:600; }
+  .ctas { margin-top:22px; display:flex; gap:12px; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; gap:12px; padding:9px 9px 9px 20px; border-radius:99px; font-weight:800; font-size:15px; letter-spacing:.03em; text-transform:uppercase; color:#fff; text-decoration:none; transition:transform .16s var(--ease), box-shadow .2s var(--ease); }
+  .btn:active { transform:scale(.97); }
+  .btn i { width:30px; height:30px; border-radius:50%; background:#04080C; display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-size:15px; }
+  .b1 { background:var(--accent2); box-shadow:0 0 0 3px rgba(63,143,207,.35); }
+  .b2 { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(6px); }
+  @media (hover:hover){ .btn:hover { box-shadow:0 0 0 5px rgba(63,143,207,.35); } }
+  .poster { position:relative; justify-self:end; height:100%; max-height:calc(100% - 0px); aspect-ratio:auto; width:100%; border-radius:22px; overflow:hidden; box-shadow:0 0 0 1px rgba(95,178,224,.35), 0 0 40px rgba(0,104,179,.45), 0 30px 60px -20px rgba(0,0,0,.8); background:#0D1721; }
+  .poster img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+  .zoom { position:absolute; top:16px; right:16px; width:40px; height:40px; border-radius:50%; background:rgba(4,8,12,.65); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .pbar { position:absolute; left:0; right:0; bottom:0; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; background:linear-gradient(0deg, rgba(4,8,12,.92), rgba(4,8,12,0)); font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .pbar span:last-child { color:var(--link); }
+  .dots { position:absolute; left:56px; bottom:22px; display:flex; gap:8px; }
+  .dots b { width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,.35); } .dots b.on { width:26px; background:var(--link); }
+  .sound { position:absolute; right:22px; bottom:22px; z-index:3; width:42px; height:42px; border-radius:50%; background:rgba(4,8,12,.6); border:1px solid rgba(255,255,255,.2); color:#fff; font-size:16px; cursor:pointer; }
+
+  /* U-2: poster carousel strip */
+  .thumbs { position:absolute; right:48px; bottom:22px; display:flex; gap:10px; z-index:2; }
+  .thumbs img { width:58px; height:58px; border-radius:12px; object-fit:cover; opacity:.6; border:2px solid transparent; }
+  .thumbs img.on { opacity:1; border-color:var(--link); }
+
+  .after { text-align:center; padding:72px 24px; font-family:'Playfair Display', serif; font-size:clamp(2rem,4vw,3.4rem); }
+  .after em { color:var(--link); }
+
+  @media (max-width:900px){
+    .stage { height:auto; min-height:0; }
+    .grid { grid-template-columns:1fr; padding:28px 22px 80px; }
+    .left { order:2; padding-bottom:0; }
+    .poster { height:auto; aspect-ratio:4/5; }
+    .thumbs { display:none; } .dots { left:22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tag">U-1 · Hero estilo Ultra · video de fondo en reproducción automática (silenciado, en bucle) · a la derecha el flyer del evento fijado a la diapositiva</div>
+<header>
+  <span class="logo">GEM2i</span>
+  <nav><a class="on" href="#">Home</a><a href="#">About Us</a><a href="#">Events</a><a href="#">Festivals</a><a href="#">Artists</a><a href="#">Venues</a><a href="#">Travels</a><a href="#">Services</a><a href="#">Partners</a></nav>
+  <div class="hdr-r"><span>EN</span><span class="pill-o">Waiting list</span><span class="pill-b">Login</span></div>
+</header>
+<section class="stage" id="s1">
+  <div class="bgv"><iframe data-yt="5eDxz3cLyHw" title="" allow="autoplay; encrypted-media" tabindex="-1"></iframe></div>
+  <div class="shade"></div>
+  <div class="grid">
+    <div class="left">
+      <span class="chip">NEXT ON GEM2i · GUEST LIST OPEN</span>
+      <h1 class="brand">Ultra Music <em>Festival</em></h1>
+      <p class="date">MARCH 26.27.28</p>
+      <p class="place">Miami, Bayfront Park</p>
+      <p class="lead">Guest list and e-tickets for members — now open.</p>
+      <div class="ctas">
+        <a class="btn b1" href="#">Get tickets <i>↗</i></a>
+        <a class="btn b2" href="#">Join guest list <i>↗</i></a>
+      </div>
+    </div>
+    <div class="poster">
+      <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png" alt="">
+      <span class="zoom">⌕</span>
+      <div class="pbar"><span>Line-up · Phase 1</span><span>View event →</span></div>
+    </div>
+  </div>
+  <div class="dots"><b class="on"></b><b></b><b></b></div>
+  <button class="sound" type="button" aria-label="Sonido" data-for="s1">🔇</button>
+</section>
+<p class="note">U-1 — Escenario con esquinas redondeadas y margen de 18 px (como Ultra), alto = pantalla menos el header. Fondo: el video del slide reproduciéndose solo (sin sonido, en bucle; botón 🔇 abajo a la derecha para activar el audio). Izquierda, abajo: chip, título del slide (con la palabra en cursiva azul de GEM2i), fecha grande, lugar, subtítulo y los 2 botones del slide. Derecha: el flyer del evento fijado a la diapositiva ocupando casi media pantalla, pegado a la derecha, con brillo azul GEM2i y lupa para verlo en grande. Video de prueba: aftermovie oficial Ultra Miami 2025 (YouTube). Flyer de prueba: foto de Ultra del catálogo de festivales.</p>
+
+<div class="tag">U-2 · Igual que U-1, con miniaturas de los próximos eventos fijados (cambian el flyer y los textos; el video de fondo sigue)</div>
+<header>
+  <span class="logo">GEM2i</span>
+  <nav><a class="on" href="#">Home</a><a href="#">About Us</a><a href="#">Events</a><a href="#">Festivals</a><a href="#">Artists</a><a href="#">Venues</a><a href="#">Travels</a><a href="#">Services</a><a href="#">Partners</a></nav>
+  <div class="hdr-r"><span>EN</span><span class="pill-o">Waiting list</span><span class="pill-b">Login</span></div>
+</header>
+<section class="stage" id="s2">
+  <div class="bgv"><iframe data-yt="5eDxz3cLyHw" title="" allow="autoplay; encrypted-media" tabindex="-1"></iframe></div>
+  <div class="shade"></div>
+  <div class="grid">
+    <div class="left">
+      <span class="chip" id="u2chip">NOVEMBER · NEW YORK</span>
+      <h1 class="brand" id="u2t">Deadmau5 <em>cube v3</em></h1>
+      <p class="date" id="u2d">NOV 07</p>
+      <p class="place" id="u2p">New York · 8:00 PM</p>
+      <p class="lead">Tickets on sale now!</p>
+      <div class="ctas">
+        <a class="btn b1" href="#">Get tickets <i>↗</i></a>
+        <a class="btn b2" href="#">View event <i>↗</i></a>
+      </div>
+    </div>
+    <div class="poster"><img id="u2img" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt=""><span class="zoom">⌕</span></div>
+  </div>
+  <div class="thumbs" id="u2thumbs"></div>
+  <button class="sound" type="button" aria-label="Sonido" data-for="s2" style="bottom:96px">🔇</button>
+</section>
+<p class="note">U-2 — Pensado para cuando hay varios eventos fijados al slide (Events → “Show in these hero slides”): las miniaturas cambian flyer, fecha y textos; el video de fondo no se corta. Haz clic en las miniaturas. En móvil: el flyer va arriba, los textos debajo y el video sigue de fondo.</p>
+
+<section class="after">Your festival journey <em>starts here</em></section>
+
+<script>
+  // background video: muted autoplay loop, no controls
+  document.querySelectorAll('iframe[data-yt]').forEach(f => {
+    const id = f.dataset.yt;
+    f.src = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+  });
+  document.querySelectorAll('.sound').forEach(b => b.addEventListener('click', () => {
+    const f = document.querySelector(`#${b.dataset.for} iframe`);
+    const muted = b.textContent === '🔇';
+    f.contentWindow.postMessage(JSON.stringify({ event:'command', func: muted ? 'unMute' : 'mute', args:[] }), '*');
+    b.textContent = muted ? '🔊' : '🔇';
+  }));
+  const B = 'https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/';
+  const EV = [
+    ['Deadmau5 <em>cube v3</em>','NOV 07','New York · 8:00 PM','NOVEMBER · NEW YORK','1568415075.png'],
+    ['Nora <em>En Pure</em>','NOV 14','New York · 10:00 PM','NOVEMBER · NEW YORK','1569001290.png'],
+    ['<em>Audien</em>','NOV 21','New York · 10:00 PM','NOVEMBER · NEW YORK','1568999844.png'],
+    ['Elrow <em>Art</em>','NOV 28','New York · 7:00 PM','NOVEMBER · NEW YORK','1568998950.png'],
+  ];
+  const th = document.getElementById('u2thumbs');
+  th.innerHTML = EV.map((e,i)=>`<img src="${B+e[4]}" class="${i?'':'on'}" data-i="${i}" alt="">`).join('');
+  th.addEventListener('click', ev => {
+    const i = ev.target.dataset.i; if (i == null) return;
+    const e = EV[i];
+    u2t.innerHTML = e[0]; u2d.textContent = e[1]; u2p.textContent = e[2]; u2chip.textContent = e[3]; u2img.src = B + e[4];
+    th.querySelectorAll('img').forEach(x => x.classList.toggle('on', x.dataset.i === i));
+  });
+</script>
+</body>
+</html>

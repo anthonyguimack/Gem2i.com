@@ -23,9 +23,11 @@ function getLuminance(color) {
   // ITU-R BT.601 perceptual luma
   return (r * 299 + g * 587 + b * 114) / 1000 / 255;
 }
-/** gem2i template family: Gem2i - 01 (`gem2i`), - 02 and - 03. They share the
- *  header, footer, catalogs and My Account; each has its own hero, and its own
- *  Page Builder order (section designs are shared until a template gets its own). */
+/** gem2i template family: Norules (`gem2i`), Gem2i (`gem2i_02`, approved) and
+ *  Gem2i - 03 (`gem2i_03`). Each has its own hero, home page and section designs
+ *  (pages/gem2i/*Home.js + components/gem2i/*Sections.js) and its own Page
+ *  Builder order; content is shared. Header, footer, catalogs and My Account are
+ *  still shared — split them per template when one of them gets its own design. */
 export const GEM2I_TEMPLATES = ['gem2i', 'gem2i_02', 'gem2i_03'];
 export function isGem2iTheme(t) { return GEM2I_TEMPLATES.includes(t); }
 
@@ -500,13 +502,13 @@ export const THEMES = [
   },
   {
     id: 'gem2i',
-    name: 'Gem2i - 01',
-    description: 'GEM2i dark entertainment theme · Hero A "Fiel a Aurex": full-bleed photo, dark left veil, huge two-line title, round arrow CTA + pills.',
+    name: 'Norules',
+    description: 'GEM2i dark entertainment theme · own section designs · Ultra-style hero: rounded stage, background video, event flyer + thumbnails.',
   },
   {
     id: 'gem2i_02',
-    name: 'Gem2i - 02',
-    description: 'GEM2i dark entertainment theme · Hero B "Aurex + evento destacado": Hero A layout with a floating card of the next real event.',
+    name: 'Gem2i',
+    description: 'GEM2i dark entertainment theme (approved) · Hero B "Aurex + evento destacado": hero with a floating card of the next real event, full-width layout.',
   },
   {
     id: 'gem2i_03',
