@@ -693,6 +693,10 @@ body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[
 .gem-nav-link:hover::before, .gem-nav-link:focus-visible::before, .gem-nav-link.is-active::before { opacity:1; transform:none; }
 .gem-nav-pill { color:#fff; background-color:rgba(4,8,12,.85); border:1px solid rgba(255,255,255,.12); transition:color .2s ease, border-color .2s ease; outline:none; }
 .gem-nav-pill:hover, .gem-nav-pill:focus-visible { color:var(--color-link,#5FB2E0); border-color:var(--color-link,#5FB2E0); }
+/* Light palettes (Norules header once solid): dark nav text on a light bar. */
+.gem-tone-light .gem-nav-link { color:var(--color-heading, #111111); }
+.gem-tone-light .gem-nav-link:hover, .gem-tone-light .gem-nav-link:focus-visible, .gem-tone-light .gem-nav-link.is-active { color:var(--color-link, #111111); }
+.gem-tone-light .gem-nav-pill { color:var(--color-heading, #111111); background-color:transparent; border-color:var(--color-card-border, rgba(0,0,0,.15)); }
 @media (prefers-reduced-motion: reduce) { .gem-nav-link, .gem-nav-link::before, .gem-nav-pill { transition:none; } }
 
 /* ── gem2i home lighting (2026-10-17, bocetos/home-luz.html) ─────────────────

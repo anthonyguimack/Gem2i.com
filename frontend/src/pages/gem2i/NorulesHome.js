@@ -11,7 +11,7 @@ import { useSettings } from '../../App';
 import { useT } from '../../lib/i18n';
 import { useAuth } from '../../lib/auth';
 import { slideForAudience, isLoggedInUser } from '../../lib/heroAudience';
-import { AUREX_FONTS } from '../../lib/themeColors';
+import { AUREX_FONTS, websitePaletteFor } from '../../lib/themeColors';
 import { GemHeroU } from '../../components/gem2i/GemHeroVariants';
 import GemModernMaps from '../../components/gem2i/GemModernMaps';
 import GemContactSection from '../../components/gem2i/GemContactSection';
@@ -19,10 +19,11 @@ import AccentTitle from '../../components/gem2i/AccentTitle';
 import { LOOKS, readLook, toneOf } from '../../lib/gemLook';
 import {
   GemAudience, GemSteps, GemMethodCycle, GemAudienceList, GemTimeline,
-  GemEventPosters, GemArtistMosaic,
-  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemVenueGrid, GemFestivalBento, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
+  GemEventPosters,
+  GemVideoCover, GemPricingTiers, GemTeamPortraits, GemTestimonialSpotlight, GemGalleryMarquee, GemGalleryMosaic, GemLogoMarquee, GemClientsGrid, GemVenueCards, GemConferenceCards, GemPricing, GemTeam, GemVideo, GemLogos, GemTestimonials,
   GemCatalogStrip, GemTicker, GemLocations, GemGallery,
   GemIntroPhoto, GemServicesGrid, GemFeaturedCircles, GemFaq, GemNewsCards, GemConferenceReviews,
+  NorulesArtistCards, NorulesVenueAww, NorulesFestivalAww,
 } from '../../components/gem2i/NorulesSections';
 
 // Section Manager content the home reads (one public call each, in parallel).
@@ -93,7 +94,7 @@ export default function NorulesHome() {
     gemAPI.events({ limit: 12 }).then(r => setEvents(r.data?.items || [])).catch(() => {});
     blogExternalAPI.getLatest().then(r => setNews(r.data?.posts || [])).catch(() => {});
     gemAPI.heroEvents().then(r => setHeroEvents(r.data?.items || [])).catch(() => {});
-    gemAPI.artists({ limit: 12 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
+    gemAPI.artists({ limit: 60 }).then(r => setArtists(r.data?.items || [])).catch(() => {});
     gemAPI.venues({ limit: 150 }).then(r => setVenues(r.data?.items || [])).catch(() => {});
     Promise.all([['map_global', 'global_business'], ['map_conferences', 'conferences'], ['map_recommended', 'recommended_sites']]
       .map(([key, type]) => publicAPI.getMapLocations(type).then(r => ({ key, locations: Array.isArray(r.data) ? r.data : [] })).catch(() => ({ key, locations: [] }))))
@@ -161,7 +162,7 @@ export default function NorulesHome() {
         <HeroSection slides={heroSlides} />
       ) : (
         <section className="relative min-h-[72vh] flex items-center overflow-hidden" data-testid="hero-section">
-          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 20%, rgba(50,135,183,0.22), transparent 55%), radial-gradient(ellipse at 80% 80%, rgba(50,135,183,0.10), transparent 50%)' }} />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%), radial-gradient(ellipse at 80% 80%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 50%)' }} />
           <div className="relative max-w-7xl mx-auto px-6 md:px-10 pt-24 pb-16 w-full">
             <h1 className="text-white font-bold leading-[1.05] max-w-3xl" style={{ fontSize: 'clamp(2.4rem, 6vw, 4.5rem)', textWrap: 'balance' }}>
               {brand}
@@ -272,7 +273,7 @@ export default function NorulesHome() {
 
       </>)),
     gem_festivals: () => isTpl01
-      ? <GemFestivalBento config={smCfg('gem_festivals_cfg')} items={festivals} />
+      ? <NorulesFestivalAww config={smCfg('gem_festivals_cfg')} items={festivals} />
       : <LogoCarousel
         section={withCatalogItems(override(c.festivals, 'gem_festivals_cfg'), festivals.slice(0, limitOf('gem_festivals_cfg')), f => ({
           title: f.title, url: `/festivals/${f.slug}`, date: f.range_dates || f.event_date,
@@ -352,7 +353,7 @@ export default function NorulesHome() {
         }))} />
     ),
     gem_artists: () => (isTpl01
-      ? <GemArtistMosaic config={smCfg('gem_artists_cfg')} items={artists} />
+      ? <NorulesArtistCards config={smCfg('gem_artists_cfg')} items={artists} />
       : <GemCatalogStrip config={smCfg('gem_artists_cfg')} fallbackTitle={{ en: 'Artists', es: 'Artistas' }} testid="gem2i-artists" square
         items={artists.slice(0, limitOf('gem_artists_cfg')).map(a => ({
           title: a.title || a.name, url: `/artists/${a.slug}`, meta: a.country, metaIcon: 'place',
@@ -360,7 +361,7 @@ export default function NorulesHome() {
         }))} />
     ),
     gem_venues: () => (isTpl01
-      ? <GemVenueGrid config={smCfg('gem_venues_cfg')} items={venues} limit={Math.min(limitOf('gem_venues_cfg', 12), 12)} />
+      ? <NorulesVenueAww config={smCfg('gem_venues_cfg')} items={venues} />
       : <GemCatalogStrip config={smCfg('gem_venues_cfg')} fallbackTitle={{ en: 'Venues', es: 'Venues' }} testid="gem2i-venues" square
         items={venues.slice(0, limitOf('gem_venues_cfg')).map(v => ({
           title: v.name || v.title, url: `/venues/${v.slug}`, meta: [v.city, v.country].filter(Boolean).join(', '), metaIcon: 'place',
@@ -401,8 +402,17 @@ export default function NorulesHome() {
   // Lighting preview (?look=l1|l2|l3) overrides the Page Builder colours for
   // its sections; otherwise each section uses its Page Builder bg_color.
   const look = LOOKS[readLook()] || null;
+  // Palette tone (D-GEM-2026-14): a light palette (e.g. "Grises") flips the whole
+  // page to dark text via .gem-tone-light; the palette's own text/card/link
+  // colours are re-applied here so the tone's generic values don't win.
+  const pal = websitePaletteFor(settings.theme_colors, settings.active_theme);
+  const pageTone = toneOf(pal.page_bg);
+  const paletteVars = pageTone === 'light' ? {
+    '--color-body-text': pal.body_text, '--color-card-bg': pal.card_bg,
+    '--color-card-border': pal.card_border, '--color-link': pal.link_color,
+  } : {};
   return (
-    <div className={`${look?.root || ''}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-home" data-look={readLook() || 'off'}>
+    <div className={`${look?.root || ''}${pageTone === 'light' ? ' gem-tone-light' : ''}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT, ...paletteVars }} data-testid="gem2i-home" data-look={readLook() || 'off'}>
       {order.filter(k => renderers[k] && visibility[k]?.enabled !== false).map(k => {
         const cfg = sectionCfg[k] || {};
         const font = AUREX_FONTS.find(f => f.key === cfg.font_family)?.css;
@@ -413,7 +423,8 @@ export default function NorulesHome() {
         // section colour (or the night default) at bg_overlay %, so the text
         // tone still follows that colour. No image → plain colour as before.
         const img = paintable && cfg.bg_image ? gemImg(cfg.bg_image) : null;
-        const veilBase = bg && !String(bg).startsWith('linear') ? bg : '#04080C';
+        // No section colour: veil the photo with the palette's page colour (light palettes stay light).
+        const veilBase = bg && !String(bg).startsWith('linear') ? bg : (pageTone === 'light' ? pal.page_bg : '#04080C');
         const tone = toneOf(img ? veilBase : bg);
         const veil = img ? `color-mix(in srgb, ${veilBase} ${Math.min(95, Math.max(0, Number(cfg.bg_overlay ?? 70)))}%, transparent)` : null;
         const paint = img

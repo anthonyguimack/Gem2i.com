@@ -13,7 +13,7 @@ import { LANGUAGE_LABELS } from '../../lib/i18n';
 import LocalizedField from '../../components/admin/LocalizedField';
 import ImageUpload from '../../components/ImageUpload';
 import RichTextEditor from '../../components/RichTextEditor';
-import { WEBSITE_COLORS, MYACCOUNT_COLORS, MYACCOUNT2_COLORS, MYACCOUNT2_DARK_COLORS, ADMIN_COLORS, LANDING_PAGE_COLORS, ENROLLMENT_COLORS, PMS_COLORS, THEMES } from '../../lib/themeColors';
+import { WEBSITE_COLORS, MYACCOUNT_COLORS, MYACCOUNT2_COLORS, MYACCOUNT2_DARK_COLORS, ADMIN_COLORS, LANDING_PAGE_COLORS, ENROLLMENT_COLORS, PMS_COLORS, THEMES, WEBSITE_PALETTE_PRESETS, GEM2I_TEMPLATES } from '../../lib/themeColors';
 import { MAP_LANGUAGES } from '../../lib/mapConfig';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 
@@ -50,6 +50,102 @@ function ColorGroup({ title, description, colors, values, onChange, testIdPrefix
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+/* Website palettes (D-GEM-2026-14): edit the "Gem2i" palette (theme_colors.website)
+   or any named palette (theme_colors.website_palettes), create new ones from a
+   preset or by duplicating, and choose which palette each gem2i template uses
+   (theme_colors.template_palettes). Saved with the page's "Save Settings". */
+function WebsitePalettes({ tc, setSettings }) {
+  const palettes = tc.website_palettes || {};
+  const assign = tc.template_palettes || {};
+  const [editing, setEditing] = useState('website');
+  const [newName, setNewName] = useState('');
+  const [base, setBase] = useState('grises');
+  const patchTc = (fn) => setSettings(prev => ({ ...prev, theme_colors: fn(prev.theme_colors || {}) }));
+  const options = [{ id: 'website', name: 'Gem2i (current palette)' }, ...Object.entries(palettes).map(([id, p]) => ({ id, name: p.name || id }))];
+  const current = editing === 'website' ? (tc.website || {}) : (palettes[editing]?.colors || {});
+  const setColor = (key, val) => patchTc(t => (editing === 'website'
+    ? { ...t, website: { ...(t.website || {}), [key]: val } }
+    : { ...t, website_palettes: { ...(t.website_palettes || {}), [editing]: { ...(t.website_palettes || {})[editing], colors: { ...((t.website_palettes || {})[editing]?.colors || {}), [key]: val } } } }));
+  const create = () => {
+    const name = newName.trim();
+    if (!name) { toast.error('Give the palette a name'); return; }
+    const id = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || `palette_${Date.now()}`;
+    if (id === 'website' || palettes[id]) { toast.error('A palette with that name already exists'); return; }
+    const colors = base === 'website' ? { ...(tc.website || {}) }
+      : palettes[base] ? { ...palettes[base].colors } : { ...(WEBSITE_PALETTE_PRESETS[base]?.colors || {}) };
+    patchTc(t => ({ ...t, website_palettes: { ...(t.website_palettes || {}), [id]: { name, colors } } }));
+    setEditing(id); setNewName('');
+  };
+  const remove = () => {
+    if (editing === 'website') return;
+    if (!window.confirm(`Delete the palette "${palettes[editing]?.name || editing}"? Templates using it go back to the Gem2i palette.`)) return;
+    patchTc(t => {
+      const wp = { ...(t.website_palettes || {}) }; delete wp[editing];
+      const tp = Object.fromEntries(Object.entries(t.template_palettes || {}).filter(([, v]) => v !== editing));
+      return { ...t, website_palettes: wp, template_palettes: tp };
+    });
+    setEditing('website');
+  };
+  const sel = 'h-8 px-2 text-xs border border-slate-200 rounded-sm bg-white';
+  return (
+    <div className="space-y-3" data-testid="website-palettes">
+      <div className="bg-white rounded-sm border border-slate-100 p-4 space-y-4">
+        <div>
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--ad-heading, #1a2332)' }}>Website palettes</h3>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--ad-text-secondary, #64748b)' }}>Templates give the shape, palettes give the colours. Each template uses one palette; a new client is just a new palette. Preview any template with <code>?template=01</code>.</p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {THEMES.filter(t => GEM2I_TEMPLATES.includes(t.id)).map(t => (
+            <label key={t.id} className="text-xs block">
+              <span className="block mb-1 font-medium">{t.name} uses</span>
+              <select className={`${sel} w-full`} value={assign[t.id] || 'website'} data-testid={`template-palette-${t.id}`}
+                onChange={e => patchTc(x => ({ ...x, template_palettes: { ...(x.template_palettes || {}), [t.id]: e.target.value } }))}>
+                {options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+            </label>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-end gap-3 pt-3 border-t border-slate-100">
+          <label className="text-xs"><span className="block mb-1 font-medium">Edit palette</span>
+            <select className={sel} value={editing} onChange={e => setEditing(e.target.value)} data-testid="palette-editing">
+              {options.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          </label>
+          {editing !== 'website' && (
+            <>
+              <label className="text-xs"><span className="block mb-1 font-medium">Name</span>
+                <Input className="h-8 text-xs w-52" value={palettes[editing]?.name || ''}
+                  onChange={e => patchTc(t => ({ ...t, website_palettes: { ...(t.website_palettes || {}), [editing]: { ...(t.website_palettes || {})[editing], name: e.target.value } } }))} />
+              </label>
+              <button type="button" onClick={remove} className="h-8 px-3 text-xs text-red-500 hover:text-red-600 inline-flex items-center gap-1"><Trash2 className="w-3.5 h-3.5" /> Delete</button>
+            </>
+          )}
+          <span className="flex-1" />
+          <label className="text-xs"><span className="block mb-1 font-medium">New palette</span>
+            <Input className="h-8 text-xs w-44" placeholder="e.g. Exclusive Sessions" value={newName} onChange={e => setNewName(e.target.value)} data-testid="palette-new-name" />
+          </label>
+          <label className="text-xs"><span className="block mb-1 font-medium">Start from</span>
+            <select className={sel} value={base} onChange={e => setBase(e.target.value)}>
+              {Object.entries(WEBSITE_PALETTE_PRESETS).map(([id, p]) => <option key={id} value={id}>Preset · {p.name}</option>)}
+              {options.map(o => <option key={`c-${o.id}`} value={o.id}>Copy of · {o.name}</option>)}
+            </select>
+          </label>
+          <button type="button" onClick={create} className="h-8 px-3 text-xs text-white rounded-sm inline-flex items-center gap-1" style={{ backgroundColor: 'var(--ad-button-bg, #0D9488)' }} data-testid="palette-create"><Plus className="w-3.5 h-3.5" /> Create</button>
+        </div>
+      </div>
+      <ColorGroup
+        key={editing}
+        title={`Website — ${options.find(o => o.id === editing)?.name || editing}`}
+        description="Colors for the public-facing frontend — header, hero, cards, buttons, footer."
+        colors={WEBSITE_COLORS}
+        values={current}
+        onChange={setColor}
+        testIdPrefix="website"
+      />
     </div>
   );
 }
@@ -647,14 +743,7 @@ export default function SettingsManager() {
             <div className="bg-white rounded-sm border border-slate-100 p-4">
               <p className="text-sm text-slate-500">Customize colors for every section of the application. Changes apply globally after saving.</p>
             </div>
-            <ColorGroup
-              title="Website"
-              description="Colors for the public-facing frontend — header, hero, cards, buttons, footer."
-              colors={WEBSITE_COLORS}
-              values={websiteColors}
-              onChange={(key, val) => updateThemeColor('website', key, val)}
-              testIdPrefix="website"
-            />
+            <WebsitePalettes tc={tc.website ? tc : { ...tc, website: websiteColors }} setSettings={setSettings} />
             <ColorGroup
               title="My Account (Member Portal)"
               description="Colors for the member portal — sidebar, cards, forms, modals, progress bars."

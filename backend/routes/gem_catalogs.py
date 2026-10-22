@@ -52,7 +52,7 @@ CATALOGS = {
     "events": "gem_events",
 }
 
-FOLLOW_KINDS = {"event", "artist", "venue"}
+FOLLOW_KINDS = {"event", "artist", "venue", "festival"}
 
 
 # ---------------------------------------------------------------- helpers
@@ -516,8 +516,8 @@ async def member_follow(request: Request, member: dict = Depends(get_current_mem
     kind, target_id = body.get("kind"), body.get("target_id")
     flag = bool(body.get("flag", True))
     if kind not in FOLLOW_KINDS or not target_id:
-        raise HTTPException(status_code=422, detail="kind (event|artist|venue) and target_id required")
-    coll = {"event": "gem_events", "artist": "gem_artists", "venue": "gem_venues"}[kind]
+        raise HTTPException(status_code=422, detail="kind (event|artist|venue|festival) and target_id required")
+    coll = {"event": "gem_events", "artist": "gem_artists", "venue": "gem_venues", "festival": "gem_festivals"}[kind]
     if not await db[coll].find_one({"id": target_id}, {"_id": 1}):
         raise HTTPException(status_code=404, detail=f"{kind} not found")
     member_id = member["member_id"]  # identity from JWT ONLY

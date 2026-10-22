@@ -9,6 +9,8 @@ import { useT, useLang } from '../../lib/i18n';
 import { normalizeRichText } from '../../lib/richText';
 import { gemImg } from './GemCatalogBits';
 import AccentTitle from './AccentTitle';
+import { gemAPI } from '../../lib/api';
+import { useAuth } from '../../lib/auth';
 
 /**
  * gem2i template — renderers for the Section Manager sections (ported in
@@ -85,7 +87,7 @@ export function GemAudience({ config = {}, items = [] }) {
       <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map(it => (
           <div key={it.id} className="rounded-sm p-6" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
-            <span className="inline-flex w-11 h-11 items-center justify-center rounded-sm mb-5" style={{ backgroundColor: 'rgba(50,135,183,0.12)', color: ACCENT }}>
+            <span className="inline-flex w-11 h-11 items-center justify-center rounded-sm mb-5" style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', color: ACCENT }}>
               <GemIcon name={it.icon || 'sparkles'} className="w-5 h-5" />
             </span>
             {tt(it.eyebrow) && <p className="text-xs uppercase tracking-[0.25em] mb-1" style={{ color: ACCENT }}>{tt(it.eyebrow)}</p>}
@@ -132,7 +134,7 @@ export function GemMethodCycle({ config = {}, items = [], brand = 'GEM2i', testi
   };
   const Step = ({ s, center }) => (
     <div className={center ? 'w-56 text-center' : ''}>
-      <span className="inline-flex w-11 h-11 items-center justify-center rounded-xl" style={{ backgroundColor: 'rgba(50,135,183,0.14)', color: ACCENT }}>
+      <span className="inline-flex w-11 h-11 items-center justify-center rounded-xl" style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent) 14%, transparent)', color: ACCENT }}>
         <GemIcon name={s.icon || 'sparkles'} className="w-5 h-5" />
       </span>
       <h3 className="text-white text-lg font-semibold mt-3 mb-1">{tt(s.title)}</h3>
@@ -219,7 +221,7 @@ export function GemTimeline({ config = {}, items = [], testid = 'gem2i-process' 
           {items.map((s, i) => (
             <li key={s.id || i} className="relative pl-12 md:pl-0">
               <span className="absolute md:static left-0 block w-6 h-6 rounded-full transition-colors duration-500 motion-reduce:transition-none"
-                style={{ backgroundColor: seen ? ACCENT : 'var(--color-bg, #04080C)', border: `2px solid ${seen ? ACCENT : BORDER}`, boxShadow: seen ? '0 0 0 6px rgba(50,135,183,0.2)' : 'none', transitionDelay: `${i * 250}ms` }} aria-hidden="true" />
+                style={{ backgroundColor: seen ? ACCENT : 'var(--color-bg, #04080C)', border: `2px solid ${seen ? ACCENT : BORDER}`, boxShadow: seen ? '0 0 0 6px color-mix(in srgb, var(--color-accent) 20%, transparent)' : 'none', transitionDelay: `${i * 250}ms` }} aria-hidden="true" />
               <p className="md:mt-7 mb-1.5 text-[15px] tabular-nums" style={{ color: 'var(--color-link, #5FB2E0)' }}>{String(s.step_number || i + 1).padStart(2, '0')}</p>
               <h3 className="text-white text-lg font-semibold mb-2">{tt(s.title)}</h3>
               <Rich html={s.description} />
@@ -260,7 +262,7 @@ export function GemPricing({ config = {}, items = [] }) {
           const price = annual && p.price_annual ? p.price_annual : p.price;
           return (
             <div key={p.id} className="rounded-sm p-7 flex flex-col"
-              style={{ backgroundColor: p.is_featured ? 'rgba(50,135,183,0.10)' : CARD, border: `1px solid ${p.is_featured ? ACCENT : BORDER}` }}>
+              style={{ backgroundColor: p.is_featured ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : CARD, border: `1px solid ${p.is_featured ? ACCENT : BORDER}` }}>
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-white text-lg font-semibold">{tt(p.name)}</h3>
                 {tt(p.badge) && <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm" style={{ backgroundColor: ACCENT, color: '#fff' }}>{tt(p.badge)}</span>}
@@ -813,7 +815,7 @@ function ConferenceCard({ c }) {
   const LINK = 'var(--color-link, #5FB2E0)';
   return (
     <div className="h-full flex flex-col rounded-2xl overflow-hidden" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
-      <Link to={url} tabIndex={-1} aria-hidden="true" className="group relative block aspect-[7/5] overflow-hidden" style={{ backgroundColor: '#0A121A' }}>
+      <Link to={url} tabIndex={-1} aria-hidden="true" className="group relative block aspect-[7/5] overflow-hidden" style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }}>
         {photo
           ? <img src={photo} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none" />
           : <div className="absolute inset-0 bg-white flex items-center justify-center p-8"><img src={logo} alt="" className="max-h-full max-w-full object-contain" /></div>}
@@ -927,7 +929,7 @@ export function GemVideoCover({ config = {} }) {
           <div className="relative h-full flex flex-col items-center justify-center text-center px-6 gap-7">
             <button type="button" onClick={() => setPlaying(true)} aria-label={tt({ en: 'Play video', es: 'Reproducir video' })}
               className="w-[84px] h-[84px] rounded-full inline-flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95"
-              style={{ backgroundColor: ACCENT, boxShadow: '0 0 0 12px rgba(50,135,183,0.22)' }}>
+              style={{ backgroundColor: ACCENT, boxShadow: '0 0 0 12px color-mix(in srgb, var(--color-accent) 22%, transparent)' }}>
               <lucide.Play className="w-8 h-8 ml-1" fill="currentColor" />
             </button>
             {tt(config.title) && <h2 className="text-white font-bold max-w-3xl" style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', textWrap: 'balance' }}>{tt(config.title)}</h2>}
@@ -967,7 +969,7 @@ export function GemPricingTiers({ config = {}, items = [] }) {
           const sub = hot ? 'rgba(255,255,255,0.94)' : BODY;
           return (
             <div key={p.id} className={`rounded-2xl flex flex-col ${hot ? 'px-8 py-11 md:-my-3' : 'p-8'}`}
-              style={hot ? { backgroundColor: ACCENT, boxShadow: '0 30px 60px rgba(50,135,183,0.22)' } : { backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
+              style={hot ? { backgroundColor: ACCENT, boxShadow: '0 30px 60px color-mix(in srgb, var(--color-accent) 22%, transparent)' } : { backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-white text-lg font-semibold">{tt(p.name)}</h3>
                 {tt(p.badge) && <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ backgroundColor: hot ? 'rgba(0,0,0,0.28)' : ACCENT, color: '#fff' }}>{tt(p.badge)}</span>}
@@ -1017,7 +1019,7 @@ export function GemTeamPortraits({ config = {}, items = [] }) {
                 {!m.photo_url && (
                   // No photo yet: initials on a brand gradient instead of a stranger's stock portrait.
                   <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center font-bold text-white/90 select-none"
-                    style={{ background: 'linear-gradient(160deg, #002444 0%, #0068b3 100%)', fontSize: 'clamp(2.4rem, 5vw, 3.6rem)', fontFamily: "'Playfair Display', Georgia, serif" }}>
+                    style={{ background: 'linear-gradient(160deg, color-mix(in srgb, var(--color-accent) 45%, #000) 0%, var(--color-accent) 100%)', fontSize: 'clamp(2.4rem, 5vw, 3.6rem)', fontFamily: "'Playfair Display', Georgia, serif" }}>
                     {tt(m.name).split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')}
                   </span>
                 )}
@@ -1334,7 +1336,7 @@ export function GemLocations({ config = {}, maps = [] }) {
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {maps.map(m => (
           <Link key={m.id} to={`/map/${m.slug}`} className="group rounded-sm overflow-hidden" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
-            <div className="aspect-[16/10] overflow-hidden" style={{ backgroundColor: '#0A121A' }}>
+            <div className="aspect-[16/10] overflow-hidden" style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }}>
               {m.cover_image && <img src={gemImg(m.cover_image)} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:transition-none" />}
             </div>
             <div className="p-5">
@@ -1484,7 +1486,7 @@ export function GemServicesGrid({ services, banner }) {
             </li>
           ) : (
             <li key={i} className="gem-service-card rounded-2xl p-7 min-h-[220px]" style={{ backgroundColor: CARD, border: `1px solid ${BORDER}` }}>
-              <span className="inline-flex w-11 h-11 items-center justify-center rounded-xl" style={{ backgroundColor: 'rgba(50,135,183,0.12)', color: 'var(--color-link, #5FB2E0)' }}>
+              <span className="inline-flex w-11 h-11 items-center justify-center rounded-xl" style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', color: 'var(--color-link, #5FB2E0)' }}>
                 <GemIcon name={c.icon} className="w-5 h-5" />
               </span>
               <h3 className="text-white text-[17px] font-semibold leading-snug mt-5" style={{ textWrap: 'balance' }}>{tt(c.title)}</h3>
@@ -1739,5 +1741,206 @@ export function GemFeaturedCircles({ items = [], faq, heading }) {
         )}
       </div>
     </section>
+  );
+}
+
+// ═════════════ Norules · Awwwards-style cards (boceto norules-awwwards-cards.html, 2026-10-21) ═════════════
+// Photo card: on hover a bottom shade rises with kicker + title, a white action
+// button sits in the centre and ↗ (open) / bookmark (follow) icons on the right;
+// under the card: name · "by/from/in" · avatar · place. Touch: always visible.
+// Follow / vote need a session: logged-out clicks open the login modal.
+
+const AWW_CSS = `
+.aww-card .aww-shade,.aww-card .aww-meta,.aww-card .aww-cta{transition:opacity .25s cubic-bezier(.23,1,.32,1),transform .3s cubic-bezier(.23,1,.32,1)}
+.aww-card .aww-img{transition:transform .6s cubic-bezier(.23,1,.32,1),filter .4s ease}
+.aww-bw .aww-img{filter:grayscale(1)}
+@media (hover:hover){
+  .aww-card .aww-shade,.aww-card .aww-meta,.aww-card .aww-cta{opacity:0}
+  .aww-card .aww-meta{transform:translateY(8px)} .aww-card .aww-cta{transform:translate(-50%,-40%)}
+  .aww-card:hover .aww-shade,.aww-card:focus-within .aww-shade,.aww-card:hover .aww-meta,.aww-card:focus-within .aww-meta{opacity:1;transform:none}
+  .aww-card:hover .aww-cta,.aww-card:focus-within .aww-cta{opacity:1;transform:translate(-50%,-50%)}
+  .aww-card:hover .aww-img{transform:scale(1.035)} .aww-bw .aww-card:hover .aww-img{filter:grayscale(0)}
+}
+@media (hover:none){ .aww-card .aww-cta{top:auto;bottom:4.5rem;transform:translateX(-50%)} }
+@media (prefers-reduced-motion:reduce){ .aww-card *{transition:none!important} }`;
+
+const BookmarkIcon = ({ on }) => (
+  <svg width="20" height="22" viewBox="0 0 24 24" fill={on ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z" /></svg>
+);
+const OpenIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9" /></svg>
+);
+
+function AwwCard({ img, to, kicker, title, badge, count, cta, ctaOn, ctaTo, onCta, saved, onSave, under }) {
+  const tt = useT();
+  return (
+    <div className="aww-card group">
+      <div className="relative aspect-[4/3] rounded-[14px] overflow-hidden isolate" style={{ backgroundColor: 'var(--color-section-bg, #F2F2F2)' }}>
+        <Link to={to} aria-label={title} className="absolute inset-0 -z-10">
+          {img && <img src={img} alt="" loading="lazy" className="aww-img w-full h-full object-cover" />}
+        </Link>
+        {badge && <span className="absolute top-3.5 left-3.5 text-xs font-extrabold bg-white text-[#111] px-2.5 py-1 rounded-full pointer-events-none">{badge}</span>}
+        {count != null && <span className="absolute top-3.5 right-3.5 text-xs font-bold text-white px-2.5 py-1 rounded-full pointer-events-none" style={{ backgroundColor: 'rgba(0,0,0,.6)' }}>{count}</span>}
+        <span aria-hidden="true" className="aww-shade absolute inset-0 -z-[5] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.72))' }} />
+        {cta && ctaTo && (
+          <Link to={ctaTo} className="aww-cta absolute left-1/2 top-1/2 inline-flex items-center gap-2.5 rounded-[10px] px-[18px] py-3 text-[15px] font-medium shadow-[0_10px_30px_-10px_rgba(0,0,0,.5)] active:scale-[0.97]"
+            style={{ backgroundColor: '#fff', color: '#111' }}>
+            <ArrowRight className="w-4 h-4" />{cta}
+          </Link>
+        )}
+        {cta && !ctaTo && (
+          <button type="button" onClick={onCta} aria-pressed={ctaOn}
+            className="aww-cta absolute left-1/2 top-1/2 inline-flex items-center gap-2.5 rounded-[10px] px-[18px] py-3 text-[15px] font-medium shadow-[0_10px_30px_-10px_rgba(0,0,0,.5)] active:scale-[0.97]"
+            style={ctaOn ? { backgroundColor: '#111', color: '#fff' } : { backgroundColor: '#fff', color: '#111' }}>
+            {ctaOn ? <Check className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}{cta}
+          </button>
+        )}
+        <div className="aww-meta absolute left-5 right-5 bottom-4 flex items-end justify-between gap-3 text-white">
+          <div className="min-w-0">
+            {kicker && <small className="block text-xs uppercase tracking-[0.06em] opacity-90 truncate">{kicker}</small>}
+            <b className="block text-xl font-semibold mt-1 truncate">{title}</b>
+          </div>
+          <div className="flex gap-3.5 shrink-0">
+            <Link to={to} aria-label={tt({ en: 'Open', es: 'Abrir' })} className="w-[30px] h-[30px] inline-flex items-center justify-center"><OpenIcon /></Link>
+            {onSave && (
+              <button type="button" onClick={onSave} aria-pressed={saved} aria-label={saved ? tt({ en: 'Unfollow', es: 'Dejar de seguir' }) : tt({ en: 'Follow', es: 'Seguir' })}
+                className="w-[30px] h-[30px] inline-flex items-center justify-center active:scale-95"><BookmarkIcon on={saved} /></button>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3.5 flex items-center gap-2.5 flex-wrap text-lg font-bold" style={{ color: 'var(--color-heading, #111)' }}>{under}</div>
+    </div>
+  );
+}
+
+const AwwUnder = ({ name, word, avatar, place }) => (
+  <>
+    <span>{name}</span>
+    {place && <span className="text-xs font-medium" style={{ color: 'var(--color-body-text, #4A4A4A)' }}>{word}</span>}
+    {avatar && <img src={avatar} alt="" loading="lazy" className="w-[30px] h-[30px] rounded-full object-contain bg-white p-[3px]" style={{ border: '1px solid var(--color-card-border, #E0E0E0)' }} />}
+    {place && <span className="border-b border-current">{place}</span>}
+  </>
+);
+
+// Follow state for one kind ('artist' | 'venue' | 'festival'), synced with the API.
+function useFollows(kind) {
+  const { user } = useAuth();
+  const [ids, setIds] = useState(() => new Set());
+  useEffect(() => {
+    if (!user) { setIds(new Set()); return; }
+    gemAPI.myFollows(kind).then(r => setIds(new Set((r.data?.items || []).map(f => f.target_id)))).catch(() => {});
+  }, [user, kind]);
+  const toggle = (id) => (e) => {
+    e.preventDefault();
+    if (!user) { window.dispatchEvent(new CustomEvent('gem2i:open-login')); return; }
+    const on = !ids.has(id);
+    setIds(prev => { const n = new Set(prev); if (on) n.add(id); else n.delete(id); return n; });
+    gemAPI.follow(kind, id, on).catch(() => setIds(prev => { const n = new Set(prev); if (on) n.delete(id); else n.add(id); return n; }));
+  };
+  return [ids, toggle];
+}
+
+function AwwSection({ config, fallbackTitle, allText, allUrl, chips, chip, setChip, testid, bw, children }) {
+  const tt = useT();
+  return (
+    <Wrap testid={testid}>
+      <style>{AWW_CSS}</style>
+      <CatalogHead config={config} fallbackTitle={fallbackTitle} allText={allText} allUrl={allUrl} />
+      {chips.length > 1 && (
+        <div className="mt-6 flex flex-wrap gap-2" role="tablist">
+          {chips.map(c => {
+            const on = chip === c.id;
+            return (
+              <button key={c.id} type="button" role="tab" aria-selected={on} onClick={() => setChip(c.id)}
+                className="text-[13px] font-semibold px-3.5 py-1.5 rounded-full transition-colors active:scale-[0.97]"
+                style={on ? { backgroundColor: 'var(--color-accent, #2B3035)', color: 'var(--color-button-text, #fff)', border: '1px solid var(--color-accent, #2B3035)' }
+                  : { backgroundColor: 'var(--color-card-bg, #fff)', color: 'var(--color-heading, #111)', border: '1px solid var(--color-card-border, #E0E0E0)' }}>
+                {tt(c.label)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <div className={`mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${bw ? 'aww-bw' : ''}`}>{children}</div>
+    </Wrap>
+  );
+}
+
+// AW-1 · Artists — the button opens the artist page (no voting for now, Anthony 2026-10-21) + follow.
+export function NorulesArtistCards({ config = {}, items = [] }) {
+  const tt = useT();
+  const [follows, toggleFollow] = useFollows('artist');
+  const list = items.filter(a => artistImg(a)).slice(0, parseInt(config.max_items, 10) || 6);
+  if (!list.length) return null;
+  const genres = (a) => (Array.isArray(a.genres) ? a.genres.slice(0, 2).join(' · ') : '');
+  return (
+    <AwwSection config={config} fallbackTitle={{ en: 'Artists', es: 'Artistas' }} allText={{ en: 'All artists', es: 'Todos los artistas' }} allUrl="/artists"
+      chips={[]} testid="gem2i-artists" bw>
+      {list.map(a => {
+        const name = tt(a.name || a.title);
+        return (
+          <AwwCard key={a.id} img={artistImg(a, true)} to={`/artists/${a.slug}`} kicker={genres(a)} title={name}
+            cta={tt({ en: 'View artist', es: 'Ver artista' })} ctaTo={`/artists/${a.slug}`}
+            saved={follows.has(a.id)} onSave={toggleFollow(a.id)}
+            under={<AwwUnder name={name} word={tt({ en: 'from', es: 'de' })} place={tt(a.country)} />} />
+        );
+      })}
+    </AwwSection>
+  );
+}
+
+// AW-2 · Venues — follow venue; logo as the "author" avatar.
+export function NorulesVenueAww({ config = {}, items = [] }) {
+  const tt = useT();
+  const [country, setCountry] = useState('all');
+  const [follows, toggleFollow] = useFollows('venue');
+  const withPhoto = items.filter(v => gemImg(v.image_urls?.view));
+  if (!withPhoto.length) return null;
+  const top = Object.entries(withPhoto.reduce((m, v) => { if (v.country) m[v.country] = (m[v.country] || 0) + 1; return m; }, {}))
+    .sort((a, b) => b[1] - a[1]).slice(0, 4).map(([c]) => c);
+  const shown = withPhoto.filter(v => country === 'all' || v.country === country).slice(0, parseInt(config.max_items, 10) || 6);
+  return (
+    <AwwSection config={config} fallbackTitle={{ en: 'Featured venues', es: 'Venues destacados' }} allText={{ en: 'All venues', es: 'Todos los venues' }} allUrl="/venues"
+      chips={[{ id: 'all', label: { en: 'All', es: 'Todos' } }, ...top.map(c => ({ id: c, label: c }))]} chip={country} setChip={setCountry} testid="gem2i-venues">
+      {shown.map(v => {
+        const name = tt(v.name || v.title);
+        const on = follows.has(v.id);
+        return (
+          <AwwCard key={v.id} img={gemImg(v.image_urls?.view)} to={`/venues/${v.slug}`} kicker={[tt(v.city), tt(v.country)].filter(Boolean).join(', ')} title={name}
+            cta={tt({ en: 'View venue', es: 'Ver venue' })} ctaTo={`/venues/${v.slug}`}
+            saved={on} onSave={toggleFollow(v.id)}
+            under={<AwwUnder name={name} word={tt({ en: 'in', es: 'en' })} avatar={gemImg(v.image_urls?.logo)} place={tt(v.country)} />} />
+        );
+      })}
+    </AwwSection>
+  );
+}
+
+// AW-3 · Festivals — view line-up; logo as avatar; follow.
+export function NorulesFestivalAww({ config = {}, items = [] }) {
+  const tt = useT();
+  const [country, setCountry] = useState('all');
+  const [follows, toggleFollow] = useFollows('festival');
+  const withPhoto = items.filter(f => gemImg(f.image_urls?.flyer) || gemImg(f.image_urls?.logo));
+  if (!withPhoto.length) return null;
+  const top = Object.entries(withPhoto.reduce((m, f) => { if (f.country) m[f.country] = (m[f.country] || 0) + 1; return m; }, {}))
+    .sort((a, b) => b[1] - a[1]).slice(0, 4).map(([c]) => c);
+  const shown = withPhoto.filter(f => country === 'all' || f.country === country).slice(0, parseInt(config.max_items, 10) || 6);
+  return (
+    <AwwSection config={config} fallbackTitle={{ en: 'Festival season', es: 'Temporada de festivales' }} allText={{ en: 'All festivals', es: 'Todos los festivales' }} allUrl="/festivals"
+      chips={[{ id: 'all', label: { en: 'All', es: 'Todos' } }, ...top.map(c => ({ id: c, label: c }))]} chip={country} setChip={setCountry} testid="gem2i-festivals">
+      {shown.map(f => {
+        const name = tt(f.title || f.name);
+        const place = [f.city && f.city !== 'None' ? tt(f.city) : '', tt(f.country)].filter(Boolean).join(', ');
+        return (
+          <AwwCard key={f.id} img={gemImg(f.image_urls?.flyer) || gemImg(f.image_urls?.logo)} to={`/festivals/${f.slug}`}
+            kicker={tt(f.range_dates) || tt({ en: 'Festival', es: 'Festival' })} title={name}
+            cta={tt({ en: 'View line-up', es: 'Ver line-up' })} ctaTo={`/festivals/${f.slug}`}
+            saved={follows.has(f.id)} onSave={toggleFollow(f.id)}
+            under={<AwwUnder name={name} word={tt({ en: 'by', es: 'por' })} avatar={gemImg(f.image_urls?.logo)} place={place} />} />
+        );
+      })}
+    </AwwSection>
   );
 }

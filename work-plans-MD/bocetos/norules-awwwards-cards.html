@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bocetos · Norules · tarjetas tipo Awwwards</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+  /* Norules palette "Grises" */
+  :root { --page:#FFFFFF; --section:#F2F2F2; --card:#FFFFFF; --border:#E0E0E0; --heading:#111111; --body:#4A4A4A; --accent:#2B3035; --ease:cubic-bezier(.23,1,.32,1); }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--page); color:var(--heading); font-family:Manrope, sans-serif; }
+  .tag { position:sticky; top:0; z-index:5; background:#000; color:#ffd166; font:600 13px Manrope; padding:10px 24px; }
+  .wrap { max-width:1280px; margin:0 auto; padding:64px 24px 40px; }
+  .alt { background:var(--section); }
+  .note { max-width:1280px; margin:0 auto; padding:0 24px 48px; color:#8a6d00; font-size:14px; line-height:1.6; }
+  .head { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; }
+  .eyebrow { display:flex; align-items:center; gap:12px; font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); }
+  .eyebrow::before { content:""; width:32px; height:1px; background:currentColor; }
+  h2 { font-family:'Playfair Display', serif; font-size:clamp(2rem,3.6vw,2.9rem); margin-top:10px; }
+  h2 em { font-style:italic; }
+  .all { color:var(--heading); font-weight:600; text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:2px; }
+  .chips { display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; }
+  .chips span { font-size:13px; font-weight:600; padding:7px 14px; border-radius:99px; border:1px solid var(--border); background:var(--card); }
+  .chips span.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:36px; }
+  @media (max-width:980px){ .grid{ grid-template-columns:repeat(2,1fr);} } @media (max-width:620px){ .grid{ grid-template-columns:1fr;} }
+
+  /* the Awwwards card */
+  .item { display:block; color:inherit; text-decoration:none; }
+  .shot { position:relative; aspect-ratio:4/3; border-radius:14px; overflow:hidden; background:#ddd; isolation:isolate; }
+  .shot img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2; transition:transform .6s var(--ease), filter .4s var(--ease); }
+  .bw .shot img { filter:grayscale(1); }
+  .bw .item:hover .shot img { filter:grayscale(0); }
+  .item:hover .shot img { transform:scale(1.035); }
+  .shade { position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.72)); opacity:0; transition:opacity .3s var(--ease); }
+  .vote { position:absolute; left:50%; top:50%; transform:translate(-50%,-40%); opacity:0; display:inline-flex; align-items:center; gap:10px; background:#fff; color:#111; border:0; border-radius:10px; padding:12px 18px; font:500 15px Manrope; cursor:pointer; transition:opacity .25s var(--ease), transform .3s var(--ease); box-shadow:0 10px 30px -10px rgba(0,0,0,.5); }
+  .vote:active { transform:translate(-50%,-50%) scale(.97); }
+  .vote.done { background:#111; color:#fff; }
+  .meta { position:absolute; left:22px; right:22px; bottom:18px; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; color:#fff; opacity:0; transform:translateY(8px); transition:opacity .25s var(--ease), transform .3s var(--ease); }
+  .meta small { display:block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; opacity:.9; }
+  .meta b { display:block; font-size:20px; font-weight:600; margin-top:4px; }
+  .icons { display:flex; gap:14px; }
+  .icons button { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; background:none; border:0; color:#fff; cursor:pointer; padding:0; }
+  .icons button.on svg { fill:#fff; }
+  .badge { position:absolute; top:14px; left:14px; font-size:12px; font-weight:800; background:#fff; color:#111; padding:5px 10px; border-radius:99px; }
+  .count { position:absolute; top:14px; right:14px; font-size:12px; font-weight:700; background:rgba(0,0,0,.6); color:#fff; padding:5px 10px; border-radius:99px; }
+  @media (hover:hover){ .item:hover .shade, .item:focus-within .shade { opacity:1; } .item:hover .vote, .item:focus-within .vote { opacity:1; transform:translate(-50%,-50%); } .item:hover .meta, .item:focus-within .meta { opacity:1; transform:none; } }
+  @media (hover:none){ .shade, .meta { opacity:1; transform:none; } .vote { opacity:1; top:auto; bottom:70px; transform:translateX(-50%); } }
+  .under { display:flex; align-items:center; gap:10px; margin-top:14px; font-size:18px; font-weight:700; flex-wrap:wrap; }
+  .under .by { font-size:12px; font-weight:500; color:var(--body); }
+  .ava { width:30px; height:30px; border-radius:50%; object-fit:cover; background:#eee; border:1px solid var(--border); }
+  .ava.logo { object-fit:contain; background:#fff; padding:3px; }
+  .under a { color:inherit; text-decoration:none; border-bottom:1px solid currentColor; }
+  .pro { font-size:9px; font-weight:800; vertical-align:super; margin-left:2px; }
+  @media (prefers-reduced-motion:reduce){ * { transition-duration:0s !important; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  const B = 'https://beta.gem2i.com';
+  const svgOpen = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M8 7h9v9"/></svg>';
+  const svgSave = '<svg width="20" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+  const card = ({ img, kicker, title, cta, under, badge, count }) => `
+    <div class="item" tabindex="0">
+      <div class="shot">
+        <img src="${img}" alt="">
+        ${badge ? `<span class="badge">${badge}</span>` : ''}${count ? `<span class="count">${count}</span>` : ''}
+        <span class="shade"></span>
+        <button class="vote" type="button" data-cta="${cta}"><span>→</span> ${cta}</button>
+        <div class="meta"><div><small>${kicker}</small><b>${title}</b></div>
+          <div class="icons"><button type="button" aria-label="Abrir">${svgOpen}</button><button type="button" class="save" aria-label="Guardar / seguir">${svgSave}</button></div></div>
+      </div>
+      <div class="under">${under}</div>
+    </div>`;
+
+  const ART = [
+    ['&Me','Germany','/api/uploads/gem2i/legacy/djs_images/big/1464717466.jpg','Deep house',1284,1],
+    ['2manydjs','Belgium','/api/uploads/gem2i/legacy/djs_images/big/1402932363.png','Electro',1102,2],
+    ['3lau','United States','/api/uploads/gem2i/legacy/djs_images/big/1407344334.png','Progressive',987,3],
+    ['A Tribe Called Red','Canada','/api/uploads/gem2i/legacy/djs_images/big/1568146900.jpg','Electronic powwow',640,4],
+    ['A-Trak','Canada','/api/uploads/gem2i/legacy/djs_images/big/1437065986.png','House',522,5],
+    ['ANNA','Brazil','/api/uploads/gem2i/legacy/djs_images/big/1441991334.png','Techno',498,6],
+  ];
+  const VEN = [
+    ['Green Valley','Brazil','1403884600'],['Echostage','United States','1404146545'],['Ushuaia','Spain','1404140969'],
+    ['Hï Ibiza','Spain','1555093652'],['Zouk Club','Singapore','1403279461'],['Papaya','Croatia','1404149560'],
+  ];
+  const FES = [
+    ['Ultra Music Festival','United States','1529421508.png','1518136932.png','Miami · March'],
+    ['EDC Las Vegas','United States','1517430743.png','1517430743.png','Las Vegas · May'],
+    ['DGTL Tel Aviv','Israel','1570740837.png','1570741257.png','Tel Aviv'],
+    ['Eco Festival','Slovenia','1570817505.png','1570817505.png','Slovenia'],
+    ['BPM Tel Aviv','Israel','1569883530.png','1569883530.png','Tel Aviv'],
+    ['Oasis Festival','Morocco','1569362110.png','1461001098.png','Marrakech'],
+  ];
+
+  const S = [
+    { tag:'AW-1 · ARTISTS — “Vote now” = votar por el DJ (ranking GEM2i) · ↗ perfil · 🔖 seguir · fotos en B/N que pasan a color al pasar el mouse',
+      cls:'bw', eyebrow:'Line-ups', title:'Vote your <em>artists</em>', chips:['This month','All time','Techno','House','Progressive'],
+      cards: ART.map(([n,c,img,g,v,r]) => card({ img:B+img, kicker:g, title:n, cta:'Vote now', badge:`#${r}`, count:`${v.toLocaleString()} votes`,
+        under:`${n} <span class="by">from</span> <a href="#">${c}</a>` })),
+      note:'Encaja mejor aquí: GEM2i ya tiene una columna “ranking Gem2i” en Artists; los votos de los miembros la alimentarían. Nuevo en backend: votos (1 voto por miembro y artista al mes, solo con sesión iniciada). “Seguir” ya existe (follows).' },
+    { tag:'AW-2 · VENUES — “Follow venue” al centro · debajo: venue + logo del local (como el avatar del autor en Awwwards)',
+      cls:'alt', eyebrow:'Where it happens', title:'Featured <em>venues</em>', chips:['All','Spain','United States','Brazil'],
+      cards: VEN.map(([n,c,id]) => card({ img:`${B}/api/uploads/gem2i/legacy/venues_view/${id}.png`, kicker:c, title:n, cta:'Follow venue',
+        under:`${n} <span class="by">in</span> <img class="ava logo" src="${B}/api/uploads/gem2i/legacy/venues_logos/${id}.png" alt=""> <a href="#">${c}</a>` })),
+      note:'Sin funciones nuevas: usa “seguir” (ya existe). Los venues sin foto se omiten, igual que hoy.' },
+    { tag:'AW-3 · FESTIVALS — “View line-up” al centro · debajo: festival + logo (avatar) + lugar',
+      cls:'', eyebrow:'Global', title:'Festival <em>season</em>', chips:['Upcoming','Europe','Americas','Middle East'],
+      cards: FES.map(([n,c,img,logo,where]) => card({ img:`${B}/api/uploads/gem2i/legacy/images_festivals/images/${img}`, kicker:'Festival', title:n, cta:'View line-up',
+        under:`${n} <span class="by">by</span> <img class="ava logo" src="${B}/api/uploads/gem2i/legacy/images_festivals/logos/${logo}" alt=""> <a href="#">${where}</a>` })),
+      note:'Sin funciones nuevas: el botón abre la ficha del festival; 🔖 = seguir.' },
+  ];
+  document.getElementById('app').innerHTML = S.map(s => `
+    <div class="tag">${s.tag}</div>
+    <section class="${s.cls}"><div class="wrap">
+      <div class="head"><div><p class="eyebrow">${s.eyebrow}</p><h2>${s.title}</h2></div><a class="all" href="#">View all →</a></div>
+      <div class="chips">${s.chips.map((c,i)=>`<span class="${i?'':'on'}">${c}</span>`).join('')}</div>
+      <div class="grid ${s.cls}">${s.cards.join('')}</div>
+    </div></section>
+    <p class="note">${s.note}</p>`).join('');
+  document.querySelectorAll('.vote').forEach(b => b.addEventListener('click', e => {
+    e.preventDefault(); if (b.dataset.cta !== 'Vote now') return;
+    b.classList.toggle('done'); b.innerHTML = b.classList.contains('done') ? '✓ Voted' : '<span>→</span> Vote now';
+  }));
+  document.querySelectorAll('.save').forEach(b => b.addEventListener('click', e => { e.preventDefault(); b.classList.toggle('on'); }));
+</script>
+</body>
+</html>

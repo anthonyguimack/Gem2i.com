@@ -398,7 +398,7 @@ export function GemHeroU({ slide, slides, linked = [] }) {
                 {ctas.map((b, i) => (
                   <a key={i} href={b.href} target={b.target} rel={b.target === '_blank' ? 'noopener noreferrer' : undefined} onClick={onCta(b, !!user)}
                     className={`gem-press inline-flex items-center gap-3 rounded-full pl-5 pr-2 py-2 text-sm md:text-[15px] font-extrabold uppercase tracking-[0.03em] text-white ${i ? 'border border-white/35 backdrop-blur-sm' : ''}`}
-                    style={i ? { backgroundColor: 'rgba(255,255,255,.12)' } : { backgroundColor: ACCENT, boxShadow: '0 0 0 3px rgba(50,135,183,.35)' }}>
+                    style={i ? { backgroundColor: 'rgba(255,255,255,.12)' } : { backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)', boxShadow: '0 0 0 3px color-mix(in srgb, var(--color-button-bg) 35%, transparent)' }}>
                     {b.label}
                     <span className="w-8 h-8 rounded-full inline-flex items-center justify-center" style={{ backgroundColor: '#04080C' }}><ArrowRight className="w-4 h-4 -rotate-45" /></span>
                   </a>
@@ -410,7 +410,7 @@ export function GemHeroU({ slide, slides, linked = [] }) {
 
           {flyer && (
             <div className="order-1 lg:order-2 relative w-full aspect-[4/5] lg:aspect-auto lg:h-full rounded-[18px] md:rounded-[22px] overflow-hidden"
-              style={{ backgroundColor: '#0D1721', boxShadow: '0 0 0 1px rgba(95,178,224,.35), 0 0 40px rgba(0,104,179,.45), 0 30px 60px -20px rgba(0,0,0,.8)' }}>
+              style={{ backgroundColor: '#0D1721', boxShadow: '0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 0 40px color-mix(in srgb, var(--color-accent) 45%, transparent), 0 30px 60px -20px rgba(0,0,0,.8)' }}>
               <Link to={`/events/${ev.slug}`} aria-label={tt(ev.title)} className="block w-full h-full">
                 <img key={flyer} src={flyer} alt="" className="w-full h-full object-cover object-top gem-hero-in" />
               </Link>

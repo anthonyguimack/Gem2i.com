@@ -2,13 +2,14 @@ import React from 'react';
 import { isGem2iTheme } from '../../lib/themeColors';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, Send } from 'lucide-react';
-import { useSettings } from '../../App';
+import { useSettings, useTheme } from '../../App';
 import { publicAPI } from '../../lib/api';
 import { BACKEND_URL } from '../../lib/config';
 import { useT } from '../../lib/i18n';
 import { resolveActivePersonality, scopePagesForPersonality } from '../../lib/pbPersonality';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iFooter from '../gem2i/Gem2iFooter';
+import NorulesFooter from '../gem2i/NorulesFooter';
 
 // Categories exclusive to the Personal Brand mini-sites — hidden from other themes.
 const PB_CATS = new Set(['business', 'lifestyle', 'personal']);
@@ -224,8 +225,9 @@ function PersonalBrandFooter() {
 
 function Gem2iFooterWrapper() {
   const { settings, socialLinks, footerPages, isExternal, isAdmin } = useFooterData();
+  const Foot = useTheme() === 'gem2i' ? NorulesFooter : Gem2iFooter; // Norules has its own footer
   if (isAdmin) return null;
-  return <Gem2iFooter settings={settings} socialLinks={socialLinks} footerPages={footerPages} isExternal={isExternal} />;
+  return <Foot settings={settings} socialLinks={socialLinks} footerPages={footerPages} isExternal={isExternal} />;
 }
 
 export default function Footer() {

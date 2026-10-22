@@ -13,6 +13,7 @@ import { isAurexFamily } from '../../lib/themeColors';
 import { resolveActivePersonality, scopePagesForPersonality, miniSiteLinks as buildMiniSiteLinks, getPersonalityVisibility, meetsVisibility } from '../../lib/pbPersonality';
 import { useSocialCatalog, resolveKey, SocialIcon } from '../../lib/socialCatalog';
 import Gem2iHeader from '../gem2i/Gem2iHeader';
+import NorulesHeader from '../gem2i/NorulesHeader';
 import { isGem2iTheme } from '../../lib/themeColors';
 import { isAdmin as isFullAdmin } from '../../lib/isAdmin';
 
@@ -28,7 +29,9 @@ export default function Navbar() {
 // shared nav data/gating hook stays here so all themes behave identically.
 function Gem2iNavbar() {
   const nav = useNavData();
-  return <Gem2iHeader nav={nav} />;
+  const theme = useTheme();
+  // Norules (`gem2i`) has its own header; Gem2i and Gem2i - 03 share the original.
+  return theme === 'gem2i' ? <NorulesHeader nav={nav} /> : <Gem2iHeader nav={nav} />;
 }
 
 function useNavData() {

@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-10-21 (session 11, part 3) — named website palettes, Norules in greys, Awwwards cards (DEPLOYED)
+- **Palettes (D-GEM-2026-14):** CMS → Colors → "Website palettes": `theme_colors.website` = Gem2i palette (unchanged), `website_palettes[id]`, `template_palettes[template]`. Presets in code: Grises, Blanco · Negro · Amarillo (both loaded on beta; Norules → Grises). `websitePaletteFor()` drives `injectThemeColors`. Gem2i colours verified identical.
+- **Norules follows its palette:** hardcoded blues → accent tokens; light palette → `.gem-tone-light` on the home root (palette text/card/link vars re-applied); bg-image sections veil with the palette page colour. Page Builder `section_configs.gem2i.*.bg_color` cleared (14; backup `/opt/_port_backups/norules_section_colors_before_palette_*.json`).
+- **Norules header/footer:** own copies (`NorulesHeader.js`, `NorulesFooter.js`); the header is forced to the Gem2i palette (Anthony: header identical to Gem2i), footer follows the palette.
+- **Template preview no longer sticky:** `?template=` only applies while in the URL; a reload shows the live CMS template.
+- **Norules Awwwards cards** (boceto `norules-awwwards-cards.html`): Artists (B/N → colour, "View artist"), Venues ("View venue", country chips, logo avatar), Festivals ("View line-up", logo avatar); 🔖 follow on all three. Follow now accepts `festival`. Artist votes were built then removed on request (no `gem_votes` route; one test vote doc remains in `gem_votes`).
+- **Legacy site:** see part 2 (Amnesia banner on promotertraininggem2i).
+- **Open:** Norules design continues per Anthony; card counts come from Section Manager max_items (10/12 today).
+
+---
+
 ## 2026-10-21 (session 11, part 2) — templates split (Norules / Gem2i / 03), hero U, H-1, FAQ section, demo content, legacy banner (DEPLOYED)
 - **Templates renamed + isolated (D-GEM-2026-13):** `gem2i` → **Norules**, `gem2i_02` → **Gem2i** (APPROVED, frozen), `gem2i_03` keeps its name. One home + one sections file each: `NorulesHome.js`/`NorulesSections.js` (hero U), `Gem2iHome.js`/`GemSections.js` (hero B), `Gem2i03Home.js`/`Gem2i03Sections.js` (hero C); `pages/HomePage.js` picks by theme. Header/footer/catalogs/My Account still shared.
 - **Gem2i restored:** Upcoming events = original E-2 posters (from git 7142d4e); Explore the scene = original GemFeaturedCards. FAQ/news/conference reviews/conferences carousel stay in Gem2i (content sections).

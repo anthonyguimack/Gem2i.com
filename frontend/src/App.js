@@ -113,24 +113,21 @@ import { isAdmin as isFullAdmin } from './lib/isAdmin';
 // Global settings context for colors and theme
 /**
  * gem2i template preview: `?template=01|02|03` shows the site with that gem2i
- * template WITHOUT changing the live one (CMS → Settings → Themes). Kept for the
- * browser session so navigation stays in the preview; `?template=off` clears it.
- * Only switches between gem2i templates — never to another brand theme.
+ * template WITHOUT changing the live one (CMS → Settings → Themes). Only while
+ * the parameter is in the address: a plain reload shows the live template, so
+ * switching templates in the CMS is always visible after a refresh (Anthony,
+ * 2026-10-21). Only switches between gem2i templates — never to another brand.
  */
-const TEMPLATE_KEY = 'gem2i:template-preview';
+const TEMPLATE_KEY = 'gem2i:template-preview'; // legacy session key, cleared on load
 function withTemplatePreview(s) {
+  try { sessionStorage.removeItem(TEMPLATE_KEY); } catch { /* storage blocked */ }
   if (!isGem2iTheme(s.active_theme)) return s;
   let pick = null;
   try {
     const q = new URLSearchParams(window.location.search).get('template');
-    if (q === 'off') sessionStorage.removeItem(TEMPLATE_KEY);
-    else if (q) {
-      const id = { '01': 'gem2i', '1': 'gem2i', '02': 'gem2i_02', '2': 'gem2i_02', '03': 'gem2i_03', '3': 'gem2i_03' }[q];
-      if (id) sessionStorage.setItem(TEMPLATE_KEY, id);
-    }
-    pick = sessionStorage.getItem(TEMPLATE_KEY);
-  } catch { /* storage blocked: no preview */ }
-  if (!pick || !isGem2iTheme(pick) || pick === s.active_theme) return s;
+    pick = { '01': 'gem2i', '1': 'gem2i', '02': 'gem2i_02', '2': 'gem2i_02', '03': 'gem2i_03', '3': 'gem2i_03' }[q] || null;
+  } catch { /* no preview */ }
+  if (!pick || pick === s.active_theme) return s;
   return { ...s, active_theme: pick, _live_theme: s.active_theme, _template_preview: pick };
 }
 

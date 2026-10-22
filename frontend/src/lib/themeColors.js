@@ -57,6 +57,45 @@ export const WEBSITE_COLORS = [
   { key: 'footer_text', label: 'Footer Text', default: '#ffffff' },
 ];
 
+/* ── Named website palettes (2026-10-21, D-GEM-2026-14) ──────────────────────
+   One install, several colour identities for demos: `theme_colors.website` is
+   the "Gem2i" palette (unchanged); `theme_colors.website_palettes[id] = {name,
+   colors}` holds extra palettes with the same WEBSITE_COLORS keys; and
+   `theme_colors.template_palettes[templateId] = paletteId` says which one each
+   template uses ('website' or missing = the Gem2i palette). Templates = shape,
+   palettes = colours: a new client is a new palette, no code and no domain. */
+export const WEBSITE_PALETTE_PRESETS = {
+  grises: {
+    name: 'Grises (base neutra)',
+    colors: {
+      primary: '#111111', accent: '#2B3035', heading_color: '#111111', body_text: '#4A4A4A',
+      navbar_bg: '#FFFFFF', button_bg: '#2B3035', button_text: '#FFFFFF', button_hover_bg: '#000000',
+      button_hover_text: '#FFFFFF', link_color: '#111111', tab_active_bg: '#2B3035', tab_active_text: '#FFFFFF',
+      icon_color: '#2B3035', page_bg: '#FFFFFF', section_bg: '#F2F2F2', card_bg: '#FFFFFF',
+      card_border: '#E0E0E0', footer_bg: '#2B3035', footer_text: '#C9C9C9',
+    },
+  },
+  blanco_negro_amarillo: {
+    name: 'Blanco · Negro · Amarillo',
+    colors: {
+      primary: '#0A0A0A', accent: '#F5C400', heading_color: '#0A0A0A', body_text: '#3D3D3D',
+      navbar_bg: '#0A0A0A', button_bg: '#F5C400', button_text: '#0A0A0A', button_hover_bg: '#0A0A0A',
+      button_hover_text: '#F5C400', link_color: '#0A0A0A', tab_active_bg: '#0A0A0A', tab_active_text: '#F5C400',
+      icon_color: '#0A0A0A', page_bg: '#FFFFFF', section_bg: '#F5F5F0', card_bg: '#FFFFFF',
+      card_border: '#E6E6E0', footer_bg: '#0A0A0A', footer_text: '#D9D9D9',
+    },
+  },
+};
+
+/** Website colours the given template uses (its assigned palette, else the
+ *  global "Gem2i" palette `theme_colors.website`). */
+export function websitePaletteFor(themeColors, templateId) {
+  const tc = themeColors || {};
+  const id = (tc.template_palettes || {})[templateId];
+  const pal = id && id !== 'website' ? (tc.website_palettes || {})[id] : null;
+  return pal?.colors ? { ...(tc.website || {}), ...pal.colors } : (tc.website || {});
+}
+
 export const MYACCOUNT_COLORS = [
   { key: 'page_bg', label: 'Page Background', default: '#0d0f14' },
   { key: 'sidebar_bg', label: 'Sidebar Background', default: '#13161e' },
@@ -393,7 +432,7 @@ export function injectThemeColors(themeColors, overrides = {}) {
   const root = document.documentElement;
 
   // Website colors (--color-* for backwards compat)
-  const ws = themeColors?.website || {};
+  const ws = websitePaletteFor(themeColors, overrides.active_theme);
   WEBSITE_COLORS.forEach(c => {
     const val = ws[c.key] || c.default;
     root.style.setProperty(`--color-${c.key.replace(/_/g, '-')}`, val);
