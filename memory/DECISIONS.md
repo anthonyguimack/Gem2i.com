@@ -73,3 +73,6 @@ Templates = shape, palettes = colours. `theme_colors.website` stays the **Gem2i*
 ## D-GEM-2026-15 — A template is a package: home AND inner pages (2026-10-22, Anthony)
 Each gem2i template (Norules `gem2i`, Gem2i `gem2i_02` frozen, Gem2i - 03 `gem2i_03`) has its own design for the home **and** for every inner page; only the content is shared. Routes pick the page by `settings.active_theme` (first: `/about` → NorulesAbout). New section designs go into the template's own files (`NorulesSections.js` / `NorulesEnd.js`, `Gem2i03Sections.js` / `Gem03End.js`), never into shared components. Photos under a dark veil keep night text colours even inside a light palette.
 
+
+## D-GEM-2026-16 — Norules inner pages keep the client's hovers (2026-10-23, Anthony)
+Redesigns of Norules catalog pages must keep the legacy card hover (veil wipes left→right, zoom, logo grey→colour, info rises) and the full legacy search (country → state → city, name, dates, genre/position where they exist), continent tabs and pagination. Chosen: About AB1, Festivals F4 (no horizontal bars; Conferences as a grid), Events E1 + List view E3, Artists A1, Venues V1 (Top venues without horizontal scroll), Travels T0 now and T2 trip page later. Inner pages follow the template palette tone like the home (`usePageTone`).

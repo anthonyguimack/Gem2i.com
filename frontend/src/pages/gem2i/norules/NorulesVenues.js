@@ -1,12 +1,11 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
 import { Paginator, SkeletonGrid, EmptyState, gemImg } from '../../../components/gem2i/GemCatalogBits';
 import {
   PageHero, PageHead, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, NumChip, Where,
-  place, CARD_CSS, LINK, BODY, CARD, LINE,
+  place, usePageTone, CARD_CSS, LINE,
 } from '../../../components/gem2i/norules/GemCatalogCards';
 
 const GEM_FONT = "'Manrope', sans-serif";
@@ -21,9 +20,21 @@ function useVenueMeta() {
   };
 }
 
-/** Venues (/venues) — VE-1: Top venues strip (CMS "Featured", else first by
- *  listing order) + all venues with Photo/Logo view, legacy search (country,
- *  city, position, name) and continent tabs. Number = CMS listing order. */
+// Logo view (V1): big logo at rest; on hover the venue photo shows behind, the same veil wipes in,
+// the logo moves up and shrinks to make room for the info.
+const LOGO_CSS = `
+.vlogo{background:var(--color-card-bg,#0D1721)!important;border:1px solid ${LINE}}
+.vlogo .gph{opacity:0;transition:opacity .5s,transform .7s ease-out}
+.vlogo:hover .gph,.vlogo:focus-visible .gph{opacity:1}
+.vlogo .glogo{right:auto!important;left:50%;top:44%!important;width:44%!important;height:auto!important;aspect-ratio:1;transform:translate(-50%,-50%);transition:transform .8s cubic-bezier(.19,1,.22,1)}
+.vlogo:hover .glogo,.vlogo:focus-visible .glogo{transform:translate(-50%,-50%) translateY(-55%) scale(.55)}
+.vlogo .gstrip{background:none!important;color:var(--gem-ink,#fff)!important;text-align:center}
+@media (hover:none){.vlogo .gph{opacity:1}}
+`;
+
+/** Venues (/venues) — V1 (boceto norules-venues-page.html): Top venues as a grid (no horizontal
+ *  scroll; CMS "Featured", else first by listing order) + all venues with Photo/Logo view, legacy
+ *  search (country, state, city, position, name) and continent tabs. Number = CMS listing order. */
 export default function NorulesVenues() {
   const tt = useT();
   const meta = useVenueMeta();
@@ -33,6 +44,7 @@ export default function NorulesVenues() {
   const [tab, setTab] = useState('');
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
+  const tone = usePageTone();
 
   useEffect(() => { gemAPI.topVenues(8).then(r => setTop(r.data?.items || [])).catch(() => {}); }, []);
   useEffect(() => {
@@ -49,14 +61,14 @@ export default function NorulesVenues() {
   const items = data ? (view === 'photo' ? data.items.filter(v => v.image_urls?.view) : data.items) : null;
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-venues">
+    <div className={`min-h-screen pb-24 ${tone.className}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT, ...tone.style }} data-testid="gem2i-venues">
       <PageHero page="venues" />
 
       {top.length > 0 && (
         <>
           <PageHead eyebrow={tt({ en: 'Top', es: 'Top' })} title={tt({ en: 'Top venues', es: 'Top venues' })} />
           <div className="max-w-7xl mx-auto px-6 md:px-10 mt-8">
-            <div className="grid grid-flow-col auto-cols-[minmax(260px,1fr)] gap-1.5 overflow-x-auto pb-3" data-testid="top-venues">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" data-testid="top-venues">
               {top.map(v => (
                 <HoverCard key={v.id} to={`/venues/${v.slug}`} aspect="aspect-[3/4]" img={gemImg(v.image_urls?.view)}
                   top={<NumChip n={num(v)} />} logo={gemImg(v.image_urls?.logo)} title={v.name} meta={meta(v)} />
@@ -85,32 +97,24 @@ export default function NorulesVenues() {
         {!items ? <SkeletonGrid count={8} aspect="aspect-[4/3]" /> : items.length === 0 ? (
           <EmptyState>{tt({ en: 'No venues match these filters.', es: 'Ningún venue coincide con estos filtros.' })}</EmptyState>
         ) : view === 'photo' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {items.map(v => (
               <HoverCard key={v.id} to={`/venues/${v.slug}`} testid="venue-card" aspect="aspect-[4/3]" img={gemImg(v.image_urls?.view)}
                 top={<NumChip n={num(v)} />} logo={gemImg(v.image_urls?.logo)} title={v.name} meta={meta(v)} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {items.map(v => (
-              <Link key={v.id} to={`/venues/${v.slug}`} data-testid="venue-logo-card"
-                className="gcard group relative rounded-2xl px-3.5 pt-6 pb-5 text-center transition-colors hover:border-[rgba(90,175,234,.5)]"
-                style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }}>
-                {num(v) && <span className="absolute left-3 top-2.5 text-[13px] font-extrabold tabular-nums" style={{ color: LINK }}>{num(v)}</span>}
-                <span className="glogo mx-auto w-[88px] h-[88px] rounded-full overflow-hidden bg-white flex items-center justify-center p-3">
-                  {v.image_urls?.logo ? <img src={gemImg(v.image_urls?.logo)} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
-                    : <span className="text-[#04080C] font-bold text-lg">{(v.name || '?').slice(0, 2).toUpperCase()}</span>}
-                </span>
-                <span className="mt-3 block text-white text-[15px] font-semibold leading-tight">{v.name}</span>
-                {v.country && <span className="block text-[13px] mt-0.5" style={{ color: BODY }}>{v.country}</span>}
-              </Link>
+              <HoverCard key={v.id} to={`/venues/${v.slug}`} testid="venue-logo-card" aspect="aspect-[4/3]" className="vlogo"
+                img={gemImg(v.image_urls?.view)} top={<NumChip n={num(v)} />} logo={gemImg(v.image_urls?.logo)}
+                title={v.name} strip={v.name} meta={meta(v)} />
             ))}
           </div>
         )}
         {data && data.items.length > 0 && <Paginator page={data.page} pages={data.pages} onPage={setPage} />}
       </section>
-      <style>{CARD_CSS + '.gcard.rounded-2xl::before{display:none}'}</style>
+      <style>{CARD_CSS + LOGO_CSS}</style>
     </div>
   );
 }

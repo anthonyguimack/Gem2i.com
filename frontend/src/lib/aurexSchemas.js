@@ -349,6 +349,16 @@ export const AUREX_SECTIONS = {
       { key: 'map_url',     label: 'Google Maps embed URL (Share → Embed a map → src)', type: 'url' },
       { key: 'cta_text',    label: 'Button text (optional)', type: 'text', placeholder: 'Book this trip' },
       { key: 'cta_url',     label: 'Button URL',         type: 'url' },
+      // Trip facts (Norules T0 row; each shows only when filled).
+      { key: 'status',      label: 'Status',             type: 'select', options: [
+        { value: '', label: '— none —' }, { value: 'open', label: 'Open' }, { value: 'last', label: 'Last spots' },
+        { value: 'soon', label: 'Coming soon' }, { value: 'sold_out', label: 'Sold out' },
+      ] },
+      { key: 'nights',      label: 'Nights',             type: 'number' },
+      { key: 'price_from',  label: 'Price from (free text)', type: 'text', placeholder: '$1,290' },
+      { key: 'spots_total', label: 'Spots (total)',      type: 'number' },
+      { key: 'spots_taken', label: 'Spots (taken)',      type: 'number' },
+      { key: 'includes',    label: "What's included (one per line)", type: 'textarea', placeholder: 'Festival pass / Hotel 4★ / Shuttle (one per line)' },
     ],
     itemPreview: (i) => `${adminText(i.title)}${i.dates ? ` · ${adminText(i.dates)}` : ''}`,
   },

@@ -7,7 +7,7 @@ import { useT } from '../../../lib/i18n';
 import { Paginator, SkeletonGrid, EmptyState, gemImg } from '../../../components/gem2i/GemCatalogBits';
 import {
   PageHero, PageHead, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, NumChip, Where,
-  place, CARD_CSS, LINK, BODY, CARD, LINE,
+  place, usePageTone, CARD_CSS, LINK, BODY, CARD, LINE,
 } from '../../../components/gem2i/norules/GemCatalogCards';
 
 const GEM_FONT = "'Manrope', sans-serif";
@@ -24,12 +24,12 @@ function Ranking({ roster, setRoster, onHover }) {
   }, []);
   const list = lists[roster];
   return (
-    <aside className="rounded-2xl overflow-hidden lg:sticky lg:top-28" style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }} data-testid="artist-ranking">
+    <aside className="rounded-[22px] overflow-hidden lg:sticky lg:top-28" style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }} data-testid="artist-ranking">
       <div className="flex" role="tablist" style={{ borderBottom: `1px solid ${LINE}` }}>
         {ROSTERS.map(([k, l]) => (
           <button key={k} type="button" role="tab" aria-selected={roster === k} onClick={() => setRoster(k)}
             className="flex-1 px-2 py-3.5 text-[14px] transition-colors border-b-2"
-            style={roster === k ? { color: '#fff', fontWeight: 700, borderColor: 'var(--color-link,#5AAFEA)' } : { color: BODY, borderColor: 'transparent' }}>
+            style={roster === k ? { color: 'var(--gem-ink, #fff)', fontWeight: 700, borderColor: 'var(--gem-ink, var(--color-link,#5AAFEA))' } : { color: BODY, borderColor: 'transparent' }}>
             {l}
           </button>
         ))}
@@ -41,17 +41,17 @@ function Ranking({ roster, setRoster, onHover }) {
         <p className="text-[13px] mt-1" style={{ color: BODY }}>{tt({ en: 'Our latest ranking', es: 'Nuestro último ranking' })}</p>
       </div>
       <ol className="py-2">
-        {!list ? Array.from({ length: 10 }).map((_, i) => <li key={i} className="mx-5 my-3 h-9 rounded animate-pulse" style={{ backgroundColor: '#0A121A' }} />)
+        {!list ? Array.from({ length: 10 }).map((_, i) => <li key={i} className="mx-5 my-3 h-9 rounded animate-pulse" style={{ backgroundColor: LINE }} />)
           : list.map((a, i) => (
             <li key={a.id}>
               <Link to={`/artists/${a.slug}`} onMouseEnter={() => onHover(a.id)} onMouseLeave={() => onHover(null)} onFocus={() => onHover(a.id)} onBlur={() => onHover(null)}
-                className="group grid grid-cols-[34px_44px_1fr_auto] gap-3 items-center px-5 py-2 transition-colors hover:bg-[rgba(90,175,234,.08)]">
+                className="group grid grid-cols-[34px_44px_1fr_auto] gap-3 items-center mx-2 px-3 py-2 rounded-xl transition-colors hover:bg-[rgba(90,175,234,.1)]">
                 <span className="font-extrabold text-[18px] tabular-nums" style={{ color: LINK }}>{a.rosters?.[`${roster}_rank`] ?? i + 1}</span>
                 <span className="w-11 h-11 rounded-full overflow-hidden" style={{ backgroundColor: '#0A121A' }}>
                   {(a.image_urls?.small || a.image_urls?.big) && <img src={gemImg(a.image_urls?.small) || gemImg(a.image_urls?.big)} alt="" loading="lazy" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-[filter] duration-300" />}
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-white text-[15px] truncate">{a.name}</span>
+                  <span className="block text-white text-[15px] font-semibold truncate">{a.name}</span>
                   {a.country && <span className="block text-[12px] truncate" style={{ color: BODY }}>{a.country}</span>}
                 </span>
                 <ArrowRight className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: LINK }} aria-hidden="true" />
@@ -66,7 +66,7 @@ function Ranking({ roster, setRoster, onHover }) {
   );
 }
 
-/** Artists (/artists) — AR-1: ranking column left (Gem2i / DJ Mag / Resident
+/** Artists (/artists) — A1 (boceto norules-artists-page.html), polished AR-1: ranking column left (Gem2i / DJ Mag / Resident
  *  Advisor), search (name, country, music genre, position) + continent tabs +
  *  hover cards right. The card number and the position filter follow the
  *  selected ranking; "All artists" lists everyone A–Z. */
@@ -79,6 +79,7 @@ export default function NorulesArtists() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [hot, setHot] = useState(null);
+  const tone = usePageTone();
 
   useEffect(() => {
     let alive = true;
@@ -93,10 +94,10 @@ export default function NorulesArtists() {
   const rankOf = (a) => a.rosters?.[`${roster}_rank`];
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-artists">
+    <div className={`min-h-screen pb-24 ${tone.className}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT, ...tone.style }} data-testid="gem2i-artists">
       <PageHero page="artists" />
       <PageHead eyebrow={tt({ en: 'All', es: 'Todos' })} title={tt({ en: 'Our artists', es: 'Nuestros artistas' })} />
-      <div className="max-w-7xl mx-auto px-6 md:px-10 mt-10 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 mt-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-7 items-start">
         <Ranking roster={roster} setRoster={r => { setRoster(r); setPage(1); }} onHover={setHot} />
         <div>
           <Segmented value={scope} onChange={v => { setScope(v); setPage(1); }} label={tt({ en: 'Artists shown', es: 'Artistas' })} options={[
@@ -114,7 +115,7 @@ export default function NorulesArtists() {
             <EmptyState>{tt({ en: 'No artists match these filters.', es: 'Ningún artista coincide con estos filtros.' })}</EmptyState>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                 {data.items.map(a => (
                   <HoverCard key={a.id} to={`/artists/${a.slug}`} testid="artist-card" aspect="aspect-square"
                     className={hot === a.id ? 'ring-[3px] ring-[var(--color-link,#5AAFEA)]' : ''}

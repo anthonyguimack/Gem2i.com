@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-10-23 (session 13) — Norules inner pages redesigned from bocetos: About AB1, Festivals F4, Events E1/E3, Artists A1, Venues V1, Travels T0 (DEPLOYED)
+- **Bocetos** (`work-plans-MD/bocetos/`, each with real beta fields/search/hover documented at the top): `norules-about-page.html` (AB1/AB2/AB3), `norules-festivals-hover.html` (F1/FH1/FH2/**F4**), `norules-events-page.html` (E1/E2/E3), `norules-artists-page.html` (A1/A2/A3), `norules-venues-page.html` (V1/V2/V3), `norules-travels-page.html` (**T0** rows, T1 list, **T2** trip page), `norules-services-page.html` (S1/S2). Shared look in `norules-kit.css/js` (also inlined into each file so they open in any viewer).
+- **About AB1 Manifesto** (`NorulesAbout.js`): 1st story paragraph = giant manifesto lit word by word on scroll (last 3 words italic accent); rest of story + photo in "Our story"; stats count up (years stay fixed); offices list with live local time (zone matched from the office name, `ZONES`); dark CTA band. Page sections order still from CMS.
+- **Festivals F4:** 3-col equal 4:5 cards with the legacy hover; Conferences = 4-col grid with the same card (no horizontal scroll) + "Load more conferences" (8 per step).
+- **Events:** E1 posters with a date stamp hidden when the veil comes in; guest-list CTA "Join guest list"; **List view = E3** (thumb, big date, type, title, place, button; the veil crosses the whole row, `.evrow`).
+- **Artists A1:** polished ranking column (readable names, underlined active tab), 3-col grid. **Venues V1:** Top venues = 4-col grid (no scroll); Logo view = big logo at rest, photo + veil on hover (`.vlogo`).
+- **Travels T0** (`NorulesInnerPages.js`): rounded alternating rows (status chip, outlined number, facts, includes chips, CTA + View map). New optional CMS fields on `gem_travels` items: `status` (open/last/soon/sold_out), `nights`, `price_from`, `spots_total`, `spots_taken`, `includes` (one per line).
+- **Light-palette fix for all Norules inner pages:** `usePageTone()` in `components/gem2i/norules/GemCatalogCards.js` adds `.gem-tone-light` + palette vars to the page root (like the home) → titles, ranking names, Services cards readable; `--gem-ink`, `--color-seg-on` for active pills; search bar = dark capsule (`gem-tone-dark`, #0E1216); `.gcard` radius 18px; logo circles dark (#14181D) because many legacy logos are white on transparent.
+- **Verified:** deploy green 5m08s, health 200; live: Festivals F4 + hover, Conferences grid + Load more, Top venues grid, dark search capsule, readable titles, E1 stamps, list rows. **Not checked live:** Artists A1, Venues Logo view, Travels T0 (members only).
+- **Open:** T2 trip page (`/travels/:slug`, packages/itinerary/booking flow) not built; Travels has 1 trip (fill the new fields / add 3-4 demo trips); Services S1/S2 not chosen; real team photos/testimonials still pending.
+
+---
+
 ## 2026-10-22 (session 12) — Norules + 03 redesigned section by section, template packages, many bocetos (DEPLOYED)
 - **Template = package (D-GEM-2026-15):** each template owns its home AND its inner pages. First split: `/about` → `NorulesAbout.js` (layout A Editorial) when the theme is `gem2i` (Norules), `Gem2iAbout.js` otherwise. Other inner pages (Events, Artists, Venues, Festivals, Travels, Services, Partners, details) are still shared — next split.
 - **Hero U (Norules):** event flyer frame keeps the hero height, width = natural ratio of the uploaded image (cap 50%, wider images contained over a blurred copy).

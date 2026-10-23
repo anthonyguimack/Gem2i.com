@@ -1,22 +1,22 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Music2 } from 'lucide-react';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
-import { Paginator, SkeletonGrid, EmptyState, CardImage, gemImg } from '../../../components/gem2i/GemCatalogBits';
+import { Paginator, SkeletonGrid, EmptyState, gemImg } from '../../../components/gem2i/GemCatalogBits';
 import {
   PageHero, PageHead, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, Where, When,
-  useFmtDate, place, CARD_CSS, LINK, BODY,
+  useFmtDate, place, usePageTone, CARD_CSS, LINK,
 } from '../../../components/gem2i/norules/GemCatalogCards';
 
 const GEM_FONT = "'Manrope', sans-serif";
 const EMPTY = { q: '', date_from: '', date_to: '', country: '', state: '', city: '' };
 
-/** Festivals (/festivals) — FE-1: featured first card (bento) + grid, legacy
- *  search (name, date, country, city) + continent tabs, hover cards with
- *  date range, place and the first lineup names. Upcoming/Past only when
- *  there is something upcoming. Conferences strip kept below. */
+/** Festivals (/festivals) — F4 (boceto norules-festivals-hover.html): 3-column grid of equal 4:5 cards
+ *  with the legacy hover (veil wipe, zoom, logo grey→colour, info rises), legacy search (name, date,
+ *  country, state, city) + continent tabs. Upcoming/Past only when there is something upcoming.
+ *  Conferences below as a 4-column grid with the same card (no horizontal scroll) + Load more. */
+const CONF_STEP = 8;
 export default function NorulesFestivals() {
   const tt = useT();
   const fmt = useFmtDate();
@@ -27,9 +27,11 @@ export default function NorulesFestivals() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [conferences, setConferences] = useState([]);
+  const [confShown, setConfShown] = useState(CONF_STEP);
+  const tone = usePageTone();
 
   useEffect(() => {
-    gemAPI.conferences({ limit: 12 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
+    gemAPI.conferences({ limit: 100 }).then(r => setConferences(r.data?.items || [])).catch(() => {});
     gemAPI.festivalsMeta().then(r => {
       const n = r.data?.upcoming || 0;
       setHasUpcoming(n > 0);
@@ -47,12 +49,11 @@ export default function NorulesFestivals() {
     return () => { alive = false; };
   }, [filters, tab, scope, page]);
 
-  const featured = page === 1 && !filters.q;
   const dates = (f) => f.range_dates || fmt(f.event_date, { month: 'long', day: 'numeric', year: 'numeric' });
   const where = (f) => place(f.city || f.state, f.country);
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-festivals-page">
+    <div className={`min-h-screen pb-24 ${tone.className}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT, ...tone.style }} data-testid="gem2i-festivals-page">
       <PageHero page="festivals" />
       <PageHead eyebrow={tt({ en: 'Global', es: 'Global' })} title={tt({ en: 'Festivals worldwide', es: 'Festivales del mundo' })}>
         {hasUpcoming && (
@@ -76,24 +77,18 @@ export default function NorulesFestivals() {
           <EmptyState>{tt({ en: 'We have not found a festival. Press Reset to see the full list.', es: 'No encontramos festivales. Pulsa Limpiar para ver la lista completa.' })}</EmptyState>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:auto-rows-[300px]">
-              {data.items.map((f, i) => {
-                const big = featured && i === 0;
-                const wide = featured && i === 1;
-                return (
-                  <HoverCard key={f.id} to={`/festivals/${f.slug}`} testid="festival-card"
-                    aspect="aspect-[4/3] sm:aspect-auto"
-                    className={big ? 'sm:col-span-2 sm:row-span-2' : wide ? 'sm:col-span-2' : ''}
-                    img={gemImg(f.image_urls?.view) || gemImg(f.image_urls?.flyer)}
-                    logo={gemImg(f.image_urls?.logo)} title={f.title} strip={f.title}
-                    meta={[<When>{dates(f)}</When>, where(f) && <Where>{where(f)}</Where>]}
-                    extra={f.lineup_names?.length > 0 && (
-                      <span className="mt-1.5 inline-flex items-start gap-1.5 text-[14px]" style={{ color: LINK }}>
-                        <Music2 className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />{f.lineup_names.join(' · ')}
-                      </span>
-                    )} />
-                );
-              })}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {data.items.map(f => (
+                <HoverCard key={f.id} to={`/festivals/${f.slug}`} testid="festival-card" aspect="aspect-[4/5]"
+                  img={gemImg(f.image_urls?.view) || gemImg(f.image_urls?.flyer)}
+                  logo={gemImg(f.image_urls?.logo)} title={f.title} strip={f.title}
+                  meta={[<When>{dates(f)}</When>, where(f) && <Where>{where(f)}</Where>]}
+                  extra={f.lineup_names?.length > 0 && (
+                    <span className="mt-1.5 inline-flex items-start gap-1.5 text-[14px]" style={{ color: '#9fd3ff' }}>
+                      <Music2 className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />{f.lineup_names.join(' · ')}
+                    </span>
+                  )} />
+              ))}
             </div>
             <Paginator page={data.page} pages={data.pages} onPage={setPage} />
           </>
@@ -106,15 +101,23 @@ export default function NorulesFestivals() {
           <h2 className="text-white font-bold mb-8" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(1.6rem, 2.8vw, 2.2rem)' }}>
             {tt({ en: 'Conferences', es: 'Conferencias' })}
           </h2>
-          <div className="flex gap-6 overflow-x-auto pb-4">
-            {conferences.map(c => (
-              <Link key={c.id} to={`/conferences/${c.slug}`} className="shrink-0 w-48 group">
-                <CardImage src={gemImg(c.image_urls?.logo) || gemImg(c.image_urls?.flyer)} alt={c.title} aspect="aspect-square" fit="object-contain p-4" />
-                <p className="mt-3 text-white/85 text-sm font-medium group-hover:text-white transition-colors">{c.title}</p>
-                {(c.range_dates || c.event_date) && <p className="text-xs mt-0.5" style={{ color: BODY }}>{c.range_dates || c.event_date}</p>}
-              </Link>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {conferences.slice(0, confShown).map(c => (
+              <HoverCard key={c.id} to={`/conferences/${c.slug}`} testid="conference-card" aspect="aspect-[3/4]"
+                img={gemImg(c.image_urls?.view) || gemImg(c.image_urls?.flyer)}
+                logo={gemImg(c.image_urls?.logo)} title={c.title} strip={c.title}
+                meta={[(c.range_dates || c.event_date) && <When>{c.range_dates || fmt(c.event_date, { month: 'long', day: 'numeric', year: 'numeric' })}</When>,
+                  where(c) && <Where>{where(c)}</Where>]} />
             ))}
           </div>
+          {conferences.length > confShown && (
+            <div className="mt-8 flex justify-center">
+              <button type="button" onClick={() => setConfShown(n => n + CONF_STEP)}
+                className="rounded-full px-6 py-3 text-[15px] font-semibold transition-transform active:scale-[0.97]" style={{ border: '1px solid var(--color-card-border, rgba(255,255,255,.2))', color: 'var(--color-link, #5AAFEA)' }}>
+                {tt({ en: 'Load more conferences', es: 'Ver más conferencias' })}
+              </button>
+            </div>
+          )}
         </section>
       )}
       <style>{CARD_CSS}</style>

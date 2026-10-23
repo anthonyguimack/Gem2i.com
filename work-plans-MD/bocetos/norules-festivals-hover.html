@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Festivals Norules</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>/* kit */
+/* Kit común de bocetos Norules (paleta Grises). Buscador, pestañas, paginación y la card con el hover
+   ACTUAL del cliente (.gc): velo que barre izq→der 1s cubic-bezier(.19,1,.22,1), zoom de foto,
+   info que sube, logo gris→color, franja inferior que se oculta. */
+:root{--bg:#fff;--alt:#f3f4f5;--ink:#1d2228;--body:#5b636c;--line:#e3e5e8;--dark:#2a3038;--night:#0e1216;--acc:#0068b3;--link:#5aafea;--ease:cubic-bezier(.19,1,.22,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+.switch{position:sticky;top:0;z-index:1000;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.switch button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1280px;margin:0 auto;padding:0 24px}
+.note{color:var(--body);font-size:14px;line-height:1.7;padding:28px 0 4px;max-width:86ch}.note b{color:var(--ink)}
+.note.fix{background:#fff7e6;border:1px solid #f3d9a4;border-radius:14px;padding:14px 18px;margin-top:20px}
+.eb{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;margin:44px 0 12px}
+.eb:before{content:"";width:28px;height:1px;background:currentColor}
+.h{font:700 clamp(2rem,3.8vw,3.2rem)/1.06 'Playfair Display',serif;margin:0 0 26px;color:var(--ink)}.h i{color:var(--acc)}
+.sub{color:var(--body);margin:-14px 0 26px;font-size:16px}
+/* segmentados */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:4px;gap:2px;background:#fff}
+.seg button{font:600 14px Manrope;border:0;background:transparent;border-radius:99px;padding:8px 14px;color:var(--body);cursor:pointer}
+.seg button.on{background:var(--dark);color:#fff}
+.row-sb{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+/* buscador (campos reales de cada página) */
+.search{display:grid;gap:8px;padding:8px;border-radius:20px;background:var(--night);margin-bottom:16px}
+.search .f{position:relative}
+.search label{position:absolute;left:14px;top:7px;font-size:10px;font-weight:800;letter-spacing:.16em;color:#8a949e;text-transform:uppercase;pointer-events:none}
+.search input,.search select,.search .dt{width:100%;height:52px;border:1px solid #2a3139;border-radius:14px;background:#171c22;color:#fff;font:600 14.5px Manrope;padding:20px 14px 6px;outline:none;appearance:none}
+.search input::placeholder{color:#6f7a85}
+.search input:focus,.search select:focus{border-color:var(--link)}
+.search select:disabled,.search input:disabled{opacity:.45;cursor:not-allowed}
+.search .dt{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}
+.search .go{display:flex;gap:8px}
+.search .go button{height:52px;border-radius:14px;font:700 14.5px Manrope;padding:0 20px;cursor:pointer;border:1px solid #2a3139}
+.search .go .s{background:#fff;color:var(--night);border-color:#fff}.search .go .r{background:transparent;color:#fff}
+/* pestañas de continente */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;overflow-x:auto}
+.chip{font:700 13px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 15px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* paginación */
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin:30px 0 80px}
+.pager button{min-width:42px;height:42px;border-radius:99px;border:1px solid var(--line);background:#fff;font:700 14px Manrope;cursor:pointer;padding:0 14px}
+.pager button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* ===== card con el hover actual ===== */
+.gc{position:relative;display:block;overflow:hidden;isolation:isolate;background:#1a1f25;color:#fff;text-decoration:none;outline:none}
+.gc .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s ease-out}
+.gc:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%);transform:scaleX(0);transform-origin:right center;transition:transform 1s var(--ease)}
+.gc:hover:before,.gc:focus-visible:before{transform:scaleX(1);transform-origin:left center}
+.gc:hover .ph,.gc:focus-visible .ph{transform:scale(1.05)}
+.gc .glogo{position:absolute;right:14px;top:14px;z-index:3;width:62px;height:62px;border-radius:50%;background:#14181d;border:1px solid rgba(255,255,255,.18);overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.gc .glogo img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;filter:grayscale(1);opacity:.85;transition:filter .3s,opacity .3s}
+.gc:hover .glogo img,.gc:focus-visible .glogo img{filter:none;opacity:1}
+.gc .ginfo{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px;opacity:0;transform:translateY(18px);transition:opacity .5s,transform 1.2s var(--ease)}
+.gc:hover .ginfo,.gc:focus-visible .ginfo{opacity:1;transform:none}
+.gc .gstrip{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px;background:linear-gradient(transparent,rgba(0,0,0,.72));font-weight:700;transition:opacity .3s}
+.gc:hover .gstrip,.gc:focus-visible .gstrip{opacity:0}
+.gc .num{position:absolute;left:14px;top:14px;z-index:3;min-width:30px;height:30px;display:grid;place-items:center;background:rgba(14,18,22,.85);font-weight:800;font-size:13px;border-radius:6px}
+.gc .tag{position:absolute;left:14px;top:14px;z-index:3;font-size:11px;font-weight:800;letter-spacing:.16em;background:rgba(14,18,22,.85);padding:7px 10px;border-radius:6px}
+.gc h3{font:700 24px/1.08 'Playfair Display';margin:0 0 8px}
+.gc .ln{display:flex;gap:7px;align-items:flex-start;font-size:13.5px;opacity:.88;margin-top:4px}
+.gc .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.gc .chips span{font-size:11.5px;font-weight:700;background:rgba(255,255,255,.14);padding:4px 9px;border-radius:99px}
+.gc .det{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font-weight:700;font-size:13.5px;border:1px solid rgba(255,255,255,.5);padding:8px 14px;border-radius:8px}
+.gc:focus-visible{box-shadow:inset 0 0 0 3px var(--link)}
+@media (hover:none){.gc:before{transform:scaleX(1)}.gc .ginfo{opacity:1;transform:none}.gc .gstrip{opacity:0}.gc .glogo img{filter:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gc:before,.gc .ph,.gc .ginfo,.gc .glogo img{transition:none}}
+@media (max-width:900px){.search{grid-template-columns:1fr 1fr!important}.search .go{grid-column:1/-1}.search .go button{flex:1}}
+@media (max-width:520px){.search{grid-template-columns:1fr!important}}
+</style>
+<style>
+.fs{border-radius:20px}
+/* F1 bento actual pulido */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:250px;gap:14px}
+.bento .gc:nth-child(1){grid-column:span 2;grid-row:span 2}.bento .gc:nth-child(2){grid-column:span 2}
+.bento .gc:nth-child(1) h3{font-size:40px}
+/* FH1 · cristal: misma coreografía, el velo es cristal esmerilado con filo de luz */
+#f2 .gc:before{backdrop-filter:blur(12px) saturate(1.3);background:linear-gradient(180deg,rgba(14,18,22,.4),rgba(14,18,22,.88));clip-path:inset(0 0 0 0)}
+#f2 .gc:after{content:"";position:absolute;top:0;bottom:0;left:0;width:2px;z-index:2;background:linear-gradient(transparent,#7cc4ff,transparent);transform:translateX(-4px);opacity:0;transition:transform 1s var(--ease),opacity .4s}
+#f2 .gc:hover:after{transform:translateX(var(--wd,400px));opacity:1}
+#f2 .gc .ginfo>*{opacity:0;transform:translateY(14px);transition:opacity .5s,transform 1s var(--ease)}
+#f2 .gc:hover .ginfo>*{opacity:1;transform:none}
+#f2 .gc:hover .ginfo>*:nth-child(2){transition-delay:.08s}#f2 .gc:hover .ginfo>*:nth-child(3){transition-delay:.16s}#f2 .gc:hover .ginfo>*:nth-child(4){transition-delay:.24s}#f2 .gc:hover .ginfo>*:nth-child(5){transition-delay:.32s}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g3 .gc{aspect-ratio:4/5}
+/* FH2 · persiana: foto en B/N en reposo, velo en 5 lamas escalonadas izq→der */
+#f3 .gc:before{display:none}
+#f3 .gc .ph{filter:grayscale(1);transition:transform .7s ease-out,filter .8s}
+#f3 .gc:hover .ph{filter:none}
+#f3 .sl{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(5,1fr)}
+#f3 .sl i{background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease)}
+#f3 .gc:hover .sl i{transform:scaleX(1)}
+#f3 .sl i:nth-child(2){transition-delay:.06s}#f3 .sl i:nth-child(3){transition-delay:.12s}#f3 .sl i:nth-child(4){transition-delay:.18s}#f3 .sl i:nth-child(5){transition-delay:.24s}
+/* conferencias (misma página) */
+.conf{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.more{display:flex;justify-content:center;margin:10px 0 80px}.more button{font:700 14px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:12px 22px;cursor:pointer}
+@media (max-width:1000px){.conf{grid-template-columns:1fr 1fr}}@media (max-width:520px){.conf{grid-template-columns:1fr}}
+.conf .gc{aspect-ratio:3/4}
+@media (max-width:1000px){.bento{grid-template-columns:1fr 1fr}.bento .gc:nth-child(1){grid-column:span 2}.g3{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.bento{grid-template-columns:1fr;grid-auto-rows:300px}.bento .gc:nth-child(1),.bento .gc:nth-child(2){grid-column:auto;grid-row:auto}.g3{grid-template-columns:1fr}}
+</style></head><body>
+<div class="switch"><button data-v="f4" class="on">F4 · Tamaño FH1 + hover F1</button><button data-v="f1">F1 · Bento actual pulido</button><button data-v="f2">FH1 · Barrido de cristal</button><button data-v="f3">FH2 · Persiana</button></div>
+<div class="w">
+  <p class="note"><b>Lo que se conserva (revisado en beta):</b> el buscador (<b>nombre, fechas CA-2, País → Estado → Ciudad</b>, Search, Reset), las pestañas de continente (All, USA, Europe, North America, South America, Africa, Oceania, Asia), la paginación y la card del cliente: el logo en un círculo blanco arriba a la derecha (gris → color), el nombre en la franja de abajo y, al pasar, el <b>velo que barre de izquierda a derecha</b> con zoom. Entonces suben el nombre, las fechas, el lugar, 3 nombres del line-up y «View details». La sección <b>Conferences</b> sigue debajo.</p>
+  <p class="eb">Festivals</p><h2 class="h">Festivals <i>worldwide</i></h2>
+  <div id="sb"></div><div id="tb"></div>
+</div>
+<section class="v on w" id="f4"><p class="note"><b>F4 · Tamaño FH1 + hover F1 (la mejora pedida).</b> Rejilla de 3 columnas con las cards grandes de FH1 (4:5), todas iguales, y el <b>hover idéntico al actual (F1)</b>: el velo oscuro barre de izquierda a derecha en 1 s, la foto hace zoom, el logo pasa de gris a color, la franja con el nombre se oculta y suben el nombre, las fechas, el lugar, el line-up y «View details». En <b>Conferences</b> ya no hay barra horizontal: es una rejilla de 4 columnas con la misma card y el mismo hover, y «Load more conferences» debajo.</p><div class="g3" id="g4" style="margin-top:18px"></div></section>
+<section class="v w" id="f1"><p class="note"><b>F1 · Bento actual pulido.</b> Misma composición (1 grande + 1 ancho + resto) con esquinas redondeadas, separación más fina y un logo más grande. El hover es <b>idéntico al actual</b>.</p><div class="bento" id="g1" style="margin-top:18px"></div></section>
+<section class="v w" id="f2"><p class="note"><b>FH1 · Barrido de cristal.</b> Mismo gesto y mismo tiempo (1 s): el velo es ahora cristal esmerilado con un filo de luz que recorre el barrido, y la info sube escalonada (nombre → fechas → lugar → line-up → botón).</p><div class="g3" id="g2" style="margin-top:18px"></div></section>
+<section class="v w" id="f3"><p class="note"><b>FH2 · Persiana.</b> En reposo foto y logo van en blanco y negro. Al pasar, el mismo velo oscuro entra en <b>5 lamas escalonadas de izquierda a derecha</b>, la foto recupera el color y sube la misma info.</p><div class="g3" id="g3" style="margin-top:18px"></div></section>
+<div class="w"><div id="pg"></div><p class="eb">Conferences</p><h2 class="h">Music <i>conferences</i></h2><div class="conf" id="cf"></div><div class="more"><button>Load more conferences</button></div></div>
+<script>/* kit */
+// Kit común de bocetos Norules: buscador real por página, pestañas, paginación y switch de variantes.
+const API = 'https://beta.gem2i.com/api/uploads/gem2i/legacy/';
+const CONTINENTS = ['All', 'USA', 'Europe', 'North America', 'South America', 'Africa', 'Oceania', 'Asia'];
+const PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+
+// fields: [label, kind, placeholder]  kind = text | country | state | date
+function searchBar(fields) {
+  const cols = fields.map(f => (f[1] === 'date' ? '1.1fr' : '1fr')).join(' ') + ' auto';
+  const f = fields.map(([l, k, p]) => {
+    if (k === 'country') return `<div class="f"><label>${l}</label><select><option>All countries</option><option>United States</option><option>Spain</option><option>Brazil</option></select></div>`;
+    if (k === 'state') return `<div class="f"><label>${l}</label><select disabled><option>All states</option></select></div>`;
+    if (k === 'date') return `<div class="f"><label>${l}</label><button class="dt" type="button">${CAL} Any date</button></div>`;
+    return `<div class="f"><label>${l}</label><input placeholder="${p || ''}" ${k === 'city' ? 'disabled' : ''}></div>`;
+  }).join('');
+  return `<form class="search" style="grid-template-columns:${cols}" onsubmit="return false">${f}<div class="go"><button class="s">Search</button><button class="r" type="reset">Reset</button></div></form>`;
+}
+const tabs = (list = CONTINENTS) => `<div class="tabs">${list.map((t, i) => `<button class="chip ${i ? '' : 'on'}">${t}</button>`).join('')}</div>`;
+const pager = () => `<div class="pager"><button>← Previous</button><button class="on">1</button><button>2</button><button>3</button><span>…</span><button>12</button><button>Next →</button></div>`;
+const seg = (a, b) => `<div class="seg"><button class="on">${a}</button><button>${b}</button></div>`;
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.switch button');
+  if (b) {
+    document.querySelectorAll('.v').forEach(x => x.classList.toggle('on', x.id === b.dataset.v));
+    document.querySelectorAll('.switch button').forEach(x => x.classList.toggle('on', x === b));
+    window.dispatchEvent(new Event('variant'));
+    return;
+  }
+  const c = e.target.closest('.chip, .seg button');
+  if (c) [...c.parentElement.children].forEach(x => x.classList.toggle('on', x === c));
+  const sel = e.target.closest('select');
+  if (sel) return;
+});
+document.addEventListener('change', e => {
+  if (e.target.matches('.search select:not([disabled])')) {
+    const st = e.target.closest('.search').querySelectorAll('select')[1];
+    const city = e.target.closest('.search').querySelector('input[disabled]');
+    if (st) { st.disabled = false; st.innerHTML = '<option>All states</option><option>Florida</option><option>New York</option>'; }
+    if (city) city.disabled = false;
+  }
+});
+</script>
+<script>
+document.getElementById('sb').innerHTML=searchBar([['Festival','text','by name…'],['Dates','date'],['Country','country'],['State','state'],['City','city','City']]);
+document.getElementById('tb').innerHTML=tabs();document.getElementById('pg').innerHTML=pager();
+const F=[['Ultra Music Festival','March 29 | 30 | 31, 2026','Florida, United States','1518136932','1518136932','1518136933','Afrojack · Andrew Rayel · Armin Van Buuren'],['EDC Las Vegas','May 15 | 16 | 17, 2026','Nevada, United States','1517430743','1517430743','1517430744','Adam Beyer · Andrea Oliva · Chris Liebing'],['DGTL Tel Aviv','October 14, 2026','Tel Aviv, Israel','1570741257','1570741257','1570741258',''],['Eco Festival','July 2026','Slovenia','1570817505','1570817505','1570817506',''],['BPM Tel Aviv','November 2026','Tel Aviv, Israel','1569883530','1569883530','1569883531',''],['Oasis Festival','September 2026','Marrakech, Morocco','1516128182','1461001098','1461001099',''],['BPM Portugal','September 2026','Portimão, Portugal','1569684197','1569959820','1569959821',''],['Amore Festival','August 2026','Italy','1569626659','1569626659','1569626660','']];
+const fc=(f,x='')=>`<a class="gc fs" href="#"><img class="ph" src="${API}images_festivals/photo/${f[3]}.png" alt="" loading="lazy">${x}<span class="glogo"><img src="${API}images_festivals/logos/${f[4]}.png" alt=""></span><span class="gstrip">${f[0]}</span>
+<span class="ginfo"><h3>${f[0]}</h3><div class="ln">${CAL}${f[1]}</div><div class="ln">${PIN}${f[2]}</div>${f[6]?`<div class="ln" style="opacity:.75">♫ ${f[6]}</div>`:''}<span class="det">View details →</span></span></a>`;
+document.getElementById('g1').innerHTML=F.map(f=>fc(f)).join('');
+document.getElementById('g4').innerHTML=F.slice(0,6).map(f=>fc(f)).join('');
+document.getElementById('g2').innerHTML=F.slice(0,6).map(f=>fc(f)).join('');
+document.getElementById('g3').innerHTML=F.slice(0,6).map(f=>fc(f,'<span class="sl"><i></i><i></i><i></i><i></i><i></i></span>')).join('');
+document.getElementById('cf').innerHTML=F.slice(0,8).map(f=>fc([f[0].replace('Festival','Conference'),f[1],f[2],f[3],f[4],f[5],''])).join('');
+document.querySelectorAll('#f2 .gc').forEach(c=>c.onmouseenter=()=>c.style.setProperty('--wd',c.offsetWidth+'px'));
+</script></body></html>

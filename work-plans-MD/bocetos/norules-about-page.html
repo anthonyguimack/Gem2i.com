@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · About Norules</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+/* Norules · paleta Grises (fondo claro). Contenido = el real de CMS → About (beta). */
+:root{--bg:#fff;--alt:#f3f4f5;--ink:#1d2228;--body:#5b636c;--line:#e3e5e8;--dark:#2a3038;--night:#14181d;--soft:#eceef0;--acc:#0068b3}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+.switch{position:sticky;top:0;z-index:20;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer;transition:background .2s,color .2s}
+.switch button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1240px;margin:0 auto;padding:0 24px}
+.eb{font-size:12.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin:0 0 18px}
+.h{font:700 clamp(2.1rem,3.8vw,3.3rem)/1.06 'Playfair Display',serif;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.h i{font-style:italic;color:var(--acc)}
+p.b{color:var(--body);font-size:16.5px;line-height:1.8;margin:0 0 16px;max-width:60ch}
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 15px Manrope;border-radius:99px;padding:13px 24px;text-decoration:none;transition:transform .16s ease-out}
+.btn:active{transform:scale(.97)}
+.btn.p{background:var(--dark);color:#fff}.btn.s{border:1px solid #cfd3d8;color:var(--ink)}.btn.w2{background:#fff;color:var(--night)}
+.note{max-width:1240px;margin:0 auto;padding:28px 24px;color:var(--body);font-size:13.5px;border-bottom:1px dashed var(--line)}
+.note b{color:var(--ink)}
+.hero{height:62vh;min-height:420px;position:relative;background:#111 url(https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg) center/cover;display:flex;align-items:flex-end}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(10,12,15,.85))}
+.hero .w{position:relative;z-index:1;color:#fff;padding-bottom:48px;width:100%}
+.hero small{font-size:12px;letter-spacing:.28em;font-weight:700;opacity:.75}
+.hero b{display:block;font:700 clamp(2.4rem,5vw,4.4rem)/1 'Playfair Display';margin-top:10px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.2em;background:#fff;color:var(--ink);padding:5px 10px;border-radius:99px;margin-left:10px;vertical-align:middle}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ============ AB1 · MANIFIESTO ============ */
+.m-man{padding:120px 0 90px}
+.m-man p{font:700 clamp(1.9rem,4.4vw,3.9rem)/1.18 Manrope;letter-spacing:-.03em;margin:0;max-width:22ch}
+.m-man p span{color:#d3d7db;transition:color .35s}
+.m-man p span.lit{color:var(--ink)}
+.m-man p span.em{font-family:'Playfair Display';font-style:italic;font-weight:700}
+.m-man p span.em.lit{color:var(--acc)}
+.m-sig{display:flex;align-items:center;gap:16px;margin-top:48px}
+.m-sig .av{width:52px;height:52px;border-radius:50%;background:var(--soft) url(https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg) center/cover}
+.m-sig b{display:block}.m-sig small{color:var(--body)}
+.m-time{background:var(--alt);padding:96px 0}
+.m-tl{display:grid;grid-template-columns:repeat(4,1fr);margin-top:56px;position:relative}
+.m-tl:before{content:"";position:absolute;left:0;right:0;top:9px;height:1px;background:#cfd3d8}
+.m-tl .st{position:relative;padding-right:28px}
+.m-tl .dot{width:19px;height:19px;border-radius:50%;background:#fff;border:1px solid #cfd3d8;margin-bottom:26px}
+.m-tl .st.now .dot{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 6px rgba(0,104,179,.15)}
+.m-tl b{font:800 46px/1 Manrope;letter-spacing:-.04em;display:block}
+.m-tl h4{margin:12px 0 8px;font-size:17px}
+.m-tl p{margin:0;color:var(--body);font-size:15px;line-height:1.7}
+.m-num{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.m-num div{padding:44px 24px;border-left:1px solid var(--line)}.m-num div:first-child{border-left:0}
+.m-num b{font:800 clamp(2.6rem,5vw,4.4rem)/1 Manrope;letter-spacing:-.05em;display:block;font-variant-numeric:tabular-nums}
+.m-num span{color:var(--body);font-size:14px}
+.m-off{padding:96px 0}
+.m-off ol{list-style:none;margin:48px 0 0;padding:0;border-top:1px solid var(--line)}
+.m-off li{display:grid;grid-template-columns:1fr 1fr 120px;gap:18px;align-items:center;padding:26px 0;border-bottom:1px solid var(--line);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.m-off li:hover{transform:translateX(12px)}
+.m-off li .n{color:var(--body);font-weight:700;font-size:13px}
+.m-off li b{font:700 clamp(1.4rem,2.4vw,2rem) 'Playfair Display'}
+.m-off li .c{color:var(--body)}
+.m-off li .t{text-align:right;font-weight:800;font-variant-numeric:tabular-nums;font-size:18px}
+.m-off li .t small{display:block;font-size:11px;letter-spacing:.2em;color:var(--body);font-weight:700}
+.m-cta{background:var(--night);color:#fff;padding:110px 0;text-align:center}
+.m-cta .h{color:#fff;font-size:clamp(2.4rem,5.4vw,4.8rem);max-width:16ch;margin:0 auto 34px}
+
+/* ============ AB2 · SETLIST ============ */
+.s-wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;padding:110px 0}
+.s-stick{position:sticky;top:90px;height:calc(100vh - 140px);border-radius:28px;overflow:hidden;background:var(--night)}
+.s-stick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:opacity .6s,transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.s-stick img.on{opacity:.82;transform:none}
+.s-stick .lbl{position:absolute;left:24px;bottom:22px;color:#fff;font:800 clamp(4rem,8vw,7rem)/.8 Manrope;letter-spacing:-.06em}
+.s-trk{border-top:1px solid var(--line)}
+.s-trk article{min-height:62vh;padding:44px 0;border-bottom:1px solid var(--line);opacity:.35;transition:opacity .4s}
+.s-trk article.on{opacity:1}
+.s-trk .no{display:flex;align-items:center;gap:12px;font-size:12.5px;font-weight:700;letter-spacing:.24em;color:var(--body)}
+.s-trk .no i{font-style:normal;padding:4px 9px;border:1px solid var(--line);border-radius:99px}
+.s-trk h3{font:700 clamp(1.9rem,3.2vw,2.8rem)/1.1 'Playfair Display';margin:18px 0 16px}
+.s-eq{background:var(--night);color:#fff;padding:96px 0}
+.s-eq .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px}
+.s-eq .bar{height:170px;display:flex;align-items:flex-end;gap:5px;margin-bottom:18px}
+.s-eq .bar i{flex:1;background:linear-gradient(#5aa9e6,var(--acc));border-radius:3px 3px 0 0;animation:eq 1.4s ease-in-out infinite alternate}
+@keyframes eq{from{height:var(--a)}to{height:var(--b)}}
+@media (prefers-reduced-motion:reduce){.s-eq .bar i{animation:none;height:var(--b)}}
+.s-eq b{font:800 46px/1 Manrope;letter-spacing:-.04em;display:block}
+.s-eq span{color:#9aa3ad;font-size:14px}
+.s-board{padding:96px 0;background:var(--alt)}
+.s-board table{width:100%;border-collapse:collapse;margin-top:44px;font-variant-numeric:tabular-nums}
+.s-board th{text-align:left;font-size:11.5px;letter-spacing:.22em;color:var(--body);padding:0 0 14px;border-bottom:2px solid var(--ink)}
+.s-board td{padding:20px 0;border-bottom:1px solid var(--line);font-size:17px;font-weight:600}
+.s-board td.city{font:700 22px 'Playfair Display'}
+.s-board .flip{display:inline-flex;gap:3px}
+.s-board .flip span{background:var(--night);color:#fff;font:800 15px/1 Manrope;padding:7px 6px;border-radius:4px;min-width:22px;text-align:center}
+.s-board .live{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#178a4c;font-weight:700}
+.s-board .live:before{content:"";width:8px;height:8px;border-radius:50%;background:#20b562;box-shadow:0 0 0 4px rgba(32,181,98,.18)}
+.s-cta{padding:100px 0}
+.s-cta .box{border:1px solid var(--line);border-radius:28px;padding:56px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center}
+.s-cta .now{font-size:12px;letter-spacing:.24em;font-weight:700;color:var(--body);display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.s-cta .now .eqm{display:inline-flex;gap:2px;height:12px;align-items:flex-end}
+.s-cta .now .eqm i{width:3px;background:var(--acc);animation:eq .8s ease-in-out infinite alternate}
+
+/* ============ AB3 · BACKSTAGE PASS ============ */
+.p-top{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;padding:110px 0 80px;align-items:center}
+.p-top .h{font-size:clamp(2.6rem,5.2vw,4.6rem)}
+.pass{position:relative;width:min(380px,100%);margin-left:auto;aspect-ratio:3/4.4;border-radius:22px;background:linear-gradient(150deg,#2a3038,#0d1013);color:#fff;padding:28px;box-shadow:0 30px 60px -20px rgba(0,0,0,.45);transform-style:preserve-3d;transition:transform .2s ease-out;overflow:hidden}
+.pass:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(120,190,255,.28) 45%,rgba(255,140,220,.22) 55%,transparent 70%);background-size:220% 220%;background-position:var(--hx,50%) 50%;mix-blend-mode:screen;pointer-events:none}
+.pass .hole{position:absolute;top:16px;left:50%;width:56px;height:10px;margin-left:-28px;border-radius:99px;background:var(--bg)}
+.pass small{display:block;font-size:11px;letter-spacing:.24em;opacity:.6;font-weight:700;margin-top:28px}
+.pass .nm{font:700 34px/1.05 'Playfair Display';margin:8px 0 26px}
+.pass .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px dashed rgba(255,255,255,.2);padding-top:18px}
+.pass .row b{display:block;font-size:20px}
+.pass .bc{position:absolute;left:28px;right:28px;bottom:26px;height:46px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 5px,#fff 5px 6px,transparent 6px 9px);opacity:.85}
+.p-chap{background:var(--night);color:#fff;padding:100px 0}
+.p-chap .cards{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding:48px 24px 10px;margin:0 -24px;scrollbar-width:none}
+.p-chap .card{flex:0 0 min(420px,82%);scroll-snap-align:start;border-radius:24px;overflow:hidden;background:#1d2228;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.p-chap .card:hover{transform:translateY(-6px)}
+.p-chap .card img{aspect-ratio:16/10;width:100%;object-fit:cover}
+.p-chap .card div{padding:26px}
+.p-chap .card b{font:800 40px/1 Manrope;letter-spacing:-.04em;color:#5aa9e6}
+.p-chap .card h4{font:700 22px 'Playfair Display';margin:10px 0 8px}
+.p-chap .card p{margin:0;color:#9aa3ad;line-height:1.7}
+.p-chap .nav{display:flex;gap:10px;justify-content:flex-end;margin-top:-56px}
+.p-chap .nav button{width:46px;height:46px;border-radius:50%;border:1px solid #3a424b;background:transparent;color:#fff;font-size:18px;cursor:pointer}
+.p-out{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:90px 0}
+.p-out div{padding:0 22px;border-left:1px solid var(--line)}
+.p-out b{font:800 clamp(3.4rem,7vw,6rem)/.9 Manrope;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px var(--ink);display:block;transition:color .3s}
+.p-out div:hover b{color:var(--ink)}
+.p-out span{display:block;margin-top:12px;color:var(--body)}
+.p-map{padding:0 0 96px}
+.p-map .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:40px 0 24px}
+.p-map .tabs button{font:700 14px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:10px 18px;cursor:pointer}
+.p-map .tabs button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.p-map .panel{display:grid;grid-template-columns:1.4fr 1fr;border-radius:28px;overflow:hidden;border:1px solid var(--line);min-height:340px}
+.p-map .mapbg{background:var(--alt) url(https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg) center/cover;filter:grayscale(1);position:relative}
+.p-map .mapbg:after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 10px rgba(0,104,179,.2),0 0 0 22px rgba(0,104,179,.1)}
+.p-map .info{padding:40px}
+.p-map .info b{font:700 32px 'Playfair Display'}
+.p-stub{padding:0 0 110px}
+.stub{display:grid;grid-template-columns:1fr 220px;border-radius:26px;background:var(--acc);color:#fff;overflow:hidden;position:relative}
+.stub .l{padding:52px}
+.stub .l .h{color:#fff}
+.stub .r{border-left:2px dashed rgba(255,255,255,.45);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+.stub .r small{letter-spacing:.24em;font-size:11px;font-weight:700;opacity:.8}
+.stub:before,.stub:after{content:"";position:absolute;right:209px;width:22px;height:22px;border-radius:50%;background:var(--bg)}
+.stub:before{top:-11px}.stub:after{bottom:-11px}
+
+@media (max-width:860px){
+  .m-tl,.m-num,.s-eq .grid,.p-out{grid-template-columns:1fr 1fr;row-gap:36px}
+  .m-tl:before{display:none}
+  .m-off li{grid-template-columns:1fr 90px}.m-off li .c{display:none}
+  .s-wrap,.p-top,.p-map .panel,.s-cta .box,.stub{grid-template-columns:1fr}
+  .s-stick{position:relative;top:0;height:300px}
+  .s-trk article{min-height:auto}
+  .pass{margin:0 auto}
+  .p-map .mapbg{min-height:220px}
+  .stub .r{border-left:0;border-top:2px dashed rgba(255,255,255,.45)}.stub:before,.stub:after{display:none}
+  .s-board .hide{display:none}
+}
+</style></head><body>
+
+<div class="switch">
+  <button data-v="ab1" class="on">AB1 · Manifiesto</button>
+  <button data-v="ab2">AB2 · Setlist</button>
+  <button data-v="ab3">AB3 · Backstage pass</button>
+</div>
+
+<div class="hero"><div class="w"><small>ABOUT US</small><b>Hero de la página <span class="tag">igual en las 3</span></b></div></div>
+
+<!-- ======================= AB1 ======================= -->
+<section class="v on" id="ab1">
+  <p class="note"><b>AB1 · Manifiesto.</b> La historia del CMS se lee como un manifiesto gigante: las palabras se encienden al hacer scroll. Debajo, línea de tiempo 1993 → hoy, cifras grandes con contador, oficinas como lista editorial con <b>hora local en vivo</b>, y cierre noche con CTA. Calmado, tipográfico, muy «Norules».</p>
+  <div class="w m-man">
+    <p class="eb" style="color:var(--body)">About GEM2i</p>
+    <p id="manifesto">Since 1993 we have been <span class="em">behind the night</span>, connecting promoters, festivals, venues and artists in 17 markets, so the best events in the world feel like they were made <span class="em">for you.</span></p>
+    <div class="m-sig"><div class="av"></div><div><b>Carlos M. Artiles</b><small>Founder & CEO</small></div><a class="btn s" href="#" style="margin-left:auto">Contact us →</a></div>
+  </div>
+  <div class="m-time"><div class="w">
+    <p class="eb">Our story</p><h2 class="h">Three decades <i>behind the night</i></h2>
+    <div class="m-tl">
+      <div class="st reveal"><div class="dot"></div><b>1993</b><h4>The partnership</h4><p>An entertainment and promotions alliance is born.</p></div>
+      <div class="st reveal"><div class="dot"></div><b>2002</b><h4>Reorganised</h4><p>New segments of the nightlife and live-music business.</p></div>
+      <div class="st reveal"><div class="dot"></div><b>17</b><h4>Markets</h4><p>North America, South America, Europe and Asia.</p></div>
+      <div class="st now reveal"><div class="dot"></div><b>Today</b><h4>Private network</h4><p>Guest lists, QR e-passes and e-tickets for members.</p></div>
+    </div>
+  </div></div>
+  <div class="w"><div class="m-num">
+    <div><b data-count="33">0</b><span>years in the business</span></div>
+    <div><b data-count="17">0</b><span>markets</span></div>
+    <div><b data-count="1736">0</b><span>members</span></div>
+    <div><b data-count="1700" data-plus>0</b><span>events listed</span></div>
+  </div></div>
+  <div class="w m-off">
+    <p class="eb">Where we are</p><h2 class="h">Four offices, <i>one team</i></h2>
+    <ol>
+      <li><b>Miami</b><span class="c">United States · HQ</span><span class="t" data-tz="America/New_York">--:--<small>LOCAL</small></span></li>
+      <li><b>Madrid</b><span class="c">Spain</span><span class="t" data-tz="Europe/Madrid">--:--<small>LOCAL</small></span></li>
+      <li><b>Lima</b><span class="c">Peru</span><span class="t" data-tz="America/Lima">--:--<small>LOCAL</small></span></li>
+      <li><b>Ibiza</b><span class="c">Spain</span><span class="t" data-tz="Europe/Madrid">--:--<small>LOCAL</small></span></li>
+    </ol>
+  </div>
+  <div class="m-cta"><div class="w"><p class="eb" style="color:#9aa3ad">Let's talk</p><h2 class="h">Planning an event, a tour <i style="color:#5aa9e6">or a launch?</i></h2><a class="btn w2" href="#">Contact us →</a></div></div>
+</section>
+
+<!-- ======================= AB2 ======================= -->
+<section class="v" id="ab2">
+  <p class="note"><b>AB2 · Setlist.</b> La historia contada como <b>tracklist</b>: foto pegajosa a la izquierda que cambia con cada «track» (1993, 2002, 17 markets, Today). Cifras como <b>ecualizador</b> en banda noche. Oficinas como <b>panel de salidas</b> de aeropuerto con hora local. Cierre «Now playing». Conecta con Methodology M2 (DJ deck) de la home.</p>
+  <div class="w s-wrap">
+    <div class="s-stick">
+      <img class="on" data-i="0" src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg" alt="">
+      <img data-i="1" src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg" alt="">
+      <img data-i="2" src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg" alt="">
+      <img data-i="3" src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg" alt="">
+      <span class="lbl" id="slbl">1993</span>
+    </div>
+    <div class="s-trk">
+      <article class="on" data-i="0" data-l="1993"><div class="no"><i>TRACK 01</i> 1993</div><h3>The partnership</h3><p class="b">GEM2i's origins date back to an entertainment and promotions partnership first established in 1993.</p></article>
+      <article data-i="1" data-l="2002"><div class="no"><i>TRACK 02</i> 2002</div><h3>A new line-up</h3><p class="b">Reorganised to serve different segments and demographics of the nightlife and live-music business.</p></article>
+      <article data-i="2" data-l="17"><div class="no"><i>TRACK 03</i> 17 MARKETS</div><h3>Our own methodology</h3><p class="b">We connect promoters, festivals, venues and artists across North America, South America, Europe and Asia.</p></article>
+      <article data-i="3" data-l="Now"><div class="no"><i>TRACK 04</i> TODAY</div><h3>A private network</h3><p class="b">Guest lists, QR e-passes and e-tickets for the best events, festivals and conferences in the world.</p><a class="btn p" href="#">Become a member →</a></article>
+    </div>
+  </div>
+  <div class="s-eq"><div class="w">
+    <p class="eb" style="color:#9aa3ad">In numbers</p><h2 class="h" style="color:#fff">The volume <i style="color:#5aa9e6">of three decades</i></h2>
+    <div class="grid" id="eqgrid"></div>
+  </div></div>
+  <div class="s-board"><div class="w">
+    <p class="eb">Where we are</p><h2 class="h">Departures <i>to the night</i></h2>
+    <table>
+      <thead><tr><th>OFFICE</th><th class="hide">COUNTRY</th><th>LOCAL TIME</th><th>STATUS</th></tr></thead>
+      <tbody>
+        <tr><td class="city">Miami</td><td class="hide">United States · HQ</td><td><span class="flip" data-tz="America/New_York"></span></td><td><span class="live">Open</span></td></tr>
+        <tr><td class="city">Madrid</td><td class="hide">Spain</td><td><span class="flip" data-tz="Europe/Madrid"></span></td><td><span class="live">Open</span></td></tr>
+        <tr><td class="city">Lima</td><td class="hide">Peru</td><td><span class="flip" data-tz="America/Lima"></span></td><td><span class="live">Open</span></td></tr>
+        <tr><td class="city">Ibiza</td><td class="hide">Spain</td><td><span class="flip" data-tz="Europe/Madrid"></span></td><td><span class="live">Open</span></td></tr>
+      </tbody>
+    </table>
+  </div></div>
+  <div class="w s-cta"><div class="box">
+    <div><div class="now"><span class="eqm"><i style="--a:3px;--b:12px"></i><i style="--a:10px;--b:4px"></i><i style="--a:5px;--b:11px"></i></span>NOW PLAYING</div><h2 class="h">Your next event, <i>with us</i></h2></div>
+    <a class="btn p" href="#">Contact us →</a>
+  </div></div>
+</section>
+
+<!-- ======================= AB3 ======================= -->
+<section class="v" id="ab3">
+  <p class="note"><b>AB3 · Backstage pass.</b> Arriba título + un <b>pase VIP holográfico</b> que se inclina con el ratón (misma familia que «Who it is for» W3 de la home) con los datos clave. Capítulos de la historia en <b>carrusel noche arrastrable</b>. Cifras en <b>contorno</b> que se rellenan al pasar. Oficinas con pestañas + mapa. Cierre en forma de <b>entrada con talón</b>.</p>
+  <div class="w p-top">
+    <div>
+      <p class="eb" style="color:var(--body)">About us</p>
+      <h2 class="h">Three decades <i>behind the night</i></h2>
+      <p class="b" style="margin-top:26px">GEM2i's origins date back to an entertainment and promotions partnership first established in 1993. Today it is a private membership network for the best events in the world.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px"><a class="btn p" href="#">Become a member</a><a class="btn s" href="#">Contact us</a></div>
+    </div>
+    <div class="pass" id="pass"><span class="hole"></span><small>ALL ACCESS · SINCE</small><div class="nm">GEM2i<br>1993 →</div>
+      <div class="row"><div><small style="margin:0">MARKETS</small><b>17</b></div><div><small style="margin:0">CONTINENTS</small><b>4</b></div><div><small style="margin:0">MEMBERS</small><b>1,736</b></div><div><small style="margin:0">HQ</small><b>Miami</b></div></div>
+      <div class="bc"></div></div>
+  </div>
+  <div class="p-chap"><div class="w">
+    <p class="eb" style="color:#9aa3ad">Our story</p><h2 class="h" style="color:#fff">Chapters <i style="color:#5aa9e6">of the night</i></h2>
+    <div class="nav"><button id="pv" aria-label="Previous">←</button><button id="nx" aria-label="Next">→</button></div>
+    <div class="cards" id="cards">
+      <div class="card"><img src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg" alt=""><div><b>1993</b><h4>The partnership</h4><p>An entertainment and promotions alliance is born.</p></div></div>
+      <div class="card"><img src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_events.jpg" alt=""><div><b>2002</b><h4>Reorganised</h4><p>New segments of the nightlife and live-music business.</p></div></div>
+      <div class="card"><img src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_artists.jpg" alt=""><div><b>17</b><h4>Markets</h4><p>Our own methodology across four continents.</p></div></div>
+      <div class="card"><img src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg" alt=""><div><b>Today</b><h4>Private network</h4><p>Guest lists, QR e-passes and e-tickets.</p></div></div>
+    </div>
+  </div></div>
+  <div class="w p-out">
+    <div><b>33</b><span>years</span></div><div><b>17</b><span>markets</span></div><div><b>1.7K</b><span>members</span></div><div><b>4</b><span>offices</span></div>
+  </div>
+  <div class="w p-map">
+    <p class="eb">Where we are</p><h2 class="h">Find us <i>at night</i></h2>
+    <div class="tabs" id="tabs">
+      <button class="on" data-c="Miami" data-d="United States · HQ" data-tz="America/New_York">Miami</button>
+      <button data-c="Madrid" data-d="Spain" data-tz="Europe/Madrid">Madrid</button>
+      <button data-c="Lima" data-d="Peru" data-tz="America/Lima">Lima</button>
+      <button data-c="Ibiza" data-d="Spain" data-tz="Europe/Madrid">Ibiza</button>
+    </div>
+    <div class="panel"><div class="mapbg"></div><div class="info"><p class="eb" style="color:var(--body)" id="od">United States · HQ</p><b id="oc">Miami</b><p class="b" style="margin-top:14px">Local time <strong id="ot" style="color:var(--ink)">--:--</strong></p><a class="btn s" href="#">Open in Maps →</a></div></div>
+  </div>
+  <div class="w p-stub"><div class="stub">
+    <div class="l"><p class="eb" style="color:rgba(255,255,255,.75)">Let's talk</p><h2 class="h">Planning an event, a tour or a launch?</h2></div>
+    <div class="r"><small>ADMIT ONE</small><a class="btn w2" href="#">Contact us →</a></div>
+  </div></div>
+</section>
+
+<script>
+const $=s=>document.querySelectorAll(s);
+$('.switch button').forEach(b=>b.onclick=()=>{$('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));$('.switch button').forEach(x=>x.classList.toggle('on',x===b));window.scrollTo({top:0});tick()});
+const time=tz=>new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz});
+// AB1 manifiesto: palabra a palabra
+const man=document.getElementById('manifesto');
+man.innerHTML=[...man.childNodes].map(n=>n.nodeType===3?n.textContent.split(/(\s+)/).map(w=>w.trim()?`<span>${w}</span>`:w).join(''):n.outerHTML).join('');
+const words=[...man.querySelectorAll('span')];
+// AB2 eq
+const eq=[['33','years in the business'],['17','markets'],['1,736','members'],['1,700+','events listed']];
+document.getElementById('eqgrid').innerHTML=eq.map(([n,l])=>`<div><div class="bar">${Array.from({length:9},()=>`<i style="--a:${20+Math.random()*40}%;--b:${50+Math.random()*50}%;animation-delay:${-Math.random()*1.4}s"></i>`).join('')}</div><b>${n}</b><span>${l}</span></div>`).join('');
+function tick(){
+  $('[data-tz]').forEach(e=>{const t=time(e.dataset.tz);if(e.classList.contains('flip'))e.innerHTML=t.replace(':','').split('').map((d,i)=>(i===2?'<span style="background:none;color:var(--ink);min-width:6px;padding:7px 0">:</span>':'')+`<span>${d}</span>`).join('');else if(e.classList.contains('t'))e.firstChild.textContent=t});
+  const on=document.querySelector('#tabs .on');document.getElementById('ot').textContent=time(on.dataset.tz);
+}
+tick();setInterval(tick,30000);
+// scroll: manifiesto + setlist
+addEventListener('scroll',()=>{
+  const r=man.getBoundingClientRect(),p=Math.min(1,Math.max(0,(innerHeight*.85-r.top)/(r.height+innerHeight*.35)));
+  words.forEach((w,i)=>w.classList.toggle('lit',i/words.length<p));
+  $('.s-trk article').forEach(a=>{const ar=a.getBoundingClientRect();if(ar.top<innerHeight*.55&&ar.bottom>innerHeight*.45){$('.s-trk article').forEach(x=>x.classList.remove('on'));a.classList.add('on');$('.s-stick img').forEach(im=>im.classList.toggle('on',im.dataset.i===a.dataset.i));document.getElementById('slbl').textContent=a.dataset.l}});
+},{passive:true});
+// reveal + contadores
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;e.target.classList.add('in');const b=e.target;if(b.dataset.count){const to=+b.dataset.count,t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1400),v=Math.round(to*(1-Math.pow(1-k,3)));b.textContent=v.toLocaleString('en')+(b.dataset.plus!==undefined&&k===1?'+':'');if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}io.unobserve(b)}),{threshold:.3});
+$('.reveal,[data-count]').forEach(e=>io.observe(e));
+// AB3 pase 3D
+const pass=document.getElementById('pass');
+pass.onpointermove=e=>{if(e.pointerType!=='mouse')return;const r=pass.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;pass.style.transform=`perspective(900px) rotateY(${x*14}deg) rotateX(${-y*14}deg)`;pass.style.setProperty('--hx',(x+.5)*100+'%')};
+pass.onpointerleave=()=>pass.style.transform='';
+const cards=document.getElementById('cards');
+document.getElementById('nx').onclick=()=>cards.scrollBy({left:440,behavior:'smooth'});
+document.getElementById('pv').onclick=()=>cards.scrollBy({left:-440,behavior:'smooth'});
+$('#tabs button').forEach(b=>b.onclick=()=>{$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));document.getElementById('oc').textContent=b.dataset.c;document.getElementById('od').textContent=b.dataset.d;tick()});
+</script></body></html>

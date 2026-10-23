@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Events Norules</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>/* kit */
+/* Kit común de bocetos Norules (paleta Grises). Buscador, pestañas, paginación y la card con el hover
+   ACTUAL del cliente (.gc): velo que barre izq→der 1s cubic-bezier(.19,1,.22,1), zoom de foto,
+   info que sube, logo gris→color, franja inferior que se oculta. */
+:root{--bg:#fff;--alt:#f3f4f5;--ink:#1d2228;--body:#5b636c;--line:#e3e5e8;--dark:#2a3038;--night:#0e1216;--acc:#0068b3;--link:#5aafea;--ease:cubic-bezier(.19,1,.22,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+.switch{position:sticky;top:0;z-index:1000;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.switch button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1280px;margin:0 auto;padding:0 24px}
+.note{color:var(--body);font-size:14px;line-height:1.7;padding:28px 0 4px;max-width:86ch}.note b{color:var(--ink)}
+.note.fix{background:#fff7e6;border:1px solid #f3d9a4;border-radius:14px;padding:14px 18px;margin-top:20px}
+.eb{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;margin:44px 0 12px}
+.eb:before{content:"";width:28px;height:1px;background:currentColor}
+.h{font:700 clamp(2rem,3.8vw,3.2rem)/1.06 'Playfair Display',serif;margin:0 0 26px;color:var(--ink)}.h i{color:var(--acc)}
+.sub{color:var(--body);margin:-14px 0 26px;font-size:16px}
+/* segmentados */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:4px;gap:2px;background:#fff}
+.seg button{font:600 14px Manrope;border:0;background:transparent;border-radius:99px;padding:8px 14px;color:var(--body);cursor:pointer}
+.seg button.on{background:var(--dark);color:#fff}
+.row-sb{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+/* buscador (campos reales de cada página) */
+.search{display:grid;gap:8px;padding:8px;border-radius:20px;background:var(--night);margin-bottom:16px}
+.search .f{position:relative}
+.search label{position:absolute;left:14px;top:7px;font-size:10px;font-weight:800;letter-spacing:.16em;color:#8a949e;text-transform:uppercase;pointer-events:none}
+.search input,.search select,.search .dt{width:100%;height:52px;border:1px solid #2a3139;border-radius:14px;background:#171c22;color:#fff;font:600 14.5px Manrope;padding:20px 14px 6px;outline:none;appearance:none}
+.search input::placeholder{color:#6f7a85}
+.search input:focus,.search select:focus{border-color:var(--link)}
+.search select:disabled,.search input:disabled{opacity:.45;cursor:not-allowed}
+.search .dt{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}
+.search .go{display:flex;gap:8px}
+.search .go button{height:52px;border-radius:14px;font:700 14.5px Manrope;padding:0 20px;cursor:pointer;border:1px solid #2a3139}
+.search .go .s{background:#fff;color:var(--night);border-color:#fff}.search .go .r{background:transparent;color:#fff}
+/* pestañas de continente */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;overflow-x:auto}
+.chip{font:700 13px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 15px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* paginación */
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin:30px 0 80px}
+.pager button{min-width:42px;height:42px;border-radius:99px;border:1px solid var(--line);background:#fff;font:700 14px Manrope;cursor:pointer;padding:0 14px}
+.pager button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* ===== card con el hover actual ===== */
+.gc{position:relative;display:block;overflow:hidden;isolation:isolate;background:#1a1f25;color:#fff;text-decoration:none;outline:none}
+.gc .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s ease-out}
+.gc:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%);transform:scaleX(0);transform-origin:right center;transition:transform 1s var(--ease)}
+.gc:hover:before,.gc:focus-visible:before{transform:scaleX(1);transform-origin:left center}
+.gc:hover .ph,.gc:focus-visible .ph{transform:scale(1.05)}
+.gc .glogo{position:absolute;right:14px;top:14px;z-index:3;width:62px;height:62px;border-radius:50%;background:#14181d;border:1px solid rgba(255,255,255,.18);overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.gc .glogo img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;filter:grayscale(1);opacity:.85;transition:filter .3s,opacity .3s}
+.gc:hover .glogo img,.gc:focus-visible .glogo img{filter:none;opacity:1}
+.gc .ginfo{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px;opacity:0;transform:translateY(18px);transition:opacity .5s,transform 1.2s var(--ease)}
+.gc:hover .ginfo,.gc:focus-visible .ginfo{opacity:1;transform:none}
+.gc .gstrip{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px;background:linear-gradient(transparent,rgba(0,0,0,.72));font-weight:700;transition:opacity .3s}
+.gc:hover .gstrip,.gc:focus-visible .gstrip{opacity:0}
+.gc .num{position:absolute;left:14px;top:14px;z-index:3;min-width:30px;height:30px;display:grid;place-items:center;background:rgba(14,18,22,.85);font-weight:800;font-size:13px;border-radius:6px}
+.gc .tag{position:absolute;left:14px;top:14px;z-index:3;font-size:11px;font-weight:800;letter-spacing:.16em;background:rgba(14,18,22,.85);padding:7px 10px;border-radius:6px}
+.gc h3{font:700 24px/1.08 'Playfair Display';margin:0 0 8px}
+.gc .ln{display:flex;gap:7px;align-items:flex-start;font-size:13.5px;opacity:.88;margin-top:4px}
+.gc .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.gc .chips span{font-size:11.5px;font-weight:700;background:rgba(255,255,255,.14);padding:4px 9px;border-radius:99px}
+.gc .det{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font-weight:700;font-size:13.5px;border:1px solid rgba(255,255,255,.5);padding:8px 14px;border-radius:8px}
+.gc:focus-visible{box-shadow:inset 0 0 0 3px var(--link)}
+@media (hover:none){.gc:before{transform:scaleX(1)}.gc .ginfo{opacity:1;transform:none}.gc .gstrip{opacity:0}.gc .glogo img{filter:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gc:before,.gc .ph,.gc .ginfo,.gc .glogo img{transition:none}}
+@media (max-width:900px){.search{grid-template-columns:1fr 1fr!important}.search .go{grid-column:1/-1}.search .go button{flex:1}}
+@media (max-width:520px){.search{grid-template-columns:1fr!important}}
+</style>
+<style>
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.ev{aspect-ratio:3/4;border-radius:18px}
+.stamp{position:absolute;right:14px;top:14px;z-index:3;background:#fff;color:var(--night);border-radius:12px;padding:7px 10px;text-align:center;line-height:1;transition:opacity .3s}
+.stamp b{display:block;font-size:22px;font-weight:800}.stamp small{font-size:10px;letter-spacing:.18em;font-weight:800}
+.gc:hover .stamp{opacity:0}
+.tag.gl{background:#0068b3}.tag.inf{background:rgba(255,255,255,.22)}
+/* E2 calendario */
+.mon{display:grid;grid-template-columns:150px 1fr;gap:26px;padding:26px 0;border-top:1px solid var(--line)}
+.mon .m{position:sticky;top:76px;align-self:start;font:800 60px/.85 Manrope;letter-spacing:-.05em}
+.mon .m small{display:block;font-size:12px;letter-spacing:.22em;color:var(--body);margin-top:10px}
+.mon .g4{grid-template-columns:repeat(3,1fr)}
+/* E3 lista: la fila entera recibe el barrido */
+.lst{border-top:1px solid var(--line)}
+.lr{display:grid;grid-template-columns:96px 110px 1.3fr 1fr auto;gap:22px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);position:relative;isolation:isolate;text-decoration:none;color:var(--ink);transition:color .4s}
+.lr:before{content:"";position:absolute;inset:0;z-index:-1;background:var(--night);transform:scaleX(0);transform-origin:right;transition:transform 1s var(--ease)}
+.lr:hover:before,.lr:focus-visible:before{transform:scaleX(1);transform-origin:left}
+.lr:hover,.lr:focus-visible{color:#fff}
+.lr img{width:96px;height:120px;object-fit:cover;border-radius:12px;transition:transform .7s ease-out}
+.lr:hover img{transform:scale(1.04)}
+.lr .d b{display:block;font:800 40px/1 Manrope;letter-spacing:-.04em}.lr .d small{font-size:12px;font-weight:800;letter-spacing:.18em;opacity:.7}
+.lr h3{font:700 24px/1.1 'Playfair Display';margin:6px 0 0}
+.lr .t{font-size:11px;font-weight:800;letter-spacing:.16em;opacity:.7}
+.lr .pl{font-size:14px;opacity:.8;display:flex;gap:6px}
+.lr .bt{font-weight:700;font-size:14px;border:1px solid currentColor;border-radius:8px;padding:9px 14px;white-space:nowrap}
+@media (max-width:1000px){.g4,.mon .g4{grid-template-columns:repeat(2,1fr)}.mon{grid-template-columns:1fr}.mon .m{position:static;font-size:40px}.lr{grid-template-columns:80px 1fr auto}.lr .d,.lr .pl{display:none}.lr img{width:80px;height:100px}}
+@media (max-width:520px){.g4,.mon .g4{grid-template-columns:1fr}}
+</style></head><body>
+<div class="switch"><button data-v="e1" class="on">E1 · Pósters</button><button data-v="e2">E2 · Calendario por mes</button><button data-v="e3">E3 · List view</button></div>
+<div class="w">
+  <p class="note"><b>Lo que se conserva (revisado en beta):</b> el buscador completo (<b>País → Estado → Ciudad</b> en cascada, nombre del evento, rango de fechas CA-2, Search y Reset), <b>Current / Past events</b>, <b>Event / List view</b> y el hover actual de la card: la etiqueta de tipo (E-TICKET / GUEST LIST / INFO), el velo que barre de izquierda a derecha y el zoom. Suben el título, la fecha con apertura de puertas, el venue con su dirección y el botón según el tipo (Buy tickets / Join guest list / View details).</p>
+  <p class="note fix"><b>Fallo visto en beta (paleta Grises):</b> la primera palabra del título «All <i>events</i>» y el texto que se escribe en los campos salen en blanco sobre fondo blanco. Aquí el buscador va en una cápsula oscura con etiquetas para que siempre se lea.</p>
+  <p class="eb">All</p><h2 class="h">All <i>events</i></h2>
+  <div class="row-sb"><span id="sg1"></span><span id="sg2"></span></div>
+  <div id="sb"></div>
+</div>
+<section class="v on w" id="e1"><p class="note"><b>E1 · Pósters.</b> Es la rejilla actual, más pulida: esquinas redondeadas, separación más fina y un <b>sello de fecha</b> que se ve en reposo (antes la fecha solo salía al pasar) y se oculta cuando entra el velo. El hover es idéntico.</p><div class="g4" id="g1" style="margin-top:20px"></div><div id="p1"></div></section>
+<section class="v w" id="e2"><p class="note"><b>E2 · Calendario por mes.</b> Las mismas cards, agrupadas por mes. El mes va gigante y fijo a la izquierda al hacer scroll. El hover es idéntico.</p><div id="g2" style="margin-top:20px"></div><div id="p2"></div></section>
+<section class="v w" id="e3"><p class="note"><b>E3 · List view modernizado.</b> Es la vista «List view»: miniatura del póster, fecha grande, tipo, título, lugar y botón. El <b>mismo barrido</b> de izquierda a derecha cruza toda la fila y el texto pasa a blanco.</p><div class="lst" id="g3" style="margin-top:20px"></div><div id="p3"></div></section>
+<script>/* kit */
+// Kit común de bocetos Norules: buscador real por página, pestañas, paginación y switch de variantes.
+const API = 'https://beta.gem2i.com/api/uploads/gem2i/legacy/';
+const CONTINENTS = ['All', 'USA', 'Europe', 'North America', 'South America', 'Africa', 'Oceania', 'Asia'];
+const PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+
+// fields: [label, kind, placeholder]  kind = text | country | state | date
+function searchBar(fields) {
+  const cols = fields.map(f => (f[1] === 'date' ? '1.1fr' : '1fr')).join(' ') + ' auto';
+  const f = fields.map(([l, k, p]) => {
+    if (k === 'country') return `<div class="f"><label>${l}</label><select><option>All countries</option><option>United States</option><option>Spain</option><option>Brazil</option></select></div>`;
+    if (k === 'state') return `<div class="f"><label>${l}</label><select disabled><option>All states</option></select></div>`;
+    if (k === 'date') return `<div class="f"><label>${l}</label><button class="dt" type="button">${CAL} Any date</button></div>`;
+    return `<div class="f"><label>${l}</label><input placeholder="${p || ''}" ${k === 'city' ? 'disabled' : ''}></div>`;
+  }).join('');
+  return `<form class="search" style="grid-template-columns:${cols}" onsubmit="return false">${f}<div class="go"><button class="s">Search</button><button class="r" type="reset">Reset</button></div></form>`;
+}
+const tabs = (list = CONTINENTS) => `<div class="tabs">${list.map((t, i) => `<button class="chip ${i ? '' : 'on'}">${t}</button>`).join('')}</div>`;
+const pager = () => `<div class="pager"><button>← Previous</button><button class="on">1</button><button>2</button><button>3</button><span>…</span><button>12</button><button>Next →</button></div>`;
+const seg = (a, b) => `<div class="seg"><button class="on">${a}</button><button>${b}</button></div>`;
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.switch button');
+  if (b) {
+    document.querySelectorAll('.v').forEach(x => x.classList.toggle('on', x.id === b.dataset.v));
+    document.querySelectorAll('.switch button').forEach(x => x.classList.toggle('on', x === b));
+    window.dispatchEvent(new Event('variant'));
+    return;
+  }
+  const c = e.target.closest('.chip, .seg button');
+  if (c) [...c.parentElement.children].forEach(x => x.classList.toggle('on', x === c));
+  const sel = e.target.closest('select');
+  if (sel) return;
+});
+document.addEventListener('change', e => {
+  if (e.target.matches('.search select:not([disabled])')) {
+    const st = e.target.closest('.search').querySelectorAll('select')[1];
+    const city = e.target.closest('.search').querySelector('input[disabled]');
+    if (st) { st.disabled = false; st.innerHTML = '<option>All states</option><option>Florida</option><option>New York</option>'; }
+    if (city) city.disabled = false;
+  }
+});
+</script>
+<script>
+document.getElementById('sb').innerHTML=searchBar([['Country','country'],['State','state'],['City','city','City'],['Event','text','by event name…'],['Dates','date']]);
+document.getElementById('sg1').innerHTML=seg('Current events','Past events');document.getElementById('sg2').innerHTML=seg('Event view','List view');
+['p1','p2','p3'].forEach(id=>document.getElementById(id).innerHTML=pager());
+const E=[['Deadmau5 cube v3','2026-11-07','1568415075.png','E-TICKET','Echostage','1702 Kendall St NE, Washington, United States','22:00'],['Nora En Pure','2026-11-14','1569001290.png','E-TICKET','Avant Gardner','140 Stewart Ave, New York, United States','22:00'],['Audien','2026-11-21','1568999844.png','GUEST LIST','Exchange LA','618 S Spring St, Los Angeles, United States','21:00'],['Elrow Art','2026-11-28','1568998950.png','E-TICKET','Avant Gardner','140 Stewart Ave, New York, United States','23:00'],['Loud Luxury','2026-12-05','1568670611.png','INFO','Green Valley','Camboriú, Santa Catarina, Brazil','22:00'],['Superflu & friends','2026-12-12','1555028828.png','GUEST LIST','Watergate','Falckensteinstr. 49, Berlin, Germany','23:59'],['Deadmau5 cube v3','2026-12-19','1568415075.png','E-TICKET','Echostage','1702 Kendall St NE, Washington, United States','22:00'],['Audien','2026-12-31','1568999844.png','E-TICKET','Exchange LA','618 S Spring St, Los Angeles, United States','21:00']];
+const M=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'],D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const dd=s=>new Date(s+'T12:00');const cls=t=>t==='GUEST LIST'?'gl':t==='INFO'?'inf':'';
+const cta=t=>t==='E-TICKET'?'Buy tickets':t==='GUEST LIST'?'Join guest list':'View details';
+const when=e=>{const d=dd(e[1]);return `${D[d.getDay()]}, ${M[d.getMonth()][0]+M[d.getMonth()].slice(1).toLowerCase()} ${d.getDate()}, 2026 · doors ${e[6]}`};
+const card=e=>{const d=dd(e[1]);return `<a class="gc ev" href="#"><img class="ph" src="${API}events_images/${e[2]}" alt="" loading="lazy"><span class="tag ${cls(e[3])}">${e[3]}</span><span class="stamp"><b>${d.getDate()}</b><small>${M[d.getMonth()]}</small></span>
+<span class="ginfo"><h3>${e[0].toUpperCase()}</h3><div class="ln">${CAL}${when(e)}</div><div class="ln">${PIN}${e[4]}, ${e[5]}</div><span class="det">${cta(e[3])} →</span></span></a>`};
+document.getElementById('g1').innerHTML=E.map(card).join('');
+const by={};E.forEach(e=>{const k=M[dd(e[1]).getMonth()];(by[k]=by[k]||[]).push(e)});
+document.getElementById('g2').innerHTML=Object.entries(by).map(([k,l])=>`<div class="mon"><div class="m">${k}<small>2026 · ${l.length} EVENTS</small></div><div class="g4">${l.map(card).join('')}</div></div>`).join('');
+document.getElementById('g3').innerHTML=E.map(e=>{const d=dd(e[1]);return `<a class="lr" href="#"><img src="${API}events_images/${e[2]}" alt=""><span class="d"><b>${d.getDate()}</b><small>${M[d.getMonth()]} · ${e[6]}</small></span><span><span class="t">${e[3]}</span><h3>${e[0]}</h3></span><span class="pl">${PIN}${e[4]}, ${e[5].split(', ').slice(-2).join(', ')}</span><span class="bt">${cta(e[3])} →</span></a>`}).join('');
+</script></body></html>

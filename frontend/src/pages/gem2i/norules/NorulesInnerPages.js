@@ -7,7 +7,7 @@ import { useT } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth';
 import { normalizeRichText } from '../../../lib/richText';
 import { gemImg } from '../../../components/gem2i/GemCatalogBits';
-import { PageHero, PageHead, CARD_CSS, ACCENT, LINK, BODY, CARD, LINE } from '../../../components/gem2i/norules/GemCatalogCards';
+import { PageHero, PageHead, usePageTone, CARD_CSS, ACCENT, LINK, BODY, CARD, LINE } from '../../../components/gem2i/norules/GemCatalogCards';
 
 /**
  * gem2i inner pages ported from the legacy PHP site (2026-10-19):
@@ -40,8 +40,9 @@ const Rich = ({ html, className = '' }) => (
 );
 
 function Shell({ page, testid, children }) {
+  const tone = usePageTone();
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid={testid}>
+    <div className={`min-h-screen pb-24 ${tone.className}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT, ...tone.style }} data-testid={testid}>
       <PageHero page={page} />
       {children}
       <style>{CARD_CSS}</style>
@@ -71,33 +72,66 @@ function MembersGate({ on, children }) {
 }
 
 // ── /travels ────────────────────────────────────────────────────────────────
-function TravelRow({ item, flip }) {
+/** T0 (boceto norules-travels-page.html): the legacy alternating photo/text rows as rounded cards.
+ *  Optional trip facts (CMS → Travels page items): status, nights, price_from, spots_total,
+ *  spots_taken, includes (list) — each shows only when filled. */
+const STATUS = {
+  open: { en: 'Open', es: 'Abierto' }, last: { en: 'Last spots', es: 'Últimas plazas' },
+  soon: { en: 'Coming soon', es: 'Próximamente' }, sold_out: { en: 'Sold out', es: 'Agotado' },
+};
+
+function TravelRow({ item, flip, index }) {
   const tt = useT();
   const [map, setMap] = useState(false);
   const img = gemImg(item.image);
   const hasMap = !!item.map_url;
+  const status = STATUS[item.status];
+  const spots = item.spots_total ? `${Number(item.spots_taken) || 0} / ${item.spots_total}` : '';
+  const facts = [
+    item.nights && [tt({ en: 'Nights', es: 'Noches' }), item.nights],
+    tt(item.price_from) && [tt({ en: 'From', es: 'Desde' }), tt(item.price_from)],
+    spots && [tt({ en: 'Spots', es: 'Plazas' }), spots],
+  ].filter(Boolean);
+  const includes = String(tt(item.includes) || '').split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   return (
-    <article className={`grid lg:grid-cols-[5fr_7fr] ${flip ? 'lg:[&>*:first-child]:order-2' : ''}`} data-testid="travel-row">
-      <div className="relative min-h-[320px] lg:min-h-[480px] overflow-hidden" style={{ backgroundColor: CARD }}>
-        {img && <img src={img} alt="" loading="lazy" className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${map ? 'opacity-0' : 'opacity-100'}`} />}
+    <article className="group grid lg:grid-cols-[5fr_6fr] rounded-[28px] overflow-hidden" style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }} data-testid="travel-row">
+      <div className={`relative min-h-[300px] lg:min-h-[460px] overflow-hidden isolate ${flip ? 'lg:order-2' : ''}`} style={{ backgroundColor: '#0E1216' }}>
+        {img && <img src={img} alt="" loading="lazy" className={`absolute inset-0 w-full h-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none ${map ? 'opacity-0' : 'opacity-100'}`} />}
         {hasMap && map && <iframe src={item.map_url} title={`${tt(item.title)} map`} className="absolute inset-0 w-full h-full border-0" loading="lazy" allowFullScreen />}
+        {status && !map && (
+          <span className="absolute left-4 top-4 z-[2] rounded-full px-3 py-1.5 text-[11px] font-extrabold tracking-[0.14em] uppercase"
+            style={{ backgroundColor: item.status === 'last' ? '#FFD34D' : '#fff', color: '#0E1216' }}>{tt(status)}</span>
+        )}
+        {!map && <span aria-hidden="true" className="absolute right-4 bottom-1 z-[2] font-extrabold leading-[.8] tracking-[-0.06em]" style={{ fontSize: 120, color: 'transparent', WebkitTextStroke: '1.5px rgba(255,255,255,.7)' }}>{String(index + 1).padStart(2, '0')}</span>}
       </div>
-      <div className="px-6 md:px-14 py-12 lg:py-16 flex flex-col justify-center" style={{ backgroundColor: flip ? 'var(--color-section-bg-alt, #0A121A)' : 'transparent' }}>
+      <div className="px-6 md:px-12 py-10 lg:py-12 flex flex-col justify-center">
         {tt(item.dates) && <p className="inline-flex items-center gap-2 text-[14px] font-semibold" style={{ color: LINK }}><CalendarDays className="w-4 h-4" aria-hidden="true" />{tt(item.dates)}</p>}
-        <h2 className="mt-3 text-white font-bold leading-[1.06]" style={{ fontFamily: SERIF, fontSize: 'clamp(2rem, 3.6vw, 3rem)' }}>{tt(item.title)}</h2>
-        <Rich html={tt(item.description)} className="mt-5" />
-        {tt(item.address) && <p className="mt-2 inline-flex items-start gap-2 text-[15px] text-white"><MapPin className="w-4 h-4 mt-1 shrink-0" style={{ color: LINK }} aria-hidden="true" />{tt(item.address)}</p>}
-        <div className="mt-7 flex flex-wrap gap-3">
-          {hasMap && (
-            <button type="button" onClick={() => setMap(m => !m)} aria-pressed={map}
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-medium text-white border border-white/30 transition-colors hover:bg-white/10">
-              {map ? <><Camera className="w-4 h-4" aria-hidden="true" />{tt({ en: 'View photo', es: 'Ver foto' })}</> : <><MapIcon className="w-4 h-4" aria-hidden="true" />{tt({ en: 'View map', es: 'Ver mapa' })}</>}
-            </button>
-          )}
+        <h2 className="mt-3 text-white font-bold leading-[1.04]" style={{ fontFamily: SERIF, fontSize: 'clamp(2rem, 3.4vw, 2.9rem)' }}>{tt(item.title)}</h2>
+        <Rich html={tt(item.description)} className="mt-4" />
+        {facts.length > 0 && (
+          <dl className="mt-1 mb-5 py-3.5 flex flex-wrap gap-x-8 gap-y-2 border-y" style={{ borderColor: LINE }}>
+            {facts.map(([k, v]) => (
+              <div key={k}><dt className="text-[10.5px] font-extrabold tracking-[0.16em] uppercase" style={{ color: BODY }}>{k}</dt><dd className="m-0 text-white text-[17px] font-bold">{v}</dd></div>
+            ))}
+          </dl>
+        )}
+        {includes.length > 0 && (
+          <div className="mb-5 flex flex-wrap gap-1.5">
+            {includes.map(x => <span key={x} className="rounded-full px-2.5 py-1 text-[12.5px] font-semibold text-white" style={{ border: `1px solid ${LINE}` }}>{x}</span>)}
+          </div>
+        )}
+        {tt(item.address) && <p className="inline-flex items-start gap-2 text-[15px]" style={{ color: BODY }}><MapPin className="w-4 h-4 mt-1 shrink-0" style={{ color: LINK }} aria-hidden="true" />{tt(item.address)}</p>}
+        <div className="mt-6 flex flex-wrap gap-3">
           {tt(item.cta_text) && item.cta_url && (
-            <a href={item.cta_url} className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold text-white transition-opacity hover:opacity-90" style={{ backgroundColor: ACCENT }}>
+            <a href={item.cta_url} className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-[15px] font-semibold text-white transition-transform active:scale-[0.97]" style={{ backgroundColor: ACCENT }}>
               {tt(item.cta_text)} <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </a>
+          )}
+          {hasMap && (
+            <button type="button" onClick={() => setMap(m => !m)} aria-pressed={map}
+              className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-[15px] font-semibold text-white transition-transform active:scale-[0.97]" style={{ border: `1px solid ${LINE}` }}>
+              {map ? <><Camera className="w-4 h-4" aria-hidden="true" />{tt({ en: 'View photo', es: 'Ver foto' })}</> : <><MapIcon className="w-4 h-4" aria-hidden="true" />{tt({ en: 'View map', es: 'Ver mapa' })}</>}
+            </button>
           )}
         </div>
       </div>
@@ -119,7 +153,7 @@ export function NorulesTravels() {
         <MembersGate on={cfg.members_only !== false}>
           {items.length === 0
             ? <p className="max-w-7xl mx-auto px-6 md:px-10 mt-12 text-[17px]" style={{ color: BODY }}>{tt({ en: 'New trips coming soon.', es: 'Pronto nuevos viajes.' })}</p>
-            : <div className="mt-12 border-t" style={{ borderColor: LINE }}>{items.map((it, i) => <TravelRow key={it.id || i} item={it} flip={i % 2 === 1} />)}</div>}
+            : <div className="max-w-7xl mx-auto px-6 md:px-10 mt-12 grid gap-6">{items.map((it, i) => <TravelRow key={it.id || i} item={it} index={i} flip={i % 2 === 1} />)}</div>}
         </MembersGate>
       )}
     </Shell>

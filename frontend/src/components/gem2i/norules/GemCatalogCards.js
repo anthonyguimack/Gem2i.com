@@ -8,6 +8,8 @@ import { useT } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth';
 import { slideForAudience, isLoggedInUser } from '../../../lib/heroAudience';
 import { GemHeroA, GemHeroB, GemHeroC } from '../GemHeroVariants';
+import { websitePaletteFor } from '../../../lib/themeColors';
+import { toneOf } from '../../../lib/gemLook';
 import AccentTitle from '../AccentTitle';
 import GemDateRange from '../GemDateRange';
 
@@ -19,6 +21,19 @@ import GemDateRange from '../GemDateRange';
  * segmented switches and the per-page CMS hero.
  */
 
+/** Page tone for Norules inner pages (D-GEM-2026-14): a light palette flips the page to dark text via
+ *  .gem-tone-light, as on the home; the palette's own text/card/link colours are re-applied so the
+ *  tone's generic values don't win. Spread onto the page root: <div className={tone.className} style={tone.style}>. */
+export function usePageTone() {
+  const settings = useSettings();
+  const pal = websitePaletteFor(settings.theme_colors, settings.active_theme);
+  if (toneOf(pal.page_bg) !== 'light') return { className: '', style: {} };
+  return {
+    className: 'gem-tone-light',
+    style: { '--gem-ink': '#1D2228', '--color-seg-on': '#2A3038', '--color-seg-on-text': '#fff', '--color-body-text': pal.body_text, '--color-card-bg': pal.card_bg, '--color-card-border': pal.card_border, '--color-link': pal.link_color },
+  };
+}
+
 export const ACCENT = 'var(--color-accent, #0068b3)';
 export const LINK = 'var(--color-link, #5AAFEA)';
 export const BODY = 'var(--color-body-text, #b4c0cb)';
@@ -26,7 +41,7 @@ export const CARD = 'var(--color-card-bg, #0D1721)';
 export const LINE = 'var(--color-card-border, rgba(255,255,255,0.09))';
 
 export const CARD_CSS = `
-.gcard{position:relative;display:block;overflow:hidden;isolation:isolate;background:${CARD};outline:none}
+.gcard{position:relative;display:block;overflow:hidden;isolation:isolate;background:#0E1216;border-radius:18px;outline:none}
 .gcard .gph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s ease-out}
 .gcard::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%);transform:scaleX(0);transform-origin:right center;transition:transform 1s cubic-bezier(.19,1,.22,1)}
 .gcard:hover::before,.gcard:focus-visible::before{transform:scaleX(1);transform-origin:left center}
@@ -94,8 +109,8 @@ export function SearchBar({ fields, values, onSearch, onReset }) {
   // A single picked day searches that day (from = to).
   const submit = (e) => { e.preventDefault(); onSearch(draft.date_from && !draft.date_to ? { ...draft, date_to: draft.date_from } : draft); };
   return (
-    <form onSubmit={submit} className="mt-8 grid gap-2.5 p-3 rounded-2xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(var(--n),minmax(0,1fr))_auto_auto] items-center"
-      style={{ '--n': fields.reduce((n, f) => n + (f.type === 'places' ? 3 : 1), 0), backgroundColor: 'var(--color-section-bg-alt, #0A121A)', border: `1px solid ${LINE}` }} data-testid="catalog-search">
+    <form onSubmit={submit} className="gem-tone-dark mt-8 grid gap-2.5 p-3 rounded-[20px] grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(var(--n),minmax(0,1fr))_auto_auto] items-center"
+      style={{ '--n': fields.reduce((n, f) => n + (f.type === 'places' ? 3 : 1), 0), backgroundColor: '#0E1216' }} data-testid="catalog-search">
       {fields.map(f => (f.type === 'places' ? (
         <PlaceSelects key="places" catalog={f.catalog} draft={draft} setDraft={setDraft} />
       ) : f.type === 'daterange' ? (
@@ -180,7 +195,7 @@ export function ContinentTabs({ value, onChange }) {
         return (
           <button key={o.v || 'all'} type="button" role="tab" aria-selected={on} onClick={() => onChange(o.v)}
             className="px-4 py-2 rounded-full text-sm transition-colors"
-            style={on ? { backgroundColor: ACCENT, color: '#fff', fontWeight: 600, border: `1px solid ${ACCENT}` } : { color: BODY, border: `1px solid ${LINE}` }}>
+            style={on ? { backgroundColor: 'var(--color-seg-on, ' + ACCENT + ')', color: '#fff', fontWeight: 600, border: '1px solid var(--color-seg-on, ' + ACCENT + ')' } : { color: BODY, border: `1px solid ${LINE}` }}>
             {o.l}
           </button>
         );
@@ -197,7 +212,7 @@ export function Segmented({ options, value, onChange, label }) {
       {options.map(o => (
         <button key={o.value} type="button" aria-pressed={value === o.value} onClick={() => onChange(o.value)}
           className="px-4 py-2 rounded-full text-sm transition-colors"
-          style={value === o.value ? { backgroundColor: '#fff', color: '#04080C', fontWeight: 700 } : { color: BODY }}>
+          style={value === o.value ? { backgroundColor: 'var(--color-seg-on, #fff)', color: 'var(--color-seg-on-text, #04080C)', fontWeight: 700 } : { color: BODY }}>
           {o.label}
         </button>
       ))}
@@ -213,7 +228,7 @@ export function NumChip({ n }) {
 export function LogoBadge({ src, size = 84 }) {
   if (!src) return null;
   return (
-    <span className="glogo absolute right-3.5 top-3.5 z-[3] rounded-full overflow-hidden bg-white flex items-center justify-center p-3 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]" style={{ width: size, height: size }}>
+    <span className="glogo absolute right-3.5 top-3.5 z-[3] rounded-full overflow-hidden flex items-center justify-center p-3 border border-white/20 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]" style={{ width: size, height: size, backgroundColor: '#14181D' }}>
       <img src={src} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
     </span>
   );
@@ -237,7 +252,7 @@ export function HoverCard({ to, img, imgStyle, aspect = 'aspect-[4/3]', classNam
           </span>
         )}
         {extra}
-        <span className="mt-3 self-start inline-flex items-center gap-2 border border-white/80 px-3.5 py-1.5 text-[14px] font-medium text-white">
+        <span className="mt-3 self-start inline-flex items-center gap-2 rounded-lg border border-white/80 px-3.5 py-1.5 text-[14px] font-medium text-white">
           {cta || tt({ en: 'View details', es: 'Ver detalles' })} <ArrowRight className="w-4 h-4" aria-hidden="true" />
         </span>
       </span>
