@@ -6,7 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Loader2, ArrowRight, X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
+import { NBtn } from './norules/NBtn';
 import { toast } from 'sonner';
 import { useT, useLang } from '../../lib/i18n';
 import { contactAPI, publicAPI } from '../../lib/api';
@@ -264,10 +265,9 @@ export function GemContactEditorial({ settings = {} }) {
               </div>
               <div className="flex justify-between mt-6">
                 <button type="button" onClick={() => setStep(Math.max(0, step - 1))} disabled={!step} className="w-11 h-11 rounded-full text-white disabled:opacity-30" style={{ border: `1px solid ${BORDER}` }} aria-label={tt({ en: 'Back', es: 'Atrás' })}>←</button>
-                <button type="submit" disabled={sending} className="gem-press inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-bold text-white disabled:opacity-50" style={{ backgroundColor: ACCENT, boxShadow: '0 0 0 1px rgba(255,255,255,.28)' }} data-testid="gem2i-contact-submit">
-                  {sending && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {step < steps.length - 1 ? tt({ en: 'Next', es: 'Siguiente' }) : (tt(cs.submit_text) || tt({ en: 'Send', es: 'Enviar' }))} {!sending && <ArrowRight className="w-4 h-4" />}
-                </button>
+                <NBtn type="submit" loading={sending} variant="a" data-testid="gem2i-contact-submit">
+                  {step < steps.length - 1 ? tt({ en: 'Next', es: 'Siguiente' }) : (tt(cs.submit_text) || tt({ en: 'Send', es: 'Enviar' }))}
+                </NBtn>
               </div>
             </>
           )}

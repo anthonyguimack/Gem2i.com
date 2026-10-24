@@ -1,32 +1,41 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin, CalendarDays, ExternalLink } from 'lucide-react';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
-import { normalizeRichText } from '../../../lib/richText';
-import {
-  gemImg, CardImage, FollowButton, SocialLinks, SkeletonGrid, TypeBadge, ArtistCard,
-} from '../../../components/gem2i/GemCatalogBits';
+import { gemImg, FollowButton, SkeletonGrid } from '../../../components/gem2i/GemCatalogBits';
 import GemGuestListWidget from '../../../components/gem2i/GemGuestListWidget';
 import GemTicketWidget from '../../../components/gem2i/GemTicketWidget';
+import AccentTitle from '../../../components/gem2i/AccentTitle';
+import { NBtn } from '../../../components/gem2i/norules/NBtn';
+import { LogoDisc, useFmtDate, place, ACCENT, BODY, LINE, CARD } from '../../../components/gem2i/norules/GemCatalogCards';
+import {
+  DetailShell, Crumb, Section, TextAndVideo, MapEmbed, EventPosterCard, ArtistHoverCard, typeLabel, SERIF, MapPin,
+} from '../../../components/gem2i/norules/NorulesDetailBits';
 import { NotFoundShell } from './NorulesArtistDetail';
 
-const GEM_FONT = "'Manrope', sans-serif";
+const hhmm = (t) => (/T\d\d:\d\d/.test(t || '') ? t.slice(11, 16) : '');
 
-/** Event detail (plan A4) — description, socials, line-up, venue block, follow.
- *  Purchase / guest-list widgets arrive in Phases 4-5. */
+/** Event detail — boceto norules-detail-pages.html (Event): sticky poster, date/venue block, tickets or
+ *  guest list (legacy widgets), about, DJ line-up (A1 cards), the venue with its map, more at this venue (E1). */
 export default function NorulesEventDetail() {
   const { slug } = useParams();
   const tt = useT();
+  const fmt = useFmtDate();
   const [event, setEvent] = useState(null);
   const [missing, setMissing] = useState(false);
+  const [more, setMore] = useState([]);
 
   useEffect(() => {
     let alive = true;
-    setEvent(null); setMissing(false);
+    setEvent(null); setMissing(false); setMore([]);
     gemAPI.eventDetail(slug)
-      .then(r => { if (alive) setEvent(r.data); })
+      .then(r => {
+        if (!alive) return;
+        setEvent(r.data);
+        const vs = r.data?.venue?.slug;
+        if (vs) gemAPI.venueDetail(vs).then(v => { if (alive) setMore((v.data?.upcoming_events || []).filter(e => e.slug !== slug).slice(0, 4)); }).catch(() => {});
+      })
       .catch(() => { if (alive) setMissing(true); });
     return () => { alive = false; };
   }, [slug]);
@@ -39,84 +48,92 @@ export default function NorulesEventDetail() {
     );
   }
   if (!event) {
-    return (
-      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }}>
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-24"><SkeletonGrid count={4} /></div>
-      </div>
-    );
+    return <DetailShell><div className="py-24"><SkeletonGrid count={4} /></div></DetailShell>;
   }
 
   const v = event.venue;
+  const d = event.event_date ? new Date(`${event.event_date.slice(0, 10)}T12:00:00`) : null;
+  const label = typeLabel(event.type);
+  const times = [hhmm(event.open_time) && `${tt({ en: 'Doors', es: 'Apertura' })} ${hhmm(event.open_time)}`,
+    hhmm(event.end_time) && `${tt({ en: 'Ends', es: 'Cierre' })} ${hhmm(event.end_time)}`].filter(Boolean).join(' · ');
+  const venueWhere = v && place(v.address, v.city || v.state, v.country);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-event-detail">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 pt-10 pb-24">
-        <Link to="/events" className="inline-flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-          style={{ color: 'var(--color-link, #5FB2E0)' }}>
-          <ArrowLeft className="w-4 h-4" /> {tt({ en: 'Events', es: 'Eventos' })}
-        </Link>
+    <DetailShell testid="gem2i-event-detail">
+      <Crumb items={[[tt({ en: 'Events', es: 'Eventos' }), '/events'], [event.title]]} />
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,460px)_1fr] gap-10 lg:gap-14">
-          <div className="group">
-            <CardImage src={gemImg(event.image_urls?.flyer) || gemImg(event.image_urls?.logo)} alt={event.title} aspect="aspect-square" />
-          </div>
-
-          <div>
-            <div className="flex items-center gap-3"><TypeBadge type={event.type} /></div>
-            <h1 className="mt-2 text-white font-bold leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>{event.title}</h1>
-
-            {event.event_date && (
-              <p className="mt-3 inline-flex items-center gap-1.5 text-sm" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-                <CalendarDays className="w-4 h-4 shrink-0" />
-                {event.event_date}
-                {event.open_time && ` · ${String(event.open_time).slice(11, 16)}`}
-              </p>
-            )}
-            {v && (
-              <p className="mt-2 flex items-start gap-1.5 text-sm" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-                <Link to={`/venues/${v.slug}`} className="transition-colors hover:text-white underline-offset-2 hover:underline">
-                  {v.name}
-                </Link>
-                {[v.city, v.country].filter(Boolean).length > 0 && <span>· {[v.city, v.country].filter(Boolean).join(', ')}</span>}
-              </p>
-            )}
-
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <FollowButton kind="event" targetId={event.id} />
-              {event.external_ticket_system && (
-                <a href={event.external_ticket_system} target="_blank" rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-sm transition-opacity hover:opacity-85"
-                  style={{ backgroundColor: 'var(--color-button-bg, #3287B7)', color: 'var(--color-button-text, #fff)' }}>
-                  {tt({ en: 'Tickets', es: 'Tickets' })} <ExternalLink className="w-4 h-4" />
-                </a>
-              )}
-            </div>
-
-            <GemGuestListWidget event={event} />
-            <GemTicketWidget event={event} />
-
-            {event.description && (
-              <div className="mt-10 max-w-none text-[15px] leading-[1.9]"
-                style={{ color: 'var(--color-body-text, #9AA6B2)' }}
-                dangerouslySetInnerHTML={{ __html: normalizeRichText(event.description) }} />
-            )}
-
-            <div className="mt-10"><SocialLinks socials={event.socials} /></div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-12 items-start">
+        <div className="relative lg:sticky lg:top-24 rounded-3xl overflow-hidden aspect-[3/4] max-w-[460px] shadow-[0_30px_60px_-30px_rgba(0,0,0,.45)]" style={{ backgroundColor: CARD }}>
+          {(event.image_urls?.flyer || event.image_urls?.logo) && <img src={gemImg(event.image_urls?.flyer) || gemImg(event.image_urls?.logo)} alt={event.title} className="w-full h-full object-cover" />}
+          {label && <span className="absolute left-4 top-4 px-3 py-1.5 text-[11px] font-bold tracking-[0.16em] uppercase text-white rounded-md" style={{ backgroundColor: event.type === 'guest_list' ? '#1f8f55' : ACCENT }}>{label}</span>}
         </div>
 
-        {Array.isArray(event.lineup_artists) && event.lineup_artists.length > 0 && (
-          <section className="mt-20" data-testid="event-lineup">
-            <h2 className="text-white font-bold mb-8" style={{ fontSize: 'clamp(1.4rem, 2.6vw, 2rem)' }}>
-              {tt({ en: 'DJ Line-up', es: 'Line-up de DJs' })}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {event.lineup_artists.map(a => <ArtistCard key={a.id} artist={a} />)}
-            </div>
-          </section>
-        )}
+        <div>
+          <h1 className="text-white font-bold leading-[.98] tracking-[-0.01em]" style={{ fontFamily: SERIF, fontSize: 'clamp(2.4rem, 5vw, 4.2rem)' }}>
+            <AccentTitle text={event.title} />
+          </h1>
+
+          <div className="mt-6 py-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-4 items-center border-y" style={{ borderColor: LINE }}>
+            {d && !Number.isNaN(d.getTime()) && <>
+              <span className="w-[78px] rounded-2xl overflow-hidden text-center" style={{ border: `1px solid ${LINE}` }}>
+                <small className="block py-1 text-[11px] font-extrabold tracking-[0.2em] text-white" style={{ backgroundColor: '#2A3038' }}>{d.toLocaleString('en', { month: 'short' }).toUpperCase()}</small>
+                <b className="block text-[34px] font-extrabold leading-[1.25] text-white">{d.getDate()}</b>
+              </span>
+              <span className="text-[15px] leading-[1.7]" style={{ color: BODY }}>
+                <b className="block text-white text-[17px]">{fmt(event.event_date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</b>{times}
+              </span>
+            </>}
+            {v && <>
+              <span className="w-[78px] flex justify-center"><MapPin className="w-7 h-7" style={{ color: 'var(--color-link, #5AAFEA)' }} aria-hidden="true" /></span>
+              <span className="text-[15px] leading-[1.7]" style={{ color: BODY }}>
+                <span className="block"><Link to={`/venues/${v.slug}`} className="nl text-[17px]">{v.name}</Link></span>{venueWhere}
+              </span>
+            </>}
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <FollowButton kind="event" targetId={event.id} className="nb-follow" />
+            {event.external_ticket_system && (
+              <NBtn href={event.external_ticket_system} variant="a" icon="ext">{tt({ en: 'Get tickets', es: 'Comprar entradas' })}</NBtn>
+            )}
+          </div>
+
+          <div className="mt-2"><GemTicketWidget event={event} /></div>
+          <GemGuestListWidget event={event} />
+        </div>
       </div>
-    </div>
+
+      <div className="mt-12">
+        <TextAndVideo title={tt({ en: 'About the night', es: 'Sobre la noche' })} html={event.description} video={event.video} socials={event.socials} lead={event.summary} />
+      </div>
+
+      {event.lineup_artists?.length > 0 && (
+        <Section title={tt({ en: 'DJ line-up', es: 'Line-up de DJs' })} testid="event-lineup">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {event.lineup_artists.map(a => <ArtistHoverCard key={a.id} a={a} />)}
+          </div>
+        </Section>
+      )}
+
+      {v && (
+        <Section title={tt({ en: 'The venue', es: 'El venue' })}>
+          <div className={`grid rounded-3xl overflow-hidden ${v.map ? 'lg:grid-cols-[1fr_1.2fr]' : ''}`} style={{ border: `1px solid ${LINE}` }}>
+            <div className="p-7 flex flex-col gap-3">
+              {v.image_urls?.logo && <LogoDisc src={gemImg(v.image_urls.logo)} size={64} />}
+              <b className="text-white text-[28px] leading-tight" style={{ fontFamily: SERIF }}>{v.name}</b>
+              <span className="text-[15px]" style={{ color: BODY }}>{[venueWhere, v.type, v.capacity && `${tt({ en: 'capacity', es: 'aforo' })} ${Number(v.capacity).toLocaleString()}`].filter(Boolean).join(' · ')}</span>
+              <NBtn to={`/venues/${v.slug}`} variant="s" className="mt-1 self-start">{tt({ en: 'View venue', es: 'Ver venue' })}</NBtn>
+            </div>
+            {v.map && <MapEmbed src={v.map} title={v.name} />}
+          </div>
+        </Section>
+      )}
+
+      {more.length > 0 && (
+        <Section title={tt({ en: 'More at this venue', es: 'Más en este venue' })}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{more.map(e => <EventPosterCard key={e.id} e={e} />)}</div>
+        </Section>
+      )}
+    </DetailShell>
   );
 }

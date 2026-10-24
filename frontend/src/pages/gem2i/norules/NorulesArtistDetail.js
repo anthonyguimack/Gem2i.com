@@ -1,25 +1,35 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MapPin } from 'lucide-react';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
-import { normalizeRichText } from '../../../lib/richText';
-import { gemImg, CardImage, FollowButton, SocialLinks, SkeletonGrid } from '../../../components/gem2i/GemCatalogBits';
+import { gemImg, FollowButton, SkeletonGrid } from '../../../components/gem2i/GemCatalogBits';
+import { place } from '../../../components/gem2i/norules/GemCatalogCards';
+import { NBtn } from '../../../components/gem2i/norules/NBtn';
+import {
+  DetailShell, Crumb, Section, TextAndVideo, PhotoHero, HeroChip, EventPosterCard, ArtistHoverCard, GEM_FONT,
+} from '../../../components/gem2i/norules/NorulesDetailBits';
 
-const GEM_FONT = "'Manrope', sans-serif";
-
+/** Artist detail — boceto norules-detail-pages.html (Artist): B/W hero with the giant name, place,
+ *  genres and ranking positions; bio + video; upcoming events (E1, from the line-ups); similar artists (A1). */
 export default function NorulesArtistDetail() {
   const { slug } = useParams();
   const tt = useT();
   const [artist, setArtist] = useState(null);
   const [missing, setMissing] = useState(false);
+  const [similar, setSimilar] = useState([]);
 
   useEffect(() => {
     let alive = true;
-    setArtist(null); setMissing(false);
+    setArtist(null); setMissing(false); setSimilar([]);
     gemAPI.artistDetail(slug)
-      .then(r => { if (alive) setArtist(r.data); })
+      .then(r => {
+        if (!alive) return;
+        setArtist(r.data);
+        const genre = r.data?.genres?.[0];
+        if (genre) gemAPI.artists({ genre, limit: 9 }).then(s => { if (alive) setSimilar((s.data?.items || []).filter(a => a.slug !== slug).slice(0, 4)); }).catch(() => {});
+      })
       .catch(() => { if (alive) setMissing(true); });
     return () => { alive = false; };
   }, [slug]);
@@ -32,71 +42,62 @@ export default function NorulesArtistDetail() {
     );
   }
   if (!artist) {
-    return (
-      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }}>
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-24"><SkeletonGrid count={4} /></div>
-      </div>
-    );
+    return <DetailShell><div className="py-24"><SkeletonGrid count={4} /></div></DetailShell>;
   }
 
-  const rankBadges = [
-    artist.rosters?.gem_rank != null && { label: 'GEM', rank: artist.rosters.gem_rank },
-    artist.rosters?.djmag_rank != null && { label: 'DJ MAG', rank: artist.rosters.djmag_rank },
-    artist.rosters?.resident_rank != null && { label: tt({ en: 'RESIDENT', es: 'RESIDENTE' }), rank: artist.rosters.resident_rank },
-  ].filter(Boolean);
+  const ranks = [
+    ['GEM2i', artist.rosters?.gem_rank], ['DJ Mag', artist.rosters?.djmag_rank], ['RA', artist.rosters?.resident_rank],
+  ].filter(([, n]) => n != null);
+  const where = place(artist.city || artist.state, artist.country);
+  const listen = artist.socials?.soundcloud || artist.socials?.spotify || artist.socials?.youtube;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-artist-detail">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 pt-10 pb-24">
-        <Link to="/artists" className="inline-flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-          style={{ color: 'var(--color-link, #5FB2E0)' }}>
-          <ArrowLeft className="w-4 h-4" /> {tt({ en: 'Artists', es: 'Artistas' })}
-        </Link>
+    <DetailShell testid="gem2i-artist-detail">
+      <Crumb items={[[tt({ en: 'Artists', es: 'Artistas' }), '/artists'], [artist.name]]} />
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_1fr] gap-10 lg:gap-14">
-          <div className="group">
-            <CardImage src={gemImg(artist.image_urls?.big) || gemImg(artist.image_urls?.detail)} alt={artist.name} aspect="aspect-[3/4]" />
-          </div>
-
+      <PhotoHero img={gemImg(artist.image_urls?.big) || gemImg(artist.image_urls?.detail)} grayscale side>
+        <div className="grid gap-8 lg:grid-cols-[1fr_auto] items-end">
           <div>
-            <h1 className="text-white font-bold leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>{artist.name}</h1>
-            {artist.full_name && artist.full_name !== artist.name && (
-              <p className="mt-1 text-sm" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{artist.full_name}</p>
-            )}
-            <p className="mt-2 text-sm" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-              {[artist.city, artist.country].filter(Boolean).join(', ')}
-            </p>
-
-            {rankBadges.length > 0 && (
-              <div className="mt-5 flex flex-wrap gap-2">
-                {rankBadges.map((b, i) => (
-                  <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-sm tabular-nums"
-                    style={{ backgroundColor: 'rgba(50,135,183,0.18)', color: 'var(--color-link, #5FB2E0)' }}>
-                    {b.label} #{b.rank}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {Array.isArray(artist.genres) && artist.genres.length > 0 && (
-              <p className="mt-4 text-[15px]" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-                {artist.genres.join(' / ')}
-              </p>
-            )}
-
-            <div className="mt-7"><FollowButton kind="artist" targetId={artist.id} /></div>
-
-            {artist.bio && (
-              <div className="mt-10 prose-invert max-w-none text-[15px] leading-[1.9]"
-                style={{ color: 'var(--color-body-text, #9AA6B2)' }}
-                dangerouslySetInnerHTML={{ __html: normalizeRichText(artist.bio) }} />
-            )}
-
-            <div className="mt-10"><SocialLinks socials={artist.socials} /></div>
+            <HeroChip icon={MapPin}>{where}</HeroChip>
+            {(artist.genres || []).slice(0, 4).map(g => <HeroChip key={g}>{g}</HeroChip>)}
+            <h1 className="mt-3 mb-5 font-extrabold leading-[.85] tracking-[-0.06em] text-white break-words" style={{ fontSize: 'clamp(3.2rem, 10vw, 8.5rem)' }}>{artist.name}</h1>
+            {artist.full_name && artist.full_name !== artist.name && <p className="-mt-2 mb-5 text-white/75">{artist.full_name}</p>}
+            <div className="flex flex-wrap gap-3">
+              <FollowButton kind="artist" targetId={artist.id} className="nb-follow nb-follow-g" />
+              {listen && (
+                <NBtn href={listen} variant="g" icon="ext">{tt({ en: 'Listen', es: 'Escuchar' })}</NBtn>
+              )}
+            </div>
           </div>
+          {ranks.length > 0 && (
+            <div className="flex gap-2.5" data-testid="artist-ranks">
+              {ranks.map(([l, n]) => (
+                <span key={l} className="min-w-[92px] rounded-2xl px-4 py-3 text-center backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,.12)' }}>
+                  <b className="block text-[30px] font-extrabold leading-none">#{n}</b>
+                  <small className="text-[10.5px] font-extrabold tracking-[0.16em] opacity-75 uppercase">{l}</small>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
+      </PhotoHero>
+
+      <div className="mt-6">
+        <TextAndVideo title={tt({ en: 'The artist', es: 'El artista' })} html={artist.bio || artist.summary} lead={artist.bio ? artist.summary : ''} video={artist.video} socials={artist.socials} />
       </div>
-    </div>
+
+      {artist.upcoming_events?.length > 0 && (
+        <Section title={tt({ en: 'Upcoming events', es: 'Próximos eventos' })} testid="artist-upcoming-events">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{artist.upcoming_events.map(e => <EventPosterCard key={e.id} e={e} />)}</div>
+        </Section>
+      )}
+
+      {similar.length > 0 && (
+        <Section title={tt({ en: 'Similar artists', es: 'Artistas similares' })}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">{similar.map(a => <ArtistHoverCard key={a.id} a={a} />)}</div>
+        </Section>
+      )}
+    </DetailShell>
   );
 }
 
@@ -104,9 +105,8 @@ export function NotFoundShell({ children, backTo, backLabel }) {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }}>
       <div className="text-center px-6">
-        <p className="text-white/85 text-lg mb-5">{children}</p>
-        <Link to={backTo} className="inline-flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-          style={{ color: 'var(--color-link, #5FB2E0)' }}>
+        <p className="text-lg mb-5" style={{ color: 'var(--gem-ink, rgba(255,255,255,.85))' }}>{children}</p>
+        <Link to={backTo} className="nl inline-flex items-center gap-1.5 text-sm">
           <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
       </div>

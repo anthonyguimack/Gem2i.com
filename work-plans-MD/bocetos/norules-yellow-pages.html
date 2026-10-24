@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Services, Partners, Ticket</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>/* kit */
+/* Kit común de bocetos Norules (paleta Grises). Buscador, pestañas, paginación y la card con el hover
+   ACTUAL del cliente (.gc): velo que barre izq→der 1s cubic-bezier(.19,1,.22,1), zoom de foto,
+   info que sube, logo gris→color, franja inferior que se oculta. */
+:root{--bg:#fff;--alt:#f3f4f5;--ink:#1d2228;--body:#5b636c;--line:#e3e5e8;--dark:#2a3038;--night:#0e1216;--acc:#0068b3;--link:#5aafea;--ease:cubic-bezier(.19,1,.22,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+.switch{position:sticky;top:0;z-index:1000;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.switch button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1280px;margin:0 auto;padding:0 24px}
+.note{color:var(--body);font-size:14px;line-height:1.7;padding:28px 0 4px;max-width:86ch}.note b{color:var(--ink)}
+.note.fix{background:#fff7e6;border:1px solid #f3d9a4;border-radius:14px;padding:14px 18px;margin-top:20px}
+.eb{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;margin:44px 0 12px}
+.eb:before{content:"";width:28px;height:1px;background:currentColor}
+.h{font:700 clamp(2rem,3.8vw,3.2rem)/1.06 'Playfair Display',serif;margin:0 0 26px;color:var(--ink)}.h i{color:var(--acc)}
+.sub{color:var(--body);margin:-14px 0 26px;font-size:16px}
+/* segmentados */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:4px;gap:2px;background:#fff}
+.seg button{font:600 14px Manrope;border:0;background:transparent;border-radius:99px;padding:8px 14px;color:var(--body);cursor:pointer}
+.seg button.on{background:var(--dark);color:#fff}
+.row-sb{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+/* buscador (campos reales de cada página) */
+.search{display:grid;gap:8px;padding:8px;border-radius:20px;background:var(--night);margin-bottom:16px}
+.search .f{position:relative}
+.search label{position:absolute;left:14px;top:7px;font-size:10px;font-weight:800;letter-spacing:.16em;color:#8a949e;text-transform:uppercase;pointer-events:none}
+.search input,.search select,.search .dt{width:100%;height:52px;border:1px solid #2a3139;border-radius:14px;background:#171c22;color:#fff;font:600 14.5px Manrope;padding:20px 14px 6px;outline:none;appearance:none}
+.search input::placeholder{color:#6f7a85}
+.search input:focus,.search select:focus{border-color:var(--link)}
+.search select:disabled,.search input:disabled{opacity:.45;cursor:not-allowed}
+.search .dt{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}
+.search .go{display:flex;gap:8px}
+.search .go button{height:52px;border-radius:14px;font:700 14.5px Manrope;padding:0 20px;cursor:pointer;border:1px solid #2a3139}
+.search .go .s{background:#fff;color:var(--night);border-color:#fff}.search .go .r{background:transparent;color:#fff}
+/* pestañas de continente */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;overflow-x:auto}
+.chip{font:700 13px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 15px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* paginación */
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin:30px 0 80px}
+.pager button{min-width:42px;height:42px;border-radius:99px;border:1px solid var(--line);background:#fff;font:700 14px Manrope;cursor:pointer;padding:0 14px}
+.pager button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* ===== card con el hover actual ===== */
+.gc{position:relative;display:block;overflow:hidden;isolation:isolate;background:#1a1f25;color:#fff;text-decoration:none;outline:none}
+.gc .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s ease-out}
+.gc:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%);transform:scaleX(0);transform-origin:right center;transition:transform 1s var(--ease)}
+.gc:hover:before,.gc:focus-visible:before{transform:scaleX(1);transform-origin:left center}
+.gc:hover .ph,.gc:focus-visible .ph{transform:scale(1.05)}
+.gc .glogo{position:absolute;right:14px;top:14px;z-index:3;width:62px;height:62px;border-radius:50%;background:#14181d;border:1px solid rgba(255,255,255,.18);overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.gc .glogo img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;filter:grayscale(1);opacity:.85;transition:filter .3s,opacity .3s}
+.gc:hover .glogo img,.gc:focus-visible .glogo img{filter:none;opacity:1}
+.gc .ginfo{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px;opacity:0;transform:translateY(18px);transition:opacity .5s,transform 1.2s var(--ease)}
+.gc:hover .ginfo,.gc:focus-visible .ginfo{opacity:1;transform:none}
+.gc .gstrip{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px;background:linear-gradient(transparent,rgba(0,0,0,.72));font-weight:700;transition:opacity .3s}
+.gc:hover .gstrip,.gc:focus-visible .gstrip{opacity:0}
+.gc .num{position:absolute;left:14px;top:14px;z-index:3;min-width:30px;height:30px;display:grid;place-items:center;background:rgba(14,18,22,.85);font-weight:800;font-size:13px;border-radius:6px}
+.gc .tag{position:absolute;left:14px;top:14px;z-index:3;font-size:11px;font-weight:800;letter-spacing:.16em;background:rgba(14,18,22,.85);padding:7px 10px;border-radius:6px}
+.gc h3{font:700 24px/1.08 'Playfair Display';margin:0 0 8px}
+.gc .ln{display:flex;gap:7px;align-items:flex-start;font-size:13.5px;opacity:.88;margin-top:4px}
+.gc .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.gc .chips span{font-size:11.5px;font-weight:700;background:rgba(255,255,255,.14);padding:4px 9px;border-radius:99px}
+.gc .det{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font-weight:700;font-size:13.5px;border:1px solid rgba(255,255,255,.5);padding:8px 14px;border-radius:8px}
+.gc:focus-visible{box-shadow:inset 0 0 0 3px var(--link)}
+@media (hover:none){.gc:before{transform:scaleX(1)}.gc .ginfo{opacity:1;transform:none}.gc .gstrip{opacity:0}.gc .glogo img{filter:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gc:before,.gc .ph,.gc .ginfo,.gc .glogo img{transition:none}}
+@media (max-width:900px){.search{grid-template-columns:1fr 1fr!important}.search .go{grid-column:1/-1}.search .go button{flex:1}}
+@media (max-width:520px){.search{grid-template-columns:1fr!important}}
+</style>
+<style>
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:12px 20px;font:700 14.5px Manrope;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--ink);transition:transform .16s ease-out}
+.btn:active{transform:scale(.97)}.btn.p{background:var(--dark);color:#fff;border-color:var(--dark)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* services S1 */
+.sv{aspect-ratio:1;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px}
+.sv .ph{filter:grayscale(1)}.sv .veil{position:absolute;inset:0;z-index:1;background:rgba(40,46,54,.62)}.sv:before{background:var(--night)}
+.sv .ic{position:relative;z-index:2;width:72px;height:72px;object-fit:contain;filter:brightness(0) invert(1);transition:transform .8s var(--ease)}
+.sv:hover .ic{transform:translateY(-10px) scale(.9)}
+.sv h3{position:relative;z-index:2;font:700 17px/1.3 Manrope;margin:16px 0 0;max-width:22ch}
+.sv .vw{position:relative;z-index:2;margin-top:10px;font-weight:700;font-size:13.5px;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .8s var(--ease)}.sv:hover .vw{opacity:1;transform:none}
+.drawer{position:fixed;inset:0;z-index:2000;display:none}.drawer.on{display:block}
+.drawer .bg{position:absolute;inset:0;background:rgba(8,10,12,.6)}
+.drawer .pn{position:absolute;right:0;top:0;bottom:0;width:min(520px,100%);background:#fff;overflow:auto;animation:sl .5s var(--ease)}
+@keyframes sl{from{transform:translateX(100%)}}
+.drawer img.hd{width:100%;aspect-ratio:16/10;object-fit:cover}.drawer .in{padding:28px}
+.drawer h3{font:700 30px/1.1 'Playfair Display';margin:10px 0 12px}.drawer p{color:var(--body);line-height:1.8}
+.drawer ul{padding-left:18px;color:var(--body);line-height:1.9}
+/* S2 */
+.ix{display:grid;grid-template-columns:1fr 1.1fr;gap:28px;align-items:start}
+.ix ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.ix li{position:relative;isolation:isolate;display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;padding:16px 12px;border-bottom:1px solid var(--line);cursor:pointer;transition:color .4s}
+.ix li:before{content:"";position:absolute;inset:0;z-index:-1;background:var(--night);transform:scaleX(0);transform-origin:right;transition:transform 1s var(--ease)}
+.ix li:hover:before,.ix li.on:before{transform:scaleX(1);transform-origin:left}.ix li:hover,.ix li.on{color:#fff}
+.ix li img{width:40px;height:40px;object-fit:contain;filter:brightness(0);transition:filter .4s}.ix li:hover img,.ix li.on img{filter:brightness(0) invert(1)}
+.pn2{position:sticky;top:76px;border-radius:24px;overflow:hidden;aspect-ratio:4/4.4;color:#fff}
+.pn2 img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.pn2:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 25%,rgba(10,12,15,.92))}
+.pn2 .in{position:absolute;left:28px;right:28px;bottom:28px;z-index:1}.pn2 .in img{width:56px;filter:brightness(0) invert(1)}
+.pn2 h3{font:700 32px/1.1 'Playfair Display';margin:14px 0 10px}.pn2 p{opacity:.85;line-height:1.7;margin:0 0 16px}
+.works{background:var(--night);color:#fff;padding:20px 0 70px;margin-top:70px}.works .h{color:#fff}.works .eb{color:#9aa6b2}
+.wk{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.wk .gc{aspect-ratio:4/3;border-radius:18px}
+/* partners */
+.wall{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);margin-bottom:40px}
+.cell{position:relative;aspect-ratio:4/3;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;place-items:center;text-decoration:none;color:#fff;overflow:hidden;isolation:isolate}
+.cell:before{content:"";position:absolute;inset:0;z-index:-1;background:var(--night);transform:scaleX(0);transform-origin:right;transition:transform 1s var(--ease)}
+.cell:hover:before{transform:scaleX(1);transform-origin:left}
+.cell img{max-width:56%;max-height:44%;object-fit:contain;filter:brightness(0);opacity:.55;transition:filter .4s,opacity .4s,transform .8s var(--ease)}
+.cell:hover img{filter:none;opacity:1;transform:translateY(-12px)}
+.cell .nm{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:13.5px;font-weight:700;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .8s var(--ease)}
+.cell:hover .nm{opacity:1;transform:none}.cell .nm small{display:block;font-weight:600;opacity:.65;font-size:12px}
+.lead{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.lp{border-radius:24px;background:var(--night);color:#fff;padding:28px;display:flex;flex-direction:column;gap:14px;min-height:260px;text-decoration:none;transition:transform .5s var(--ease)}
+.lp:hover{transform:translateY(-6px)}.lp .lg{height:64px;display:flex;align-items:center}.lp .lg img{max-height:64px;max-width:70%}
+.lp b{font:700 24px 'Playfair Display'}.lp p{margin:0;color:#aab3bd;line-height:1.7;font-size:14.5px}.lp span{margin-top:auto;font-weight:700;font-size:14px}
+.become{display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:center;border-radius:28px;padding:44px;background:var(--acc);color:#fff;margin:30px 0 80px}
+.become h3{font:700 clamp(1.8rem,3.4vw,2.8rem)/1.05 'Playfair Display';margin:0 0 10px}.become p{margin:0;opacity:.9;line-height:1.7}
+.become ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}.become li{background:rgba(255,255,255,.14);border-radius:14px;padding:12px 16px;font-weight:600}
+.gate{border:1px solid var(--line);border-radius:24px;padding:46px;text-align:center;margin-bottom:60px}
+.gate .blur{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;filter:blur(6px);opacity:.5;margin-bottom:-60px}
+.gate .blur span{aspect-ratio:4/3;border-radius:12px;background:var(--alt)}
+.gate .card{position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;max-width:460px;margin:0 auto;box-shadow:0 30px 60px -30px rgba(0,0,0,.3)}
+.gate h3{font:700 26px 'Playfair Display';margin:6px 0 8px}
+/* ticket */
+.states{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.tk-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin:20px 0 80px}
+.okh{font:700 clamp(2.4rem,5vw,4rem)/1 'Playfair Display';margin:10px 0 12px}.okh i{color:var(--acc)}
+.check{width:64px;height:64px;border-radius:50%;background:#e4f6ec;color:#178a4c;display:grid;place-items:center;font-size:30px;animation:pop .6s var(--ease)}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.ticket{position:relative;border-radius:26px;background:var(--night);color:#fff;overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.6);transform:rotate(-1.5deg);transition:transform .5s var(--ease)}
+.ticket:hover{transform:rotate(0)}
+.ticket .top{position:relative;height:180px}.ticket .top img{width:100%;height:100%;object-fit:cover;opacity:.7}
+.ticket .top:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,var(--night))}
+.ticket .top b{position:absolute;left:24px;bottom:14px;z-index:1;font:700 30px 'Playfair Display'}
+.ticket .tg{position:absolute;left:24px;top:18px;z-index:1;font-size:11px;font-weight:800;letter-spacing:.16em;background:var(--acc);padding:6px 10px;border-radius:6px}
+.ticket .mid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px 24px}
+.ticket .mid small{display:block;font-size:10.5px;letter-spacing:.16em;color:#8a949e;font-weight:800}.ticket .mid b{font-size:16px}
+.ticket .perf{position:relative;border-top:2px dashed #2f363e;margin:0 18px}
+.ticket .perf:before,.ticket .perf:after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--bg)}.ticket .perf:before{left:-30px}.ticket .perf:after{right:-30px}
+.ticket .qr{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;padding:22px 24px}
+.ticket .qr .q{width:150px;height:150px;border-radius:14px;background:#fff;padding:10px}
+.ticket .qr code{font-size:20px;letter-spacing:.1em;font-weight:800}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.share{margin-top:22px;border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;gap:14px;align-items:center}
+.share b{display:block}.share small{color:var(--body)}
+.spin{width:64px;height:64px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--acc);animation:rot 1s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}
+.steps{display:grid;gap:10px;margin-top:20px}.steps div{display:flex;gap:12px;align-items:center;color:var(--body)}.steps div b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:var(--alt);color:var(--ink)}.steps div.ok b{background:#e4f6ec;color:#178a4c}.steps div.ok{color:var(--ink)}
+@media (max-width:1000px){.g4,.wk{grid-template-columns:1fr 1fr}.ix,.tk-wrap,.become{grid-template-columns:1fr}.pn2{position:static}.wall{grid-template-columns:repeat(2,1fr)}.lead{grid-template-columns:1fr}.gate .blur{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.g4{grid-template-columns:1fr 1fr}.sv h3{font-size:14px}.ticket .mid{grid-template-columns:1fr 1fr}.ticket .qr{grid-template-columns:1fr}}
+</style></head><body>
+<div class="switch"><button data-v="s1" class="on">Services S1</button><button data-v="s2">Services S2</button><button data-v="p1">Partners P1</button><button data-v="p2">Partners P2</button><button data-v="t1">Ticket · confirmado</button><button data-v="t2">Ticket · guest list</button><button data-v="t3">Ticket · procesando</button></div>
+
+<!-- ===== SERVICES S1 ===== -->
+<section class="v on w" id="s1">
+  <p class="note"><b>/services · S1 Rejilla actual pulida.</b> Son los 8 servicios reales (CMS → Services page: icono, título, foto, descripción, enlace) en la rejilla de siempre, con el <b>mismo gesto</b>: el velo pasa a noche con el barrido de izquierda a derecha, el icono sube y aparece «View». Al hacer clic, en vez del visor de foto se abre un <b>panel lateral</b> con la foto, la descripción, «qué hacemos» y «Talk to us». Debajo, «Our works» en rejilla con el hover y «View all works», que lleva a /works.</p>
+  <p class="eb">What we do</p><h2 class="h">Our <i>services</i></h2><p class="sub">Marketing, media and business integration for the entertainment industry.</p>
+  <div class="g4" id="g1"></div>
+</section>
+<!-- ===== SERVICES S2 ===== -->
+<section class="v w" id="s2">
+  <p class="note"><b>/services · S2 Índice + panel.</b> Los 8 servicios como índice, cada fila con el mismo barrido. El panel de la derecha cambia en vivo (foto, icono, descripción y «Talk to us»). En móvil, el panel se abre debajo de la fila tocada.</p>
+  <p class="eb">What we do</p><h2 class="h">Our <i>services</i></h2>
+  <div class="ix"><ol id="ix"></ol><div class="pn2" id="pn2"></div></div>
+</section>
+<div class="works" id="works"><div class="w"><p class="eb">Portfolio</p><h2 class="h">Our <i style="color:#7cc4ff">works</i></h2><div class="wk" id="wk"></div><div style="text-align:center;margin-top:24px"><a class="btn" href="#">View all works →</a></div></div></div>
+
+<!-- ===== PARTNERS P1 ===== -->
+<section class="v w" id="p1">
+  <p class="note"><b>/partners · P1 Muro de logos.</b> Los 11 partners reales (CMS → Partners: logo, nombre, enlace). Hoy la página dice «Coming soon» aunque hay logos; ahora sale un <b>muro de líneas finas</b> con los logos en gris. Al pasar, la celda se oscurece con el <b>barrido de izquierda a derecha</b>, el logo pasa a color, sube y aparece el nombre con «Visit». Al final, «Become a partner». Sigue siendo solo para miembros: el visitante ve el muro desenfocado con el aviso para entrar (abajo).</p>
+  <p class="eb">Global</p><h2 class="h">Brands that <i>party with us</i></h2><p class="sub">Brands and companies that work with GEM2i.</p>
+  <div class="wall" id="wall"></div>
+  <div class="gate"><div class="blur"></div><div class="card"><span style="font-size:28px">🔒</span><h3>For GEM2i members</h3><p style="color:var(--body);margin:0 0 16px">Log in to see our partners and their member benefits.</p><a class="btn p" href="#">Log in →</a></div></div>
+</section>
+<!-- ===== PARTNERS P2 ===== -->
+<section class="v w" id="p2">
+  <p class="note"><b>/partners · P2 Destacados + muro.</b> Los partners marcados como «main» (campo nuevo opcional) van en <b>tarjetas noche</b> con el logo, una frase y «Visit». El resto va en el mismo muro de P1, y debajo una <b>banda azul</b> «Become a partner» con lo que se ofrece y el botón al contacto.</p>
+  <p class="eb">Global</p><h2 class="h">Brands that <i>party with us</i></h2>
+  <div class="lead" id="lead"></div><div class="wall" id="wall2"></div>
+  <div class="become"><div><h3>Become a partner</h3><p>Reach a private community of promoters, artists and night-lovers across 17 markets.</p><a class="btn" href="#" style="margin-top:18px">Talk to us →</a></div><ul><li>🎟 Brand presence at GEM2i events</li><li>📣 Campaigns with our members</li><li>🤝 Co-produced nights and trips</li></ul></div>
+</section>
+
+<!-- ===== TICKET SUCCESS ===== -->
+<section class="v w" id="t1">
+  <p class="note"><b>/tickets/success · pago confirmado (e-ticket).</b> Hoy es un texto centrado con el QR. Ahora es una <b>entrada de verdad</b>: la foto del evento, el tipo y la cantidad, la fecha, la puerta, el QR con su código y la perforación. Al lado van «Add to calendar», «Download» y «Open in My Account», más una invitación a compartir con amigos para sumar puntos (las reglas de puntos ya existen). Datos reales: tx.qr.image_url, tx.qr.code, el evento, la cantidad y el nivel.</p>
+  <div class="tk-wrap">
+    <div><span class="check">✓</span><h1 class="okh">You're <i>in.</i></h1><p style="color:var(--body);font-size:17px;line-height:1.7;max-width:46ch">Payment confirmed. Show this QR at the door — a copy is in your e-mail and in My Account → Calendar.</p>
+      <div class="acts"><a class="btn p" href="#">📅 Add to calendar</a><a class="btn" href="#">⬇ Download</a><a class="btn" href="#">My Account →</a></div>
+      <div class="share"><span style="font-size:26px">🎁</span><span><b>Bring your friends, earn points</b><small>Share your link: +35 GEM2i points for each friend who buys.</small></span><a class="btn" href="#" style="margin-left:auto">Share</a></div>
+      <p style="margin-top:22px"><a href="#" style="color:var(--body)">← Back to events</a></p></div>
+    <div class="ticket"><div class="top"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt=""><span class="tg">E-TICKET · VIP ×2</span><b>Deadmau5 cube v3</b></div>
+      <div class="mid"><div><small>DATE</small><b>Sat, Nov 7</b></div><div><small>DOORS</small><b>20:00</b></div><div><small>VENUE</small><b>Avant Gardner</b></div></div>
+      <div class="perf"></div>
+      <div class="qr"><img class="q" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=GEM-TX-8F3K2Q" alt="QR"><div><small style="font-size:10.5px;letter-spacing:.16em;color:#8a949e;font-weight:800">CODE</small><br><code>8F3K-2Q7M</code><p style="color:#aab3bd;font-size:13.5px;margin:10px 0 0">Anthony G. · GEM-1228<br>Valid for 2 people</p></div></div></div>
+  </div>
+</section>
+<section class="v w" id="t2">
+  <p class="note"><b>Pase de guest list.</b> El mismo diseño de entrada para el QR e-pass del guest list (hoy llega por e-mail). La etiqueta va en verde, el beneficio del tipo de miembro sale («Free until 23:30 · +1 guest») y se puede <b>cancelar la plaza</b>, como en el legado.</p>
+  <div class="tk-wrap">
+    <div><span class="check">✓</span><h1 class="okh">On the <i>list.</i></h1><p style="color:var(--body);font-size:17px;line-height:1.7;max-width:46ch">Your spot is saved. Arrive before 23:30 for free entry with one guest.</p>
+      <div class="acts"><a class="btn p" href="#">📅 Add to calendar</a><a class="btn" href="#">Cancel my spot</a></div></div>
+    <div class="ticket"><div class="top"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568999844.png" alt=""><span class="tg" style="background:#1f8f55">GUEST LIST · +1</span><b>Audien</b></div>
+      <div class="mid"><div><small>DATE</small><b>Sat, Nov 21</b></div><div><small>FREE UNTIL</small><b>23:30</b></div><div><small>VENUE</small><b>Exchange LA</b></div></div>
+      <div class="perf"></div>
+      <div class="qr"><img class="q" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=GEM-GL-4T9P" alt="QR"><div><small style="font-size:10.5px;letter-spacing:.16em;color:#8a949e;font-weight:800">CODE</small><br><code>4T9P-1KX2</code><p style="color:#aab3bd;font-size:13.5px;margin:10px 0 0">Gold member · GEM-1228</p></div></div></div>
+  </div>
+</section>
+<section class="v w" id="t3">
+  <p class="note"><b>Procesando / sin confirmar.</b> Mientras Stripe confirma: un indicador con los <b>pasos</b> (pago recibido → confirmando → entrada lista). Si tarda, se explica que la entrada aparecerá en My Account y por e-mail, con enlace a contacto. Así nadie paga dos veces.</p>
+  <div style="max-width:560px;margin:60px auto 100px;text-align:center"><div class="spin" style="margin:0 auto"></div><h1 class="okh" style="font-size:40px">Confirming your <i>payment…</i></h1><p style="color:var(--body)">This usually takes a few seconds. Please don't pay again.</p>
+    <div class="steps" style="text-align:left;max-width:340px;margin:24px auto 0"><div class="ok"><b>✓</b>Payment received by Stripe</div><div><b>2</b>Confirming with GEM2i</div><div><b>3</b>Your QR ticket is ready</div></div>
+    <p style="color:var(--body);font-size:14px;margin-top:26px">Taking long? Your ticket will appear in <a href="#" style="color:var(--acc)">My Account</a> and by e-mail. <a href="#" style="color:var(--acc)">Contact us</a></p></div>
+</section>
+
+<div class="drawer" id="dr"><div class="bg" id="drbg"></div><div class="pn" id="drp"></div></div>
+
+<script>/* kit */
+// Kit común de bocetos Norules: buscador real por página, pestañas, paginación y switch de variantes.
+const API = 'https://beta.gem2i.com/api/uploads/gem2i/legacy/';
+const CONTINENTS = ['All', 'USA', 'Europe', 'North America', 'South America', 'Africa', 'Oceania', 'Asia'];
+const PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+
+// fields: [label, kind, placeholder]  kind = text | country | state | date
+function searchBar(fields) {
+  const cols = fields.map(f => (f[1] === 'date' ? '1.1fr' : '1fr')).join(' ') + ' auto';
+  const f = fields.map(([l, k, p]) => {
+    if (k === 'country') return `<div class="f"><label>${l}</label><select><option>All countries</option><option>United States</option><option>Spain</option><option>Brazil</option></select></div>`;
+    if (k === 'state') return `<div class="f"><label>${l}</label><select disabled><option>All states</option></select></div>`;
+    if (k === 'date') return `<div class="f"><label>${l}</label><button class="dt" type="button">${CAL} Any date</button></div>`;
+    return `<div class="f"><label>${l}</label><input placeholder="${p || ''}" ${k === 'city' ? 'disabled' : ''}></div>`;
+  }).join('');
+  return `<form class="search" style="grid-template-columns:${cols}" onsubmit="return false">${f}<div class="go"><button class="s">Search</button><button class="r" type="reset">Reset</button></div></form>`;
+}
+const tabs = (list = CONTINENTS) => `<div class="tabs">${list.map((t, i) => `<button class="chip ${i ? '' : 'on'}">${t}</button>`).join('')}</div>`;
+const pager = () => `<div class="pager"><button>← Previous</button><button class="on">1</button><button>2</button><button>3</button><span>…</span><button>12</button><button>Next →</button></div>`;
+const seg = (a, b) => `<div class="seg"><button class="on">${a}</button><button>${b}</button></div>`;
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.switch button');
+  if (b) {
+    document.querySelectorAll('.v').forEach(x => x.classList.toggle('on', x.id === b.dataset.v));
+    document.querySelectorAll('.switch button').forEach(x => x.classList.toggle('on', x === b));
+    window.dispatchEvent(new Event('variant'));
+    return;
+  }
+  const c = e.target.closest('.chip, .seg button');
+  if (c) [...c.parentElement.children].forEach(x => x.classList.toggle('on', x === c));
+  const sel = e.target.closest('select');
+  if (sel) return;
+});
+document.addEventListener('change', e => {
+  if (e.target.matches('.search select:not([disabled])')) {
+    const st = e.target.closest('.search').querySelectorAll('select')[1];
+    const city = e.target.closest('.search').querySelector('input[disabled]');
+    if (st) { st.disabled = false; st.innerHTML = '<option>All states</option><option>Florida</option><option>New York</option>'; }
+    if (city) city.disabled = false;
+  }
+});
+</script>
+<script>
+const P='https://beta.gem2i.com/api/uploads/gem2i/pages/';
+const S=[['Project Management and Strategic Development','Plans, budgets and timelines for events, tours and launches, from the idea to the night.'],['Social Media & Influence Marketing','Campaigns with creators and communities that fill rooms and sell tickets.'],['Brand Development & Management','Identity, voice and positioning for venues, festivals and artists.'],['Venue Marketing Management & Consulting','Programming, promotion and operations to keep a venue full all year.'],['Artist Management & Public Relations','Bookings, press and career strategy for DJs and live acts.'],['Concept & Productions Development','Show concepts, stages and production design that people remember.'],['Event Management, Marketing & Consulting','End-to-end delivery: guest lists, ticketing, staff and promotion.'],['Sponsorship and Endorsement','Brand partnerships that fit the audience and pay for the night.']];
+document.getElementById('g1').innerHTML=S.map((s,i)=>`<a class="gc sv" href="#" data-i="${i}"><img class="ph" src="${P}work.jpg" alt=""><span class="veil"></span><img class="ic" src="${P}service-${i+1}.svg" alt=""><h3>${s[0]}</h3><span class="vw">View →</span></a>`).join('');
+const dr=document.getElementById('dr');
+document.querySelectorAll('#g1 .sv').forEach(a=>a.onclick=e=>{e.preventDefault();const i=+a.dataset.i;document.getElementById('drp').innerHTML=`<img class="hd" src="${P}work.jpg" alt=""><div class="in"><img src="${P}service-${i+1}.svg" alt="" style="width:48px;filter:brightness(0)"><h3>${S[i][0]}</h3><p>${S[i][1]}</p><ul><li>Strategy and planning</li><li>Production and staff</li><li>Promotion and reporting</li></ul><div style="display:flex;gap:10px;margin-top:18px"><a class="btn p" href="#">Talk to us →</a><button class="btn" id="drx">Close</button></div></div>`;dr.classList.add('on');document.getElementById('drx').onclick=()=>dr.classList.remove('on')});
+document.getElementById('drbg').onclick=()=>dr.classList.remove('on');addEventListener('keydown',e=>{if(e.key==='Escape')dr.classList.remove('on')});
+const pn=document.getElementById('pn2');const show=i=>{pn.innerHTML=`<img class="bg" src="${P}work.jpg" alt=""><div class="in"><img src="${P}service-${i+1}.svg" alt=""><h3>${S[i][0]}</h3><p>${S[i][1]}</p><a class="btn" href="#">Talk to us →</a></div>`;document.querySelectorAll('#ix li').forEach((l,j)=>l.classList.toggle('on',i===j))};
+document.getElementById('ix').innerHTML=S.map((s,i)=>`<li data-i="${i}"><img src="${P}service-${i+1}.svg" alt=""><b>${s[0]}</b><span>→</span></li>`).join('');
+document.querySelectorAll('#ix li').forEach(l=>l.onmouseenter=()=>show(+l.dataset.i));show(0);
+const W=[['Electronic Events','conference-ade.png'],['Theme Party','conference-rio.jpg'],['Marketing Campaign','conference-sonar.png'],['Logo Design','conference-ultra.png']];
+document.getElementById('wk').innerHTML=W.map(w=>`<a class="gc" href="#"><img class="ph" src="${P+w[1]}" alt="" loading="lazy"><span class="gstrip">${w[0]}</span><span class="ginfo"><h3>${w[0]}</h3><span class="det">View project →</span></span></a>`).join('');
+const PT='https://beta.gem2i.com/api/uploads/gem2i/partners/';
+const PA=[['ACapital Group','acapital-group','Finance'],['Q Agency','q-agency','Agency'],['OSL','osl','Production'],['809K','809k','Media'],['Robotmusik','robotmusik','Music'],['Sabry','sabry','Fashion'],['Under Society','under-society','Events'],['Onground Productions','onground-productions','Production'],["Jack Daniel's",'jack-daniels','Drinks'],['Miller','miller','Drinks'],['Exclusive Sessions','exclusive-sessions','Events']];
+const cell=p=>`<a class="cell" href="#"><img src="${PT+p[1]}.png" alt="${p[0]}"><span class="nm">${p[0]}<small>${p[2]} · Visit ↗</small></span></a>`;
+document.getElementById('wall').innerHTML=PA.map(cell).join('')+'<a class="cell" href="#" style="color:var(--ink)"><span style="font-weight:800">+ Your brand</span></a>';
+document.getElementById('wall2').innerHTML=PA.slice(3).map(cell).join('');
+document.getElementById('lead').innerHTML=PA.slice(0,3).map(p=>`<a class="lp" href="#"><span class="lg"><img src="${PT+p[1]}.png" alt=""></span><b>${p[0]}</b><p>${p[2]} partner of GEM2i since 2019 · co-produces nights in Miami and Madrid.</p><span>Visit ↗</span></a>`).join('');
+document.querySelector('.gate .blur').innerHTML='<span></span>'.repeat(6);
+document.querySelectorAll('.switch button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('works').style.display=/^s/.test(b.dataset.v)?'':'none'}));
+</script></body></html>

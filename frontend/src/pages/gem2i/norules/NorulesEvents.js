@@ -1,7 +1,7 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
 import { Paginator, SkeletonGrid, EmptyState, gemImg } from '../../../components/gem2i/GemCatalogBits';
@@ -9,6 +9,7 @@ import {
   PageHero, PageHead, SearchBar, Segmented, HoverCard, Where, When, useFmtDate, place,
   usePageTone, CARD_CSS, ACCENT, LINE,
 } from '../../../components/gem2i/norules/GemCatalogCards';
+import { NBtnLook } from '../../../components/gem2i/norules/NBtn';
 
 const GEM_FONT = "'Manrope', sans-serif";
 const EMPTY = { country: '',  q: '', date_from: '', date_to: '', state: '', city: '' };
@@ -31,7 +32,6 @@ const LIST_CSS = `
 .evrow:hover::before,.evrow:focus-visible::before{transform:scaleX(1);transform-origin:left center}
 .evrow:hover,.evrow:focus-visible{color:#fff}
 .evrow:hover .evrow-img,.evrow:focus-visible .evrow-img{transform:scale(1.05)}
-.evrow .evrow-cta{border:1px solid currentColor}
 .gcard:hover .evstamp,.gcard:focus-visible .evstamp{opacity:0}
 @media (prefers-reduced-motion:reduce){.evrow::before,.evrow-img{transition:none}}
 `;
@@ -142,9 +142,7 @@ export default function NorulesEvents() {
                   <span className="hidden md:inline-flex items-start gap-1.5 text-[14px] opacity-80">
                     {whereOf(e) && <><MapPin className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />{whereOf(e)}</>}
                   </span>
-                  <span className="evrow-cta inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-[14px] font-semibold whitespace-nowrap">
-                    <span className="hidden sm:inline">{ctaOf(e)}</span> <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </span>
+                  <NBtnLook variant="c" className="shrink-0"><span className="hidden sm:inline">{ctaOf(e)}</span></NBtnLook>
                 </Link>
               );
             })}

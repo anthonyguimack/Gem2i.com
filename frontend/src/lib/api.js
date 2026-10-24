@@ -56,6 +56,7 @@ export const gemAPI = {
   topVenues: (limit = 8) => api.get('/public/gem/venues-top', { params: { limit } }),
   festivalDetail: (slug) => api.get(`/public/gem/festivals/${slug}`),
   conferences: (params) => api.get('/public/gem/conferences', { params }),
+  conferencesMeta: () => api.get('/public/gem/conferences-meta'),
   conferenceDetail: (slug) => api.get(`/public/gem/conferences/${slug}`),
   events: (params) => api.get('/public/gem/events', { params }),
   eventDetail: (slug) => api.get(`/public/gem/events/${slug}`),

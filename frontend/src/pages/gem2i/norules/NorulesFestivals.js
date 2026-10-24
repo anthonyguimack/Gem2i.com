@@ -4,6 +4,7 @@ import { Music2 } from 'lucide-react';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
 import { Paginator, SkeletonGrid, EmptyState, gemImg } from '../../../components/gem2i/GemCatalogBits';
+import { NBtn } from '../../../components/gem2i/norules/NBtn';
 import {
   PageHero, PageHead, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, Where, When,
   useFmtDate, place, usePageTone, CARD_CSS, LINK,
@@ -112,10 +113,7 @@ export default function NorulesFestivals() {
           </div>
           {conferences.length > confShown && (
             <div className="mt-8 flex justify-center">
-              <button type="button" onClick={() => setConfShown(n => n + CONF_STEP)}
-                className="rounded-full px-6 py-3 text-[15px] font-semibold transition-transform active:scale-[0.97]" style={{ border: '1px solid var(--color-card-border, rgba(255,255,255,.2))', color: 'var(--color-link, #5AAFEA)' }}>
-                {tt({ en: 'Load more conferences', es: 'Ver más conferencias' })}
-              </button>
+              <NBtn onClick={() => setConfShown(n => n + CONF_STEP)} variant="s" icon="down">{tt({ en: 'Load more conferences', es: 'Ver más conferencias' })}</NBtn>
             </div>
           )}
         </section>

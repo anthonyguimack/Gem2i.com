@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Botones y links</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+/* Norules · paleta Grises. Un solo sistema de botones/links para todas las páginas. */
+:root{--bg:#fff;--alt:#f3f4f5;--ink:#1d2228;--body:#5b636c;--line:#e3e5e8;--dark:#2a3038;--night:#0e1216;--acc:#0068b3;--acc2:#5aafea;--ease:cubic-bezier(.19,1,.22,1);--out:cubic-bezier(.23,1,.32,1)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.switch{position:sticky;top:0;z-index:20;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.switch button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+.note{color:var(--body);font-size:14.5px;line-height:1.7;padding:28px 0 6px;max-width:88ch}.note b{color:var(--ink)}
+h2{font:700 30px/1.1 'Playfair Display';margin:40px 0 6px}h2 i{color:var(--acc)}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--body);margin:26px 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.panel{border:1px solid var(--line);border-radius:22px;padding:26px;margin-top:14px}
+.panel.dark{background:var(--night);border-color:var(--night);color:#fff}
+.panel.photo{background:linear-gradient(rgba(10,12,15,.55),rgba(10,12,15,.75)),url(https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png) center/cover;border:0;color:#fff;min-height:200px;display:flex;align-items:flex-end}
+.spec{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.spec div{background:var(--alt);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.6}.spec b{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+/* inventario actual */
+.cur a,.cur button{font:600 14.5px Manrope;text-decoration:none;cursor:pointer}
+.c1{background:#2a3038;color:#fff;border:0;border-radius:99px;padding:12px 20px}
+.c2{background:var(--acc);color:#fff;border:0;border-radius:99px;padding:10px 20px}
+.c3{background:#fff;color:var(--night);border:0;border-radius:99px;padding:14px 28px}
+.c4{border:1px solid var(--ink);border-radius:8px;padding:6px 14px;background:none}
+.c5{border:1px solid var(--acc);color:var(--acc2);border-radius:2px;padding:8px 20px;background:none}
+.c6{color:var(--acc2)}
+/* ============ B1 · Píldora con flecha ============ */
+.b1{--h:48px;display:inline-flex;align-items:center;gap:10px;height:var(--h);padding:0 8px 0 22px;border-radius:99px;font:700 15px Manrope;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:background-color .2s,color .2s,border-color .2s,transform .16s var(--out)}
+.b1 .ar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;transition:transform .4s var(--ease),background-color .2s}
+.b1:hover .ar{transform:translateX(3px) rotate(-45deg)}
+.b1:active{transform:scale(.97)}
+.b1.p{background:var(--dark);color:#fff}.b1.p .ar{background:#fff;color:var(--dark)}.b1.p:hover{background:var(--night)}
+.b1.s{background:#fff;color:var(--ink);border-color:var(--line)}.b1.s .ar{background:var(--alt)}.b1.s:hover{border-color:var(--ink)}
+.b1.a{background:var(--acc);color:#fff}.b1.a .ar{background:rgba(255,255,255,.2)}.b1.a:hover{background:#00599a}
+.b1.g{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}.b1.g .ar{background:#fff;color:var(--night)}.b1.g:hover{background:rgba(255,255,255,.12)}
+.b1.sm{--h:38px;font-size:13.5px;padding-left:16px}.b1.sm .ar{width:26px;height:26px}
+.b1[disabled]{opacity:.45;pointer-events:none}
+.b1.load .ar{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.l1{color:var(--ink);font-weight:700;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1.5px no-repeat;transition:background-size .4s var(--ease)}
+.l1:hover{background-size:100% 1.5px}
+.l1.ext::after{content:" ↗";color:var(--acc)}
+/* ============ B2 · Barra que barre (mismo gesto que las cards) ============ */
+.b2{position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 24px;border-radius:12px;font:700 15px Manrope;text-decoration:none;cursor:pointer;border:1.5px solid currentColor;background:none;transition:color .5s var(--ease),transform .16s var(--out)}
+.b2::before{content:"";position:absolute;inset:0;z-index:-1;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .7s var(--ease)}
+.b2:hover::before{transform:scaleX(1);transform-origin:left}
+.b2 span{position:relative;transition:color .5s var(--ease)}
+.b2:active{transform:scale(.97)}
+.b2.p{color:var(--dark)}.b2.p:hover span{color:#fff}
+.b2.f{color:#fff;background:var(--dark);border-color:var(--dark)}.b2.f::before{background:var(--acc)}
+.b2.a{color:var(--acc)}.b2.a:hover span{color:#fff}
+.b2.g{color:#fff}.b2.g:hover span{color:var(--night)}
+.b2.sm{height:38px;padding:0 16px;font-size:13.5px;border-radius:10px}
+.b2[disabled]{opacity:.45;pointer-events:none}
+.l2{color:var(--ink);font-weight:700;text-decoration:none;position:relative;padding:0 2px}
+.l2::before{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--acc);transform:scaleX(.25);transform-origin:left;transition:transform .5s var(--ease)}
+.l2:hover::before{transform:scaleX(1)}
+/* ============ B3 · Sólido sobrio (Apple-like) ============ */
+.b3{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border-radius:99px;font:600 15px Manrope;text-decoration:none;cursor:pointer;border:0;transition:background-color .2s,box-shadow .2s,transform .16s var(--out)}
+.b3:active{transform:scale(.97)}
+.b3.p{background:var(--ink);color:#fff}.b3.p:hover{background:#000;box-shadow:0 8px 22px -10px rgba(0,0,0,.6)}
+.b3.s{background:var(--alt);color:var(--ink)}.b3.s:hover{background:#e7e9eb}
+.b3.a{background:var(--acc);color:#fff}.b3.a:hover{box-shadow:0 8px 22px -8px rgba(0,104,179,.7)}
+.b3.g{background:rgba(255,255,255,.16);color:#fff;backdrop-filter:blur(10px)}.b3.g:hover{background:rgba(255,255,255,.26)}
+.b3.sm{height:36px;padding:0 16px;font-size:13.5px}
+.b3[disabled]{opacity:.45;pointer-events:none}
+.b3 .chev{transition:transform .25s var(--out)}.b3:hover .chev{transform:translateX(3px)}
+.l3{color:var(--acc);font-weight:600;text-decoration:none}.l3:hover{text-decoration:underline;text-underline-offset:3px}
+/* componentes comunes por sistema */
+.ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:800;font-size:13px;transition:background-color .2s,color .2s,transform .16s var(--out)}
+.ic:hover{background:var(--night);color:#fff;border-color:var(--night)}.ic:active{transform:scale(.94)}
+.chip{font:700 13px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 15px;cursor:pointer;color:var(--ink);transition:border-color .2s}
+.chip:hover{border-color:var(--ink)}.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:4px;gap:2px}
+.seg button{font:600 14px Manrope;border:0;background:transparent;border-radius:99px;padding:8px 14px;color:var(--body);cursor:pointer}.seg button.on{background:var(--dark);color:#fff}
+.card{position:relative;width:260px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#222 url(https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png) center/cover;color:#fff;display:flex;align-items:flex-end;padding:18px}
+.card::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(4,8,12,.9))}
+.card>*{position:relative;z-index:1}
+.follow{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;border-radius:99px;border:1px solid var(--line);background:#fff;font:700 14px Manrope;cursor:pointer;transition:all .25s}
+.follow.on{background:#ffe8ec;border-color:#ffc2cc;color:#c4163a}
+.follow .h{transition:transform .35s var(--ease)}.follow.on .h{transform:scale(1.25)}
+@media (max-width:760px){.spec{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+</style></head><body>
+<div class="switch"><button data-v="cur" class="on">Hoy (inventario)</button><button data-v="s1">B1 · Píldora con flecha</button><button data-v="s2">B2 · Barrido</button><button data-v="s3">B3 · Sólido sobrio</button></div>
+
+<!-- ======== HOY ======== -->
+<section class="v on w" id="cur">
+  <p class="note"><b>Lo que hay hoy en Norules (revisado en el código):</b> conviven <b>3 radios</b> (píldora, 8 px y casi recto), <b>4 tamaños</b>, <b>3 colores de botón principal</b> (gris noche, azul y blanco) y los links unas veces van en azul, otras con ↗ y otras subrayados. El Follow compartido es rectangular azul y no encaja. La propuesta es un <b>único sistema</b> con 4 variantes (principal, secundario, acento y sobre foto), 2 tamaños, estados (hover, pulsado, desactivado, cargando), un estilo de link y las piezas pequeñas (icono, chip, segmentado, Follow).</p>
+  <div class="panel cur"><div class="lbl">Botones actuales</div><div class="row">
+    <button class="c1">Become a member →</button><button class="c2">Search</button><button class="c3">Contact us →</button><button class="c4">View details →</button><button class="c5">♡ Follow</button><a class="c6" href="#">Official website ↗</a></div></div>
+  <div class="spec"><div><b>Radios</b>99px · 8px · 2px</div><div><b>Alturas</b>36 · 42 · 46 · 52 px</div><div><b>Principal</b>#2A3038 · azul · blanco</div><div><b>Links</b>azul · ↗ · subrayado</div></div>
+</section>
+
+<!-- ======== B1 ======== -->
+<section class="v w" id="s1">
+  <p class="note"><b>B1 · Píldora con flecha.</b> Todos los botones son píldoras con una <b>flecha en un círculo</b> al final que avanza y gira 45° al pasar, y el botón se encoge un poco al pulsar. Sigue la línea de los botones de la home (hero, «All events»). Los links llevan un <b>subrayado que se dibuja</b> de izquierda a derecha, y los externos un ↗ en azul.</p>
+  <h2>Sistema <i>B1</i></h2>
+  <div class="lbl">Variantes · normal</div><div class="row"><a class="b1 p" href="#">Become a member <span class="ar">→</span></a><a class="b1 s" href="#">View venue <span class="ar">→</span></a><a class="b1 a" href="#">Buy tickets <span class="ar">→</span></a></div>
+  <div class="lbl">Pequeño · desactivado · cargando</div><div class="row"><a class="b1 p sm" href="#">View details <span class="ar">→</span></a><a class="b1 s sm" href="#">Load more <span class="ar">↓</span></a><button class="b1 p" disabled>Sold out <span class="ar">×</span></button><button class="b1 a load">Confirming <span class="ar">◌</span></button></div>
+  <div class="panel photo"><div><div class="lbl" style="color:#cfd6dd">Sobre foto (hero, fichas)</div><div class="row"><a class="b1 g" href="#">Get tickets <span class="ar">→</span></a><a class="b1 g sm" href="#">Official website <span class="ar">↗</span></a></div></div></div>
+  <div class="lbl">Links</div><p style="font-size:16px;line-height:1.9;max-width:60ch;color:var(--body)">Read more in <a class="l1" href="#">our methodology</a>, or visit the <a class="l1 ext" href="#">official website</a>. Back to <a class="l1" href="#">all events</a>.</p>
+  <div class="lbl">Piezas pequeñas</div><div class="row"><a class="ic" href="#">f</a><a class="ic" href="#">ig</a><a class="ic" href="#">▶</a><button class="chip on">All</button><button class="chip">Europe</button><span class="seg"><button class="on">Card view</button><button>List view</button></span><button class="follow" data-f>♡ <span>Follow</span></button></div>
+  <div class="lbl">Dentro de una card (hover)</div><div class="card"><div><b style="font:700 22px 'Playfair Display'">Deadmau5</b><div style="margin-top:12px"><a class="b1 g sm" href="#">Buy tickets <span class="ar">→</span></a></div></div></div>
+  <div class="spec"><div><b>Radio</b>píldora (99px)</div><div><b>Alturas</b>48 · 38 px</div><div><b>Principal</b>#2A3038 + flecha blanca</div><div><b>Movimiento</b>flecha 400ms · pulsar 160ms</div></div>
+</section>
+
+<!-- ======== B2 ======== -->
+<section class="v w" id="s2">
+  <p class="note"><b>B2 · Barrido.</b> Los botones repiten <b>el gesto del cliente</b> de las cards: al pasar, el color <b>barre de izquierda a derecha</b> y el texto se invierte. Esquinas de 12 px, contorno de 1,5 px. El principal relleno barre a azul. Los links tienen una raya azul corta que se alarga entera al pasar. Es la opción con más personalidad y la más coherente con el hover de las cards.</p>
+  <h2>Sistema <i>B2</i></h2>
+  <div class="lbl">Variantes · normal</div><div class="row"><a class="b2 f" href="#"><span>Become a member →</span></a><a class="b2 p" href="#"><span>View venue →</span></a><a class="b2 a" href="#"><span>Buy tickets →</span></a></div>
+  <div class="lbl">Pequeño · desactivado</div><div class="row"><a class="b2 p sm" href="#"><span>View details →</span></a><a class="b2 a sm" href="#"><span>Load more ↓</span></a><button class="b2 p" disabled><span>Sold out</span></button></div>
+  <div class="panel photo"><div><div class="lbl" style="color:#cfd6dd">Sobre foto (hero, fichas)</div><div class="row"><a class="b2 g" href="#"><span>Get tickets →</span></a><a class="b2 g sm" href="#"><span>Official website ↗</span></a></div></div></div>
+  <div class="lbl">Links</div><p style="font-size:16px;line-height:1.9;max-width:60ch;color:var(--body)">Read more in <a class="l2" href="#">our methodology</a>, or visit the <a class="l2" href="#">official website ↗</a>. Back to <a class="l2" href="#">all events</a>.</p>
+  <div class="lbl">Piezas pequeñas</div><div class="row"><a class="ic" href="#">f</a><a class="ic" href="#">ig</a><a class="ic" href="#">▶</a><button class="chip on">All</button><button class="chip">Europe</button><span class="seg"><button class="on">Card view</button><button>List view</button></span><button class="follow" data-f>♡ <span>Follow</span></button></div>
+  <div class="lbl">Dentro de una card (hover)</div><div class="card"><div><b style="font:700 22px 'Playfair Display'">Deadmau5</b><div style="margin-top:12px"><a class="b2 g sm" href="#"><span>Buy tickets →</span></a></div></div></div>
+  <div class="spec"><div><b>Radio</b>12 · 10 px</div><div><b>Alturas</b>48 · 38 px</div><div><b>Principal</b>#2A3038 → barre a azul</div><div><b>Movimiento</b>barrido 700ms (como las cards)</div></div>
+</section>
+
+<!-- ======== B3 ======== -->
+<section class="v w" id="s3">
+  <p class="note"><b>B3 · Sólido sobrio.</b> Píldoras <b>rellenas, sin borde</b>: la principal casi negra, la secundaria en gris claro, la de acento en azul y la que va sobre fotos en cristal esmerilado. Al pasar solo cambia el tono, aparece una sombra suave y la flecha se mueve 3 px. Los links van en azul y se subrayan al pasar. Es la más tranquila y la que menos compite con las fotos.</p>
+  <h2>Sistema <i>B3</i></h2>
+  <div class="lbl">Variantes · normal</div><div class="row"><a class="b3 p" href="#">Become a member <span class="chev">›</span></a><a class="b3 s" href="#">View venue <span class="chev">›</span></a><a class="b3 a" href="#">Buy tickets <span class="chev">›</span></a></div>
+  <div class="lbl">Pequeño · desactivado</div><div class="row"><a class="b3 p sm" href="#">View details <span class="chev">›</span></a><a class="b3 s sm" href="#">Load more</a><button class="b3 p" disabled>Sold out</button></div>
+  <div class="panel photo"><div><div class="lbl" style="color:#cfd6dd">Sobre foto (hero, fichas)</div><div class="row"><a class="b3 g" href="#">Get tickets <span class="chev">›</span></a><a class="b3 g sm" href="#">Official website ↗</a></div></div></div>
+  <div class="lbl">Links</div><p style="font-size:16px;line-height:1.9;max-width:60ch;color:var(--body)">Read more in <a class="l3" href="#">our methodology</a>, or visit the <a class="l3" href="#">official website ↗</a>. Back to <a class="l3" href="#">all events</a>.</p>
+  <div class="lbl">Piezas pequeñas</div><div class="row"><a class="ic" href="#">f</a><a class="ic" href="#">ig</a><a class="ic" href="#">▶</a><button class="chip on">All</button><button class="chip">Europe</button><span class="seg"><button class="on">Card view</button><button>List view</button></span><button class="follow" data-f>♡ <span>Follow</span></button></div>
+  <div class="lbl">Dentro de una card (hover)</div><div class="card"><div><b style="font:700 22px 'Playfair Display'">Deadmau5</b><div style="margin-top:12px"><a class="b3 g sm" href="#">Buy tickets <span class="chev">›</span></a></div></div></div>
+  <div class="spec"><div><b>Radio</b>píldora (99px)</div><div><b>Alturas</b>46 · 36 px</div><div><b>Principal</b>#1D2228 sólido</div><div><b>Movimiento</b>tono 200ms · flecha 3px</div></div>
+</section>
+
+<script>
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.toggle('on',x.id===b.dataset.v));document.querySelectorAll('.switch button').forEach(x=>x.classList.toggle('on',x===b))});
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{b.classList.toggle('on');const on=b.classList.contains('on');b.innerHTML=(on?'<span class="h">♥</span> ':'♡ ')+'<span>'+(on?'Following':'Follow')+'</span>'});
+document.querySelectorAll('a[href="#"]').forEach(a=>a.addEventListener('click',e=>e.preventDefault()));
+</script></body></html>

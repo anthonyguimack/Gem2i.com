@@ -117,6 +117,14 @@ const NorulesTravels = lazy(() => import('./pages/gem2i/norules/NorulesInnerPage
 const NorulesServices = lazy(() => import('./pages/gem2i/norules/NorulesInnerPages').then(m => ({ default: m.NorulesServices })));
 const NorulesPartners = lazy(() => import('./pages/gem2i/norules/NorulesInnerPages').then(m => ({ default: m.NorulesPartners })));
 const NorulesAbout = lazy(() => import('./pages/gem2i/norules/NorulesAbout'));
+const norulesExtra = (name) => lazy(() => import('./pages/gem2i/norules/NorulesExtraPages').then(m => ({ default: m[name] })));
+const NorulesConferences = norulesExtra('NorulesConferences');
+const NorulesTravelDetail = norulesExtra('NorulesTravelDetail');
+const NorulesWorks = norulesExtra('NorulesWorks');
+const NorulesGallery = norulesExtra('NorulesGallery');
+const NorulesMedia = norulesExtra('NorulesMedia');
+const NorulesOffice = norulesExtra('NorulesOffice');
+const NorulesLegal = norulesExtra('NorulesLegal');
 const Gem03Artists = lazy(() => import('./pages/gem2i/t03/Gem03Artists'));
 const Gem03ArtistDetail = lazy(() => import('./pages/gem2i/t03/Gem03ArtistDetail'));
 const Gem03Venues = lazy(() => import('./pages/gem2i/t03/Gem03Venues'));
@@ -554,6 +562,18 @@ function AppRouter() {
                 <Route path="/events" element={tplPage(NorulesEvents, Gem03Events, Gem2iEvents)} />
                 <Route path="/events/:slug" element={tplPage(NorulesEventDetail, Gem03EventDetail, Gem2iEventDetail)} />
                 <Route path="/tickets/success" element={tplPage(NorulesTicketSuccess, Gem03TicketSuccess, Gem2iTicketSuccess)} />
+              </>}
+              {/* Norules-only pages (2026-10-23, boceto norules-missing-pages.html); the other templates keep
+                  the generic pages below (same path, defined later → Norules wins only when active). */}
+              {settings.active_theme === 'gem2i' && <>
+                <Route path="/conferences" element={<NorulesConferences />} />
+                <Route path="/travels/:slug" element={<NorulesTravelDetail />} />
+                <Route path="/works" element={<NorulesWorks />} />
+                <Route path="/gallery" element={<NorulesGallery />} />
+                <Route path="/media" element={<NorulesMedia />} />
+                <Route path="/map/:slug" element={<NorulesOffice />} />
+                <Route path="/terms" element={<PageProtectedRoute><NorulesLegal type="terms" /></PageProtectedRoute>} />
+                <Route path="/privacy" element={<PageProtectedRoute><NorulesLegal type="privacy" /></PageProtectedRoute>} />
               </>}
               <Route path="/reading-list" element={<ReadingListPage />} />
               <Route path="/gallery" element={<GalleryPage />} />

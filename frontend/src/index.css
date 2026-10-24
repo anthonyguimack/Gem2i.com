@@ -744,3 +744,53 @@ body:has([data-testid="admin-layout"]) [role="dialog"][data-state="open"] input[
   .gem-tpl-wide [data-testid="gem2i-services"] .lg\:grid-cols-4 { grid-template-columns:repeat(5,minmax(0,1fr)); }
   .gem-tpl-wide [data-testid="gem2i-clients"] .lg\:grid-cols-6 { grid-template-columns:repeat(8,minmax(0,1fr)); }
 }
+
+/* ── Norules B1 buttons & links (components/gem2i/norules/NBtn.js, boceto norules-buttons-links.html) ── */
+.nb{--nb-h:48px;--nb-ar:34px;display:inline-flex;align-items:center;gap:10px;height:var(--nb-h);padding:0 7px 0 22px;border-radius:9999px;border:1px solid transparent;font-family:'Manrope',sans-serif;font-weight:700;font-size:15px;line-height:1;white-space:nowrap;text-decoration:none;cursor:pointer;transition:background-color .2s,color .2s,border-color .2s,transform .16s cubic-bezier(.23,1,.32,1)}
+.nb .nb-ar{width:var(--nb-ar);height:var(--nb-ar);flex:none;border-radius:50%;display:grid;place-items:center;transition:transform .4s cubic-bezier(.19,1,.22,1),background-color .2s,color .2s}
+.nb .nb-ar svg{width:16px;height:16px}
+.nb:hover .nb-ar,.nb:focus-visible .nb-ar,.group:hover .nb .nb-ar,.gcard:hover .nb .nb-ar{transform:translateX(3px) rotate(-45deg)}
+.nb.nb-ext:hover .nb-ar,.nb.nb-ext:focus-visible .nb-ar{transform:translate(2px,-2px)}
+.nb.nb-down:hover .nb-ar,.nb.nb-down:focus-visible .nb-ar{transform:translateY(3px)}
+.nb:active{transform:scale(.97)}
+.nb.nb-noar{padding:0 22px}
+.nb:disabled,.nb[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.nb:focus-visible{outline:2px solid var(--color-link,#5AAFEA);outline-offset:2px}
+.nb-sm{--nb-h:38px;--nb-ar:28px;font-size:13.5px;padding:0 5px 0 16px;gap:8px}
+.nb-sm .nb-ar svg{width:14px;height:14px}
+.nb-sm.nb-noar{padding:0 16px}
+.nb-p{background:#2A3038;color:#fff !important}.nb-p .nb-ar{background:#fff;color:#2A3038}.nb-p:hover{background:#0E1216}
+.nb-s{background:transparent;color:#fff !important;border-color:rgba(255,255,255,.3)}.nb-s .nb-ar{background:rgba(255,255,255,.14);color:inherit}.nb-s:hover{border-color:currentColor}
+.gem-tone-light .nb-s{background:#fff;color:#1D2228 !important;border-color:#E3E5E8}.gem-tone-light .nb-s .nb-ar{background:#F3F4F5}
+.gem-tone-light .gem-tone-dark .nb-s{background:transparent;color:#fff !important;border-color:rgba(255,255,255,.3)}.gem-tone-light .gem-tone-dark .nb-s .nb-ar{background:rgba(255,255,255,.14)}
+/* Ink for links/Follow/rows: dark on light-palette pages (home included), white inside dark bands */
+.gem-tone-light{--gem-ink:#1D2228}.gem-tone-light .gem-tone-dark{--gem-ink:#fff}
+.nb-a{background:var(--color-accent,#0068b3);color:#fff !important}.nb-a .nb-ar{background:rgba(255,255,255,.2);color:#fff}.nb-a:hover{filter:brightness(.92)}
+.nb-g{background:transparent;color:#fff !important;border-color:rgba(255,255,255,.45)}.nb-g .nb-ar{background:#fff;color:#0E1216}.nb-g:hover{background:rgba(255,255,255,.12)}
+.nb-w{background:#fff;color:#0E1216 !important}.nb-w .nb-ar{background:#0E1216;color:#fff}.nb-w:hover{background:#ECEEF0}
+.nb-c{background:transparent;color:inherit !important;border-color:currentColor}.nb-c .nb-ar{border:1px solid currentColor}
+.nl{color:var(--gem-ink,#fff);font-weight:700;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1.5px no-repeat;transition:background-size .4s cubic-bezier(.19,1,.22,1)}
+.nl:hover,.nl:focus-visible{background-size:100% 1.5px}
+.nl-ext::after{content:" ↗";color:var(--color-accent,#0068b3)}
+@media (prefers-reduced-motion:reduce){.nb,.nb .nb-ar,.nl{transition:none}.nb:active{transform:none}}
+/* Norules Follow (shared FollowButton restyled by class only; active = inline background) */
+.nb-follow{height:48px !important;border-radius:9999px !important;padding:0 20px !important;font-weight:700 !important;font-size:15px !important;background:var(--color-card-bg,#fff) !important;border:1px solid var(--color-card-border,rgba(255,255,255,.2)) !important;color:var(--gem-ink,#fff) !important;transition:background-color .25s,border-color .25s,color .25s,transform .16s cubic-bezier(.23,1,.32,1) !important}
+.nb-follow:active{transform:scale(.97)}
+.nb-follow:hover{border-color:currentColor !important}
+.nb-follow[style*="background-color"]{background:#FFE8EC !important;border-color:#FFC2CC !important;color:#C4163A !important}
+.nb-follow-g{background:transparent !important;border-color:rgba(255,255,255,.45) !important;color:#fff !important}
+.nb-follow-g:hover{background:rgba(255,255,255,.12) !important}
+/* Norules hero CTAs: B1 pill + sweep (NorulesHeroU). White sweeps in left→right on hover, text turns night. */
+.nb-sweep{position:relative;isolation:isolate;overflow:hidden;transition:color .5s cubic-bezier(.19,1,.22,1),border-color .3s,transform .16s cubic-bezier(.23,1,.32,1)}
+.nb-sweep::before{content:'';position:absolute;inset:0;z-index:-1;background:#fff;transform:scaleX(0);transform-origin:right center;transition:transform .7s cubic-bezier(.19,1,.22,1)}
+.nb-sweep:hover::before,.nb-sweep:focus-visible::before{transform:scaleX(1);transform-origin:left center}
+.nb-sweep:hover,.nb-sweep:focus-visible{color:#0E1216 !important;border-color:#fff !important}
+.nb-hero{text-transform:uppercase;letter-spacing:.03em;font-weight:800;font-size:14px}
+@media (min-width:768px){.nb-hero{font-size:15px}}
+.nb-hero-p{background:var(--color-button-bg,#3287B7);color:var(--color-button-text,#fff) !important;box-shadow:0 0 0 3px color-mix(in srgb,var(--color-button-bg,#3287B7) 35%,transparent)}
+.nb-hero-s{background:rgba(255,255,255,.12);color:#fff !important;border-color:rgba(255,255,255,.35);backdrop-filter:blur(4px)}
+.nb-hero .nb-ar{background:#04080C;color:#fff}
+@media (prefers-reduced-motion:reduce){.nb-sweep::before{transition:none}}
+/* Norules social icons: the ink lives in the class so hover can turn it white on the night disc */
+.nsoc{color:var(--gem-ink,#fff);border:1px solid var(--color-card-border,rgba(255,255,255,.2))}
+.nsoc:hover,.nsoc:focus-visible{background:#0E1216;color:#fff;border-color:#0E1216}

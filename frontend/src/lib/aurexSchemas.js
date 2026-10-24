@@ -1,6 +1,6 @@
 // Aurex section schemas — drive the polymorphic admin UI.
 // Each entry defines: config fields (page-level) + item fields (CRUD rows).
-import { Users, Workflow, DollarSign, UserCircle, Calendar, Building2, Award, Film, Briefcase, MessageCircle, Newspaper, BookOpen, MapPin, Image, GalleryHorizontal, Megaphone, Plane, Handshake } from 'lucide-react';
+import { Users, Workflow, DollarSign, UserCircle, Calendar, Building2, Award, Film, Briefcase, MessageCircle, Newspaper, BookOpen, MapPin, Image, GalleryHorizontal, Megaphone, Plane, Handshake, PlayCircle } from 'lucide-react';
 import { adminText } from './i18n';
 
 // Field types: 'text' | 'textarea' | 'url' | 'number' | 'bool' | 'image' | 'icon' | 'rich' | 'social_links'
@@ -359,6 +359,16 @@ export const AUREX_SECTIONS = {
       { key: 'spots_total', label: 'Spots (total)',      type: 'number' },
       { key: 'spots_taken', label: 'Spots (taken)',      type: 'number' },
       { key: 'includes',    label: "What's included (one per line)", type: 'textarea', placeholder: 'Festival pass / Hotel 4★ / Shuttle (one per line)' },
+      // Trip page /travels/:slug (Norules T2).
+      { key: 'slug',        label: 'URL slug (optional, else from the title)', type: 'text', placeholder: 'tomorrowland' },
+      { key: 'departure_date', label: 'Departure date (YYYY-MM-DD, for the countdown)', type: 'text', placeholder: '2027-07-17' },
+      { key: 'departure_from', label: 'Departure cities', type: 'text', placeholder: 'Miami · Madrid · Lima' },
+      { key: 'packages',    label: 'Packages (one per line: Name | Price | What it includes)', type: 'textarea', placeholder: 'Silver | $1,290 | Pass + hotel + shuttle' },
+      { key: 'itinerary',   label: 'Itinerary (one per line: Day | What happens)', type: 'textarea', placeholder: 'Day 1 · Thu 17 | Arrival, check-in, welcome party' },
+      { key: 'gallery',     label: 'Gallery image 1', type: 'image' },
+      { key: 'gallery_2',   label: 'Gallery image 2', type: 'image' },
+      { key: 'gallery_3',   label: 'Gallery image 3', type: 'image' },
+      { key: 'points',      label: 'GEM2i points with this trip', type: 'number' },
     ],
     itemPreview: (i) => `${adminText(i.title)}${i.dates ? ` · ${adminText(i.dates)}` : ''}`,
   },
@@ -395,8 +405,49 @@ export const AUREX_SECTIONS = {
       { key: 'title', label: 'Work title', type: 'text', required: true },
       { key: 'image', label: 'Image',      type: 'image' },
       { key: 'url',   label: 'Link (optional, else the section URL)', type: 'url' },
+      // /works page (Norules)
+      { key: 'category',    label: 'Category (tab on /works)', type: 'text', placeholder: 'Events' },
+      { key: 'client',      label: 'Client', type: 'text' },
+      { key: 'year',        label: 'Year', type: 'text', placeholder: '2026' },
+      { key: 'description', label: 'Description', type: 'textarea' },
+      { key: 'kpis',        label: 'Results (one per line: Value | Label)', type: 'textarea', placeholder: '12K | Tickets' },
+      { key: 'featured',    label: 'Featured case (top of /works)', type: 'bool' },
     ],
     itemPreview: (i) => adminText(i.title),
+  },
+  gem_media: {
+    label: 'Media page — videos',
+    icon: PlayCircle,
+    description: 'The /media page (Norules): aftermovies, interviews and venue videos. The first one is the big featured video.',
+    configFields: [
+      { key: 'eyebrow',  label: 'Eyebrow (above title)', type: 'text', placeholder: 'Media' },
+      { key: 'title',    label: 'Page title',            type: 'text', placeholder: 'Watch & read' },
+      { key: 'subtitle', label: 'Intro',                 type: 'textarea' },
+    ],
+    itemFields: [
+      { key: 'title',     label: 'Title', type: 'text', required: true },
+      { key: 'video_url', label: 'YouTube / Vimeo URL', type: 'url', required: true },
+      { key: 'thumbnail', label: 'Cover image (optional, else from YouTube)', type: 'image' },
+      { key: 'type',      label: 'Type (tab)', type: 'text', placeholder: 'Aftermovie' },
+      { key: 'duration',  label: 'Duration', type: 'text', placeholder: '4:12' },
+    ],
+    itemPreview: (i) => adminText(i.title),
+  },
+  gem_press: {
+    label: 'Media page — press',
+    icon: Newspaper,
+    description: 'The "In the press" list at the bottom of /media.',
+    configFields: [
+      { key: 'title', label: 'Block title', type: 'text', placeholder: 'In the press' },
+    ],
+    itemFields: [
+      { key: 'outlet', label: 'Outlet', type: 'text', required: true, placeholder: 'DJ Mag' },
+      { key: 'title',  label: 'Headline', type: 'text', required: true },
+      { key: 'kind',   label: 'Kind', type: 'text', placeholder: 'Interview' },
+      { key: 'date',   label: 'Date (free text)', type: 'text', placeholder: 'Oct 2026' },
+      { key: 'url',    label: 'Link', type: 'url' },
+    ],
+    itemPreview: (i) => `${adminText(i.outlet)} · ${adminText(i.title)}`,
   },
   gem_partners_page: {
     label: 'Partners page',

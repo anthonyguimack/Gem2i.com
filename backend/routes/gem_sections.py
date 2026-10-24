@@ -83,6 +83,8 @@ VALID_SECTIONS = {
     # gem2i inner pages (2026-10-19, port of travels.php / services.php /
     # partners.php): Travels trips, Services cards + Works carousel, Partners header.
     "gem_travels", "gem_services_page", "gem_works", "gem_partners_page",
+    # Norules /media page (2026-10-23): videos + press clippings.
+    "gem_media", "gem_press",
 }
 ITEM_SECTIONS = VALID_SECTIONS - {
     "aurex_events", "news_ticker",

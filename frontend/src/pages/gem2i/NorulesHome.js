@@ -12,7 +12,7 @@ import { useT } from '../../lib/i18n';
 import { useAuth } from '../../lib/auth';
 import { slideForAudience, isLoggedInUser } from '../../lib/heroAudience';
 import { AUREX_FONTS, websitePaletteFor } from '../../lib/themeColors';
-import { GemHeroU } from '../../components/gem2i/GemHeroVariants';
+import { NorulesHeroU } from '../../components/gem2i/norules/NorulesHeroU';
 import GemModernMaps from '../../components/gem2i/GemModernMaps';
 import GemContactSection from '../../components/gem2i/GemContactSection';
 import { GemGalleryMasonry, GemMapTabs, GemLogoWall, GemClientCases, GemContactEditorial, GemTeamRegions } from '../../components/gem2i/NorulesEnd';
@@ -155,7 +155,7 @@ export default function NorulesHome() {
 
   const renderers = {
     hero: () => {
-      return <GemHeroU slide={heroSlides[0]} slides={heroSlides} linked={heroEvents} />;
+      return <NorulesHeroU slide={heroSlides[0]} slides={heroSlides} linked={heroEvents} />;
     },
     legacy_hero: () => (<>
       {/* HERO — CMS hero-canvas slides; branded static fallback until slides are entered */}

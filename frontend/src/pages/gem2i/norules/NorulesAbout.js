@@ -1,7 +1,6 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Phone } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Phone } from 'lucide-react';
 import { aboutSectionOrder } from '../../../lib/gemAboutSections';
 import { publicAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
@@ -9,12 +8,12 @@ import { normalizeRichText } from '../../../lib/richText';
 import { gemImg } from '../../../components/gem2i/GemCatalogBits';
 import { GemMethodCycle } from '../../../components/gem2i/GemSections';
 import AccentTitle from '../../../components/gem2i/AccentTitle';
-import { PageHero, ACCENT, LINK, BODY, CARD, LINE } from '../../../components/gem2i/norules/GemCatalogCards';
+import { NBtn } from '../../../components/gem2i/norules/NBtn';
+import { PageHero, usePageTone, LINK, BODY, CARD, LINE } from '../../../components/gem2i/norules/GemCatalogCards';
 
 const GEM_FONT = "'Manrope', sans-serif";
 const SERIF = "'Playfair Display', Georgia, serif";
 const initials = (name) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-const BTN = 'inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold text-white transition-opacity hover:opacity-90';
 
 /** A · Editorial team: cards, the first member leads with a tall photo. */
 function AboutTeam({ config = {}, items = [] }) {
@@ -75,8 +74,8 @@ const ZONES = [
   [/bogot|colombia/i, 'America/Bogota'], [/london|united kingdom|\buk\b/i, 'Europe/London'],
   [/paris|france/i, 'Europe/Paris'], [/berlin|germany/i, 'Europe/Berlin'], [/dubai|emirates/i, 'Asia/Dubai'],
 ];
-const zoneOf = (name = '') => (ZONES.find(([re]) => re.test(name)) || [])[1];
-const localTime = (zone, now) => {
+export const zoneOf = (name = '') => (ZONES.find(([re]) => re.test(name)) || [])[1];
+export const localTime = (zone, now) => {
   try { return now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: zone }); } catch { return ''; }
 };
 
@@ -153,6 +152,7 @@ export default function NorulesAbout() {
   const [team, setTeam] = useState(null);
   const [offices, setOffices] = useState([]);
   const [now, setNow] = useState(() => new Date());
+  const tone = usePageTone();
 
   useEffect(() => {
     publicAPI.getAbout().then(r => setAbout(r.data || {})).catch(() => setAbout({}));
@@ -208,16 +208,16 @@ export default function NorulesAbout() {
           <h2 className="text-white font-bold leading-[1.05] max-w-[16ch] mx-auto" style={{ fontFamily: SERIF, fontSize: 'clamp(2.3rem, 5.2vw, 4.6rem)' }}>
             <AccentTitle text={tt(a.cta_title) || tt({ en: 'Planning an event, a tour or a launch', es: 'Planeas un evento, una gira o un lanzamiento' })} />
           </h2>
-          <button type="button" onClick={toContact} className="mt-9 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-[15px] font-semibold transition-transform duration-150 ease-out active:scale-[0.97]" style={{ color: '#0E1216' }}>
-            {tt(a.cta_button) || tt({ en: 'Contact us', es: 'Contáctanos' })} <ArrowRight className="w-4 h-4" aria-hidden="true" />
-          </button>
+          <NBtn onClick={toContact} variant="w" className="mt-9">
+            {tt(a.cta_button) || tt({ en: 'Contact us', es: 'Contáctanos' })}
+          </NBtn>
         </div>
       </section>
     ),
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-about">
+    <div className={`min-h-screen ${tone.className}`} style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT, ...tone.style }} data-testid="gem2i-about">
       <PageHero page="about" />
 
       {/* Manifesto + signature row */}
@@ -233,10 +233,10 @@ export default function NorulesAbout() {
               </div>
             )}
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 md:ml-auto">
-              {a.phone && <a href={`tel:${a.phone.replace(/[^+\d]/g, '')}`} className="inline-flex items-center gap-2 text-white text-[15px] hover:underline"><Phone className="w-4 h-4" style={{ color: LINK }} aria-hidden="true" />{a.phone}</a>}
+              {a.phone && <a href={`tel:${a.phone.replace(/[^+\d]/g, '')}`} className="nl inline-flex items-center gap-2 text-[15px]"><Phone className="w-4 h-4" style={{ color: LINK }} aria-hidden="true" />{a.phone}</a>}
               {tt(a.button_text) && a.button_url && (/^https?:/i.test(a.button_url) || a.button_open_in_new_tab
-                ? <a href={a.button_url} target={a.button_open_in_new_tab ? '_blank' : undefined} rel="noopener noreferrer" className={BTN} style={{ backgroundColor: ACCENT }}>{tt(a.button_text)} <ArrowRight className="w-4 h-4" aria-hidden="true" /></a>
-                : <Link to={a.button_url} className={BTN} style={{ backgroundColor: ACCENT }}>{tt(a.button_text)} <ArrowRight className="w-4 h-4" aria-hidden="true" /></Link>)}
+                ? <NBtn href={a.button_url} newTab={a.button_open_in_new_tab}>{tt(a.button_text)}</NBtn>
+                : <NBtn to={a.button_url}>{tt(a.button_text)}</NBtn>)}
             </div>
           </div>
         )}
@@ -244,7 +244,7 @@ export default function NorulesAbout() {
 
       {/* Our story: title + the rest of the story text, photo alongside */}
       {(storyRest.length > 0 || a.image) && (
-        <section style={{ backgroundColor: 'var(--color-section-bg-alt, #0A121A)' }}>
+        <section style={{ backgroundColor: 'var(--color-section-bg, #0A121A)' }}>
           <div className={`max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-24 grid gap-12 lg:gap-16 items-center ${a.image ? 'lg:grid-cols-[1.15fr_1fr]' : ''}`}>
             <div>
               <p className="gem-eyebrow mb-4" style={{ color: LINK }}>{tt({ en: 'Our story', es: 'Nuestra historia' })}</p>

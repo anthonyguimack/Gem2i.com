@@ -1,16 +1,18 @@
 /* Norules (`gem2i`) — own copy of GemCatalogCards (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MapPin, CalendarDays } from 'lucide-react';
+import { MapPin, CalendarDays } from 'lucide-react';
 import { publicAPI, gemAPI } from '../../../lib/api';
 import { useSettings } from '../../../App';
 import { useT } from '../../../lib/i18n';
 import { useAuth } from '../../../lib/auth';
 import { slideForAudience, isLoggedInUser } from '../../../lib/heroAudience';
-import { GemHeroA, GemHeroB, GemHeroC } from '../GemHeroVariants';
+import { GemHeroB, GemHeroC } from '../GemHeroVariants';
+import { NorulesHeroU } from './NorulesHeroU';
 import { websitePaletteFor } from '../../../lib/themeColors';
 import { toneOf } from '../../../lib/gemLook';
 import AccentTitle from '../AccentTitle';
+import { NBtn, NBtnLook } from './NBtn';
 import GemDateRange from '../GemDateRange';
 
 /**
@@ -59,7 +61,7 @@ export const CARD_CSS = `
 
 /** CMS hero for an inner page (Hero slide → Page Assignment: about / events /
  *  festivals / artists / venues) — the SAME hero as the homepage: the active
- *  template's variant (01 → A, 02 → B + next event, 03 → C + upcoming strip),
+ *  template's variant (Norules → U, 02 → B + next event, 03 → C + upcoming strip),
  *  full height, carousel, CTA actions, audience filter. Nothing renders while
  *  no slide is assigned to the page. */
 export function PageHero({ page }) {
@@ -83,10 +85,13 @@ export function PageHero({ page }) {
   if (!list.length) return null;
   const hero = tpl === 'gem2i_02' ? <GemHeroB slide={list[0]} slides={list} event={events[0]} linked={linked} />
     : tpl === 'gem2i_03' ? <GemHeroC slide={list[0]} slides={list} events={events} linked={linked} />
-      : <GemHeroA slide={list[0]} slides={list} linked={linked} />;
+      : <NorulesHeroU slide={list[0]} slides={list} linked={linked} />; // Norules: the same hero U as the home
   // Same wrapper as the homepage: template 02 is full-width (.gem-tpl-wide
   // lifts the max-w-7xl of [data-section] blocks, index.css).
-  return <div className={tpl === 'gem2i_02' ? 'gem-tpl-wide' : undefined}><div data-section="hero">{hero}</div></div>;
+  // Norules: exactly the home wrapper (hero U handles its own colours over the photo); the other variants
+  // sit on a photo too, so a light palette must not turn their text dark.
+  if (tpl !== 'gem2i_02' && tpl !== 'gem2i_03') return <div data-section="hero">{hero}</div>;
+  return <div className={`gem-tone-dark ${tpl === 'gem2i_02' ? 'gem-tpl-wide' : ''}`}><div data-section="hero">{hero}</div></div>;
 }
 
 export function PageHead({ eyebrow, title, children }) {
@@ -121,21 +126,17 @@ export function SearchBar({ fields, values, onSearch, onReset }) {
           <span className="sr-only">{f.placeholder}</span>
           <input type={f.type || 'text'} value={draft[f.key] || ''} placeholder={f.placeholder} inputMode={f.inputMode}
             onChange={e => setDraft({ ...draft, [f.key]: e.target.value })}
-            className="w-full rounded-xl px-3.5 py-3 text-[15px] text-white placeholder:text-white/45 focus:outline-none focus:ring-1 focus:ring-[var(--color-link,#5AAFEA)] [color-scheme:dark]"
+            className="w-full rounded-xl px-3.5 py-3 text-[15px] text-white placeholder:text-white/80 focus:outline-none focus:ring-1 focus:ring-[var(--color-link,#5AAFEA)] [color-scheme:dark]"
             style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }} />
         </label>
       )))}
-      <button type="submit" className="rounded-full px-6 py-3 text-[15px] font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98]" style={{ backgroundColor: ACCENT }}>
-        {tt({ en: 'Search', es: 'Buscar' })}
-      </button>
-      <button type="button" onClick={onReset} className="rounded-full px-6 py-3 text-[15px] font-medium text-white border border-white/30 transition-colors hover:bg-white/10">
-        {tt({ en: 'Reset', es: 'Limpiar' })}
-      </button>
+      <NBtn type="submit" variant="w">{tt({ en: 'Search', es: 'Buscar' })}</NBtn>
+      <NBtn onClick={onReset} variant="g" icon="none">{tt({ en: 'Reset', es: 'Limpiar' })}</NBtn>
     </form>
   );
 }
 
-const SELECT_CLS = 'w-full rounded-xl px-3.5 py-3 text-[15px] text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-link,#5AAFEA)] disabled:opacity-40 [color-scheme:dark]';
+const SELECT_CLS = 'w-full rounded-xl px-3.5 py-3 text-[15px] text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-link,#5AAFEA)] disabled:opacity-60 [color-scheme:dark]';
 
 /** Nested Country → State → City for the catalog search, fed by the full geo
  *  tables (GET /public/gem/places). Country and State are selects; City is a
@@ -160,7 +161,7 @@ function PlaceSelects({ catalog, draft, setDraft }) {
       <span className="sr-only">{label}</span>
       <select value={draft[key] || ''} disabled={disabled} aria-label={label}
         onChange={e => setDraft({ ...draft, [key]: e.target.value, ...clear })}
-        className={SELECT_CLS} style={{ ...box, color: draft[key] ? '#fff' : 'rgba(255,255,255,.55)' }}>
+        className={SELECT_CLS} style={{ ...box, color: draft[key] ? '#fff' : 'rgba(255,255,255,.85)' }}>
         <option value="">{label}</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -175,7 +176,7 @@ function PlaceSelects({ catalog, draft, setDraft }) {
         <input list={listId} value={cityQ} disabled={!draft.country} autoComplete="off"
           placeholder={draft.country ? tt({ en: 'Type a city…', es: 'Escribe una ciudad…' }) : tt({ en: 'City', es: 'Ciudad' })}
           onChange={e => { setCityQ(e.target.value); setDraft({ ...draft, city: e.target.value }); }}
-          className={`${SELECT_CLS} placeholder:text-white/45`} style={box} />
+          className={`${SELECT_CLS} placeholder:text-white/80`} style={box} />
         <datalist id={listId}>{opt.cities.map(c => <option key={c} value={c} />)}</datalist>
       </label>
     </>
@@ -225,13 +226,58 @@ export function NumChip({ n }) {
   return <span className="absolute left-3.5 top-3.5 z-[3] min-w-[40px] h-10 px-2 inline-flex items-center justify-center text-white text-[17px] font-bold tabular-nums" style={{ backgroundColor: ACCENT }}>{n}</span>;
 }
 
-export function LogoBadge({ src, size = 84 }) {
+/** Disc background that matches the logo: legacy logos come as squares with their own background
+ *  (often white), which showed as a cut-out square inside the dark circle. The first corner pixel gives
+ *  that background; a transparent logo gets dark or light depending on how bright its ink is. */
+const discCache = {};
+export function useLogoDisc(src) {
+  const [bg, setBg] = useState(discCache[src] || '#FFFFFF');
+  useEffect(() => {
+    if (!src) return undefined;
+    if (discCache[src]) { setBg(discCache[src]); return undefined; }
+    let alive = true;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        const w = (c.width = Math.min(64, img.naturalWidth || 64));
+        const h = (c.height = Math.min(64, img.naturalHeight || 64));
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const d = ctx.getImageData(0, 0, w, h).data;
+        let out;
+        if (d[3] > 200) out = `rgb(${d[0]},${d[1]},${d[2]})`;
+        else {
+          let sum = 0; let n = 0;
+          for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 128) { sum += (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000; n += 1; }
+          out = n && sum / n > 150 ? '#14181D' : '#FFFFFF';
+        }
+        discCache[src] = out;
+        if (alive) setBg(out);
+      } catch { /* tainted canvas: keep the dark disc */ }
+    };
+    img.src = src;
+    return () => { alive = false; };
+  }, [src]);
+  return bg;
+}
+
+/** Round logo like the legacy catalog: a white disc with the logo filling it (no inner square). The disc
+ *  takes the logo's own background colour; only a light logo on transparency gets a dark disc. */
+export function LogoDisc({ src, size = 84, className = '', style }) {
+  const bg = useLogoDisc(src);
   if (!src) return null;
   return (
-    <span className="glogo absolute right-3.5 top-3.5 z-[3] rounded-full overflow-hidden flex items-center justify-center p-3 border border-white/20 shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)]" style={{ width: size, height: size, backgroundColor: '#14181D' }}>
-      <img src={src} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
+    <span className={`glogo rounded-full overflow-hidden flex items-center justify-center shadow-[0_8px_20px_-8px_rgba(0,0,0,.5)] ${className}`}
+      style={{ width: size, height: size, backgroundColor: bg, padding: Math.round(size * 0.08), ...style }}>
+      <img src={src} alt="" loading="lazy" className="w-full h-full object-contain" />
     </span>
   );
+}
+
+export function LogoBadge({ src, size = 90 }) {
+  return <LogoDisc src={src} size={size} className="absolute right-3.5 top-3.5 z-[3]" />;
 }
 
 /** One catalog card. `meta` = lines shown on hover; `strip` = name at rest. */
@@ -252,9 +298,7 @@ export function HoverCard({ to, img, imgStyle, aspect = 'aspect-[4/3]', classNam
           </span>
         )}
         {extra}
-        <span className="mt-3 self-start inline-flex items-center gap-2 rounded-lg border border-white/80 px-3.5 py-1.5 text-[14px] font-medium text-white">
-          {cta || tt({ en: 'View details', es: 'Ver detalles' })} <ArrowRight className="w-4 h-4" aria-hidden="true" />
-        </span>
+        <NBtnLook className="mt-3 self-start">{cta || tt({ en: 'View details', es: 'Ver detalles' })}</NBtnLook>
       </span>
     </Link>
   );

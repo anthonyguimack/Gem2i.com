@@ -3,7 +3,7 @@
    Company + «Become a member», offices, and an equaliser «Now playing» bar with the legal links. Own copy (D-GEM-2026-13). */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { NBtn, NBtnLook } from './norules/NBtn';
 import { toast } from 'sonner';
 import { publicAPI, landingAPI } from '../../lib/api';
 import { BACKEND_URL } from '../../lib/config';
@@ -103,9 +103,7 @@ export default function NorulesFooter({ settings, socialLinks, footerPages, isEx
               placeholder={tt({ en: 'Your email for news and events', es: 'Tu correo para novedades y eventos' })}
               className="w-full bg-transparent border-0 px-4 py-3 text-base text-white placeholder:text-white/70 focus:outline-none focus:ring-0" />
           </label>
-          <button type="submit" disabled={sending} className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[15px] font-extrabold transition-opacity hover:opacity-90 disabled:opacity-60" style={{ color: BLUE }}>
-            {sending && <Loader2 className="w-4 h-4 animate-spin" />}{tt({ en: 'Subscribe', es: 'Suscribirme' })}
-          </button>
+          <NBtn type="submit" loading={sending} variant="w">{tt({ en: 'Subscribe', es: 'Suscribirme' })}</NBtn>
         </form>
       </div>
 
@@ -152,9 +150,7 @@ export default function NorulesFooter({ settings, socialLinks, footerPages, isEx
             {companyPages.map(p => <li key={p.id}>{pageLink(p, smallLink)}</li>)}
             <li><button type="button" onClick={toContact} className={smallLink}>{tt({ en: 'Contact', es: 'Contacto' })}</button></li>
           </ul>
-          <Link to="/membership-enrollment" className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[15px] font-extrabold transition-opacity hover:opacity-90" style={{ color: BLUE }}>
-            {tt({ en: 'Become a member', es: 'Hazte socio' })} →
-          </Link>
+          <NBtn to="/membership-enrollment" variant="w" className="mt-6">{tt({ en: 'Become a member', es: 'Hazte socio' })}</NBtn>
         </div>
         {offices.length > 0 && (
           <div className="px-6 md:px-8 py-10">

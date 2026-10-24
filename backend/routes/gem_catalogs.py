@@ -206,7 +206,14 @@ async def public_artist_detail(slug: str):
     doc = await db.gem_artists.find_one({"slug": slug, "status": "active"}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Artist not found")
-    return _serialize("gem_artists", doc)
+    doc = _serialize("gem_artists", doc)
+    # Upcoming public events with this artist in the line-up (same visibility gate as listings).
+    upcoming = db.gem_events.find(
+        {"lineup": doc["id"], "status": "active", "private": False, "show_portal": True,
+         "event_date": {"$gte": _now_date()}},
+        {"_id": 0}).sort([("event_date", 1)]).limit(8)
+    doc["upcoming_events"] = [_serialize("gem_events", e) async for e in upcoming]
+    return doc
 
 
 @router.get("/public/gem/venues")
@@ -320,8 +327,43 @@ async def public_festival_detail(slug: str):
 
 
 @router.get("/public/gem/conferences")
-async def public_conferences(page: int = 1, limit: int = 24):
-    return await _paginate("gem_conferences", {"status": "active"}, [("event_date", -1)], page, limit)
+async def public_conferences(page: int = 1, limit: int = 24, q: str = None, scope: str = None,
+                             country: str = None, city: str = None, continent: str = None,
+                             state: str = None, date_from: str = None, date_to: str = None):
+    """/conferences listing (Norules): same filters as festivals."""
+    query = {"status": "active"}
+    sort = [("event_date", -1)]
+    if scope == "upcoming":
+        query["event_date"] = {"$gte": _now_date()}
+        sort = [("event_date", 1)]
+    elif scope == "past":
+        query["event_date"] = {"$lt": _now_date()}
+    if date_from or date_to:
+        rng = {}
+        if date_from:
+            rng["$gte"] = date_from
+        if date_to:
+            rng["$lte"] = date_to
+        query["event_date"] = rng
+        sort = [("event_date", 1)]
+    if q:
+        query["title"] = _rx(q)
+    if country:
+        query["country"] = _rx(country)
+    if city:
+        query["$or"] = [{"city": _rx(city)}, {"state": _rx(city)}]
+    if continent:
+        query["continent"] = continent
+    if state:
+        query["state"] = state
+    return await _paginate("gem_conferences", query, sort, page, limit)
+
+
+@router.get("/public/gem/conferences-meta")
+async def public_conferences_meta():
+    """Whether the Upcoming/Past switch is worth showing."""
+    return {"upcoming": await db.gem_conferences.count_documents(
+        {"status": "active", "event_date": {"$gte": _now_date()}})}
 
 
 @router.get("/public/gem/conferences/{slug}")
@@ -384,7 +426,7 @@ async def public_catalog_dates(catalog: str = "events", month: str = ""):
     """Days of one month (YYYY-MM) that have public items → calendar dots."""
     if not re.fullmatch(r"\d{4}-\d{2}", month or ""):
         return {"days": {}}
-    coll = "gem_festivals" if catalog == "festivals" else "gem_events"
+    coll = {"festivals": "gem_festivals", "conferences": "gem_conferences"}.get(catalog, "gem_events")
     query = {"status": "active", "event_date": {"$regex": "^" + month}}
     if coll == "gem_events":
         query.update({"private": False, "show_portal": True})
@@ -466,7 +508,8 @@ async def public_venue_countries():
 
 
 _PLACE_COLL = {"events": "gem_venues", "venues": "gem_venues",
-               "artists": "gem_artists", "festivals": "gem_festivals"}
+               "artists": "gem_artists", "festivals": "gem_festivals",
+               "conferences": "gem_conferences"}
 
 
 @router.get("/public/gem/places")

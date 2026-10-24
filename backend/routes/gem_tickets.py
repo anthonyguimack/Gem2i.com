@@ -325,6 +325,17 @@ async def gem_checkout(request: Request, member: dict = Depends(get_current_memb
     return {"url": session.url, "session_id": session.session_id}
 
 
+async def _ticket_event(tx: dict) -> dict:
+    """Event summary for the success page's ticket (title, date, doors, flyer, venue)."""
+    ev = await db.gem_events.find_one({"id": tx.get("event_id")}, {"_id": 0}) or {}
+    venue = await db.gem_venues.find_one({"id": ev.get("venue_id")}, {"_id": 0, "name": 1, "slug": 1}) if ev.get("venue_id") else None
+    from routes.gem_catalogs import _serialize  # local import: gem_catalogs is the image-URL authority
+    urls = _serialize("gem_events", dict(ev)).get("image_urls") or {} if ev else {}
+    return {"title": ev.get("title", ""), "slug": ev.get("slug", ""), "event_date": ev.get("event_date", ""),
+            "open_time": ev.get("open_time", ""), "type": ev.get("type", ""),
+            "flyer": urls.get("flyer") or urls.get("logo"), "venue": venue or {}}
+
+
 @router.get("/member/gem/checkout-status/{session_id}")
 async def gem_checkout_status(session_id: str, background: BackgroundTasks,
                               member: dict = Depends(get_current_member)):
@@ -336,7 +347,7 @@ async def gem_checkout_status(session_id: str, background: BackgroundTasks,
     if not tx:
         raise HTTPException(status_code=404, detail="Not found")
     if tx.get("status") == "completed":
-        return {"payment_status": "paid", "transaction": tx}
+        return {"payment_status": "paid", "transaction": tx, "event": await _ticket_event(tx)}
     if (tx.get("payment") or {}).get("provider") == "coupon":
         return {"payment_status": tx.get("status"), "transaction": None}
     api_key = await get_stripe_api_key()
@@ -347,7 +358,7 @@ async def gem_checkout_status(session_id: str, background: BackgroundTasks,
         if status.amount_total is not None and status.amount_total != round(float(tx.get("total") or 0) * 100):
             raise HTTPException(status_code=409, detail="Amount mismatch — contact support")
         tx = await _complete_ticket(tx, background)
-        return {"payment_status": "paid", "transaction": tx}
+        return {"payment_status": "paid", "transaction": tx, "event": await _ticket_event(tx)}
     return {"payment_status": status.payment_status, "transaction": None}
 
 

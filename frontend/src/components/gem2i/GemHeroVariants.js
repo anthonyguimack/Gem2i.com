@@ -20,7 +20,7 @@ const ACCENT = 'var(--color-accent, #3287B7)';
 const LINK = 'var(--color-link, #5FB2E0)';
 const BODY = '#c7d2dc';
 const DEFAULT_BG = 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=2000&q=80';
-const DEFAULTS = {
+export const DEFAULTS = {
   title: { en: 'GEM2i\nNetwork', es: 'GEM2i\nNetwork' },
   kicker: { en: 'Global Entertainment', es: 'Global Entertainment' },
   description: {
@@ -29,7 +29,7 @@ const DEFAULTS = {
   },
 };
 
-function useSlideButtons(slide) {
+export function useSlideButtons(slide) {
   const tt = useT();
   const { user } = useAuth();
   const loggedIn = !!user;
@@ -49,7 +49,7 @@ function useSlideButtons(slide) {
   ];
 }
 
-function onCta(b, loggedIn) {
+export function onCta(b, loggedIn) {
   return (e) => {
     if (b.action === 'login') {
       e.preventDefault();
@@ -103,7 +103,7 @@ const FULL_VEIL = 'linear-gradient(180deg, rgba(4,8,12,.55) 0%, rgba(4,8,12,.45)
 const Glow = () => <div aria-hidden="true" className="absolute -right-36 -top-40 w-[520px] h-[520px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(50,135,183,.5), rgba(50,135,183,0) 70%)' }} />;
 const Scroll = () => <div aria-hidden="true" className="hidden md:block absolute left-6 bottom-8 text-[10px] tracking-[0.35em] text-white/50" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>SCROLL</div>;
 
-function Title({ text, className, style }) {
+export function Title({ text, className, style }) {
   const lines = String(text || '').split('\n');
   return <h1 className={`text-white font-bold leading-[1.02] tracking-[-0.01em] ${className}`} style={style}><AccentTitle text={text} /></h1>;
 }
@@ -115,10 +115,10 @@ function Title({ text, className, style }) {
 // under the fixed header (88px) + ticker (42px): height = 100svh - 130px, and
 // the controls sit in the content flow so they are never below the fold.
 const ROTATE_MS = 7000;
-const noHtml = (v) => String(v || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ').trim();
-const HERO_IN_CSS = '@media (prefers-reduced-motion: no-preference){.gem-hero-in{animation:gemHeroIn .8s cubic-bezier(.16,1,.3,1)}}@keyframes gemHeroIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}';
+export const noHtml = (v) => String(v || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ').trim();
+export const HERO_IN_CSS = '@media (prefers-reduced-motion: no-preference){.gem-hero-in{animation:gemHeroIn .8s cubic-bezier(.16,1,.3,1)}}@keyframes gemHeroIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}';
 
-function useHeroCarousel(slide, slides, hold) {
+export function useHeroCarousel(slide, slides, hold) {
   const list = (slides && slides.length ? slides : [slide]).filter((x, i) => x || i === 0);
   const many = list.length > 1;
   const [at, setAt] = React.useState(0);
@@ -143,7 +143,7 @@ function useHeroCarousel(slide, slides, hold) {
 
 /** Events pinned to the current slide (Events manager → "Show in these hero
  *  slides"); an event can sit in one or many slides. */
-const pinnedTo = (linked, slide) => (slide?.id ? (linked || []).filter(e => (e.hero_slide_ids || []).includes(slide.id)) : []);
+export const pinnedTo = (linked, slide) => (slide?.id ? (linked || []).filter(e => (e.hero_slide_ids || []).includes(slide.id)) : []);
 
 /** Featured-event card (Hero B; Hero A when the slide has a pinned event). */
 function EventCard({ event, label }) {
@@ -173,7 +173,7 @@ function HeroBackgrounds({ list, at, veil }) {
   ));
 }
 
-function HeroControls({ c, center }) {
+export function HeroControls({ c, center }) {
   const tt = useT();
   if (!c.many) return null;
   return (
@@ -313,9 +313,9 @@ export function GemHeroC({ slide, slides, events: upcoming = [], linked = [] }) 
 // (~half the width, glow, zoom). 2+ pinned events → thumbnails switch the
 // event without touching the video. No pinned event → copy only.
 const ytIdOf = (url) => String(url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/)?.[1];
-const U_VEIL = 'linear-gradient(90deg, rgba(4,8,12,.84) 0%, rgba(4,8,12,.58) 38%, rgba(4,8,12,.25) 62%, rgba(4,8,12,.45) 100%), linear-gradient(0deg, rgba(4,8,12,.7), rgba(4,8,12,0) 45%)';
+export const U_VEIL = 'linear-gradient(90deg, rgba(4,8,12,.84) 0%, rgba(4,8,12,.58) 38%, rgba(4,8,12,.25) 62%, rgba(4,8,12,.45) 100%), linear-gradient(0deg, rgba(4,8,12,.7), rgba(4,8,12,0) 45%)';
 
-function StageVideo({ slide, muted }) {
+export function StageVideo({ slide, muted }) {
   const ref = React.useRef(null);
   const video = slide?.video_embed;
   const yt = ytIdOf(video);
@@ -343,7 +343,7 @@ function StageVideo({ slide, muted }) {
   return <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${bg})` }} />;
 }
 
-const holdVideo = (s) => !!s?.video_embed;
+export const holdVideo = (s) => !!s?.video_embed;
 
 export function GemHeroU({ slide, slides, linked = [] }) {
   const tt = useT();

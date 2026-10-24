@@ -76,3 +76,6 @@ Each gem2i template (Norules `gem2i`, Gem2i `gem2i_02` frozen, Gem2i - 03 `gem2i
 
 ## D-GEM-2026-16 — Norules inner pages keep the client's hovers (2026-10-23, Anthony)
 Redesigns of Norules catalog pages must keep the legacy card hover (veil wipes left→right, zoom, logo grey→colour, info rises) and the full legacy search (country → state → city, name, dates, genre/position where they exist), continent tabs and pagination. Chosen: About AB1, Festivals F4 (no horizontal bars; Conferences as a grid), Events E1 + List view E3, Artists A1, Venues V1 (Top venues without horizontal scroll), Travels T0 now and T2 trip page later. Inner pages follow the template palette tone like the home (`usePageTone`).
+
+## D-GEM-2026-17 — Norules buttons B1 + hero pill/sweep (2026-10-23, Anthony)
+All Norules buttons/links follow B1 (pill with arrow disc; links with a drawn underline) through `components/gem2i/norules/NBtn.js`; hero CTAs are pill + left→right white sweep. Shared components used by the frozen Gem2i template are never restyled in place: Norules gets its own copy (e.g. `NorulesHeroU.js`) or a class-only override (`.nb-follow` on the shared FollowButton).

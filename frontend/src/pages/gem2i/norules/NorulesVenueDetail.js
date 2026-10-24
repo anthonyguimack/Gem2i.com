@@ -1,15 +1,20 @@
 /* Norules (`gem2i`) — own copy of this inner page (template = package, D-GEM-2026-15). */
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { MapPin } from 'lucide-react';
 import { gemAPI } from '../../../lib/api';
 import { useT } from '../../../lib/i18n';
-import { normalizeRichText } from '../../../lib/richText';
-import { gemImg, CardImage, FollowButton, SocialLinks, SkeletonGrid, TypeBadge } from '../../../components/gem2i/GemCatalogBits';
+import { gemImg, FollowButton, SkeletonGrid } from '../../../components/gem2i/GemCatalogBits';
+import { LogoDisc, place, LINE } from '../../../components/gem2i/norules/GemCatalogCards';
+import {
+  DetailShell, Crumb, Section, TextAndVideo, PhotoHero, HeroChip, EventRow, MapEmbed, SERIF,
+} from '../../../components/gem2i/norules/NorulesDetailBits';
 import { NotFoundShell } from './NorulesArtistDetail';
 
-const GEM_FONT = "'Manrope', sans-serif";
+const host = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; } };
 
+/** Venue detail — boceto norules-detail-pages.html (Venue): photo hero with the logo, facts strip
+ *  (type, capacity, city, website), about + video, upcoming events as E3 rows, map. */
 export default function NorulesVenueDetail() {
   const { slug } = useParams();
   const tt = useT();
@@ -33,74 +38,60 @@ export default function NorulesVenueDetail() {
     );
   }
   if (!venue) {
-    return (
-      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)' }}>
-        <div className="max-w-7xl mx-auto px-6 md:px-10 py-24"><SkeletonGrid count={4} /></div>
-      </div>
-    );
+    return <DetailShell><div className="py-24"><SkeletonGrid count={4} /></div></DetailShell>;
   }
 
-  const location = [venue.address, venue.city, venue.state, venue.country].filter(Boolean).join(', ');
+  const location = place(venue.address, venue.city, venue.state, venue.country);
+  const web = venue.socials?.website;
+  const facts = [
+    venue.type && [tt({ en: 'Type', es: 'Tipo' }), venue.type],
+    Number(venue.capacity) > 0 && [tt({ en: 'Capacity', es: 'Aforo' }), Number(venue.capacity).toLocaleString()],
+    (venue.city || venue.state) && [tt({ en: 'City', es: 'Ciudad' }), venue.city || venue.state],
+    web && [tt({ en: 'Website', es: 'Web' }), <a href={web} target="_blank" rel="noreferrer" className="nl nl-ext">{host(web) || 'Website'}</a>],
+  ].filter(Boolean);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-venue-detail">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 pt-10 pb-24">
-        <Link to="/venues" className="inline-flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-          style={{ color: 'var(--color-link, #5FB2E0)' }}>
-          <ArrowLeft className="w-4 h-4" /> {tt({ en: 'Venues', es: 'Venues' })}
-        </Link>
+    <DetailShell testid="gem2i-venue-detail">
+      <Crumb items={[[tt({ en: 'Venues', es: 'Venues' }), '/venues'], [venue.name]]} />
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,460px)_1fr] gap-10 lg:gap-14">
-          <div className="group">
-            <CardImage src={gemImg(venue.image_urls?.view) || gemImg(venue.image_urls?.logo)} alt={venue.name} aspect="aspect-[4/3]" />
+      <PhotoHero img={gemImg(venue.image_urls?.view)} minH="min-h-[380px] md:min-h-[500px]">
+        <div className="flex flex-wrap items-end gap-5">
+          {venue.image_urls?.logo && <LogoDisc src={gemImg(venue.image_urls.logo)} size={104} className="shrink-0" />}
+          <div className="flex-1 min-w-[240px]">
+            {venue.order > 0 && venue.order <= 8 && <HeroChip>#{venue.order} {tt({ en: 'Top venue', es: 'Top venue' })}</HeroChip>}
+            <h1 className="mt-1.5 mb-2.5 font-bold leading-[.95] text-white" style={{ fontFamily: SERIF, fontSize: 'clamp(2.6rem, 6vw, 5rem)' }}>{venue.name}</h1>
+            {location && <p className="inline-flex items-start gap-1.5 text-white/85"><MapPin className="w-4 h-4 mt-1 shrink-0" aria-hidden="true" />{location}</p>}
           </div>
-
-          <div>
-            <h1 className="text-white font-bold leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>{venue.name}</h1>
-            {venue.type && (
-              <p className="mt-1 text-xs font-medium uppercase tracking-[0.25em]" style={{ color: 'var(--color-accent, #3287B7)' }}>{venue.type}</p>
-            )}
-            {location && (
-              <p className="mt-3 inline-flex items-start gap-1.5 text-sm" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0" /> {location}
-              </p>
-            )}
-            {venue.capacity && (
-              <p className="mt-2 text-sm" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>
-                {tt({ en: 'Capacity', es: 'Capacidad' })}: {venue.capacity}
-              </p>
-            )}
-
-            <div className="mt-7"><FollowButton kind="venue" targetId={venue.id} /></div>
-
-            {venue.description && (
-              <div className="mt-10 max-w-none text-[15px] leading-[1.9]"
-                style={{ color: 'var(--color-body-text, #9AA6B2)' }}
-                dangerouslySetInnerHTML={{ __html: normalizeRichText(venue.description) }} />
-            )}
-
-            <div className="mt-10"><SocialLinks socials={venue.socials} /></div>
-          </div>
+          <FollowButton kind="venue" targetId={venue.id} className="nb-follow nb-follow-g" />
         </div>
+      </PhotoHero>
 
-        {Array.isArray(venue.upcoming_events) && venue.upcoming_events.length > 0 && (
-          <section className="mt-20" data-testid="venue-upcoming-events">
-            <h2 className="text-white font-bold mb-8" style={{ fontSize: 'clamp(1.4rem, 2.6vw, 2rem)' }}>
-              {tt({ en: 'Upcoming Events', es: 'Próximos Eventos' })}
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {venue.upcoming_events.map(e => (
-                <Link key={e.id} to={`/events/${e.slug}`} className="group block">
-                  <CardImage src={gemImg(e.image_urls?.flyer)} alt={e.title} aspect="aspect-square" />
-                  <div className="mt-3 flex items-center gap-2"><TypeBadge type={e.type} /></div>
-                  <p className="mt-1.5 text-white/90 text-sm font-semibold group-hover:text-white transition-colors">{e.title}</p>
-                  {e.event_date && <p className="text-xs mt-0.5" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{e.event_date}</p>}
-                </Link>
-              ))}
+      {facts.length > 0 && (
+        <dl className="mt-5 grid grid-cols-2 lg:grid-cols-[repeat(var(--n),minmax(0,1fr))] rounded-[20px] overflow-hidden" style={{ border: `1px solid ${LINE}`, '--n': facts.length }} data-testid="venue-facts">
+          {facts.map(([k, val], i) => (
+            <div key={k} className={`px-5 py-4 ${i ? 'border-l' : ''} ${i > 1 ? 'border-t lg:border-t-0' : ''} ${i === 2 ? 'border-l-0 lg:border-l' : ''}`} style={{ borderColor: LINE }}>
+              <dt className="text-[10.5px] font-extrabold tracking-[0.16em] uppercase" style={{ color: 'var(--color-body-text, #9AA6B2)' }}>{k}</dt>
+              <dd className="m-0 mt-0.5 text-white text-[18px] font-bold">{val}</dd>
             </div>
-          </section>
-        )}
+          ))}
+        </dl>
+      )}
+
+      <div className="mt-6">
+        <TextAndVideo title={tt({ en: 'About the club', es: 'Sobre el club' })} html={venue.description} lead={venue.summary} chips={venue.genres} video={venue.video} socials={venue.socials} />
       </div>
-    </div>
+
+      {venue.upcoming_events?.length > 0 && (
+        <Section title={tt({ en: 'Upcoming events', es: 'Próximos eventos' })} testid="venue-upcoming-events">
+          <div className="border-t" style={{ borderColor: LINE }}>{venue.upcoming_events.map(e => <EventRow key={e.id} e={e} />)}</div>
+        </Section>
+      )}
+
+      {venue.map && (
+        <Section title={tt({ en: 'How to get there', es: 'Cómo llegar' })}>
+          <MapEmbed src={venue.map} title={venue.name} />
+        </Section>
+      )}
+    </DetailShell>
   );
 }

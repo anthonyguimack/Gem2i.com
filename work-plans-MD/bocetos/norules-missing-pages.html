@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boceto · Páginas pendientes Norules</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>/* kit */
+/* Kit común de bocetos Norules (paleta Grises). Buscador, pestañas, paginación y la card con el hover
+   ACTUAL del cliente (.gc): velo que barre izq→der 1s cubic-bezier(.19,1,.22,1), zoom de foto,
+   info que sube, logo gris→color, franja inferior que se oculta. */
+:root{--bg:#fff;--alt:#f3f4f5;--ink:#1d2228;--body:#5b636c;--line:#e3e5e8;--dark:#2a3038;--night:#0e1216;--acc:#0068b3;--link:#5aafea;--ease:cubic-bezier(.19,1,.22,1)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+.switch{position:sticky;top:0;z-index:1000;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.switch button{font:700 13px Manrope;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer}
+.switch button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.v{display:none}.v.on{display:block}
+.w{max-width:1280px;margin:0 auto;padding:0 24px}
+.note{color:var(--body);font-size:14px;line-height:1.7;padding:28px 0 4px;max-width:86ch}.note b{color:var(--ink)}
+.note.fix{background:#fff7e6;border:1px solid #f3d9a4;border-radius:14px;padding:14px 18px;margin-top:20px}
+.eb{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;margin:44px 0 12px}
+.eb:before{content:"";width:28px;height:1px;background:currentColor}
+.h{font:700 clamp(2rem,3.8vw,3.2rem)/1.06 'Playfair Display',serif;margin:0 0 26px;color:var(--ink)}.h i{color:var(--acc)}
+.sub{color:var(--body);margin:-14px 0 26px;font-size:16px}
+/* segmentados */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:4px;gap:2px;background:#fff}
+.seg button{font:600 14px Manrope;border:0;background:transparent;border-radius:99px;padding:8px 14px;color:var(--body);cursor:pointer}
+.seg button.on{background:var(--dark);color:#fff}
+.row-sb{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+/* buscador (campos reales de cada página) */
+.search{display:grid;gap:8px;padding:8px;border-radius:20px;background:var(--night);margin-bottom:16px}
+.search .f{position:relative}
+.search label{position:absolute;left:14px;top:7px;font-size:10px;font-weight:800;letter-spacing:.16em;color:#8a949e;text-transform:uppercase;pointer-events:none}
+.search input,.search select,.search .dt{width:100%;height:52px;border:1px solid #2a3139;border-radius:14px;background:#171c22;color:#fff;font:600 14.5px Manrope;padding:20px 14px 6px;outline:none;appearance:none}
+.search input::placeholder{color:#6f7a85}
+.search input:focus,.search select:focus{border-color:var(--link)}
+.search select:disabled,.search input:disabled{opacity:.45;cursor:not-allowed}
+.search .dt{display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer}
+.search .go{display:flex;gap:8px}
+.search .go button{height:52px;border-radius:14px;font:700 14.5px Manrope;padding:0 20px;cursor:pointer;border:1px solid #2a3139}
+.search .go .s{background:#fff;color:var(--night);border-color:#fff}.search .go .r{background:transparent;color:#fff}
+/* pestañas de continente */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;overflow-x:auto}
+.chip{font:700 13px Manrope;border:1px solid var(--line);background:#fff;border-radius:99px;padding:9px 15px;cursor:pointer;color:var(--ink);white-space:nowrap}
+.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* paginación */
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin:30px 0 80px}
+.pager button{min-width:42px;height:42px;border-radius:99px;border:1px solid var(--line);background:#fff;font:700 14px Manrope;cursor:pointer;padding:0 14px}
+.pager button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* ===== card con el hover actual ===== */
+.gc{position:relative;display:block;overflow:hidden;isolation:isolate;background:#1a1f25;color:#fff;text-decoration:none;outline:none}
+.gc .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s ease-out}
+.gc:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,8,12,.55),rgba(4,8,12,.92) 70%);transform:scaleX(0);transform-origin:right center;transition:transform 1s var(--ease)}
+.gc:hover:before,.gc:focus-visible:before{transform:scaleX(1);transform-origin:left center}
+.gc:hover .ph,.gc:focus-visible .ph{transform:scale(1.05)}
+.gc .glogo{position:absolute;right:14px;top:14px;z-index:3;width:62px;height:62px;border-radius:50%;background:#14181d;border:1px solid rgba(255,255,255,.18);overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.gc .glogo img{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);object-fit:contain;filter:grayscale(1);opacity:.85;transition:filter .3s,opacity .3s}
+.gc:hover .glogo img,.gc:focus-visible .glogo img{filter:none;opacity:1}
+.gc .ginfo{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:20px;opacity:0;transform:translateY(18px);transition:opacity .5s,transform 1.2s var(--ease)}
+.gc:hover .ginfo,.gc:focus-visible .ginfo{opacity:1;transform:none}
+.gc .gstrip{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px;background:linear-gradient(transparent,rgba(0,0,0,.72));font-weight:700;transition:opacity .3s}
+.gc:hover .gstrip,.gc:focus-visible .gstrip{opacity:0}
+.gc .num{position:absolute;left:14px;top:14px;z-index:3;min-width:30px;height:30px;display:grid;place-items:center;background:rgba(14,18,22,.85);font-weight:800;font-size:13px;border-radius:6px}
+.gc .tag{position:absolute;left:14px;top:14px;z-index:3;font-size:11px;font-weight:800;letter-spacing:.16em;background:rgba(14,18,22,.85);padding:7px 10px;border-radius:6px}
+.gc h3{font:700 24px/1.08 'Playfair Display';margin:0 0 8px}
+.gc .ln{display:flex;gap:7px;align-items:flex-start;font-size:13.5px;opacity:.88;margin-top:4px}
+.gc .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.gc .chips span{font-size:11.5px;font-weight:700;background:rgba(255,255,255,.14);padding:4px 9px;border-radius:99px}
+.gc .det{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font-weight:700;font-size:13.5px;border:1px solid rgba(255,255,255,.5);padding:8px 14px;border-radius:8px}
+.gc:focus-visible{box-shadow:inset 0 0 0 3px var(--link)}
+@media (hover:none){.gc:before{transform:scaleX(1)}.gc .ginfo{opacity:1;transform:none}.gc .gstrip{opacity:0}.gc .glogo img{filter:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gc:before,.gc .ph,.gc .ginfo,.gc .glogo img{transition:none}}
+@media (max-width:900px){.search{grid-template-columns:1fr 1fr!important}.search .go{grid-column:1/-1}.search .go button{flex:1}}
+@media (max-width:520px){.search{grid-template-columns:1fr!important}}
+</style>
+<style>
+.crumb{display:flex;gap:8px;font-size:13.5px;color:var(--body);margin:26px 0 6px}.crumb b{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:12px 20px;font:700 14.5px Manrope;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--ink);transition:transform .16s ease-out}
+.btn:active{transform:scale(.97)}.btn.p{background:var(--dark);color:#fff;border-color:var(--dark)}
+.sec{padding:52px 0;border-top:1px solid var(--line)}
+.sec h2{font:700 clamp(1.7rem,3vw,2.4rem)/1.1 'Playfair Display';margin:0 0 22px}.sec h2 i{color:var(--acc)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cf{aspect-ratio:3/4;border-radius:18px}
+.live{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;background:#ffd34d;color:var(--night);padding:6px 10px;border-radius:99px}
+/* list rows (E3) */
+.lst{border-top:1px solid var(--line)}
+.lr{display:grid;grid-template-columns:84px 1.4fr 1fr 150px auto;gap:20px;align-items:center;padding:12px 10px;border-bottom:1px solid var(--line);position:relative;isolation:isolate;text-decoration:none;color:var(--ink);transition:color .4s}
+.lr:before{content:"";position:absolute;inset:0;z-index:-1;background:var(--night);transform:scaleX(0);transform-origin:right;transition:transform 1s var(--ease)}
+.lr:hover:before{transform:scaleX(1);transform-origin:left}.lr:hover{color:#fff}
+.lr .lg{width:84px;height:84px;border-radius:50%;background:#14181d;overflow:hidden;display:grid;place-items:center}.lr .lg img{width:80%;height:80%;object-fit:contain}
+.lr h3{font:700 22px/1.1 'Playfair Display';margin:0}.lr small{opacity:.7;font-size:13.5px}
+.lr .bt{font-weight:700;font-size:14px;border:1px solid currentColor;border-radius:8px;padding:9px 14px;white-space:nowrap}
+/* travel T2 */
+.dh{position:relative;border-radius:28px;overflow:hidden;min-height:440px;display:flex;align-items:flex-end;color:#fff;margin-top:14px}
+.dh img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.dh:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 20%,rgba(10,12,15,.9))}
+.dh .in{position:relative;z-index:1;padding:40px;width:100%;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end}
+.dh h1{font:700 clamp(2.6rem,6vw,5rem)/.95 'Playfair Display';margin:10px 0 14px}
+.meta span{display:inline-block;font-size:13px;font-weight:700;background:rgba(255,255,255,.14);backdrop-filter:blur(8px);padding:7px 12px;border-radius:99px;margin:0 6px 6px 0}
+.cd{display:flex;gap:8px}.cd div{background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:10px 12px;text-align:center;min-width:64px}.cd b{display:block;font-size:26px;font-weight:800}.cd small{font-size:10px;letter-spacing:.16em;opacity:.75}
+.det2{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;margin:40px 0 80px}
+.det2 h3{font:700 28px 'Playfair Display';margin:34px 0 14px}.det2 h3:first-child{margin-top:0}.det2 p{color:var(--body);line-height:1.8}
+.inc{display:grid;grid-template-columns:1fr 1fr;gap:10px;list-style:none;padding:0;margin:0}.inc li{border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-weight:600}
+.it{border-left:2px solid var(--line);margin-left:10px}.it div{position:relative;padding:0 0 20px 26px}.it div:before{content:"";position:absolute;left:-8px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--ink)}.it span{color:var(--body);display:block}
+.pk{position:sticky;top:76px;align-self:start;border:1px solid var(--line);border-radius:24px;padding:22px}
+.opt{display:grid;grid-template-columns:1fr auto;gap:2px;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:10px;cursor:pointer}.opt.on{border-color:var(--ink)}.opt small{grid-column:1/-1;color:var(--body)}.opt .p{font-weight:800;font-size:18px}
+.seats{margin:16px 0 4px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.seats i{display:block;height:100%;width:78%;background:var(--acc)}
+/* works */
+.mas{columns:3;column-gap:14px;margin-bottom:60px}.mas .gc{break-inside:avoid;margin-bottom:14px;border-radius:18px}
+.mas .gc .ph{position:relative;height:auto}
+.case{display:grid;grid-template-columns:1fr 1fr;border-radius:28px;overflow:hidden;background:var(--night);color:#fff;margin-bottom:80px}
+.case img{width:100%;height:100%;object-fit:cover;min-height:360px}.case .in{padding:44px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.case h3{font:700 36px/1.05 'Playfair Display';margin:0}.case p{color:#aab3bd;line-height:1.8;margin:0}
+.kpi{display:flex;gap:26px;margin:8px 0}.kpi b{display:block;font:800 30px Manrope}.kpi small{font-size:11px;letter-spacing:.16em;color:#8a949e}
+/* gallery */
+.gal{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:160px;gap:10px;margin-bottom:30px}
+.gal .gc{border-radius:16px;grid-column:span 2}
+.gal .gc:nth-child(10n+1){grid-column:span 3;grid-row:span 2}.gal .gc:nth-child(10n+2){grid-column:span 3}.gal .gc:nth-child(10n+3){grid-column:span 3}
+.gal .gc:nth-child(10n+4){grid-column:span 2;grid-row:span 2}.gal .gc:nth-child(10n+5),.gal .gc:nth-child(10n+6){grid-column:span 4}
+.gal .gc:nth-child(10n+7),.gal .gc:nth-child(10n+8),.gal .gc:nth-child(10n+9){grid-column:span 2}.gal .gc:nth-child(10n+10){grid-column:span 6}
+.viewer{position:fixed;inset:0;z-index:2000;background:rgba(8,10,12,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff}
+.viewer.on{display:flex}.viewer img{max-width:86vw;max-height:76vh;border-radius:14px}
+.viewer button{position:absolute;top:20px;right:24px;background:none;border:1px solid #555;color:#fff;border-radius:99px;width:44px;height:44px;font-size:20px;cursor:pointer}
+/* media */
+.feat{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:24px}
+.vid{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:16/9;background:#000;color:#fff;text-decoration:none;display:block}
+.vid img{width:100%;height:100%;object-fit:cover;opacity:.75;transition:transform .7s ease-out,opacity .4s}.vid:hover img{transform:scale(1.05);opacity:.55}
+.vid .pl{position:absolute;left:50%;top:50%;width:70px;height:70px;margin:-35px;border-radius:50%;background:#fff;color:var(--night);display:grid;place-items:center;font-size:22px;transition:transform .3s var(--ease)}.vid:hover .pl{transform:scale(1.1)}
+.vid .cap{position:absolute;left:18px;right:18px;bottom:16px}.vid .cap b{display:block;font:700 22px 'Playfair Display'}.vid .cap small{opacity:.8}
+.side{display:grid;gap:16px}.side .vid{aspect-ratio:auto;height:100%}
+.press{border-top:1px solid var(--line)}.press a{display:grid;grid-template-columns:120px 1fr auto;gap:20px;align-items:center;padding:18px 6px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);transition:background .3s}.press a:hover{background:var(--alt)}
+.press b{font:700 20px 'Playfair Display'}.press small{color:var(--body)}
+/* office */
+.off{display:grid;grid-template-columns:1fr 1.2fr;border-radius:28px;overflow:hidden;border:1px solid var(--line);margin-top:14px}
+.off .in{padding:40px;display:flex;flex-direction:column;gap:14px}
+.off h1{font:700 clamp(2.4rem,5vw,4rem)/1 'Playfair Display';margin:6px 0}
+.off .row{display:flex;gap:10px;align-items:center;font-size:15px}.off .row b{min-width:90px;font-size:11px;letter-spacing:.16em;color:var(--body)}
+.off .map{min-height:440px}.off iframe{width:100%;height:100%;border:0;filter:grayscale(1)}
+.clock{font:800 54px/1 Manrope;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.tm{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:12px}.tm img{width:56px;height:56px;border-radius:50%;object-fit:cover}
+.otabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0}
+/* legal */
+.leg{display:grid;grid-template-columns:260px 1fr;gap:48px;margin:20px 0 90px}
+.toc{position:sticky;top:76px;align-self:start;border-left:2px solid var(--line);padding-left:16px;display:grid;gap:10px}
+.toc a{color:var(--body);text-decoration:none;font-size:14.5px}.toc a.on{color:var(--ink);font-weight:700}
+.legt h1{font:700 clamp(2.4rem,5vw,3.8rem)/1 'Playfair Display';margin:0 0 6px}.legt .up{color:var(--body);font-size:14px;margin-bottom:26px}
+.legt h2{font:700 24px 'Playfair Display';margin:34px 0 10px;scroll-margin-top:90px}.legt p{color:var(--body);line-height:1.85;max-width:72ch}
+.legt .sum{background:var(--alt);border-radius:18px;padding:18px 22px;margin-bottom:10px}.legt .sum b{display:block;margin-bottom:6px}
+@media (max-width:1000px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}.lr{grid-template-columns:64px 1fr auto}.lr .hd{display:none}.lr .lg{width:64px;height:64px}.det2,.case,.feat,.off,.leg{grid-template-columns:1fr}.pk,.toc{position:static}.mas{columns:2}.gal{grid-template-columns:repeat(2,1fr)}.gal .gc{grid-column:auto!important;grid-row:auto!important}.dh .in{grid-template-columns:1fr}}
+@media (max-width:560px){.g4,.g3{grid-template-columns:1fr}.mas{columns:1}.inc{grid-template-columns:1fr}}
+</style></head><body>
+<div class="switch"><button data-v="cf" class="on">Conferences</button><button data-v="tr">Travel · ficha</button><button data-v="wk">Works</button><button data-v="ga">Gallery</button><button data-v="me">Media</button><button data-v="of">Office (map)</button><button data-v="lg">Terms / Privacy</button></div>
+
+<!-- ===== CONFERENCES ===== -->
+<section class="v on w" id="cf">
+  <p class="note"><b>/conferences (hoy da 404).</b> Es un listado nuevo con la misma lógica que Events: <b>Upcoming / Past</b>, <b>Card view / List view</b>, buscador (nombre, fechas, País → Estado → Ciudad) y pestañas de continente. Las cards llevan el <b>hover del cliente</b>: el velo barre de izquierda a derecha y suben las fechas, el lugar, cuántas sesiones tiene el programa y «View schedule». La List view es la E3 con el barrido en la fila. Hay 28 conferencias reales en beta.</p>
+  <p class="eb">Music</p><h2 class="h">Music <i>conferences</i></h2>
+  <div class="row-sb"><span id="cfs1"></span><span id="cfs2"></span></div><div id="cfsb"></div><div id="cftb"></div>
+  <div class="g4" id="cfg"></div>
+  <p class="eb">List view</p><div class="lst" id="cfl"></div><div id="cfp"></div>
+</section>
+
+<!-- ===== TRAVEL DETAIL (T2) ===== -->
+<section class="v w" id="tr">
+  <p class="note"><b>/travels/:slug: ficha T2 aprobada,</b> con estos ajustes: se llega desde «View trip» en las filas T0. Los paquetes, el itinerario y «qué incluye» serían <b>campos nuevos en el CMS</b> (Section Manager → Travels page). La reserva «Request my spot» usa el mismo flujo del guest list y el e-ticket (miembro identificado por JWT y pago con Stripe cuando hay precio). Si el viaje está agotado, el botón pasa a «Join waiting list».</p>
+  <div class="crumb">Travels › <b>TomorrowLand</b></div>
+  <div class="dh"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1567792515.png" alt=""><div class="in">
+    <div><span class="live">LAST SPOTS</span><h1>TomorrowLand</h1><div class="meta"><span>📅 July 18–20 &amp; 25–27</span><span>📍 Boom, Belgium</span><span>🌙 4 nights</span><span>✈ From Miami · Madrid · Lima</span></div></div>
+    <div><small style="font-size:11px;letter-spacing:.2em;font-weight:800;opacity:.8">DEPARTURE IN</small><div class="cd" id="trcd"></div></div>
+  </div></div>
+  <div class="det2">
+    <div>
+      <h3>The trip</h3><p>Tomorrowland is an electronic music festival in Boom (Belgium), organised by ID&amp;T since 2005. More than 450,000 people of 75 nationalities, stages that look like a fairy tale and DreamVille, the campsite next to the festival.</p>
+      <h3>What's included</h3><ul class="inc"><li>🎫 Full Madness pass</li><li>🏨 Hotel 4★ · Brussels</li><li>🚐 Daily shuttle</li><li>✈ Flights (Gold)</li><li>🍾 GEM2i welcome party</li><li>🛡 Travel insurance</li></ul>
+      <h3>Itinerary</h3><div class="it"><div><b>Day 1 · Thu 17</b><span>Arrival in Brussels, check-in, welcome party.</span></div><div><b>Day 2 · Fri 18</b><span>Festival day 1 · shuttle 12:00 · return 01:30.</span></div><div><b>Day 3 · Sat 19</b><span>Festival day 2 · meet &amp; greet at the GEM2i point.</span></div><div><b>Day 4 · Sun 20</b><span>Festival day 3 · closing ceremony.</span></div><div><b>Day 5 · Mon 21</b><span>Brunch and check-out.</span></div></div>
+      <h3>Where</h3><p>📍 De Schorre, Schommelei 1, 2850 Boom, Belgium</p>
+    </div>
+    <aside class="pk"><b style="font:700 22px 'Playfair Display'">Choose your package</b><br><small style="color:var(--body)">Members only · per person</small>
+      <div class="opt on"><b>Silver</b><span class="p">$1,290</span><small>Pass + hotel + shuttle</small></div>
+      <div class="opt"><b>Gold</b><span class="p">$2,450</span><small>Silver + flights + welcome party</small></div>
+      <div class="opt"><b>Platinum</b><span class="p">$3,900</span><small>Gold + Comfort pass + private transfers</small></div>
+      <div class="seats"><i></i></div><small style="color:var(--body)"><b style="color:var(--ink)">11 spots left</b> of 50</small>
+      <button class="btn p" style="width:100%;justify-content:center;margin-top:16px">Request my spot →</button>
+      <small style="display:block;text-align:center;color:var(--body);margin-top:10px">+250 GEM2i points with this trip</small></aside>
+  </div>
+</section>
+
+<!-- ===== WORKS ===== -->
+<section class="v w" id="wk">
+  <p class="note"><b>/works (hoy está vacía).</b> El portafolio usa los 7 trabajos reales de CMS → Our works (foto + título). Lleva pestañas por tipo de trabajo, una rejilla tipo masonry con el <b>mismo hover</b> (el velo barre de izquierda a derecha y sube «View project») y un visor a pantalla completa. Arriba va un <b>caso destacado</b> con resultados (cifras). Los campos nuevos opcionales serían categoría, cliente, año, descripción y cifras.</p>
+  <p class="eb">Portfolio</p><h2 class="h">Our <i>works</i></h2><p class="sub">At GEM2i we work hard so our clients get the best results.</p>
+  <div class="case"><img src="https://beta.gem2i.com/api/uploads/gem2i/pages/conference-ade.png" alt=""><div class="in"><span class="live" style="align-self:flex-start;background:#7cc4ff">FEATURED CASE</span><h3>Electronic Events</h3><p>Concept, production and promotion for a 3-night electronic series: line-up, ticketing with guest lists and a social campaign.</p><div class="kpi"><div><b>12K</b><small>TICKETS</small></div><div><b>3.4M</b><small>REACH</small></div><div><b>98%</b><small>SOLD</small></div></div><a class="btn" href="#" style="align-self:flex-start">View project →</a></div></div>
+  <div class="tabs"><button class="chip on">All</button><button class="chip">Events</button><button class="chip">Campaigns</button><button class="chip">Design</button></div>
+  <div class="mas" id="wkg"></div>
+</section>
+
+<!-- ===== GALLERY ===== -->
+<section class="v w" id="ga">
+  <p class="note"><b>/gallery (hoy usa la página genérica del CMS).</b> Pasa a ser la galería propia de Norules con las 18 fotos reales (CMS → Gallery): pestañas por categoría y un <b>mosaico</b> como el del final de la home, con el <b>mismo hover</b> (el velo barre y suben el nombre y el país). Al hacer clic se abre un visor con flechas y teclado.</p>
+  <p class="eb">Gallery</p><h2 class="h">Inside the <i>night</i></h2>
+  <div class="tabs"><button class="chip on">All</button><button class="chip">Venues</button><button class="chip">Festivals</button><button class="chip">Events</button></div>
+  <div class="gal" id="gag"></div><div class="viewer" id="vw"><button aria-label="Close" id="vwx">×</button><img alt="" id="vwi"><b id="vwt"></b></div>
+</section>
+
+<!-- ===== MEDIA ===== -->
+<section class="v w" id="me">
+  <p class="note"><b>/media (hoy está vacía; la enlaza el footer).</b> Vídeos y prensa: un <b>vídeo destacado</b> grande con dos al lado, una rejilla de vídeos (aftermovies, entrevistas) con zoom y el botón de play al pasar, y una lista de <b>prensa</b> con el medio, el titular y la fecha. Los datos saldrían de una lista nueva en Section Manager («Media»: título, vídeo de YouTube o Vimeo, tipo y fecha).</p>
+  <p class="eb">Media</p><h2 class="h">Watch &amp; <i>read</i></h2>
+  <div class="feat"><a class="vid" href="#"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png" alt=""><span class="pl">▶</span><span class="cap"><b>Ultra Miami 2025 · official aftermovie</b><small>4:12 · Aftermovie</small></span></a>
+    <div class="side"><a class="vid" href="#"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1517430743.png" alt=""><span class="pl">▶</span><span class="cap"><b>EDC Las Vegas</b><small>Aftermovie</small></span></a><a class="vid" href="#"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403884600.png" alt=""><span class="pl">▶</span><span class="cap"><b>Green Valley · club tour</b><small>Venue</small></span></a></div></div>
+  <div class="tabs"><button class="chip on">All</button><button class="chip">Aftermovies</button><button class="chip">Interviews</button><button class="chip">Venues</button></div>
+  <div class="g3" id="meg"></div>
+  <div class="sec" style="margin-top:40px"><h2>In the <i>press</i></h2><div class="press">
+    <a href="#"><small>DJ MAG</small><span><b>How GEM2i connects promoters across 17 markets</b><br><small>Feature · Oct 2026</small></span><span>↗</span></a>
+    <a href="#"><small>BILLBOARD</small><span><b>The private networks behind the guest lists</b><br><small>Report · Aug 2026</small></span><span>↗</span></a>
+    <a href="#"><small>MIXMAG</small><span><b>Three decades behind the night</b><br><small>Interview · Mar 2026</small></span><span>↗</span></a></div></div>
+</section>
+
+<!-- ===== OFFICE ===== -->
+<section class="v w" id="of">
+  <p class="note"><b>/map/:slug (hoy genérica).</b> Ficha de oficina desde «Where GEM2i plays». Usa los campos de Maps &amp; Locations (nombre, lat/lng, descripción, enlace) más la <b>hora local en vivo</b> y el equipo de esa región (sale del Team, como en la home). Pestañas para saltar a otras oficinas y «Upcoming events nearby» (eventos del mismo país). Campos nuevos opcionales: dirección, teléfono, e-mail y horario.</p>
+  <div class="crumb">Offices › <b>New York, USA</b></div>
+  <div class="otabs" id="otb"></div>
+  <div class="off"><div class="in"><span class="live" style="align-self:flex-start;background:#7cc4ff">HQ</span><h1 id="oname">New York, USA</h1><p style="color:var(--body);margin:0" id="odesc">Headquarters · North America &amp; Global</p>
+    <div><small style="font-size:11px;letter-spacing:.2em;font-weight:800;color:var(--body)">LOCAL TIME</small><div class="clock" id="oclk">--:--</div></div>
+    <div class="row"><b>ADDRESS</b>350 5th Ave, New York, NY</div><div class="row"><b>E-MAIL</b>main@gem2i.com</div><div class="row"><b>PHONE</b>862-201-3636</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><a class="btn p" href="#">Contact this office →</a><a class="btn" href="#">Open in Maps ↗</a></div>
+    <div style="display:grid;gap:10px;margin-top:10px"><div class="tm"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt=""><span><b>Carlos M. Artiles</b><br><small style="color:var(--body)">Founder &amp; CEO · USA</small></span></div></div>
+  </div><div class="map"><iframe id="omap" loading="lazy" title="Map" src="https://www.openstreetmap.org/export/embed.html?bbox=-74.03%2C40.69%2C-73.98%2C40.73&layer=mapnik&marker=40.7128%2C-74.006"></iframe></div></div>
+  <div class="sec" style="margin-top:40px"><h2>Upcoming events <i>nearby</i></h2><div class="g4" id="ofev"></div></div>
+</section>
+
+<!-- ===== LEGAL ===== -->
+<section class="v w" id="lg">
+  <p class="note"><b>/terms y /privacy (hoy genéricas, y el texto aún es el de la plantilla de origen: «Welcome to Legacy Consulting»).</b> Una sola plantilla de texto legal para las dos: un índice fijo a la izquierda que marca la sección en la que estás, un <b>resumen en palabras simples</b> arriba, la fecha de actualización y el texto con buena lectura (72 caracteres por línea). El contenido sigue en el CMS (Pages); el índice se genera desde los títulos h2. <b>Hay que escribir los textos reales de GEM2i.</b></p>
+  <div class="leg">
+    <nav class="toc" id="toc"><a href="#l1" class="on">1. Who we are</a><a href="#l2">2. Membership</a><a href="#l3">3. Tickets &amp; guest lists</a><a href="#l4">4. Payments &amp; refunds</a><a href="#l5">5. Points</a><a href="#l6">6. Your data</a><a href="#l7">7. Contact</a></nav>
+    <div class="legt">
+      <div class="tabs"><button class="chip on">Terms of Service</button><button class="chip">Privacy Policy</button></div>
+      <h1>Terms of <i style="color:var(--acc)">Service</i></h1><div class="up">Last updated: October 23, 2026 · ≈ 6 min read</div>
+      <div class="sum"><b>In short</b>Membership is free to join; e-tickets and trips are paid with Stripe; guest-list spots are personal and can be cancelled from My Account; we never sell your data.</div>
+      <h2 id="l1">1. Who we are</h2><p>GEM2i (Global Entertainment Management &amp; Marketing Integration) is a private membership network for the entertainment industry… <i>(texto de ejemplo — sustituir por el texto legal real)</i></p>
+      <h2 id="l2">2. Membership</h2><p>Members access guest lists, QR e-passes and e-tickets. Your membership number and level are shown in My Account…</p>
+      <h2 id="l3">3. Tickets &amp; guest lists</h2><p>Each pass is personal and carries a QR code. Guest-list benefits depend on your member type and the time of arrival…</p>
+      <h2 id="l4">4. Payments &amp; refunds</h2><p>Payments are processed by Stripe. Refunds follow the policy of each event organiser…</p>
+      <h2 id="l5">5. Points</h2><p>Points are earned on purchases and invitations and have no cash value…</p>
+      <h2 id="l6">6. Your data</h2><p>See the Privacy Policy for what we collect and why…</p>
+      <h2 id="l7">7. Contact</h2><p>main@gem2i.com · 862-201-3636</p>
+    </div>
+  </div>
+</section>
+
+<script>/* kit */
+// Kit común de bocetos Norules: buscador real por página, pestañas, paginación y switch de variantes.
+const API = 'https://beta.gem2i.com/api/uploads/gem2i/legacy/';
+const CONTINENTS = ['All', 'USA', 'Europe', 'North America', 'South America', 'Africa', 'Oceania', 'Asia'];
+const PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+
+// fields: [label, kind, placeholder]  kind = text | country | state | date
+function searchBar(fields) {
+  const cols = fields.map(f => (f[1] === 'date' ? '1.1fr' : '1fr')).join(' ') + ' auto';
+  const f = fields.map(([l, k, p]) => {
+    if (k === 'country') return `<div class="f"><label>${l}</label><select><option>All countries</option><option>United States</option><option>Spain</option><option>Brazil</option></select></div>`;
+    if (k === 'state') return `<div class="f"><label>${l}</label><select disabled><option>All states</option></select></div>`;
+    if (k === 'date') return `<div class="f"><label>${l}</label><button class="dt" type="button">${CAL} Any date</button></div>`;
+    return `<div class="f"><label>${l}</label><input placeholder="${p || ''}" ${k === 'city' ? 'disabled' : ''}></div>`;
+  }).join('');
+  return `<form class="search" style="grid-template-columns:${cols}" onsubmit="return false">${f}<div class="go"><button class="s">Search</button><button class="r" type="reset">Reset</button></div></form>`;
+}
+const tabs = (list = CONTINENTS) => `<div class="tabs">${list.map((t, i) => `<button class="chip ${i ? '' : 'on'}">${t}</button>`).join('')}</div>`;
+const pager = () => `<div class="pager"><button>← Previous</button><button class="on">1</button><button>2</button><button>3</button><span>…</span><button>12</button><button>Next →</button></div>`;
+const seg = (a, b) => `<div class="seg"><button class="on">${a}</button><button>${b}</button></div>`;
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('.switch button');
+  if (b) {
+    document.querySelectorAll('.v').forEach(x => x.classList.toggle('on', x.id === b.dataset.v));
+    document.querySelectorAll('.switch button').forEach(x => x.classList.toggle('on', x === b));
+    window.dispatchEvent(new Event('variant'));
+    return;
+  }
+  const c = e.target.closest('.chip, .seg button');
+  if (c) [...c.parentElement.children].forEach(x => x.classList.toggle('on', x === c));
+  const sel = e.target.closest('select');
+  if (sel) return;
+});
+document.addEventListener('change', e => {
+  if (e.target.matches('.search select:not([disabled])')) {
+    const st = e.target.closest('.search').querySelectorAll('select')[1];
+    const city = e.target.closest('.search').querySelector('input[disabled]');
+    if (st) { st.disabled = false; st.innerHTML = '<option>All states</option><option>Florida</option><option>New York</option>'; }
+    if (city) city.disabled = false;
+  }
+});
+</script>
+<script>
+// Conferences
+document.getElementById('cfs1').innerHTML=seg('Upcoming','Past');document.getElementById('cfs2').innerHTML=seg('Card view','List view');
+document.getElementById('cfsb').innerHTML=searchBar([['Conference','text','by name…'],['Dates','date'],['Country','country'],['State','state'],['City','city','City']]);
+document.getElementById('cftb').innerHTML=tabs();document.getElementById('cfp').innerHTML=pager();
+const C=[['Amsterdam Dance Event','October 15 to 19','Amsterdam, Netherlands','1412174875',1],['Brighton Music Conference','April 12, 13','Brighton, United Kingdom','1412175141',4],['EDMbiz','June 17 to 19','Las Vegas, United States','1412175250',3],['Electronic Music Conference','December 2 to 4','Sydney, Australia','1412176041',3],['International Music Summit','May 21 to 23','Ibiza, Spain','1412176604',0],['Winter Music Conference','March 21 to 30','Miami, United States','1412177628',0],['Rio Music Conference','Feb 19 to Mar 4','Rio de Janeiro, Brazil','1412177492',0],['South by Southwest','March 7 to 16','Austin, United States','1412177882',0]];
+const cimg=c=>`${API}images_conferences/images/${c[3]}.jpg`,clog=c=>`${API}images_conferences/logos/${c[3]}.png`;
+document.getElementById('cfg').innerHTML=C.map((c,i)=>`<a class="gc cf" href="#"><img class="ph" src="${cimg(c)}" alt="" loading="lazy">${i===0?'<span class="tag" style="background:#ffd34d;color:#0e1216">LIVE THIS WEEK</span>':''}<span class="glogo"><img src="${clog(c)}" alt=""></span><span class="gstrip">${c[0]}</span><span class="ginfo"><h3>${c[0]}</h3><div class="ln">${CAL}${c[1]}</div><div class="ln">${PIN}${c[2]}</div>${c[4]?`<div class="chips"><span>${c[4]} sessions</span></div>`:''}<span class="det">${c[4]?'View schedule':'View details'} →</span></span></a>`).join('');
+document.getElementById('cfl').innerHTML=C.slice(0,5).map(c=>`<a class="lr" href="#"><span class="lg"><img src="${clog(c)}" alt=""></span><span><h3>${c[0]}</h3><small>${c[1]}</small></span><span class="hd"><small>📍 ${c[2]}</small></span><span class="hd"><small>${c[4]?c[4]+' sessions':'—'}</small></span><span class="bt">${c[4]?'View schedule':'View details'} →</span></a>`).join('');
+// Travel countdown
+const dep=new Date('2027-07-17T12:00');function cd(){const s=Math.max(0,(dep-new Date())/1000);document.getElementById('trcd').innerHTML=[Math.floor(s/86400),Math.floor(s%86400/3600),Math.floor(s%3600/60)].map((n,i)=>`<div><b>${String(n).padStart(2,'0')}</b><small>${['DAYS','HRS','MIN'][i]}</small></div>`).join('')}cd();setInterval(cd,30000);
+document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('on',x===o)));
+// Works
+const P='https://beta.gem2i.com/api/uploads/gem2i/pages/';
+const W=[['Electronic Events','conference-ade.png','Events','4/5'],['Theme Party','conference-rio.jpg','Events','1/1'],['Marketing Campaign','conference-sonar.png','Campaigns','4/3'],['Logo Design','conference-ultra.png','Design','1/1'],['New Yearly Marketing','conference-wmc.png','Campaigns','3/4'],['Generic Flyers','conference-ultra.png','Design','4/5'],['Weekly Party','conference-wmc.png','Events','4/3']];
+document.getElementById('wkg').innerHTML=W.map(w=>`<a class="gc" href="#" style="aspect-ratio:${w[3]}"><img class="ph" src="${P+w[1]}" alt="" loading="lazy" style="position:absolute;height:100%"><span class="tag">${w[2].toUpperCase()}</span><span class="gstrip">${w[0]}</span><span class="ginfo"><h3>${w[0]}</h3><div class="ln">${w[2]} · 2026</div><span class="det">View project →</span></span></a>`).join('');
+// Gallery
+const G=[['Hakkasan','United States','1404140530'],['Sirena','Brazil','1403891561'],['Green Valley','Brazil','1403884600'],['Echostage','United States','1404146545'],['Ushuaïa','Spain','1404140969'],['Hï Ibiza','Spain','1555093652'],['Hakkasan','United States','1404140530'],['Sirena','Brazil','1403891561'],['Green Valley','Brazil','1403884600'],['Echostage','United States','1404146545']];
+document.getElementById('gag').innerHTML=G.map((g,i)=>`<a class="gc" href="#" data-i="${i}"><img class="ph" src="${API}venues_view/${g[2]}.png" alt="" loading="lazy"><span class="ginfo"><h3>${g[0]}</h3><div class="ln">${PIN}${g[1]}</div></span></a>`).join('');
+const vw=document.getElementById('vw');document.querySelectorAll('#gag .gc').forEach(a=>a.onclick=e=>{e.preventDefault();const g=G[a.dataset.i];document.getElementById('vwi').src=`${API}venues_view/${g[2]}.png`;document.getElementById('vwt').textContent=g[0]+' · '+g[1];vw.classList.add('on')});
+document.getElementById('vwx').onclick=()=>vw.classList.remove('on');addEventListener('keydown',e=>{if(e.key==='Escape')vw.classList.remove('on')});
+// Media
+const MV=[['Tomorrowland 2026','images_festivals/photo/1567792515.png','Aftermovie'],['DGTL Tel Aviv','images_festivals/photo/1570741257.png','Aftermovie'],['Ushuaïa closing','venues_view/1404140969.png','Venue'],['Inside ADE','images_conferences/images/1412174875.jpg','Interview'],['Oasis Festival','images_festivals/photo/1516128182.png','Aftermovie'],['Hï Ibiza','venues_view/1555093652.png','Venue']];
+document.getElementById('meg').innerHTML=MV.map(m=>`<a class="vid" href="#"><img src="${API+m[1]}" alt="" loading="lazy"><span class="pl">▶</span><span class="cap"><b>${m[0]}</b><small>${m[2]}</small></span></a>`).join('');
+// Office
+const O=[['New York, USA','Headquarters · North America & Global','America/New_York','-74.03%2C40.69%2C-73.98%2C40.73'],['Spain','Europe · Commercial management','Europe/Madrid','-3.73%2C40.40%2C-3.67%2C40.44'],['Lima, Peru','South America · Corporate representative','America/Lima','-77.07%2C-12.07%2C-77.01%2C-12.02'],['Buenos Aires, Argentina','South America · Corporate representative','America/Argentina/Buenos_Aires','-58.41%2C-34.62%2C-58.35%2C-34.58'],['Santo Domingo, Dominican Republic','Central America · Corporate representative','America/Santo_Domingo','-69.96%2C18.46%2C-69.90%2C18.51']];
+let oi=0;const ot=document.getElementById('otb');ot.innerHTML=O.map((o,i)=>`<button class="chip ${i?'':'on'}" data-o="${i}">${o[0]}</button>`).join('');
+function oshow(){const o=O[oi];document.getElementById('oname').textContent=o[0];document.getElementById('odesc').textContent=o[1];document.getElementById('omap').src=`https://www.openstreetmap.org/export/embed.html?bbox=${o[3]}&layer=mapnik`;oclk()}
+function oclk(){document.getElementById('oclk').textContent=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:O[oi][2]})}
+ot.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{oi=+b.dataset.o;oshow()}));oclk();setInterval(oclk,30000);
+const EV=[['Deadmau5 cube v3','1568415075.png','NOV 7'],['Nora En Pure','1569001290.png','NOV 14'],['Audien','1568999844.png','NOV 21'],['Elrow Art','1568998950.png','NOV 28']];
+document.getElementById('ofev').innerHTML=EV.map(e=>`<a class="gc" href="#" style="aspect-ratio:3/4;border-radius:18px"><img class="ph" src="${API}events_images/${e[1]}" alt="" loading="lazy"><span class="tag">${e[2]}</span><span class="ginfo"><h3>${e[0]}</h3><span class="det">Buy tickets →</span></span></a>`).join('');
+// Legal TOC
+const hs=[...document.querySelectorAll('.legt h2')];addEventListener('scroll',()=>{let c=hs[0];hs.forEach(h=>{if(h.getBoundingClientRect().top<140)c=h});document.querySelectorAll('#toc a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+c.id))},{passive:true});
+</script></body></html>
