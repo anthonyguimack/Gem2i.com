@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gem2i · páginas interiores 1-5</title>
+<!--
+  Bocetos de las páginas interiores del template Gem2i (gem2i_02), tanda 1 de 5 páginas:
+    1 About   2 Events   3 Event detail   4 Festivals   5 Artists
+  Dos variantes por página (G?1 / G?2). Contenido e imágenes REALES de beta.gem2i.com.
+  Identidad Gem2i aprobada (D-GEM-2026-08): noche #04080C, tarjetas #0D1721, azul marca #0068b3 (rellenos),
+  azul claro #5AAFEA (texto/enlaces), Playfair Display + acento en cursiva, Manrope.
+  Se diferencia de Norules: Norules = pastillas B1 + paleta gris clara; Gem2i = esquinas casi rectas (4 px),
+  botones rectangulares con relleno azul, enlaces subrayados, más contraste nocturno.
+  Funciones que se conservan en todas las variantes (D-GEM-2026-16): hover legado (velo izq→der, zoom,
+  logo gris→color, info sube), buscador completo (país → estado → ciudad, nombre, fechas, género/posición),
+  pestañas de continentes, paginación, vista tarjeta/lista en Events, guest list / e-ticket en el detalle.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04080C;--bg2:#070D14;--card:#0D1721;--line:rgba(255,255,255,.09);--ink:#F2F5F8;--body:#B4C0CB;--muted:#7F8C98;--blue:#0068b3;--link:#5AAFEA;--r:4px;--ease:cubic-bezier(.19,1,.22,1)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--body);font:16px/1.65 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}a{color:inherit;text-decoration:none}
+.serif{font-family:'Playfair Display',Georgia,serif}.acc{font-style:italic;color:var(--link)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+/* switcher */
+.sw{position:sticky;top:0;z-index:50;background:rgba(4,8,12,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.sw .wrap{display:flex;gap:6px;align-items:center;height:60px;overflow-x:auto}
+.sw b{color:var(--ink);font-size:14px;margin-right:12px;white-space:nowrap}
+.sw a{font-size:13px;font-weight:700;padding:8px 14px;border-radius:var(--r);color:var(--body);white-space:nowrap}
+.sw a:hover{color:var(--ink);background:var(--card)}
+.page{padding:72px 0 24px;border-bottom:1px solid var(--line)}
+.ph{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.ph h2{color:var(--ink);font-size:30px;margin:0}
+.ph span{color:var(--muted);font-size:14px}
+.var{margin:34px 0 56px}
+.vtag{display:inline-flex;gap:10px;align-items:center;margin-bottom:14px;font-size:13px;color:var(--muted)}
+.vtag b{background:var(--blue);color:#fff;padding:3px 10px;border-radius:var(--r);font-size:12px;letter-spacing:.06em}
+.frame{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.note{font-size:13.5px;color:var(--muted);margin:12px 2px 0;max-width:90ch}
+/* shared atoms */
+h1,h3{color:var(--ink);margin:0}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-weight:700;font-size:14.5px;padding:13px 22px;border-radius:var(--r);transition:transform .25s var(--ease),background .25s}
+.btn:hover{background:#0a78c9}.btn:active{transform:translateY(1px)}
+.btn.o{background:transparent;border:1px solid rgba(255,255,255,.28)}.btn.o:hover{border-color:#fff}
+.ul{color:var(--link);font-weight:700;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s var(--ease)}
+.ul:hover{background-size:100% 1px}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:5px 10px;border:1px solid var(--line);border-radius:var(--r);color:var(--body)}
+.chip.on{background:var(--ink);color:#04080C;border-color:var(--ink)}
+.search{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr auto;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.search div{background:var(--card);padding:12px 16px;font-size:13.5px;color:var(--muted)}
+.search div small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--link);margin-bottom:2px}
+.search .go{background:var(--blue);color:#fff;font-weight:800;display:flex;align-items:center;padding:0 26px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 26px}
+.pager{display:flex;gap:6px;justify-content:center;margin:34px 0 10px}
+.pager span{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r);font-size:14px;font-weight:700}
+.pager span.on{background:var(--blue);border-color:var(--blue);color:#fff}
+/* legacy hover card: veil wipes left→right, zoom, info rises, logo grey→colour */
+.hc{position:relative;overflow:hidden;border-radius:var(--r);background:var(--card)}
+.hc img.ph1{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.hc::after{content:"";position:absolute;inset:0;background:rgba(0,104,179,.86);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease)}
+.hc .info{position:absolute;inset:auto 0 0 0;z-index:2;padding:18px;transform:translateY(14px);opacity:.0;transition:all .6s var(--ease) .1s;color:#fff}
+.hc .base{position:absolute;inset:auto 0 0 0;padding:16px;z-index:1;background:linear-gradient(transparent,rgba(4,8,12,.92));color:#fff;transition:opacity .4s}
+.hc .lg{position:absolute;top:14px;right:14px;z-index:3;width:54px;height:54px;border-radius:50%;background:#fff;overflow:hidden;filter:grayscale(1);transition:filter .6s}
+.hc .lg img{width:100%;height:100%;object-fit:contain}
+.hc:hover img.ph1{transform:scale(1.07)}.hc:hover::after{transform:scaleX(1)}
+.hc:hover .info{opacity:1;transform:none}.hc:hover .base{opacity:0}.hc:hover .lg{filter:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:900px){.grid4,.grid3{grid-template-columns:1fr 1fr}.search{grid-template-columns:1fr 1fr}.search .go{justify-content:center;padding:14px}}
+@media (max-width:560px){.grid4,.grid3{grid-template-columns:1fr}.search{grid-template-columns:1fr}}
+.in{padding:56px 40px}
+@media (max-width:700px){.in{padding:36px 18px}}
+/* mini hero stand-in (the real page uses the home hero B with the page's slides) */
+.mhero{height:150px;position:relative;display:flex;align-items:flex-end;padding:22px 40px;background:#0b1622 center/cover}
+.mhero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,12,.9),rgba(4,8,12,.35))}
+.mhero span{position:relative;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<nav class="sw"><div class="wrap">
+  <b>Gem2i · interiores 1-5</b>
+  <a href="#about">1 About</a><a href="#events">2 Events</a><a href="#detail">3 Event detail</a><a href="#festivals">4 Festivals</a><a href="#artists">5 Artists</a>
+</div></nav>
+
+<main class="wrap">
+<!-- ================================================================ 1 ABOUT -->
+<section class="page" id="about">
+  <div class="ph"><h2 class="serif">1 · About</h2><span>/about · CMS → About (título, historia, foto, cifras, firma, oficinas, secciones ordenables)</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GA1</b> Línea del tiempo</div>
+    <div class="frame">
+      <div class="mhero" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg)"><span>Hero B del home (slides asignados a /about)</span></div>
+      <div class="in">
+        <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:end">
+          <h1 class="serif" style="font-size:clamp(2.3rem,4.6vw,3.8rem);line-height:1.08">Three decades behind <span class="acc">the night.</span></h1>
+          <p style="margin:0;max-width:46ch">GEM2i connects promoters, festivals, venues and artists in more than 17 markets across four continents.</p>
+        </div>
+        <div class="tl" style="position:relative;margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+          <div style="position:absolute;left:0;right:0;top:30px;height:1px;background:var(--line)"></div>
+          <div style="position:absolute;left:0;top:30px;height:1px;width:72%;background:var(--link)"></div>
+          <div style="padding-right:24px"><b class="serif" style="font-size:42px;color:var(--ink)">1993</b><i style="display:block;width:11px;height:11px;border-radius:50%;background:var(--link);margin:8px 0 18px"></i><p style="margin:0">First entertainment and promotions partnership.</p></div>
+          <div style="padding-right:24px"><b class="serif" style="font-size:42px;color:var(--ink)">2002</b><i style="display:block;width:11px;height:11px;border-radius:50%;background:var(--link);margin:8px 0 18px"></i><p style="margin:0">Reorganized to serve nightlife and live-music segments.</p></div>
+          <div style="padding-right:24px"><b class="serif" style="font-size:42px;color:var(--ink)">17+</b><i style="display:block;width:11px;height:11px;border-radius:50%;background:var(--link);margin:8px 0 18px"></i><p style="margin:0">Markets on 4 continents.</p></div>
+          <div><b class="serif" style="font-size:42px;color:var(--ink)">Today</b><i style="display:block;width:11px;height:11px;border-radius:50%;border:1px solid var(--link);margin:8px 0 18px"></i><p style="margin:0">1,700+ events and 500+ artists on the platform.</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;margin-top:72px;align-items:center">
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg" alt="" style="border-radius:var(--r);aspect-ratio:4/5;object-fit:cover">
+          <div>
+            <h3 class="serif" style="font-size:32px;margin-bottom:16px">Our <span class="acc">story</span></h3>
+            <p>With our own business development methodology we connect promoters, festivals, venues and artists, designing strategies for each market and audience.</p>
+            <p style="margin-top:26px;color:var(--ink);font-weight:700">Carlos Artiles<br><span style="color:var(--muted);font-weight:500">Principal Manager, GEM2i</span></p>
+            <a class="btn" style="margin-top:22px" href="#">Contact us</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Las 4 cifras del CMS se convierten en los hitos de la línea (la línea azul se dibuja al hacer scroll). Debajo, la historia con la foto y la firma. Después siguen las secciones ordenables del CMS (Metodología, Oficinas, Equipo, Contacto) con los diseños del home de Gem2i.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GA2</b> Carta del fundador + oficinas en tarjeta</div>
+    <div class="frame">
+      <div class="mhero" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg)"><span>Hero B del home</span></div>
+      <div class="in" style="display:grid;grid-template-columns:.85fr 1.15fr;gap:56px">
+        <div style="position:sticky;top:90px;align-self:start">
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/site/gem_intro.jpg" alt="" style="border-radius:var(--r);aspect-ratio:3/4;object-fit:cover">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin-top:16px;border-radius:var(--r);overflow:hidden">
+            <div style="background:var(--card);padding:18px"><b class="serif" style="font-size:30px;color:var(--ink)">1993</b><br><small>First partnership</small></div>
+            <div style="background:var(--card);padding:18px"><b class="serif" style="font-size:30px;color:var(--ink)">17+</b><br><small>Markets on 4 continents</small></div>
+            <div style="background:var(--card);padding:18px"><b class="serif" style="font-size:30px;color:var(--ink)">1,700+</b><br><small>Events on the platform</small></div>
+            <div style="background:var(--card);padding:18px"><b class="serif" style="font-size:30px;color:var(--ink)">500+</b><br><small>Artists in our catalog</small></div>
+          </div>
+        </div>
+        <div>
+          <h1 class="serif" style="font-size:clamp(2.2rem,4.2vw,3.4rem);line-height:1.1">Three decades behind <span class="acc">the night.</span></h1>
+          <div style="margin-top:28px;font-size:18px;line-height:1.85;max-width:60ch">
+            <p>GEM2i's origins date back to an entertainment and promotions partnership first established in 1993. In 2002 it was reorganized to serve different segments of the nightlife and live-music business.</p>
+            <p>With our own business development methodology we connect promoters, festivals, venues and artists in more than 17 markets across North America, South America, Europe and Asia.</p>
+          </div>
+          <p class="serif" style="font-size:30px;font-style:italic;color:var(--ink);margin:30px 0 0">Carlos Artiles</p>
+          <small>Principal Manager, GEM2i</small>
+          <h3 class="serif" style="font-size:26px;margin:54px 0 16px">Five offices, <span class="acc">one team</span></h3>
+          <div class="grid3" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
+            <a href="#" class="hc" style="padding:18px;border:1px solid var(--line)"><small style="color:var(--link);font-weight:800">HQ</small><h3 style="font-size:18px">New York, USA</h3><small>Local time 09:14</small></a>
+            <a href="#" class="hc" style="padding:18px;border:1px solid var(--line)"><small style="color:var(--muted);font-weight:800">EUROPE</small><h3 style="font-size:18px">Spain</h3><small>Local time 15:14</small></a>
+            <a href="#" class="hc" style="padding:18px;border:1px solid var(--line)"><small style="color:var(--muted);font-weight:800">SOUTH AMERICA</small><h3 style="font-size:18px">Lima, Peru</h3><small>Local time 09:14</small></a>
+            <a href="#" class="hc" style="padding:18px;border:1px solid var(--line)"><small style="color:var(--muted);font-weight:800">SOUTH AMERICA</small><h3 style="font-size:18px">Buenos Aires</h3><small>Local time 11:14</small></a>
+            <a href="#" class="hc" style="padding:18px;border:1px solid var(--line)"><small style="color:var(--muted);font-weight:800">CARIBBEAN</small><h3 style="font-size:18px">Santo Domingo</h3><small>Local time 10:14</small></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Columna izquierda fija (foto + cifras) mientras se lee la historia completa como una carta firmada. Cada oficina es una tarjeta que lleva a su página /map/:slug con hora local en vivo.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 2 EVENTS -->
+<section class="page" id="events">
+  <div class="ph"><h2 class="serif">2 · Events</h2><span>/events · actuales/pasados, vista tarjeta/lista, buscador, continentes, paginación</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GE1</b> Próximo evento destacado + muro de flyers</div>
+    <div class="frame">
+      <div class="in">
+        <a href="#" style="display:grid;grid-template-columns:1fr 1.2fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--card)">
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt="" style="width:100%;height:100%;object-fit:cover;aspect-ratio:1">
+          <div style="padding:40px;display:flex;flex-direction:column;justify-content:center">
+            <small style="color:var(--link);font-weight:800;letter-spacing:.16em">NEXT EVENT</small>
+            <h1 class="serif" style="font-size:46px;line-height:1.05;margin:10px 0 14px">Deadmau5 <span class="acc">cube v3</span></h1>
+            <p style="margin:0">Sat 7 Nov 2026 · Avant Gardner, Brooklyn</p>
+            <div style="display:flex;gap:10px;margin:26px 0">
+              <div style="background:var(--bg);padding:12px 16px;border-radius:var(--r);text-align:center"><b class="serif" style="font-size:28px;color:var(--ink)">12</b><br><small>days</small></div>
+              <div style="background:var(--bg);padding:12px 16px;border-radius:var(--r);text-align:center"><b class="serif" style="font-size:28px;color:var(--ink)">06</b><br><small>hours</small></div>
+              <div style="background:var(--bg);padding:12px 16px;border-radius:var(--r);text-align:center"><b class="serif" style="font-size:28px;color:var(--ink)">41</b><br><small>min</small></div>
+            </div>
+            <span><span class="btn">Get tickets</span></span>
+          </div>
+        </a>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:44px 0 18px;flex-wrap:wrap;gap:12px">
+          <div style="display:flex;gap:6px"><span class="chip on">Current</span><span class="chip">Past</span></div>
+          <div style="display:flex;gap:6px"><span class="chip on">Cards</span><span class="chip">List</span></div>
+        </div>
+        <div class="search"><div><small>Name</small>Search events</div><div><small>Dates</small>Any date</div><div><small>Country</small>All</div><div><small>State</small>All</div><div><small>City</small>Type a city</div><a class="go" href="#">Search</a></div>
+        <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">North America</span><span class="chip">South America</span><span class="chip">Asia</span><span class="chip">Africa</span><span class="chip">Oceania</span></div>
+        <div class="grid4">
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1569001290.png" alt=""><div class="base"><small>14 NOV</small><h3 style="font-size:17px">Nora En Pure</h3></div><div class="info"><small>Sat 14 Nov · Avant Gardner</small><h3 style="font-size:20px">Nora En Pure</h3><span class="ul" style="color:#fff">Get tickets</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568999844.png" alt=""><div class="base"><small>21 NOV</small><h3 style="font-size:17px">Audien</h3></div><div class="info"><small>Sat 21 Nov · Avant Gardner</small><h3 style="font-size:20px">Audien</h3><span class="ul" style="color:#fff">Get tickets</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568998950.png" alt=""><div class="base"><small>28 NOV</small><h3 style="font-size:17px">Elrow Art</h3></div><div class="info"><small>Sat 28 Nov · Avant Gardner</small><h3 style="font-size:20px">Elrow Art</h3><span class="ul" style="color:#fff">Get tickets</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1576876672.png" alt=""><div class="base"><small>12 DEC · GUEST LIST</small><h3 style="font-size:17px">Carl Cox Invites</h3></div><div class="info"><small>Sat 12 Dec · Brooklyn Mirage</small><h3 style="font-size:20px">Carl Cox Invites</h3><span class="ul" style="color:#fff">Join guest list</span></div></a>
+        </div>
+        <div class="pager"><span class="on">1</span><span>2</span><span>3</span><span>›</span></div>
+      </div>
+    </div>
+    <p class="note">El primer evento de la lista se destaca con cuenta atrás. Debajo, el muro de flyers 4:5 con el hover legado (velo azul de izq. a der.). La vista Lista mantiene filas con fecha, flyer, lugar y botón.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GE2</b> Agenda por meses</div>
+    <div class="frame">
+      <div class="in">
+        <div style="display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap">
+          <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem)">What's <span class="acc">on</span></h1>
+          <div style="display:flex;gap:6px"><span class="chip on">Current</span><span class="chip">Past</span><span style="width:12px"></span><span class="chip">Cards</span><span class="chip on">List</span></div>
+        </div>
+        <div class="search" style="margin-top:24px"><div><small>Name</small>Search events</div><div><small>Dates</small>Any date</div><div><small>Country</small>All</div><div><small>State</small>All</div><div><small>City</small>Type a city</div><a class="go" href="#">Search</a></div>
+        <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">South America</span><span class="chip">Asia</span></div>
+        <h3 class="serif" style="font-size:28px;margin:34px 0 8px">November <span class="acc">2026</span></h3>
+        <div style="border-top:1px solid var(--line)">
+          <a href="#" class="row" style="display:grid;grid-template-columns:90px 84px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:36px;color:var(--ink);line-height:1">07</b><br><small>SAT</small></div><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:var(--r)"><div><small style="color:var(--link);font-weight:800">E-TICKET</small><h3 style="font-size:21px">Deadmau5 cube v3</h3><small>Avant Gardner, Brooklyn</small></div><span class="btn">Get tickets</span></a>
+          <a href="#" class="row" style="display:grid;grid-template-columns:90px 84px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:36px;color:var(--ink);line-height:1">14</b><br><small>SAT</small></div><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1569001290.png" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:var(--r)"><div><small style="color:var(--link);font-weight:800">E-TICKET</small><h3 style="font-size:21px">Nora En Pure</h3><small>Avant Gardner, Brooklyn</small></div><span class="btn">Get tickets</span></a>
+          <a href="#" class="row" style="display:grid;grid-template-columns:90px 84px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:36px;color:var(--ink);line-height:1">21</b><br><small>SAT</small></div><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568999844.png" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:var(--r)"><div><small style="color:var(--link);font-weight:800">E-TICKET</small><h3 style="font-size:21px">Audien</h3><small>Avant Gardner, Brooklyn</small></div><span class="btn">Get tickets</span></a>
+        </div>
+        <h3 class="serif" style="font-size:28px;margin:34px 0 8px">December <span class="acc">2026</span></h3>
+        <div style="border-top:1px solid var(--line)">
+          <a href="#" class="row" style="display:grid;grid-template-columns:90px 84px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:36px;color:var(--ink);line-height:1">05</b><br><small>SAT</small></div><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568670611.png" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:var(--r)"><div><small style="color:var(--link);font-weight:800">E-TICKET</small><h3 style="font-size:21px">Loud Luxury</h3><small>Avant Gardner, Brooklyn</small></div><span class="btn">Get tickets</span></a>
+          <a href="#" class="row" style="display:grid;grid-template-columns:90px 84px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:36px;color:var(--ink);line-height:1">12</b><br><small>SAT</small></div><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1576876672.png" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:var(--r)"><div><small style="color:#4BD08B;font-weight:800">GUEST LIST</small><h3 style="font-size:21px">Carl Cox Invites</h3><small>Brooklyn Mirage, Brooklyn</small></div><span class="btn o">Join guest list</span></a>
+        </div>
+        <div class="pager"><span class="on">1</span><span>2</span><span>›</span></div>
+      </div>
+    </div>
+    <p class="note">Lectura de agenda: los eventos se agrupan por mes con la fecha grande a la izquierda. Al pasar el ratón, el velo azul cruza la fila entera (como E3 en Norules, pero en rectángulo). La vista Tarjetas usa el muro de GE1.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 3 EVENT DETAIL -->
+<section class="page" id="detail">
+  <div class="ph"><h2 class="serif">3 · Event detail</h2><span>/events/:slug · flyer, fecha/apertura, venue + mapa, line-up, widgets de entradas o guest list, más en este venue</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GD1</b> Flyer fijo + entradas como talones</div>
+    <div class="frame">
+      <div class="in" style="display:grid;grid-template-columns:.8fr 1.2fr;gap:52px">
+        <div style="position:sticky;top:90px;align-self:start">
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt="" style="border-radius:var(--r);aspect-ratio:1;object-fit:cover">
+          <div style="display:flex;gap:8px;margin-top:12px"><span class="chip">Follow</span><span class="chip">Share</span><span class="chip">Add to calendar</span></div>
+        </div>
+        <div>
+          <small style="color:var(--muted)">Events / Deadmau5 cube v3</small>
+          <h1 class="serif" style="font-size:clamp(2.4rem,4.4vw,3.6rem);line-height:1.05;margin:10px 0 18px">Deadmau5 <span class="acc">cube v3</span></h1>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden">
+            <div style="background:var(--card);padding:16px"><small>Date</small><br><b style="color:var(--ink)">Sat 7 Nov 2026</b></div>
+            <div style="background:var(--card);padding:16px"><small>Doors</small><br><b style="color:var(--ink)">22:00</b></div>
+            <div style="background:var(--card);padding:16px"><small>Venue</small><br><b style="color:var(--ink)">Avant Gardner</b></div>
+          </div>
+          <h3 class="serif" style="font-size:24px;margin:34px 0 12px">Tickets</h3>
+          <div style="display:grid;gap:10px">
+            <div style="display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--link);border-radius:var(--r);padding:16px 18px"><div><b style="color:var(--ink)">General Admission</b><br><small>48 left</small></div><b class="serif" style="font-size:24px;color:var(--ink)">$65</b><div style="display:flex;border:1px solid var(--line);border-radius:var(--r)"><span style="padding:6px 12px">−</span><b style="padding:6px 10px;color:var(--ink)">2</b><span style="padding:6px 12px">+</span></div></div>
+            <div style="display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:var(--r);padding:16px 18px"><div><b style="color:var(--ink)">VIP</b><br><small>12 left</small></div><b class="serif" style="font-size:24px;color:var(--ink)">$140</b><div style="display:flex;border:1px solid var(--line);border-radius:var(--r)"><span style="padding:6px 12px">−</span><b style="padding:6px 10px;color:var(--ink)">0</b><span style="padding:6px 12px">+</span></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px"><span>Total <b style="color:var(--ink);font-size:20px">$130</b></span><span class="btn">Checkout</span></div>
+          <h3 class="serif" style="font-size:24px;margin:40px 0 12px">Line-up</h3>
+          <div class="grid3">
+            <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400182806.png" alt=""><div class="base"><h3 style="font-size:16px">Carl Cox</h3></div><div class="info"><h3 style="font-size:18px">Carl Cox</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+            <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1403022156.png" alt=""><div class="base"><h3 style="font-size:16px">Carl Craig</h3></div><div class="info"><h3 style="font-size:18px">Carl Craig</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+            <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1437156464.png" alt=""><div class="base"><h3 style="font-size:16px">Dj Sneak</h3></div><div class="info"><h3 style="font-size:18px">Dj Sneak</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          </div>
+          <h3 class="serif" style="font-size:24px;margin:40px 0 12px">The venue</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center"><div style="aspect-ratio:16/10;background:#0b1622;border-radius:var(--r);display:grid;place-items:center;color:var(--muted);font-size:13px">Mapa (OSM gris)</div><div><h3 style="font-size:20px">Avant Gardner</h3><p style="margin:6px 0 12px">140 Stewart Ave, Brooklyn, NY</p><a class="ul" href="#">View venue</a></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">El flyer queda fijo a la izquierda mientras se baja. Las entradas son "talones" con la línea azul en el tipo elegido; en guest list el mismo bloque muestra el beneficio, plazas y "Join guest list" (y después el QR + "View my pass"). Debajo: line-up con el hover legado, venue con mapa y "More at this venue".</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GD2</b> Flyer a pantalla completa + barra de compra fija</div>
+    <div class="frame" style="position:relative">
+      <div style="position:relative;min-height:440px;display:flex;align-items:flex-end;overflow:hidden">
+        <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1576876672.png" alt="" style="position:absolute;inset:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(26px) brightness(.45)">
+        <div class="in" style="position:relative;display:grid;grid-template-columns:auto 1fr;gap:38px;align-items:end;width:100%">
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1576876672.png" alt="" style="width:260px;aspect-ratio:1;object-fit:cover;border-radius:var(--r);box-shadow:0 30px 60px -20px rgba(0,0,0,.7)">
+          <div>
+            <span style="background:#1F8F55;color:#fff;font-size:12px;font-weight:800;padding:5px 10px;border-radius:var(--r);letter-spacing:.1em">GUEST LIST</span>
+            <h1 class="serif" style="font-size:clamp(2.4rem,5vw,4.2rem);line-height:1.02;margin:12px 0 10px;color:#fff">Carl Cox <span class="acc">invites</span></h1>
+            <p style="margin:0;color:#dfe6ec">Saturday 12 December 2026 · Doors 23:00 · Brooklyn Mirage</p>
+          </div>
+        </div>
+      </div>
+      <div class="in" style="display:grid;grid-template-columns:1.3fr .7fr;gap:48px;padding-bottom:110px">
+        <div>
+          <h3 class="serif" style="font-size:26px;margin-bottom:12px">About the <span class="acc">night</span></h3>
+          <p>Carl Cox brings his invites series back to Brooklyn with an all-night techno program. Members on the guest list enter free until 01:00.</p>
+          <h3 class="serif" style="font-size:26px;margin:34px 0 12px">Line-up</h3>
+          <p style="font-size:22px;color:var(--ink);line-height:1.5;margin:0"><a class="ul" style="color:var(--ink)" href="#">Carl Cox</a> · <a class="ul" style="color:var(--ink)" href="#">Carl Craig</a> · <a class="ul" style="color:var(--ink)" href="#">Dj Sneak</a> · <a class="ul" style="color:var(--ink)" href="#">ANNA</a></p>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;align-self:start">
+          <small style="color:var(--link);font-weight:800;letter-spacing:.14em">GUEST LIST</small>
+          <p style="margin:8px 0 4px;color:var(--ink);font-weight:700">50 spots available</p>
+          <p style="margin:0 0 16px">Free until 01:00 for members.</p>
+          <span class="btn" style="width:100%;justify-content:center">Join guest list</span>
+        </div>
+      </div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:rgba(7,13,20,.96);border-top:1px solid var(--line);padding:14px 40px;display:flex;justify-content:space-between;align-items:center;gap:16px">
+        <span><b style="color:var(--ink)">Carl Cox Invites</b> · Sat 12 Dec</span><span class="btn">Join guest list</span>
+      </div>
+    </div>
+    <p class="note">Portada inmersiva: el propio flyer, desenfocado, hace de fondo, y encima va el flyer nítido con el título. La acción (entradas o guest list) vive en una tarjeta lateral y en una barra fija abajo que acompaña todo el scroll (en móvil es lo único que queda fijo).</p>
+  </div>
+</section>
+
+<!-- ================================================================ 4 FESTIVALS -->
+<section class="page" id="festivals">
+  <div class="ph"><h2 class="serif">4 · Festivals</h2><span>/festivals · próximos/pasados, buscador con fechas, continentes, conferencias debajo con "All conferences"</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GF1</b> Bento destacado + rejilla con logo</div>
+    <div class="frame">
+      <div class="in">
+        <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem);margin-bottom:24px">Global <span class="acc">festivals</span></h1>
+        <div style="display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:16px;height:520px">
+          <a href="#" class="hc" style="grid-row:span 2"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/logos/1518136932.png" alt=""></span><div class="base"><small>MIAMI · UNITED STATES</small><h3 class="serif" style="font-size:34px">Ultra Music Festival</h3></div><div class="info"><small>March · Bayfront Park</small><h3 class="serif" style="font-size:34px">Ultra Music Festival</h3><span class="ul" style="color:#fff">View line-up</span></div></a>
+          <a href="#" class="hc"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1517430743.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/logos/1517430743.png" alt=""></span><div class="base"><small>UNITED STATES</small><h3 style="font-size:20px">EDC Las Vegas</h3></div><div class="info"><h3 style="font-size:20px">EDC Las Vegas</h3><span class="ul" style="color:#fff">View line-up</span></div></a>
+          <a href="#" class="hc"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1516128182.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/logos/1461001098.png" alt=""></span><div class="base"><small>MOROCCO</small><h3 style="font-size:20px">Oasis Festival</h3></div><div class="info"><h3 style="font-size:20px">Oasis Festival</h3><span class="ul" style="color:#fff">View line-up</span></div></a>
+        </div>
+        <div class="search" style="margin-top:34px;grid-template-columns:1.3fr 1fr 1fr 1fr auto"><div><small>Name</small>Search festivals</div><div><small>Dates</small>Any date</div><div><small>Country</small>All</div><div><small>City</small>Type a city</div><a class="go" href="#">Search</a></div>
+        <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">Asia</span><span class="chip">Africa</span></div>
+        <div class="grid3">
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1570741257.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/logos/1570741257.png" alt=""></span><div class="base"><small>ISRAEL</small><h3 style="font-size:20px">DGTL Tel Aviv</h3></div><div class="info"><h3 style="font-size:20px">DGTL Tel Aviv</h3><span class="ul" style="color:#fff">View line-up</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1570817505.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/logos/1570817505.png" alt=""></span><div class="base"><small>SLOVENIA</small><h3 style="font-size:20px">Eco Festival</h3></div><div class="info"><h3 style="font-size:20px">Eco Festival</h3><span class="ul" style="color:#fff">View line-up</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1569883530.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/logos/1569883530.png" alt=""></span><div class="base"><small>ISRAEL</small><h3 style="font-size:20px">BPM Tel Aviv</h3></div><div class="info"><h3 style="font-size:20px">BPM Tel Aviv</h3><span class="ul" style="color:#fff">View line-up</span></div></a>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:end;margin-top:56px"><h3 class="serif" style="font-size:28px">Music <span class="acc">conferences</span></h3><a class="ul" href="#">All conferences</a></div>
+      </div>
+    </div>
+    <p class="note">Los 3 festivales destacados (CMS "Featured") en un bento 2+1+1, el grande con la ficha más rica. Debajo, buscador y rejilla 3 columnas 4:5 con logo en disco (gris → color). Al final, las conferencias en rejilla con enlace a /conferences.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GF2</b> Índice de nombres con flyer al pasar</div>
+    <div class="frame">
+      <div class="in" style="display:grid;grid-template-columns:1.25fr .75fr;gap:48px">
+        <div>
+          <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem);margin-bottom:22px">Global <span class="acc">festivals</span></h1>
+          <div class="search" style="grid-template-columns:1.3fr 1fr 1fr auto"><div><small>Name</small>Search</div><div><small>Dates</small>Any date</div><div><small>Country</small>All</div><a class="go" href="#">Search</a></div>
+          <div class="tabs"><span class="chip on">Upcoming</span><span class="chip">Past</span><span style="width:10px"></span><span class="chip">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">Asia</span></div>
+          <div style="border-top:1px solid var(--line)" class="fidx">
+            <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png" style="display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)"><span class="serif" style="font-size:32px;color:var(--ink)">Ultra Music Festival</span><small>Miami · Mar</small></a>
+            <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1517430743.png" style="display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)"><span class="serif" style="font-size:32px;color:var(--ink)">EDC Las Vegas</span><small>Las Vegas · May</small></a>
+            <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1570741257.png" style="display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)"><span class="serif" style="font-size:32px;color:var(--ink)">DGTL Tel Aviv</span><small>Tel Aviv · Oct</small></a>
+            <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1570817505.png" style="display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)"><span class="serif" style="font-size:32px;color:var(--ink)">Eco Festival</span><small>Slovenia · Oct</small></a>
+            <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1516128182.png" style="display:grid;grid-template-columns:1fr auto;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)"><span class="serif" style="font-size:32px;color:var(--ink)">Oasis Festival</span><small>Marrakech · Sep</small></a>
+          </div>
+          <div class="pager" style="justify-content:flex-start"><span class="on">1</span><span>2</span><span>3</span><span>›</span></div>
+        </div>
+        <div style="position:sticky;top:90px;align-self:start">
+          <div class="hc" style="aspect-ratio:4/5"><img id="fprev" class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png" alt="" style="transition:opacity .35s"></div>
+          <p class="note">La foto cambia al pasar por cada nombre.</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">Lectura de cartel: nombres grandes en Playfair, la foto del festival fija a la derecha cambia con el ratón (en móvil cada fila muestra su miniatura). Mantiene buscador, continentes, próximos/pasados y paginación.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 5 ARTISTS -->
+<section class="page" id="artists">
+  <div class="ph"><h2 class="serif">5 · Artists</h2><span>/artists · ranking (Gem2i / DJ Mag / RA), Ranking/All, buscador con género y posición, continentes, paginación</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GR1</b> Podio del ranking + rejilla</div>
+    <div class="frame">
+      <div class="in">
+        <div style="display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:14px">
+          <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem)">Top <span class="acc">artists</span></h1>
+          <div style="display:flex;gap:6px"><span class="chip on">Gem2i</span><span class="chip">DJ Mag</span><span class="chip">Resident Advisor</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:16px;align-items:end;margin-top:28px">
+          <a href="#" class="hc" style="aspect-ratio:3/4"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1403022156.png" alt="" style="filter:grayscale(1)"><div class="base"><b class="serif" style="font-size:44px;color:rgba(255,255,255,.5)">2</b><h3 style="font-size:20px">Carl Craig</h3></div><div class="info"><h3 style="font-size:20px">Carl Craig</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:3/4.4"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400182806.png" alt="" style="filter:grayscale(1)"><div class="base"><b class="serif" style="font-size:60px;color:var(--link)">1</b><h3 style="font-size:24px">Carl Cox</h3></div><div class="info"><h3 style="font-size:24px">Carl Cox</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:3/4"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1441991334.png" alt="" style="filter:grayscale(1)"><div class="base"><b class="serif" style="font-size:44px;color:rgba(255,255,255,.5)">3</b><h3 style="font-size:20px">ANNA</h3></div><div class="info"><h3 style="font-size:20px">ANNA</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);margin-top:16px;border-radius:var(--r);overflow:hidden;font-size:14px">
+          <div style="background:var(--card);padding:12px"><b style="color:var(--link)">4</b> ATB</div><div style="background:var(--card);padding:12px"><b style="color:var(--link)">5</b> 2manydjs</div><div style="background:var(--card);padding:12px"><b style="color:var(--link)">6</b> A-Trak</div><div style="background:var(--card);padding:12px"><b style="color:var(--link)">7</b> Dj Sneak</div><div style="background:var(--card);padding:12px"><b style="color:var(--link)">8</b> &amp;Me</div><div style="background:var(--card);padding:12px"><b style="color:var(--link)">9</b> 3lau</div><div style="background:var(--card);padding:12px"><b style="color:var(--link)">10</b> Aaron Gehrig</div>
+        </div>
+        <div class="search" style="margin-top:44px"><div><small>Name</small>Search artists</div><div><small>Genre</small>All genres</div><div><small>Country</small>All</div><div><small>State</small>All</div><div><small>Position</small>Any</div><a class="go" href="#">Search</a></div>
+        <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">South America</span><span class="chip">Asia</span></div>
+        <div class="grid4">
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400176017.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:17px">ATB</h3><small>Germany · Trance</small></div><div class="info"><h3 style="font-size:19px">ATB</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1402932363.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:17px">2manydjs</h3><small>Belgium · Nu-disco</small></div><div class="info"><h3 style="font-size:19px">2manydjs</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1437065986.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:17px">A-Trak</h3><small>Canada · Electro house</small></div><div class="info"><h3 style="font-size:19px">A-Trak</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1474392316.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:17px">Aaron Gehrig</h3><small>Spain · Techno</small></div><div class="info"><h3 style="font-size:19px">Aaron Gehrig</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+        </div>
+        <div class="pager"><span class="on">1</span><span>2</span><span>3</span><span>›</span></div>
+      </div>
+    </div>
+    <p class="note">El top 3 del ranking elegido (Gem2i / DJ Mag / RA) sube a un podio; del 4 al 10 en una banda compacta. Debajo, el catálogo completo con buscador (género, posición), continentes y rejilla cuadrada en blanco y negro que pasa a color con el velo.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GR2</b> Índice A-Z con foto al pasar</div>
+    <div class="frame">
+      <div class="in">
+        <div style="display:grid;grid-template-columns:.9fr 1.1fr;gap:48px">
+          <div>
+            <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem)">Artists <span class="acc">A-Z</span></h1>
+            <p style="margin:12px 0 22px;max-width:40ch">More than 500 artists in the GEM2i catalog. Filter by genre, country or ranking.</p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px"><span class="chip on">All</span><span class="chip">Gem2i top 10</span><span class="chip">DJ Mag top 10</span><span class="chip">RA top 10</span></div>
+            <div style="position:sticky;top:90px"><div class="hc" style="aspect-ratio:4/5"><img id="aprev" class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400182806.png" alt="" style="transition:opacity .35s"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;font-weight:800;font-size:14px">
+              <span class="chip on">A</span><span class="chip">B</span><span class="chip">C</span><span class="chip">D</span><span class="chip">E</span><span class="chip">F</span><span class="chip">G</span><span class="chip">H</span><span class="chip">…</span><span class="chip">Z</span><span class="chip">#</span>
+            </div>
+            <div class="search" style="grid-template-columns:1fr 1fr 1fr auto"><div><small>Genre</small>All</div><div><small>Country</small>All</div><div><small>Continent</small>All</div><a class="go" href="#">Go</a></div>
+            <div class="aidx" style="margin-top:18px;border-top:1px solid var(--line)">
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1464717466.jpg" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">&amp;Me</span><small>Germany · House, Techno</small></a>
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1402932363.png" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">2manydjs</span><small>Belgium · Nu-disco</small></a>
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1407344334.png" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">3lau</span><small>United States · Progressive house</small></a>
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1437065986.png" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">A-Trak</span><small>Canada · Electro house</small></a>
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1474392316.png" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">Aaron Gehrig</span><small>Spain · Techno</small></a>
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1441991334.png" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">ANNA</span><small>Brazil · Tech house, Techno</small></a>
+              <a href="#" data-img="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400176017.png" style="display:grid;grid-template-columns:1fr auto;padding:14px 0;border-bottom:1px solid var(--line)"><span style="font-size:22px;font-weight:700;color:var(--ink)">ATB</span><small>Germany · Trance</small></a>
+            </div>
+            <div class="pager" style="justify-content:flex-start"><span class="on">1</span><span>2</span><span>3</span><span>›</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Directorio: letras A-Z como filtro rápido, lista de nombres con país y géneros, y la foto del artista fija a la izquierda que cambia al pasar (en móvil, miniatura en cada fila). El ranking queda como filtro ("Gem2i top 10"…) en vez de columna.</p>
+  </div>
+</section>
+</main>
+
+<script>
+// hover previews for the index variants (GF2, GR2)
+[['.fidx','#fprev'],['.aidx','#aprev']].forEach(([list,img])=>{
+  const target=document.querySelector(img);
+  document.querySelectorAll(list+' a').forEach(a=>a.addEventListener('mouseenter',()=>{
+    if(target.src===a.dataset.img) return;
+    target.style.opacity=0;
+    setTimeout(()=>{target.src=a.dataset.img;target.style.opacity=1},180);
+  }));
+});
+</script>
+</body>
+</html>

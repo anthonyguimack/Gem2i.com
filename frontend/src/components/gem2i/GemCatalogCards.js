@@ -46,25 +46,27 @@ export const CARD_CSS = `
  *  template's variant (01 → A, 02 → B + next event, 03 → C + upcoming strip),
  *  full height, carousel, CTA actions, audience filter. Nothing renders while
  *  no slide is assigned to the page. */
-export function PageHero({ page }) {
+export function PageHero({ page, onShown }) {
   const settings = useSettings();
-  const [slides, setSlides] = useState([]);
+  const [slides, setSlides] = useState(null);
   const [events, setEvents] = useState([]);
   const [linked, setLinked] = useState([]);
   const { user, loading } = useAuth();
   const tpl = settings.active_theme;
   useEffect(() => {
     let alive = true;
-    publicAPI.getHeroSlides(page).then(r => { if (alive) setSlides(r.data || []); }).catch(() => {});
+    publicAPI.getHeroSlides(page).then(r => { if (alive) setSlides(r.data || []); }).catch(() => { if (alive) setSlides([]); });
     gemAPI.heroEvents().then(r => { if (alive) setLinked(r.data?.items || []); }).catch(() => {});
     if (tpl === 'gem2i_02' || tpl === 'gem2i_03') {
       gemAPI.events({ limit: 12 }).then(r => { if (alive) setEvents(r.data?.items || []); }).catch(() => {});
     }
     return () => { alive = false; };
   }, [page, tpl]);
-  if (loading) return null;
-  const list = slides.filter(s => slideForAudience(s, isLoggedInUser(user)));
-  if (!list.length) return null;
+  const list = (slides || []).filter(s => slideForAudience(s, isLoggedInUser(user)));
+  // onShown(true|false) once known: pages adapt their opening block to the hero being there or not.
+  const known = !loading && slides !== null;
+  useEffect(() => { if (known && onShown) onShown(list.length > 0); }, [known, list.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!known || !list.length) return null;
   const hero = tpl === 'gem2i_02' ? <GemHeroB slide={list[0]} slides={list} event={events[0]} linked={linked} />
     : tpl === 'gem2i_03' ? <GemHeroC slide={list[0]} slides={list} events={events} linked={linked} />
       : <GemHeroA slide={list[0]} slides={list} linked={linked} />;

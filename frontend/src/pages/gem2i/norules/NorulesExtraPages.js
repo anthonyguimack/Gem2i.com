@@ -19,7 +19,7 @@ import {
 } from '../../../components/gem2i/norules/GemCatalogCards';
 import AccentTitle from '../../../components/gem2i/AccentTitle';
 import {
-  ListShell, DetailShell, Crumb, Section, PhotoHero, HeroChip, Countdown, EventPosterCard, MapEmbed, slugify, SERIF,
+  ListShell, DetailShell, Crumb, Section, PhotoHero, HeroChip, Countdown, EventPosterCard, MapEmbed, slugify, officeSlug, SERIF,
 } from '../../../components/gem2i/norules/NorulesDetailBits';
 import { useSection, MembersGate, tripSlug } from './NorulesInnerPages';
 import { zoneOf, localTime } from './NorulesAbout';
@@ -411,7 +411,6 @@ export function NorulesMedia() {
 
 // ── /map/:slug (office) ──────────────────────────────────────────────────────
 const COUNTRY_ALIAS = { usa: 'United States', 'united states': 'United States', uk: 'United Kingdom' };
-const officeSlug = (o) => o.slug || slugify(o.name || o.title?.en || o.title);
 
 export function NorulesOffice() {
   const { slug } = useParams();

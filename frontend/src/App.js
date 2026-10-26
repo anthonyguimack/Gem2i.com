@@ -125,6 +125,21 @@ const NorulesGallery = norulesExtra('NorulesGallery');
 const NorulesMedia = norulesExtra('NorulesMedia');
 const NorulesOffice = norulesExtra('NorulesOffice');
 const NorulesLegal = norulesExtra('NorulesLegal');
+const gem2iCms = (name) => lazy(() => import('./pages/gem2i/g02/Gem2iCmsPages').then(m => ({ default: m[name] })));
+const Gem2iCmsPage = gem2iCms('Gem2iCmsPage');
+const Gem2iPaymentSuccess = gem2iCms('Gem2iPaymentSuccess');
+const gem2iFork = (name) => lazy(() => import('./pages/gem2i/g02/Gem2iForkPages').then(m => ({ default: m[name] })));
+const Gem2iReadingList = gem2iFork('Gem2iReadingList');
+const Gem2iServiceDetail = gem2iFork('Gem2iServiceDetail');
+const Gem2iAlbum = gem2iFork('Gem2iAlbum');
+const gem2iExtra = (name) => lazy(() => import('./pages/gem2i/g02/Gem2iExtraPages').then(m => ({ default: m[name] })));
+const Gem2iConferences = gem2iExtra('Gem2iConferences');
+const Gem2iTravelDetail = gem2iExtra('Gem2iTravelDetail');
+const Gem2iWorks = gem2iExtra('Gem2iWorks');
+const Gem2iGallery = gem2iExtra('Gem2iGallery');
+const Gem2iMedia = gem2iExtra('Gem2iMedia');
+const Gem2iOffice = gem2iExtra('Gem2iOffice');
+const Gem2iLegal = gem2iExtra('Gem2iLegal');
 const Gem03Artists = lazy(() => import('./pages/gem2i/t03/Gem03Artists'));
 const Gem03ArtistDetail = lazy(() => import('./pages/gem2i/t03/Gem03ArtistDetail'));
 const Gem03Venues = lazy(() => import('./pages/gem2i/t03/Gem03Venues'));
@@ -574,6 +589,23 @@ function AppRouter() {
                 <Route path="/map/:slug" element={<NorulesOffice />} />
                 <Route path="/terms" element={<PageProtectedRoute><NorulesLegal type="terms" /></PageProtectedRoute>} />
                 <Route path="/privacy" element={<PageProtectedRoute><NorulesLegal type="privacy" /></PageProtectedRoute>} />
+              </>}
+              {/* Gem2i (gem2i_02): the same pages, own copies (pages/gem2i/g02/Gem2iExtraPages.js, 2026-10-26). */}
+              {settings.active_theme === 'gem2i_02' && <>
+                <Route path="/conferences" element={<Gem2iConferences />} />
+                <Route path="/travels/:slug" element={<Gem2iTravelDetail />} />
+                <Route path="/works" element={<Gem2iWorks />} />
+                <Route path="/gallery" element={<Gem2iGallery />} />
+                <Route path="/media" element={<Gem2iMedia />} />
+                <Route path="/map/:slug" element={<Gem2iOffice />} />
+                <Route path="/terms" element={<PageProtectedRoute><Gem2iLegal type="terms" /></PageProtectedRoute>} />
+                <Route path="/privacy" element={<PageProtectedRoute><Gem2iLegal type="privacy" /></PageProtectedRoute>} />
+                <Route path="/reading-list" element={<Gem2iReadingList />} />
+                <Route path="/service/:serviceId" element={<Gem2iServiceDetail />} />
+                <Route path="/album/:albumId" element={<Gem2iAlbum />} />
+                <Route path="/checkout/success" element={<Gem2iPaymentSuccess />} />
+                <Route path="/page/:pageId" element={<PageProtectedRoute><Gem2iCmsPage /></PageProtectedRoute>} />
+                <Route path="*" element={<PageProtectedRoute><Gem2iCmsPage /></PageProtectedRoute>} />
               </>}
               <Route path="/reading-list" element={<ReadingListPage />} />
               <Route path="/gallery" element={<GalleryPage />} />

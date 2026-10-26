@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { gemAPI } from '../../lib/api';
+import AccentTitle from '../../components/gem2i/AccentTitle';
 import { useT } from '../../lib/i18n';
 import { Paginator, SkeletonGrid, EmptyState, gemImg } from '../../components/gem2i/GemCatalogBits';
 import {
-  PageHero, PageHead, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, NumChip, Where,
+  PageHero, SearchBar, Segmented, ContinentTabs, continentParams, HoverCard, NumChip, Where,
   place, CARD_CSS, LINK, BODY, CARD, LINE,
 } from '../../components/gem2i/GemCatalogCards';
 
@@ -23,7 +24,7 @@ function Ranking({ roster, setRoster, onHover }) {
   }, []);
   const list = lists[roster];
   return (
-    <aside className="rounded-2xl overflow-hidden lg:sticky lg:top-28" style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }} data-testid="artist-ranking">
+    <aside className="rounded-[4px] overflow-hidden lg:sticky lg:top-28" style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }} data-testid="artist-ranking">
       <div className="flex" role="tablist" style={{ borderBottom: `1px solid ${LINE}` }}>
         {ROSTERS.map(([k, l]) => (
           <button key={k} type="button" role="tab" aria-selected={roster === k} onClick={() => setRoster(k)}
@@ -65,7 +66,7 @@ function Ranking({ roster, setRoster, onHover }) {
   );
 }
 
-/** Artists (/artists) — AR-1: ranking column left (Gem2i / DJ Mag / Resident
+/** Artists (/artists) — AR-B (2026-10-26, boceto gem2i-artists.html; AR-1 structure, Gem2i shapes): ranking column left (Gem2i / DJ Mag / Resident
  *  Advisor), search (name, country, music genre, position) + continent tabs +
  *  hover cards right. The card number and the position filter follow the
  *  selected ranking; "All artists" lists everyone A–Z. */
@@ -78,6 +79,7 @@ export default function Gem2iArtists() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [hot, setHot] = useState(null);
+  const [hasHero, setHasHero] = useState(null); // null until PageHero knows
 
   useEffect(() => {
     let alive = true;
@@ -93,8 +95,15 @@ export default function Gem2iArtists() {
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-artists">
-      <PageHero page="artists" />
-      <PageHead eyebrow={tt({ en: 'All', es: 'Todos' })} title={tt({ en: 'Our artists', es: 'Nuestros artistas' })} />
+      <PageHero page="artists" onShown={setHasHero} />
+      {/* AR-B (boceto gem2i-artists.html): title, then ranking column (sticky) + catalog. Without CMS hero the
+          title is the page opener and grows. */}
+      <div className={`max-w-7xl mx-auto px-6 md:px-10 ${hasHero === false ? 'pt-14 md:pt-16' : 'pt-16 md:pt-20'}`}>
+        <h1 className="text-white font-bold leading-[1.06] pb-1" data-testid="artists-title"
+          style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: hasHero === false ? 'clamp(2.6rem, 5.4vw, 4.4rem)' : 'clamp(2.2rem, 4.4vw, 3.4rem)' }}>
+          <AccentTitle text={tt({ en: 'Our artists', es: 'Nuestros artistas' })} />
+        </h1>
+      </div>
       <div className="max-w-7xl mx-auto px-6 md:px-10 mt-10 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
         <Ranking roster={roster} setRoster={r => { setRoster(r); setPage(1); }} onHover={setHot} />
         <div>
@@ -113,7 +122,7 @@ export default function Gem2iArtists() {
             <EmptyState>{tt({ en: 'No artists match these filters.', es: 'Ningún artista coincide con estos filtros.' })}</EmptyState>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {data.items.map(a => (
                   <HoverCard key={a.id} to={`/artists/${a.slug}`} testid="artist-card" aspect="aspect-square"
                     className={hot === a.id ? 'ring-[3px] ring-[var(--color-link,#5AAFEA)]' : ''}

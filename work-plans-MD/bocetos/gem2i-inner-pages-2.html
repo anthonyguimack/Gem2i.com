@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gem2i · páginas interiores 6-10</title>
+<!--
+  Bocetos de las páginas interiores del template Gem2i (gem2i_02), tanda 2:
+    6 Artist detail   7 Venues   8 Venue detail   9 Festival / Conference detail   10 Conferences
+  Hero: se activa por página en CMS -> Hero -> Page Assignment. De esta tanda solo /venues está en esa lista;
+  las fichas (artista, venue, festival/conferencia) y /conferences no tienen hero.
+  Páginas COMPLETAS: cabecera, hero B del CMS (opcional por página), contenido y footer.
+  Tanda 1 aprobada (2026-10-26): GA2, GE1, GD2, GF1, GR1. Las descripciones de venue y las sesiones son de ejemplo.
+  Dos variantes por página (G?1 / G?2). Contenido e imágenes REALES de beta.gem2i.com.
+  Identidad Gem2i aprobada (D-GEM-2026-08): noche #04080C, tarjetas #0D1721, azul marca #0068b3 (rellenos),
+  azul claro #5AAFEA (texto/enlaces), Playfair Display + acento en cursiva, Manrope.
+  Se diferencia de Norules: Norules = pastillas B1 + paleta gris clara; Gem2i = esquinas casi rectas (4 px),
+  botones rectangulares con relleno azul, enlaces subrayados, más contraste nocturno.
+  Funciones que se conservan en todas las variantes (D-GEM-2026-16): hover legado (velo izq→der, zoom,
+  logo gris→color, info sube), buscador completo (país → estado → ciudad, nombre, fechas, género/posición),
+  pestañas de continentes, paginación, vista tarjeta/lista en Events, guest list / e-ticket en el detalle.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04080C;--bg2:#070D14;--card:#0D1721;--line:rgba(255,255,255,.09);--ink:#F2F5F8;--body:#B4C0CB;--muted:#7F8C98;--blue:#0068b3;--link:#5AAFEA;--r:4px;--ease:cubic-bezier(.19,1,.22,1)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--body);font:16px/1.65 Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}a{color:inherit;text-decoration:none}
+.serif{font-family:'Playfair Display',Georgia,serif}.acc{font-style:italic;color:var(--link)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+/* switcher */
+.sw{position:sticky;top:0;z-index:50;background:rgba(4,8,12,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.sw .wrap{display:flex;gap:6px;align-items:center;height:60px;overflow-x:auto}
+.sw b{color:var(--ink);font-size:14px;margin-right:12px;white-space:nowrap}
+.sw a{font-size:13px;font-weight:700;padding:8px 14px;border-radius:var(--r);color:var(--body);white-space:nowrap}
+.sw a:hover{color:var(--ink);background:var(--card)}
+.page{padding:72px 0 24px;border-bottom:1px solid var(--line)}
+.ph{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.ph h2{color:var(--ink);font-size:30px;margin:0}
+.ph span{color:var(--muted);font-size:14px}
+.var{margin:34px 0 56px}
+.vtag{display:inline-flex;gap:10px;align-items:center;margin-bottom:14px;font-size:13px;color:var(--muted)}
+.vtag b{background:var(--blue);color:#fff;padding:3px 10px;border-radius:var(--r);font-size:12px;letter-spacing:.06em}
+.frame{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg)}
+.note{font-size:13.5px;color:var(--muted);margin:12px 2px 0;max-width:90ch}
+/* shared atoms */
+h1,h3{color:var(--ink);margin:0}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-weight:700;font-size:14.5px;padding:13px 22px;border-radius:var(--r);transition:transform .25s var(--ease),background .25s}
+.btn:hover{background:#0a78c9}.btn:active{transform:translateY(1px)}
+.btn.o{background:transparent;border:1px solid rgba(255,255,255,.28)}.btn.o:hover{border-color:#fff}
+.ul{color:var(--link);font-weight:700;background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s var(--ease)}
+.ul:hover{background-size:100% 1px}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:5px 10px;border:1px solid var(--line);border-radius:var(--r);color:var(--body)}
+.chip.on{background:var(--ink);color:#04080C;border-color:var(--ink)}
+.search{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr auto;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.search div{background:var(--card);padding:12px 16px;font-size:13.5px;color:var(--muted)}
+.search div small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--link);margin-bottom:2px}
+.search .go{background:var(--blue);color:#fff;font-weight:800;display:flex;align-items:center;padding:0 26px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 26px}
+.pager{display:flex;gap:6px;justify-content:center;margin:34px 0 10px}
+.pager span{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r);font-size:14px;font-weight:700}
+.pager span.on{background:var(--blue);border-color:var(--blue);color:#fff}
+/* legacy hover card: veil wipes left→right, zoom, info rises, logo grey→colour */
+.hc{position:relative;overflow:hidden;border-radius:var(--r);background:var(--card)}
+.hc img.ph1{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+.hc::after{content:"";position:absolute;inset:0;background:rgba(0,104,179,.86);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease)}
+.hc .info{position:absolute;inset:auto 0 0 0;z-index:2;padding:18px;transform:translateY(14px);opacity:.0;transition:all .6s var(--ease) .1s;color:#fff}
+.hc .base{position:absolute;inset:auto 0 0 0;padding:16px;z-index:1;background:linear-gradient(transparent,rgba(4,8,12,.92));color:#fff;transition:opacity .4s}
+.hc .lg{position:absolute;top:14px;right:14px;z-index:3;width:54px;height:54px;border-radius:50%;background:#fff;overflow:hidden;filter:grayscale(1);transition:filter .6s}
+.hc .lg img{width:100%;height:100%;object-fit:contain}
+.hc:hover img.ph1{transform:scale(1.07)}.hc:hover::after{transform:scaleX(1)}
+.hc:hover .info{opacity:1;transform:none}.hc:hover .base{opacity:0}.hc:hover .lg{filter:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:900px){.grid4,.grid3{grid-template-columns:1fr 1fr}.search{grid-template-columns:1fr 1fr}.search .go{justify-content:center;padding:14px}}
+@media (max-width:560px){.grid4,.grid3{grid-template-columns:1fr}.search{grid-template-columns:1fr}}
+.in{padding:56px 40px}
+@media (max-width:700px){.in{padding:36px 18px}}
+/* mini hero stand-in (the real page uses the home hero B with the page's slides) */
+.mhero{height:150px;position:relative;display:flex;align-items:flex-end;padding:22px 40px;background:#0b1622 center/cover}
+.mhero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,12,.9),rgba(4,8,12,.35))}
+.mhero span{position:relative;font-size:12px;color:var(--muted)}
+
+/* full-page chrome: header H-3, hero B (same as home: slide photo + left veil, eyebrow, title, text, round + pill CTAs,
+   dots, featured-event card pinned to the slide), footer FT-1 band + FT-4b */
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:20px;height:66px;padding:0 32px;background:rgba(4,8,12,.96);border-bottom:1px solid var(--line);font-size:13.5px;font-weight:600;color:#fff}
+.hdr nav{display:flex;gap:22px}.hdr nav span.on{color:var(--link)}
+.hdr .lg2{font-weight:800;letter-spacing:.04em;font-size:18px;font-style:italic}
+.hdr .lgn{background:var(--blue);padding:8px 16px;border-radius:999px;font-size:13px}
+.heroB{position:relative;min-height:560px;display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:center;padding:56px 64px;background:#0b1622 center/cover;overflow:hidden}
+.heroB::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,12,.94) 0%,rgba(4,8,12,.7) 45%,rgba(4,8,12,.25) 100%)}
+.heroB>*{position:relative}
+.heroB .eb{font-size:12px;font-weight:800;letter-spacing:.22em;color:var(--link);text-transform:uppercase}
+.heroB h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(2.6rem,5.4vw,4.6rem);line-height:1.04;color:#fff;margin:14px 0 18px}
+.heroB p{max-width:46ch;margin:0 0 26px;color:#c9d3dc;font-size:17px}
+.heroB .cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.heroB .rnd{width:54px;height:54px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font-weight:800}
+.heroB .pill{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:12px 20px;color:#fff;font-weight:700;font-size:14px}
+.heroB .dots{display:flex;gap:6px;margin-top:30px}.heroB .dots i{width:22px;height:3px;background:rgba(255,255,255,.3)}.heroB .dots i.on{background:var(--link)}
+.heroB .evc{background:rgba(7,13,20,.88);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.heroB .evc img{width:100%;aspect-ratio:1;object-fit:cover}
+.heroB .evc div{padding:14px 16px}
+.hnote{display:flex;gap:10px;align-items:center;padding:10px 32px;background:#071321;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.hnote b{color:#fff;background:#1F8F55;border-radius:var(--r);padding:2px 8px;font-size:11px;letter-spacing:.08em}
+.ftr{margin-top:0}
+.ftr .band{background:linear-gradient(90deg,#002444,#0068b3);padding:30px 40px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.ftr .band h3{font-family:'Playfair Display',Georgia,serif;font-size:28px;color:#fff}
+.ftr .band span{background:#fff;color:#002444;font-weight:800;border-radius:999px;padding:12px 20px;font-size:14px}
+.ftr .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr 1fr;gap:28px;padding:40px;background:#03070B;font-size:14px}
+.ftr .cols b{display:block;color:#fff;font-size:11px;letter-spacing:.2em;margin-bottom:12px}
+.ftr .cols p{margin:0 0 6px}
+.ftr .legal{padding:14px 40px;background:#020508;font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}
+@media (max-width:900px){.heroB{grid-template-columns:1fr;padding:40px 22px}.heroB .evc{max-width:260px}.hdr nav{display:none}.ftr .cols{grid-template-columns:1fr 1fr}}
+
+/* hero on / off (venues only): every variant must read well both ways */
+body.nohero .heroB,body.nohero .hnote.h{display:none}
+.hsw{display:flex;gap:4px;margin-left:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:3px}
+.hsw button{font:700 12.5px Manrope,sans-serif;color:var(--body);background:none;border:0;padding:7px 12px;border-radius:3px;cursor:pointer}
+.hsw button.on{background:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+<nav class="sw"><div class="wrap">
+  <b>Gem2i · interiores 6-10</b>
+  <a href="#artist">6 Artist detail</a><a href="#venues">7 Venues</a><a href="#venue">8 Venue detail</a><a href="#festival">9 Festival / Conference detail</a><a href="#conferences">10 Conferences</a><span class="hsw" role="group" aria-label="Hero en Venues"><button type="button" class="on" data-h="on">Venues con hero</button><button type="button" data-h="off">Venues sin hero</button></span>
+</div></nav>
+<main class="wrap">
+
+<!-- ================================================================ 6 ARTIST DETAIL -->
+<section class="page" id="artist">
+  <div class="ph"><h2 class="serif">6 · Artist detail</h2><span>/artists/:slug · foto, rankings (Gem2i / DJ Mag / RA), géneros, follow, bio, vídeo, redes, próximos eventos, artistas parecidos</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GAD1</b> Retrato partido</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="">Festivals</span><span class="on">Artists</span><span class="">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;min-height:560px">
+        <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400182806.png" alt="" style="width:100%;height:100%;object-fit:cover;filter:grayscale(1)">
+        <div class="in" style="display:flex;flex-direction:column;justify-content:center">
+          <small style="color:var(--muted)">Artists / Carl Cox</small>
+          <h1 class="serif" style="font-size:clamp(2.8rem,6vw,5rem);line-height:1.02;margin:12px 0 16px">Carl <span class="acc">Cox</span></h1>
+          <p style="margin:0">United Kingdom · House, Techno</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden;margin:26px 0">
+            <div style="background:var(--card);padding:16px"><b class="serif" style="font-size:34px;color:var(--link)">#2</b><br><small>Gem2i ranking</small></div>
+            <div style="background:var(--card);padding:16px"><b class="serif" style="font-size:34px;color:var(--ink)">#74</b><br><small>DJ Mag</small></div>
+            <div style="background:var(--card);padding:16px"><b class="serif" style="font-size:34px;color:var(--ink)">#59</b><br><small>Resident Advisor</small></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><span class="btn">Follow</span><span class="chip">Facebook</span><span class="chip">Instagram</span><span class="chip">X</span><span class="chip">SoundCloud</span></div>
+        </div>
+      </div>
+      <div class="in" style="display:grid;grid-template-columns:1.1fr .9fr;gap:48px">
+        <div>
+          <h3 class="serif" style="font-size:26px;margin-bottom:12px">Biography</h3>
+          <p style="font-size:17px;line-height:1.85">A musical ambassador since he was in short trousers, a professional DJ since his early teens, a veteran of acid house and a champion of techno, Carl Cox emits a love of his work that is dangerously infectious.</p>
+          <a class="ul" href="#">Read more</a>
+        </div>
+        <div class="hc" style="aspect-ratio:16/9;display:grid;place-items:center"><img class="ph1" src="https://img.youtube.com/vi/azsS4XTuWlU/hqdefault.jpg" alt="" style="position:absolute;inset:0;opacity:.6"><span style="position:relative;z-index:3;width:64px;height:64px;border-radius:50%;background:#fff;color:#04080C;display:grid;place-items:center;font-weight:800">▶</span></div>
+      </div>
+      <div class="in" style="padding-top:0">
+        <h3 class="serif" style="font-size:26px;margin-bottom:12px">Upcoming <span class="acc">nights</span></h3>
+        <div style="border-top:1px solid var(--line)">
+          <a href="#" style="display:grid;grid-template-columns:80px 70px 1fr auto;gap:20px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:32px;color:var(--ink);line-height:1">12</b><br><small>DEC</small></div><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1576876672.png" alt="" style="width:70px;height:70px;object-fit:cover;border-radius:var(--r)"><div><h3 style="font-size:19px">Carl Cox Invites</h3><small>Brooklyn Mirage, United States</small></div><span class="btn o">Join guest list</span></a>
+        </div>
+        <h3 class="serif" style="font-size:26px;margin:44px 0 14px">Similar <span class="acc">artists</span></h3>
+        <div class="grid4">
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1403022156.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:16px">Carl Craig</h3></div><div class="info"><h3 style="font-size:18px">Carl Craig</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1437156464.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:16px">Dj Sneak</h3></div><div class="info"><h3 style="font-size:18px">Dj Sneak</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1441991334.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:16px">ANNA</h3></div><div class="info"><h3 style="font-size:18px">ANNA</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:1"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1474392316.png" alt="" style="filter:grayscale(1)"><div class="base"><h3 style="font-size:16px">Aaron Gehrig</h3></div><div class="info"><h3 style="font-size:18px">Aaron Gehrig</h3><span class="ul" style="color:#fff">View artist</span></div></a>
+        </div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Mitad foto en blanco y negro, mitad ficha: nombre, país y géneros, los tres rankings en una banda, Follow y redes. Debajo, bio + vídeo (portada con play, porque muchos vídeos no se dejan incrustar), próximas noches en filas y artistas parecidos con el hover heredado.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GAD2</b> Nombre gigante sobre la foto</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="">Festivals</span><span class="on">Artists</span><span class="">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div style="position:relative;height:520px;overflow:hidden">
+        <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/djs_images/big/1400182806.png" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 25%;filter:grayscale(1) brightness(.6)">
+        <div style="position:absolute;inset:auto 0 0 0;padding:0 40px 34px;background:linear-gradient(transparent,rgba(4,8,12,.95))">
+          <div style="display:flex;gap:8px;margin-bottom:10px"><span class="chip" style="color:#fff;border-color:rgba(255,255,255,.3)">House</span><span class="chip" style="color:#fff;border-color:rgba(255,255,255,.3)">Techno</span><span class="chip" style="color:#fff;border-color:rgba(255,255,255,.3)">United Kingdom</span></div>
+          <h1 class="serif" style="font-size:clamp(4rem,11vw,9rem);line-height:.95;color:#fff">Carl Cox</h1>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 40px;border-bottom:1px solid var(--line)">
+        <div style="display:flex;gap:28px;font-size:15px"><span><b style="color:var(--link)">#2</b> Gem2i</span><span><b style="color:var(--ink)">#74</b> DJ Mag</span><span><b style="color:var(--ink)">#59</b> Resident Advisor</span></div>
+        <div style="display:flex;gap:10px"><span class="chip">Facebook</span><span class="chip">Instagram</span><span class="btn">Follow</span></div>
+      </div>
+      <div class="in" style="display:grid;grid-template-columns:1fr 1fr;gap:48px">
+        <p style="font-size:19px;line-height:1.8;margin:0;color:var(--ink)">A musical ambassador since he was in short trousers, a professional DJ since his early teens, a veteran of acid house and a champion of techno.</p>
+        <div class="hc" style="aspect-ratio:16/9;display:grid;place-items:center"><img class="ph1" src="https://img.youtube.com/vi/azsS4XTuWlU/hqdefault.jpg" alt="" style="position:absolute;inset:0;opacity:.6"><span style="position:relative;z-index:3;width:64px;height:64px;border-radius:50%;background:#fff;color:#04080C;display:grid;place-items:center;font-weight:800">▶</span></div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Más cartel: el nombre ocupa el ancho sobre la foto. Rankings y redes en una tira debajo. El resto (eventos, parecidos) igual que GAD1.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 7 VENUES -->
+<section class="page" id="venues">
+  <div class="ph"><h2 class="serif">7 · Venues</h2><span>/venues · Top venues (CMS Featured), vista Foto/Logo, buscador país → estado → ciudad + nombre, continentes, paginación</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GV1</b> Top venues en mosaico + muro</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="">Festivals</span><span class="">Artists</span><span class="on">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote h"><b>HERO DEL CMS</b>Hero B del home con los slides asignados a <code>venues</code> (CMS &rarr; Hero slides &rarr; Page Assignment). Sin slides asignados no se muestra y la página empieza directamente en el bloque de abajo.</div><section class="heroB" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png)"><div><span class="eb">GEM2i members</span><h1>Live the night <span class="acc">without lines</span></h1><p>Your QR pass for parties, festivals and conferences in one place.</p><div class="cta"><span class="rnd">&rarr;</span><span class="pill">Join with an invite</span><span class="pill">Upcoming events</span></div><div class="dots"><i class="on"></i><i></i><i></i></div></div><a class="evc" href="#"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt=""><div><small style="color:var(--link);font-weight:800;letter-spacing:.14em">FEATURED</small><h3 style="font-size:18px;margin:4px 0">Deadmau5 cube v3</h3><small>Sat 7 Nov &middot; Avant Gardner</small></div></a></section>
+      <div class="in">
+        <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem);margin-bottom:22px">Top <span class="acc">venues</span></h1>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:240px 240px;gap:16px">
+          <a href="#" class="hc" style="grid-row:span 2"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404140969.png" alt=""></span><div class="base"><small>IBIZA · SPAIN</small><h3 class="serif" style="font-size:30px">Ushuaïa</h3></div><div class="info"><small>Capacity 5,000</small><h3 class="serif" style="font-size:30px">Ushuaïa</h3><span class="ul" style="color:#fff">View venue</span></div></a>
+          <a href="#" class="hc"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403884600.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1403884600.png" alt=""></span><div class="base"><small>BRAZIL</small><h3 style="font-size:19px">Green Valley</h3></div><div class="info"><h3 style="font-size:19px">Green Valley</h3><span class="ul" style="color:#fff">View venue</span></div></a>
+          <a href="#" class="hc"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404146545.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404146545.png" alt=""></span><div class="base"><small>UNITED STATES</small><h3 style="font-size:19px">Echostage</h3></div><div class="info"><h3 style="font-size:19px">Echostage</h3><span class="ul" style="color:#fff">View venue</span></div></a>
+          <a href="#" class="hc"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403279461.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1403279461.png" alt=""></span><div class="base"><small>MALAYSIA</small><h3 style="font-size:19px">Zouk Club</h3></div><div class="info"><h3 style="font-size:19px">Zouk Club</h3><span class="ul" style="color:#fff">View venue</span></div></a>
+          <a href="#" class="hc"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404149560.png" alt=""><span class="lg"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404149560.png" alt=""></span><div class="base"><small>CROATIA</small><h3 style="font-size:19px">Papaya</h3></div><div class="info"><h3 style="font-size:19px">Papaya</h3><span class="ul" style="color:#fff">View venue</span></div></a>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:44px 0 16px;gap:12px;flex-wrap:wrap"><h3 class="serif" style="font-size:28px">All venues</h3><div style="display:flex;gap:6px"><span class="chip">Photo</span><span class="chip on">Logo</span></div></div>
+        <div class="search" style="grid-template-columns:1.3fr 1fr 1fr 1fr auto"><div><small>Name</small>Search venues</div><div><small>Country</small>All</div><div><small>State</small>All</div><div><small>City</small>Type a city</div><a class="go" href="#">Search</a></div>
+        <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">South America</span><span class="chip">Asia</span></div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border-radius:var(--r);overflow:hidden">
+          <a href="#" style="background:var(--card);aspect-ratio:1;display:grid;place-items:center;padding:22px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404140969.png" alt="" style="max-height:70px;filter:grayscale(1)"></a>
+          <a href="#" style="background:var(--card);aspect-ratio:1;display:grid;place-items:center;padding:22px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1403884600.png" alt="" style="max-height:70px;filter:grayscale(1)"></a>
+          <a href="#" style="background:var(--card);aspect-ratio:1;display:grid;place-items:center;padding:22px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404146545.png" alt="" style="max-height:70px;filter:grayscale(1)"></a>
+          <a href="#" style="background:var(--card);aspect-ratio:1;display:grid;place-items:center;padding:22px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1555093652.png" alt="" style="max-height:70px;filter:grayscale(1)"></a>
+          <a href="#" style="background:var(--card);aspect-ratio:1;display:grid;place-items:center;padding:22px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1403279461.png" alt="" style="max-height:70px;filter:grayscale(1)"></a>
+          <a href="#" style="background:var(--card);aspect-ratio:1;display:grid;place-items:center;padding:22px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404149560.png" alt="" style="max-height:70px;filter:grayscale(1)"></a>
+        </div>
+        <div class="pager"><span class="on">1</span><span>2</span><span>3</span><span>›</span></div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note"><b style="color:var(--ink)">Con hero:</b> el hero B va arriba y la página arranca en "Top venues". <b style="color:var(--ink)">Sin hero:</b> "Top venues" es lo primero bajo la cabecera; el título y el mosaico hacen de portada (por eso el título va grande). Los venues destacados en mosaico (uno grande + cuatro). Debajo, todos los venues con buscador, continentes y el interruptor Foto/Logo: en Logo, un muro de logos en gris que pasan a color al pasar (en Foto, tarjetas con el hover heredado).</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GV2</b> Mapa + lista</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="">Festivals</span><span class="">Artists</span><span class="on">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote h"><b>HERO DEL CMS</b>Hero B del home con los slides asignados a <code>venues</code> (CMS &rarr; Hero slides &rarr; Page Assignment). Sin slides asignados no se muestra y la página empieza directamente en el bloque de abajo.</div><section class="heroB" style="background-image:url(https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png)"><div><span class="eb">GEM2i members</span><h1>Live the night <span class="acc">without lines</span></h1><p>Your QR pass for parties, festivals and conferences in one place.</p><div class="cta"><span class="rnd">&rarr;</span><span class="pill">Join with an invite</span><span class="pill">Upcoming events</span></div><div class="dots"><i class="on"></i><i></i><i></i></div></div><a class="evc" href="#"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568415075.png" alt=""><div><small style="color:var(--link);font-weight:800;letter-spacing:.14em">FEATURED</small><h3 style="font-size:18px;margin:4px 0">Deadmau5 cube v3</h3><small>Sat 7 Nov &middot; Avant Gardner</small></div></a></section>
+      <div class="in" style="display:grid;grid-template-columns:1.1fr .9fr;gap:24px">
+        <div style="position:sticky;top:90px;align-self:start;aspect-ratio:1;border-radius:var(--r);background:#0b1622 url(https://tile.openstreetmap.org/2/1/1.png) center/cover;filter:grayscale(1) invert(.9) contrast(.9);position:relative">
+          <i style="position:absolute;left:46%;top:44%;width:16px;height:16px;border-radius:50%;background:#0068b3;outline:5px solid rgba(0,104,179,.3)"></i>
+          <i style="position:absolute;left:30%;top:38%;width:12px;height:12px;border-radius:50%;background:#5AAFEA"></i>
+          <i style="position:absolute;left:60%;top:62%;width:12px;height:12px;border-radius:50%;background:#5AAFEA"></i>
+        </div>
+        <div>
+          <h1 class="serif" style="font-size:clamp(2rem,3.4vw,2.8rem);margin-bottom:16px">Venues <span class="acc">worldwide</span></h1>
+          <div class="search" style="grid-template-columns:1fr 1fr auto"><div><small>Name</small>Search</div><div><small>Country</small>All</div><a class="go" href="#">Go</a></div>
+          <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">Asia</span></div>
+          <div style="display:grid;gap:10px">
+            <a href="#" style="display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--link);border-radius:var(--r);padding:12px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:var(--r)"><div><h3 style="font-size:17px">Ushuaïa</h3><small>Platja d'en Bossa, Ibiza, Spain</small></div><span class="ul">View</span></a>
+            <a href="#" style="display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1555093652.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:var(--r)"><div><h3 style="font-size:17px">Hï Ibiza</h3><small>Ibiza, Spain</small></div><span class="ul">View</span></a>
+            <a href="#" style="display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404146545.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:var(--r)"><div><h3 style="font-size:17px">Echostage</h3><small>Washington DC, United States</small></div><span class="ul">View</span></a>
+            <a href="#" style="display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1403279461.png" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:var(--r)"><div><h3 style="font-size:17px">Zouk Club</h3><small>Kuala Lumpur, Malaysia</small></div><span class="ul">View</span></a>
+          </div>
+          <div class="pager" style="justify-content:flex-start"><span class="on">1</span><span>2</span><span>›</span></div>
+        </div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note"><b style="color:var(--ink)">Con hero:</b> el mapa queda fijo al bajar del hero. <b style="color:var(--ink)">Sin hero:</b> mapa y lista son lo primero de la página. Mapa en gris (los mismos tiles OSM del home) con un pin por venue de la página; al pasar por una fila, su pin se ilumina y el mapa vuela ahí. Solo funciona con venues que tengan coordenadas; los demás salen en la lista sin pin.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 8 VENUE DETAIL -->
+<section class="page" id="venue">
+  <div class="ph"><h2 class="serif">8 · Venue detail</h2><span>/venues/:slug · foto, logo, dirección, capacidad, géneros, tipo, descripción, mapa, próximos eventos, follow</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GVD1</b> Foto a lo ancho + banda de datos</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="">Festivals</span><span class="">Artists</span><span class="on">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div style="position:relative;height:420px">
+        <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png" alt="" style="width:100%;height:100%;object-fit:cover">
+        <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,8,12,.9),rgba(4,8,12,.2))"></div>
+        <div style="position:absolute;left:40px;bottom:36px;display:flex;gap:22px;align-items:center">
+          <span style="width:96px;height:96px;border-radius:50%;background:#fff;display:grid;place-items:center;padding:14px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404140969.png" alt=""></span>
+          <div><small style="color:#cfd8e0">Venues / Ushuaïa</small><h1 class="serif" style="font-size:clamp(2.6rem,5vw,4rem);line-height:1.02;color:#fff">Ushuaïa</h1></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)">
+        <div style="background:var(--card);padding:18px 24px"><small>Address</small><br><b style="color:var(--ink)">Platja d'en Bossa</b></div>
+        <div style="background:var(--card);padding:18px 24px"><small>City</small><br><b style="color:var(--ink)">Ibiza, Spain</b></div>
+        <div style="background:var(--card);padding:18px 24px"><small>Capacity</small><br><b style="color:var(--ink)">5,000</b></div>
+        <div style="background:var(--card);padding:18px 24px;display:flex;align-items:center;justify-content:flex-end"><span class="btn">Follow</span></div>
+      </div>
+      <div class="in" style="display:grid;grid-template-columns:1fr 1fr;gap:44px">
+        <div>
+          <h3 class="serif" style="font-size:26px;margin-bottom:12px">About the <span class="acc">venue</span></h3>
+          <p>Open-air club hotel on the south coast of Ibiza, home of the island's biggest daytime residencies.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><span class="chip">House</span><span class="chip">Tech house</span><span class="chip">Open air</span></div>
+        </div>
+        <div style="aspect-ratio:16/10;border-radius:var(--r);background:#0b1622 url(https://tile.openstreetmap.org/5/16/12.png) center/cover;filter:grayscale(1) invert(.9)"></div>
+      </div>
+      <div class="in" style="padding-top:0">
+        <h3 class="serif" style="font-size:26px;margin-bottom:12px">Coming up at <span class="acc">Ushuaïa</span></h3>
+        <div class="grid4">
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568998950.png" alt=""><div class="base"><small>28 NOV</small><h3 style="font-size:17px">Elrow Art</h3></div><div class="info"><h3 style="font-size:19px">Elrow Art</h3><span class="ul" style="color:#fff">Get tickets</span></div></a>
+          <a href="#" class="hc" style="aspect-ratio:4/5"><img class="ph1" src="https://beta.gem2i.com/api/uploads/gem2i/legacy/events_images/1568670611.png" alt=""><div class="base"><small>05 DEC</small><h3 style="font-size:17px">Loud Luxury</h3></div><div class="info"><h3 style="font-size:19px">Loud Luxury</h3><span class="ul" style="color:#fff">Get tickets</span></div></a>
+        </div>
+        <p class="note">Sin eventos próximos, este bloque muestra "No upcoming events here yet" con enlace a /events.</p>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Foto del venue a lo ancho con el logo en disco blanco y el nombre. Debajo, una banda de datos (dirección, ciudad, capacidad) con Follow. Luego descripción + géneros junto al mapa, y los próximos eventos del venue como flyers.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GVD2</b> Ficha lateral fija</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="">Festivals</span><span class="">Artists</span><span class="on">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div class="in" style="display:grid;grid-template-columns:.7fr 1.3fr;gap:40px">
+        <aside style="position:sticky;top:90px;align-self:start;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;text-align:center">
+          <span style="width:110px;height:110px;margin:0 auto;border-radius:50%;background:#fff;display:grid;place-items:center;padding:16px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_logos/1404140969.png" alt=""></span>
+          <h1 class="serif" style="font-size:34px;margin:16px 0 4px">Ushuaïa</h1>
+          <small>Ibiza, Spain</small>
+          <div style="text-align:left;margin:20px 0;border-top:1px solid var(--line)">
+            <p style="display:flex;justify-content:space-between;margin:0;padding:10px 0;border-bottom:1px solid var(--line)"><small>Address</small><b style="color:var(--ink)">Platja d'en Bossa</b></p>
+            <p style="display:flex;justify-content:space-between;margin:0;padding:10px 0"><small>Capacity</small><b style="color:var(--ink)">5,000</b></p>
+          </div>
+          <span class="btn" style="width:100%;justify-content:center">Follow</span>
+        </aside>
+        <div>
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/venues_view/1404140969.png" alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r)">
+          <p style="font-size:17px;margin-top:22px">Open-air club hotel on the south coast of Ibiza, home of the island's biggest daytime residencies.</p>
+          <h3 class="serif" style="font-size:24px;margin:30px 0 10px">Upcoming events</h3>
+          <div style="border-top:1px solid var(--line)">
+            <a href="#" style="display:grid;grid-template-columns:70px 1fr auto;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:28px;color:var(--ink);line-height:1">28</b><br><small>NOV</small></div><h3 style="font-size:18px">Elrow Art</h3><span class="btn">Get tickets</span></a>
+            <a href="#" style="display:grid;grid-template-columns:70px 1fr auto;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)"><div><b class="serif" style="font-size:28px;color:var(--ink);line-height:1">05</b><br><small>DEC</small></div><h3 style="font-size:18px">Loud Luxury</h3><span class="btn">Get tickets</span></a>
+          </div>
+          <div style="aspect-ratio:16/7;margin-top:30px;border-radius:var(--r);background:#0b1622 url(https://tile.openstreetmap.org/5/16/12.png) center/cover;filter:grayscale(1) invert(.9)"></div>
+        </div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Tarjeta de identidad fija a la izquierda (logo, nombre, datos, Follow) y el contenido a la derecha: foto, descripción, eventos en filas y mapa al final.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 9 FESTIVAL / CONFERENCE DETAIL -->
+<section class="page" id="festival">
+  <div class="ph"><h2 class="serif">9 · Festival / Conference detail</h2><span>/festivals/:slug y /conferences/:slug · foto, logo, fechas, lugar, line-up, sesiones por día (conferencias), flyer, set times, follow</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GFD1</b> Cartel tipográfico del line-up</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="on">Festivals</span><span class="">Artists</span><span class="">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div style="position:relative;height:460px">
+        <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_festivals/photo/1518136932.png" alt="" style="width:100%;height:100%;object-fit:cover">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,8,12,.2),rgba(4,8,12,.95))"></div>
+        <div style="position:absolute;left:40px;right:40px;bottom:34px;display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap">
+          <div><small style="color:#cfd8e0">Festivals / Ultra Music Festival</small><h1 class="serif" style="font-size:clamp(2.6rem,5.4vw,4.4rem);line-height:1.02;color:#fff;margin-top:8px">Ultra Music <span class="acc">Festival</span></h1><p style="margin:8px 0 0;color:#dfe6ec">March 29 | 30 | 31 · Bayfront Park, Miami, United States</p></div>
+          <div style="display:flex;gap:8px"><div style="background:rgba(4,8,12,.7);padding:12px 16px;border-radius:var(--r);text-align:center"><b class="serif" style="font-size:28px;color:#fff">154</b><br><small>days</small></div><div style="background:rgba(4,8,12,.7);padding:12px 16px;border-radius:var(--r);text-align:center"><b class="serif" style="font-size:28px;color:#fff">09</b><br><small>hours</small></div></div>
+        </div>
+      </div>
+      <div class="in" style="text-align:center">
+        <small style="color:var(--link);font-weight:800;letter-spacing:.16em">LINE-UP</small>
+        <p class="serif" style="font-size:clamp(2rem,4.4vw,3.6rem);line-height:1.15;color:var(--ink);margin:14px 0 8px">Armin Van Buuren · David Guetta · Carl Cox</p>
+        <p style="font-size:clamp(1.3rem,2.4vw,1.9rem);line-height:1.4;color:var(--ink);margin:0 0 6px;font-weight:700">Afrojack · Axwell ^ Ingrosso · Dj Snake · Dubfire</p>
+        <p style="font-size:18px;line-height:1.6;margin:0">Andrew Rayel · Audien · Carlo Lio</p>
+        <div style="display:flex;justify-content:center;gap:6px;margin:30px 0 12px"><span class="chip on">Line-up</span><span class="chip">Cards</span></div>
+        <div style="display:flex;justify-content:center;gap:12px;margin-top:26px"><span class="btn">Follow</span><span class="btn o">View flyer</span></div>
+      </div>
+      <div class="in" style="padding-top:0">
+        <h3 class="serif" style="font-size:26px;margin-bottom:14px">Schedule</h3>
+        <div style="display:flex;gap:6px;margin-bottom:14px"><span class="chip on">Fri 29</span><span class="chip">Sat 30</span><span class="chip">Sun 31</span></div>
+        <div style="border-top:1px solid var(--line)">
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:20px;padding:14px 0;border-bottom:1px solid var(--line)"><b style="color:var(--link)">18:00 - 19:30</b><span style="color:var(--ink)">Audien</span></div>
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:20px;padding:14px 0;border-bottom:1px solid var(--line)"><b style="color:var(--link)">19:30 - 21:00</b><span style="color:var(--ink)">Afrojack</span></div>
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:20px;padding:14px 0;border-bottom:1px solid var(--line)"><b style="color:var(--link)">21:00 - 23:00</b><span style="color:var(--ink)">Armin Van Buuren</span></div>
+        </div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Cabecera con la foto del festival, fechas, lugar y cuenta atrás. El line-up como un cartel de festival: los primeros nombres grandes en Playfair, luego en negrita y el resto en texto (el interruptor "Cards" cambia a tarjetas de artista con el hover). Debajo, horarios por día. En conferencias, las sesiones del CMS ocupan ese bloque.</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GFD2</b> Flyer + pestañas</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="on">Festivals</span><span class="">Artists</span><span class="">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div class="in" style="display:grid;grid-template-columns:.8fr 1.2fr;gap:44px">
+        <div style="position:sticky;top:90px;align-self:start">
+          <img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/images/1412174875.jpg" alt="" style="width:100%;border-radius:var(--r)">
+        </div>
+        <div>
+          <div style="display:flex;gap:16px;align-items:center"><span style="width:72px;height:72px;border-radius:50%;background:#fff;display:grid;place-items:center;padding:10px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412174875.png" alt=""></span><small>Conferences / Amsterdam Dance Event</small></div>
+          <h1 class="serif" style="font-size:clamp(2.4rem,4.4vw,3.6rem);line-height:1.04;margin:16px 0 10px">Amsterdam Dance <span class="acc">Event</span></h1>
+          <p style="margin:0">October 15 to 19 · Amsterdam, Netherlands</p>
+          <div style="display:flex;gap:0;border-bottom:1px solid var(--line);margin:28px 0 20px">
+            <span style="padding:12px 18px;border-bottom:2px solid var(--link);color:var(--ink);font-weight:700">Sessions</span><span style="padding:12px 18px">Line-up</span><span style="padding:12px 18px">Info</span>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:14px"><span class="chip on">Day 1</span><span class="chip">Day 2</span><span class="chip">Day 3</span></div>
+          <div style="display:grid;gap:10px">
+            <div style="display:grid;grid-template-columns:110px 1fr;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px"><b style="color:var(--link)">10:00 - 11:00</b><div><b style="color:var(--ink)">The state of the industry</b><br><small>Keynote, main hall</small></div></div>
+            <div style="display:grid;grid-template-columns:110px 1fr;gap:18px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px"><b style="color:var(--link)">11:30 - 12:30</b><div><b style="color:var(--ink)">Touring after the pandemic</b><br><small>Panel</small></div></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:24px"><span class="btn">Follow</span></div>
+        </div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Flyer fijo a la izquierda; a la derecha logo, nombre, fechas y lugar, y tres pestañas: Sessions (por día, para conferencias) o Line-up/Set times (festivales), Line-up e Info (descripción, dirección, mapa). Sesiones de ejemplo: los títulos reales vienen del CMS.</p>
+  </div>
+</section>
+
+<!-- ================================================================ 10 CONFERENCES -->
+<section class="page" id="conferences">
+  <div class="ph"><h2 class="serif">10 · Conferences</h2><span>/conferences · vista tarjeta/lista, buscador (nombre, fechas, país, estado, ciudad), continentes, paginación</span></div>
+
+  <div class="var">
+    <div class="vtag"><b>GC1</b> Rejilla de logos con fecha</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="on">Festivals</span><span class="">Artists</span><span class="">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div class="in">
+        <div style="display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap"><h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem)">Music <span class="acc">conferences</span></h1><div style="display:flex;gap:6px"><span class="chip on">Cards</span><span class="chip">List</span></div></div>
+        <div class="search" style="margin-top:22px"><div><small>Name</small>Search</div><div><small>Dates</small>Any date</div><div><small>Country</small>All</div><div><small>State</small>All</div><div><small>City</small>Type a city</div><a class="go" href="#">Search</a></div>
+        <div class="tabs"><span class="chip on">All</span><span class="chip">USA</span><span class="chip">Europe</span><span class="chip">Oceania</span></div>
+        <div class="grid4">
+          <a href="#" class="hc" style="aspect-ratio:3/4;display:flex;flex-direction:column"><div style="flex:1;display:grid;place-items:center;padding:30px;background:#fff"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412174875.png" alt="" style="max-height:110px"></div><div style="padding:16px;position:relative;z-index:2"><small style="color:var(--link);font-weight:800">OCT 15 - 19</small><h3 style="font-size:17px">Amsterdam Dance Event</h3><small>Netherlands</small></div></a>
+          <a href="#" class="hc" style="aspect-ratio:3/4;display:flex;flex-direction:column"><div style="flex:1;display:grid;place-items:center;padding:30px;background:#fff"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412176604.png" alt="" style="max-height:110px"></div><div style="padding:16px;position:relative;z-index:2"><small style="color:var(--link);font-weight:800">MAY 21 - 23</small><h3 style="font-size:17px">International Music Summit</h3><small>Spain</small></div></a>
+          <a href="#" class="hc" style="aspect-ratio:3/4;display:flex;flex-direction:column"><div style="flex:1;display:grid;place-items:center;padding:30px;background:#fff"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412175141.png" alt="" style="max-height:110px"></div><div style="padding:16px;position:relative;z-index:2"><small style="color:var(--link);font-weight:800">APR 12 - 13</small><h3 style="font-size:17px">Brighton Music Conference</h3><small>United Kingdom</small></div></a>
+          <a href="#" class="hc" style="aspect-ratio:3/4;display:flex;flex-direction:column"><div style="flex:1;display:grid;place-items:center;padding:30px;background:#fff"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412176041.png" alt="" style="max-height:110px"></div><div style="padding:16px;position:relative;z-index:2"><small style="color:var(--link);font-weight:800">DEC 2 - 4</small><h3 style="font-size:17px">Electronic Music Conference</h3><small>Australia</small></div></a>
+        </div>
+        <div class="pager"><span class="on">1</span><span>2</span><span>3</span><span>›</span></div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Sin hero hoy: /conferences no está en Page Assignment. Si se quiere hero aquí, hay que añadir "Conferences" a esa lista (cambio pequeño). Las conferencias apenas tienen fotos (sobre todo logos), así que la tarjeta se construye alrededor del logo: fondo blanco arriba (los logos legados son oscuros sobre blanco), fecha en azul, nombre y país. Al pasar, el velo azul con "View conference".</p>
+  </div>
+
+  <div class="var">
+    <div class="vtag"><b>GC2</b> Calendario del año</div>
+    <div class="frame"><div class="hdr"><span class="lg2">GEM2i</span><nav><span class="">Home</span><span class="">About Us</span><span class="">Events</span><span class="on">Festivals</span><span class="">Artists</span><span class="">Venues</span><span class="">Travels</span><span class="">Services</span><span class="">Partners</span></nav><span style="display:flex;gap:14px;align-items:center"><span class="lgn">Login</span><span>EN</span><span>&#9776;</span></span></div><div class="hnote"><b style="background:#5B636C">SIN HERO</b>Esta página no está en Hero &rarr; Page Assignment: empieza con su propia cabecera.</div>
+      <div class="in">
+        <h1 class="serif" style="font-size:clamp(2.2rem,4vw,3.2rem);margin-bottom:22px">The conference <span class="acc">year</span></h1>
+        <div class="search" style="grid-template-columns:1.3fr 1fr 1fr auto"><div><small>Name</small>Search</div><div><small>Country</small>All</div><div><small>City</small>Type a city</div><a class="go" href="#">Search</a></div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:24px 0;font-size:12px;font-weight:800;text-align:center">
+          <span class="chip">JAN</span><span class="chip">FEB</span><span class="chip">MAR</span><span class="chip on">APR</span><span class="chip">MAY</span><span class="chip">JUN</span><span class="chip">JUL</span><span class="chip">AUG</span><span class="chip">SEP</span><span class="chip">OCT</span><span class="chip">NOV</span><span class="chip">DEC</span>
+        </div>
+        <div style="border-top:1px solid var(--line)">
+          <a href="#" style="display:grid;grid-template-columns:110px 70px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><b class="serif" style="font-size:26px;color:var(--ink)">12 - 13</b><span style="width:70px;height:70px;border-radius:50%;background:#fff;display:grid;place-items:center;padding:10px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412175141.png" alt=""></span><div><h3 style="font-size:20px">Brighton Music Conference</h3><small>Brighton, United Kingdom · 4 sessions</small></div><span class="ul">View</span></a>
+          <a href="#" style="display:grid;grid-template-columns:110px 70px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)"><b class="serif" style="font-size:26px;color:var(--ink)">16</b><span style="width:70px;height:70px;border-radius:50%;background:#fff;display:grid;place-items:center;padding:10px"><img src="https://beta.gem2i.com/api/uploads/gem2i/legacy/images_conferences/logos/1412176263.png" alt=""></span><div><h3 style="font-size:20px">IMS Engage</h3><small>United States</small></div><span class="ul">View</span></a>
+        </div>
+      </div>
+    <footer class="ftr"><div class="band"><h3>Be part of <span class="acc" style="color:#cfe9f8">the night</span></h3><span>Become a member</span></div><div class="cols"><div><b>GEM2i</b><p>Entertainment management and marketing integration, since 1993.</p><p>main@gem2i.com</p></div><div><b>DISCOVER</b><p>Events</p><p>Festivals</p><p>Artists</p><p>Venues</p></div><div><b>COMPANY</b><p>About Us</p><p>Services</p><p>Media</p><p>Contact</p></div><div><b>OFFICES</b><p>New York, USA &middot; HQ</p><p>Spain</p><p>Lima, Peru</p><p>Buenos Aires</p><p>Santo Domingo</p></div><div><b>FOLLOW</b><p>Facebook</p><p>Instagram</p><p>YouTube</p></div></div><div class="legal"><span>&copy; 2026 GEM2i</span><span>Terms &middot; Privacy &middot; EN / ES</span></div></footer>
+    </div>
+    <p class="note">Las conferencias son anuales y se repiten cada año, así que se leen como un calendario: 12 meses arriba (los meses sin conferencias se apagan) y filas con fecha, logo, nombre, lugar y nº de sesiones.</p>
+  </div>
+</section>
+</main>
+
+<script>
+document.querySelectorAll('.hsw button').forEach(b=>b.addEventListener('click',()=>{
+  document.body.classList.toggle('nohero',b.dataset.h==='off');
+  document.querySelectorAll('.hsw button').forEach(x=>x.classList.toggle('on',x===b));
+}));
+</script>
+</body>
+</html>

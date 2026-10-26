@@ -99,7 +99,7 @@ export default function NorulesEventDetail() {
           </div>
 
           <div className="mt-2"><GemTicketWidget event={event} /></div>
-          <GemGuestListWidget event={event} />
+          <GemGuestListWidget event={event} passTo={`/tickets/success?pass=${encodeURIComponent(event.slug || event.id)}`} />
         </div>
       </div>
 

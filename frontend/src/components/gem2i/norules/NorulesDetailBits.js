@@ -51,6 +51,8 @@ export function ListShell({ page, testid, eyebrow, title, intro, head, children 
 }
 
 export const slugify = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+/** URL slug of a Maps & Locations office → /map/:slug (NorulesOffice). */
+export const officeSlug = (o) => o.slug || slugify(o.name || o.title?.en || o.title);
 
 export function Crumb({ items }) {
   return (

@@ -212,7 +212,15 @@ async def public_artist_detail(slug: str):
         {"lineup": doc["id"], "status": "active", "private": False, "show_portal": True,
          "event_date": {"$gte": _now_date()}},
         {"_id": 0}).sort([("event_date", 1)]).limit(8)
-    doc["upcoming_events"] = [_serialize("gem_events", e) async for e in upcoming]
+    events = [_serialize("gem_events", e) async for e in upcoming]
+    # Venue summary per night (name/city/country/slug) so the artist page can say where it is.
+    vids = list({e.get("venue_id") for e in events if e.get("venue_id")})
+    venues = {v["id"]: v async for v in db.gem_venues.find(
+        {"id": {"$in": vids}}, {"_id": 0, "id": 1, "name": 1, "slug": 1, "city": 1, "country": 1})} if vids else {}
+    for e in events:
+        if e.get("venue_id") in venues:
+            e["venue"] = venues[e["venue_id"]]
+    doc["upcoming_events"] = events
     return doc
 
 

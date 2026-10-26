@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { NBtn, NBtnLook } from './norules/NBtn';
+import { officeSlug } from './norules/NorulesDetailBits';
 import { toast } from 'sonner';
 import { publicAPI, landingAPI } from '../../lib/api';
 import { BACKEND_URL } from '../../lib/config';
@@ -158,7 +159,7 @@ export default function NorulesFooter({ settings, socialLinks, footerPages, isEx
             <ul className="grid gap-2.5 font-semibold" data-testid="footer-offices">
               {offices.map(o => (
                 <li key={o.id} className="flex flex-wrap items-center gap-2" title={region(o) || undefined}>
-                  {o.name || tt(o.title)}
+                  <Link to={`/map/${officeSlug(o)}`} className={smallLink}>{o.name || tt(o.title)}</Link>
                   {/headquarters|sede/i.test(region(o)) && <i className="not-italic rounded-full bg-white px-2 py-0.5 text-[10.5px] font-extrabold" style={{ color: '#0D0F12' }}>HQ</i>}
                 </li>
               ))}

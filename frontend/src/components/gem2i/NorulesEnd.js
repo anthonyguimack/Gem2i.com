@@ -7,7 +7,9 @@ import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from 'react-leaf
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ArrowRight, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { NBtn } from './norules/NBtn';
+import { officeSlug } from './norules/NorulesDetailBits';
 import { toast } from 'sonner';
 import { useT, useLang } from '../../lib/i18n';
 import { contactAPI, publicAPI } from '../../lib/api';
@@ -122,14 +124,21 @@ export function GemMapTabs({ tabs, cmsConfig = {}, mapsLang }) {
           )}
           {pts.map((p, i) => {
             const on = i === sel;
-            return (
+            return [
               <button key={p.id || i} type="button" role="tab" aria-selected={on} onClick={() => setSel(i)}
                 className={`shrink-0 text-left rounded-2xl px-[18px] py-3.5 backdrop-blur-md shadow-[0_10px_30px_-14px_rgba(0,0,0,.35)] transition-[background-color,color,transform] duration-300 ${EASE} ${on ? '-translate-y-1' : ''}`}
                 style={on ? { backgroundColor: '#16191D', color: '#fff' } : { backgroundColor: 'rgba(255,255,255,.92)', color: '#16191D' }}>
                 <b className="block text-[15px]">{tt(p.title) || tt(p.name)}</b>
                 {tt(p.description) && <span className="text-[12.5px]" style={{ color: on ? '#AAB1B8' : '#5B636C' }}>{plainText(tt(p.description)).split(' · ')[0]}</span>}
-              </button>
-            );
+              </button>,
+              on && (
+                <Link key={`go-${p.id || i}`} to={`/map/${officeSlug(p)}`} data-testid="map-office-link"
+                  className="shrink-0 self-stretch inline-flex items-center gap-2 rounded-2xl px-[18px] text-[14px] font-bold text-white shadow-[0_10px_30px_-14px_rgba(0,0,0,.35)] transition-transform duration-300 hover:-translate-y-0.5"
+                  style={{ backgroundColor: 'var(--color-accent, #0068b3)' }}>
+                  {tt({ en: 'View office', es: 'Ver oficina' })} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Link>
+              ),
+            ];
           })}
         </div>
       </div>

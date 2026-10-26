@@ -8,13 +8,15 @@ import { normalizeRichText } from '../../lib/richText';
 import { gemImg } from '../../components/gem2i/GemCatalogBits';
 import { GemMethodCycle, GemTeamPortraits } from '../../components/gem2i/GemSections';
 import AccentTitle from '../../components/gem2i/AccentTitle';
+import { officeSlug } from '../../components/gem2i/g02/G02DetailBits';
+import { zoneOf, localTime } from './g02/G02Helpers';
 import { PageHero, ACCENT, LINK, BODY, CARD, LINE } from '../../components/gem2i/GemCatalogCards';
 
 const GEM_FONT = "'Manrope', sans-serif";
 const SERIF = "'Playfair Display', Georgia, serif";
 const BTN = 'inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold text-white transition-opacity hover:opacity-90';
 
-/** About (/about) — AB-1. Content: CMS → About (eyebrow, title, story text,
+/** About (/about) — AB-A = GA2 (2026-10-26, boceto gem2i-about.html; without CMS hero the title grows). Content: CMS → About (eyebrow, title, story text,
  *  photo, stats), Section Manager → GEM Methodology + Team, Maps & Locations →
  *  global_business (offices). Hero: Hero slide → Page Assignment "About Us". */
 export default function Gem2iAbout() {
@@ -23,17 +25,23 @@ export default function Gem2iAbout() {
   const [method, setMethod] = useState(null);
   const [team, setTeam] = useState(null);
   const [offices, setOffices] = useState([]);
+  const [now, setNow] = useState(() => new Date());
+  const [hasHero, setHasHero] = useState(null); // null until PageHero knows
 
   useEffect(() => {
     publicAPI.getAbout().then(r => setAbout(r.data || {})).catch(() => setAbout({}));
     publicAPI.getSectionContent('gem_methodology').then(r => setMethod(r.data)).catch(() => {});
     publicAPI.getSectionContent('aurex_team').then(r => setTeam(r.data)).catch(() => {});
     publicAPI.getMapLocations('global_business').then(r => setOffices(Array.isArray(r.data) ? r.data : [])).catch(() => {});
+    const id = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(id);
   }, []);
 
   const a = about || {};
   const stats = (a.stats || []).filter(s => tt(s.label) || s.value);
   const story = normalizeRichText(tt(a.description) || '');
+  const order = aboutSectionOrder(a.page_sections);
+  const showOffices = order.some(x => x.key === 'offices' && x.visible);
   const toContact = () => window.dispatchEvent(new CustomEvent('gem2i:open-contact'));
 
   // Blocks below the story, ordered/hidden from CMS → About → Page sections.
@@ -76,22 +84,34 @@ export default function Gem2iAbout() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg, #04080C)', fontFamily: GEM_FONT }} data-testid="gem2i-about">
-      <PageHero page="about" />
+      <PageHero page="about" onShown={setHasHero} />
 
-      <section className="max-w-7xl mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-16 grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+      {/* GA2 (boceto gem2i-inner-pages-1.html): photo + key figures pinned on the left while the story reads
+          like a signed letter; the offices (when shown) close the letter as cards → /map/:slug. */}
+      <section className="max-w-7xl mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-20 grid lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-start">
+        <div className="lg:sticky lg:top-28">
+          {a.image && <img src={gemImg(a.image)} alt="" loading="lazy" className="w-full aspect-[3/4] object-cover rounded-[4px]" />}
+          {stats.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-px rounded-[4px] overflow-hidden" style={{ backgroundColor: LINE }} data-testid="about-stats">
+              {stats.map((s, i) => (
+                <div key={i} className="p-5" style={{ backgroundColor: CARD }}>
+                  <p className="text-white font-bold tabular-nums leading-none" style={{ fontFamily: SERIF, fontSize: 'clamp(1.7rem, 2.6vw, 2.1rem)' }}>{s.value}</p>
+                  <p className="mt-2 text-[13.5px] leading-snug" style={{ color: BODY }}>{tt(s.label)}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div>
           <p className="gem-eyebrow mb-4" style={{ color: LINK }}>{tt(a.label) || tt({ en: 'About us', es: 'Nosotros' })}</p>
-          <h1 className="text-white font-bold leading-[1.06]" style={{ fontFamily: SERIF, fontSize: 'clamp(2.2rem, 4.2vw, 3.4rem)' }}>
+          <h1 className="text-white font-bold leading-[1.1] pb-1" style={{ fontFamily: SERIF, fontSize: hasHero === false ? 'clamp(2.6rem, 5.2vw, 4.2rem)' : 'clamp(2.2rem, 4.2vw, 3.4rem)' }} data-testid="about-title">
             <AccentTitle text={tt(a.title) || tt({ en: 'Three decades behind the night', es: 'Tres décadas detrás de la noche' })} />
           </h1>
-          {a.image && <img src={gemImg(a.image)} alt="" loading="lazy" className="mt-10 w-full aspect-[4/3] object-cover rounded-2xl" />}
-        </div>
-        <div className="lg:pt-12">
-          <div className="text-base md:text-[17px] leading-[1.8] [&_p]:mb-5" style={{ color: BODY }} dangerouslySetInnerHTML={{ __html: story }} />
+          <div className="mt-8 max-w-[62ch] text-[17px] md:text-[18px] leading-[1.85] [&_p]:mb-5" style={{ color: BODY }} dangerouslySetInnerHTML={{ __html: story }} />
           {(tt(a.signature_name) || tt(a.signature_title)) && (
-            <div className="mt-8 pl-5 border-l-2" style={{ borderColor: ACCENT }} data-testid="about-signature">
-              {tt(a.signature_name) && <p className="text-white text-xl italic" style={{ fontFamily: SERIF }}>{tt(a.signature_name)}</p>}
-              {tt(a.signature_title) && <p className="text-[14px] mt-0.5" style={{ color: BODY }}>{tt(a.signature_title)}</p>}
+            <div className="mt-6" data-testid="about-signature">
+              {tt(a.signature_name) && <p className="text-white text-[30px] italic leading-tight" style={{ fontFamily: SERIF }}>{tt(a.signature_name)}</p>}
+              {tt(a.signature_title) && <p className="text-[14px] mt-1" style={{ color: BODY }}>{tt(a.signature_title)}</p>}
             </div>
           )}
           {(tt(a.button_text) || a.phone) && (
@@ -102,23 +122,33 @@ export default function Gem2iAbout() {
               {a.phone && <a href={`tel:${a.phone.replace(/[^+\d]/g, '')}`} className="inline-flex items-center gap-2 text-white text-[15px] hover:underline"><Phone className="w-4 h-4" style={{ color: LINK }} aria-hidden="true" />{a.phone}</a>}
             </div>
           )}
+          {showOffices && offices.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-white font-bold leading-[1.1] mb-5" style={{ fontFamily: SERIF, fontSize: 'clamp(1.6rem, 2.6vw, 2rem)' }}>
+                <AccentTitle text={tt(a.offices_title) || tt({ en: `${offices.length} offices, one team`, es: `${offices.length} oficinas, un equipo` })} />
+              </h2>
+              <ul className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3" data-testid="about-offices">
+                {offices.map(o => {
+                  const name = o.name || tt(o.title);
+                  const region = String(o.description || '').trim();
+                  const time = localTime(zoneOf(`${name} ${region}`), now);
+                  return (
+                    <li key={o.id}>
+                      <Link to={`/map/${officeSlug(o)}`} className="group block h-full rounded-[4px] p-5 transition-colors hover:border-[#5AAFEA]" style={{ backgroundColor: CARD, border: `1px solid ${LINE}` }}>
+                        {region && <span className="block text-[11px] font-extrabold tracking-[0.14em] uppercase" style={{ color: /headquarters|sede/i.test(region) ? LINK : BODY }}>{region.split(' · ')[0]}</span>}
+                        <span className="block mt-1 text-white font-semibold text-[17px]">{name}</span>
+                        {time && <span className="block mt-1 text-[13.5px] tabular-nums" style={{ color: BODY }}>{tt({ en: 'Local time', es: 'Hora local' })} {time}</span>}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       </section>
 
-      {stats.length > 0 && (
-        <section className="border-y" style={{ borderColor: LINE }}>
-          <div className="max-w-7xl mx-auto px-6 md:px-10 py-12 grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((s, i) => (
-              <div key={i}>
-                <p className="text-white font-bold tabular-nums" style={{ fontFamily: SERIF, fontSize: 'clamp(2.2rem, 4vw, 3rem)' }}>{s.value}</p>
-                <p className="mt-1 text-[15px]" style={{ color: BODY }}>{tt(s.label)}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {about && aboutSectionOrder(a.page_sections).filter(x => x.visible).map(x => (
+      {about && order.filter(x => x.visible && x.key !== 'offices').map(x => (
         <React.Fragment key={x.key}>{blocks[x.key] ? blocks[x.key]() : null}</React.Fragment>
       ))}
     </div>

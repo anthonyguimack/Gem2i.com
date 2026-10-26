@@ -79,3 +79,9 @@ Redesigns of Norules catalog pages must keep the legacy card hover (veil wipes l
 
 ## D-GEM-2026-17 — Norules buttons B1 + hero pill/sweep (2026-10-23, Anthony)
 All Norules buttons/links follow B1 (pill with arrow disc; links with a drawn underline) through `components/gem2i/norules/NBtn.js`; hero CTAs are pill + left→right white sweep. Shared components used by the frozen Gem2i template are never restyled in place: Norules gets its own copy (e.g. `NorulesHeroU.js`) or a class-only override (`.nb-follow` on the shared FollowButton).
+
+## D-GEM-2026-18 — Gem2i inner pages: own design per page, chosen from full-page bocetos (2026-10-26, Anthony)
+Gem2i (`gem2i_02`, frozen home) gets its own design for every inner page; the same features as Norules (pages Gem2i lacked were added first as functional copies). Every boceto shows the FULL page (header, CMS hero when the page is in Hero → Page Assignment, content, footer) and must read well with and without the hero; the page adapts via `PageHero onShown`. Detail pages, /conferences, offices and system pages are not in Page Assignment → no hero. Gem2i shapes: 4 px corners, rectangular blue buttons, underlined links, night palette, Playfair + italic accent. Chosen variants are listed in PROGRESS session 14.
+
+## D-GEM-2026-19 — Login stays the header modal (2026-10-26, Anthony)
+No login / register / password page designs; /membership-enrollment untouched. How a user joins the platform is a later topic.

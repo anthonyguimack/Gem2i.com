@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { officeSlug } from './g02/G02DetailBits';
 import { toast } from 'sonner';
 import { publicAPI, landingAPI } from '../../lib/api';
 import { BACKEND_URL } from '../../lib/config';
@@ -143,7 +144,7 @@ export default function Gem2iFooter({ settings, socialLinks, footerPages, isExte
               <ul className="space-y-2.5" data-testid="footer-offices">
                 {offices.map(o => (
                   <li key={o.id} className="text-[15px]" style={{ color: TEXT }} title={region(o) || undefined}>
-                    {o.name || tt(o.title)}{/headquarters|sede/i.test(region(o)) ? ' · HQ' : ''}
+                    <Link to={`/map/${officeSlug(o)}`} className="transition-opacity hover:opacity-75">{o.name || tt(o.title)}</Link>{/headquarters|sede/i.test(region(o)) ? ' · HQ' : ''}
                   </li>
                 ))}
               </ul>

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Loader2, QrCode, Users, Clock, Check, X } from 'lucide-react';
 import { gemAPI } from '../../lib/api';
 import { useMember } from '../../lib/memberAuth';
@@ -11,7 +12,7 @@ import GemFormalNameDialog from './GemFormalNameDialog';
  *  select, availability) → pass issued (QR + cancel) → full (waiting list
  *  join/leave) → not eligible. Identity always from the JWT; the widget only
  *  ever posts the event id. Legacy parity: interactions are member-gated. */
-export default function GemGuestListWidget({ event }) {
+export default function GemGuestListWidget({ event, passTo }) {
   const tt = useT();
   const { member } = useMember();
   const [status, setStatus] = useState(null);   // my-event-status payload
@@ -120,6 +121,11 @@ export default function GemGuestListWidget({ event }) {
           <p className="mt-1 text-xs" style={mutedText}>
             {tt({ en: 'Show the QR at the door. A copy was emailed to you.', es: 'Muestra el QR en la puerta. Te enviamos una copia por email.' })}
           </p>
+          {passTo && (
+            <Link to={passTo} className="mt-3 mr-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white underline underline-offset-4" data-testid="view-pass-link">
+              {tt({ en: 'View my pass', es: 'Ver mi pase' })} →
+            </Link>
+          )}
           <button type="button" disabled={busy}
             onClick={() => window.confirm(tt({ en: 'Cancel your pass? Your spot goes back to the list.', es: '¿Cancelar tu pase? Tu lugar vuelve a la lista.' }))
               && run(() => gemAPI.cancelGuestPass(event.id))}

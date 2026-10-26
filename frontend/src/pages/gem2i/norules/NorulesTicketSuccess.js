@@ -65,19 +65,38 @@ function TicketCard({ tx, ev, guest }) {
   );
 }
 
-/** Stripe return page (Phase 5) — boceto norules-yellow-pages.html (Ticket): confirmed e-ticket, guest-list
+/** Stripe return page (Phase 5) — also the guest-list pass page (`?pass=<event slug>`, linked from the
+ *  event's guest-list widget): reads the member's own pass via my-event-status (JWT identity). Boceto norules-yellow-pages.html (Ticket): confirmed e-ticket, guest-list
  *  pass and processing states. Polls the verified checkout-status endpoint — the backend re-checks payment
  *  state with Stripe's API before completing, so this page can't be spoofed with a random session. */
 export default function NorulesTicketSuccess() {
   const tt = useT();
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');
-  const [state, setState] = useState('checking'); // checking | paid | pending | failed
+  const passSlug = params.get('pass');
+  const [state, setState] = useState('checking'); // checking | paid | pending | failed | nopass
   const [tx, setTx] = useState(null);
   const [ev, setEv] = useState({});
   const tries = useRef(0);
 
   useEffect(() => {
+    if (!passSlug) return undefined;
+    let alive = true;
+    gemAPI.eventDetail(passSlug)
+      .then(r => gemAPI.myEventStatus(r.data.id).then(s => {
+        if (!alive) return;
+        const pass = s.data?.pass;
+        if (!pass) { setState('nopass'); return; }
+        setTx({ ...pass, guests: pass.guest_additional });
+        setEv(r.data || {});
+        setState('paid');
+      }))
+      .catch(() => { if (alive) setState('nopass'); });
+    return () => { alive = false; };
+  }, [passSlug]);
+
+  useEffect(() => {
+    if (passSlug) return undefined;
     if (!sessionId) { setState('failed'); return undefined; }
     let alive = true;
     const poll = () => {
@@ -124,6 +143,12 @@ export default function NorulesTicketSuccess() {
             {ev.slug && <p className="mt-6 text-[14.5px]"><NLink to={`/events/${ev.slug}`}>← {tt({ en: 'Back to the event', es: 'Volver al evento' })}</NLink></p>}
           </div>
           <TicketCard tx={tx} ev={ev} guest={guest} />
+        </div>
+      ) : state === 'nopass' ? (
+        <div className="max-w-[560px] mx-auto py-24 text-center" data-testid="no-pass">
+          <h1 className="text-white font-bold text-[34px]" style={{ fontFamily: SERIF }}>{tt({ en: 'No pass for this event', es: 'No tienes pase para este evento' })}</h1>
+          <p style={{ color: BODY }}>{tt({ en: 'Log in with the account you used, or join the guest list from the event page.', es: 'Entra con la cuenta que usaste o apúntate a la guest list desde la página del evento.' })}</p>
+          <NBtn to={`/events/${passSlug}`} className="mt-6">{tt({ en: 'Go to the event', es: 'Ir al evento' })}</NBtn>
         </div>
       ) : state === 'failed' ? (
         <div className="max-w-[560px] mx-auto py-24 text-center">
