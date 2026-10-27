@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-10-27 (session 15, part 2) — Microsites LIVE on eticket.gem2i.com / guest.gem2i.com + Events editor as a page with the legacy fields (DEPLOYED)
+- **Hosts (Anthony's ruling):** `eticket.gem2i.com`, `guest.gem2i.com` (DNS already → 34.198.159.54). nginx vhost `/etc/nginx/sites-available/microsites.gem2i.com` (same build + `/api` proxy), cert `microsites.gem2i.com` (certbot, redirect).
+- **Content = legacy training references copied into beta Mongo** (`legacy_source: {db: gem2ica_training, ...}`, seed `gem2i_microsite_training_2026-10-27`, NOT legacy_id so production ETL never overwrites): promoter 7 Perfect Mix Project (url guest.gem2i.com) + guest event #2071 "Gem2i - Event Guest training" (2026-11-21, Zephyr, stock 100); promoter 21 + e-ticket events #2052 (main, 2 slides, Admission $10/50, VIP $20/20, fee 0.10) and #2069 (More dates), domain eticket.gem2i.com. Images copied to `uploads/gem2i/legacy/{events_images,events_logo,promoters_logos,events_slides}`. DJ 604 left out (different artist in beta). Earlier beta test mappings removed (promoter 18 url null; promoter-4 events domain unset). Promoters 4/18 created (seed `gem2i_microsites_2026-10-27`).
+- **Fixes:** promoter `image_urls` serialized; times formatted (8:00 PM); microsite member auth: parent-domain cookie → `GET /api/auth/token` (CORS-protected read) → Bearer in localStorage (member APIs stay Bearer-only, CSRF-safe); header links only to existing sections.
+- **CMS Events:** add/edit = page (`/admin/gem-events?edit=<id>|new`, `cfg.asPage`), fields regrouped in 10 sections + legacy fields added (private/share member types, image off, soundcloud, video, email guest-list description, artist schedule, share summary, host/door/VIP/dress code, ages, guest-list close/QR/ticket format, transaction fee, referral, contest, auto report). Stored only — reports/referral/contest/member-type gates not enforced yet. Not ported: PayPal payment account (Stripe), dated price ladders (kept in legacy_prices), last purchase/member type, sponsors, partners.
+- **Verified:** both microsites in browser (logo, event, tiers, slides, line-up; logged-in guest status "100 spots left"); CMS edit page in Chrome (add/edit/reload/back). **Not verified:** join guest list, purchase, apply→verify e-mail end to end.
+- **Open:** ETL for host/door/dress code/etc. on migrated events; My Account actions (reassign/cancel/bank use); line-up on the guest page.
+
+---
+
 ## 2026-10-27 (session 15) — Event microsites (legacy "Domain or Subdomain") built locally (NOT DEPLOYED)
 - **Legacy box work (100.59.20.123, backups `/home/ubuntu/backup_*`):** test events activated on the microsite domains (dates moved), event 2071 `stock_guest_list=100`.
 - **Plan + bocetos:** `work-plans-MD/GEM2I_EVENT_MICROSITES_PLAN.md` (§7 rulings, §8 chosen MG-B, PROMO-A, BUY-B, DETAILS-A, LINEUP-A, ACCOUNT-B, APPLY-A); bocetos `gem2i-microsite-{guest,eticket,account}.html`.

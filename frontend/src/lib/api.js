@@ -184,6 +184,7 @@ export const blogExternalAPI = {
 export const authAPI = {
   login: (email, password, loginType = 'any') => api.post('/auth/login', { email, password, login_type: loginType }),
   me: () => api.get('/auth/me'),
+  token: () => api.get('/auth/token'),
   logout: () => api.post('/auth/logout'),
   exchangeSession: (sessionId) => api.post('/auth/session', { session_id: sessionId }),
   forgotPassword: (email, captchaToken) => api.post('/auth/forgot-password', { email, captcha_token: captchaToken }),

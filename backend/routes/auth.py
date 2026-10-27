@@ -91,6 +91,15 @@ async def auth_me(request: Request):
             }
     return result
 
+@router.get("/auth/token")
+async def auth_token(request: Request):
+    """Cookie session -> bearer token for the same member. The parent-domain cookie
+    signs an event microsite (guest./eticket.gem2i.com) in, but member APIs take the
+    Bearer header only (CSRF-safe); the SPA trades the cookie here once. A GET read
+    that CORS keeps from other origins, so a foreign site cannot obtain the token."""
+    user = await get_current_user(request)
+    return {"token": create_jwt_token(user["member_id"], user.get("email", ""), user.get("role", "member"))}
+
 @router.post("/auth/logout")
 async def logout(request: Request, response: Response):
     token = request.cookies.get("session_token")

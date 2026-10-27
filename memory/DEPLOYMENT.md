@@ -51,3 +51,6 @@
 - **Demo seeds 2026-10-26:** `db.gem_section_items.deleteMany({seed:'gem2i_demo_media_2026-10-26'})` (+ `gem_section_configs` same seed); guest-list event `db.gem_events.deleteMany({seed:'gem2i_demo_guestlist_2026-10-26'})` (remove its passes in `gem_transactions` first).
 - **Browser pane:** it caps the number of tabs; every `file://` boceto opens a new tab — close them (`tabs_close`) or later navigations fail with "couldn't open file".
 - **Local build check (no deploy):** `cmd /c "set BUILD_PATH=<scratchpad>uild&& set CI=false&& yarn build"` from `frontend/` (~2 min).
+
+## Event microsites (2026-10-27)
+- `eticket.gem2i.com`, `guest.gem2i.com` → same box/build. vhost `/etc/nginx/sites-available/microsites.gem2i.com` (symlinked), cert name `microsites.gem2i.com`. A new microsite host = add it to `server_name` + `certbot --nginx --cert-name microsites.gem2i.com --expand -d ...`, then set the event `domain` / promoter `url` in the CMS.

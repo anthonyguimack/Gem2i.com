@@ -117,6 +117,7 @@ def _event_images(doc):
     im = doc.get("images") or {}
     return {
         "flyer": _img("events_images", im.get("flyer")),
+        "flyer_off": _img("events_images", im.get("flyer_off")),
         "logo": _img("events_logo", im.get("logo")),
     }
 

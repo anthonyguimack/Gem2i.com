@@ -6,7 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Calendar, Clock, MapPin, Moon, Sun, Minus, Plus, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { gemAPI } from '../../lib/api';
+import { gemAPI, authAPI } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { BACKEND_URL } from '../../lib/config';
 import LoginModal from '../../components/LoginModal';
@@ -17,6 +17,13 @@ const fmtDate = (d) => {
   if (!d) return '';
   const dt = new Date(`${d}T12:00:00`);
   return Number.isNaN(dt.getTime()) ? d : dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+};
+const fmtTime = (t) => {
+  if (!t) return '';
+  const m = String(t).match(/(\d{2}):(\d{2})/);
+  if (!m) return t;
+  const h = +m[1];
+  return `${((h + 11) % 12) + 1}:${m[2]} ${h < 12 ? 'AM' : 'PM'}`;
 };
 const money = (n, cur) => (n == null || n === '' ? '—' : `${(cur || 'usd').toUpperCase() === 'EUR' ? '€' : '$'}${Number(n).toFixed(2)}`);
 
@@ -52,11 +59,15 @@ function Section({ id, eyebrow, title, children }) {
 }
 
 /* ---------------- header / footer (promoter brand) ---------------- */
-function Header({ brand, kind, mode, setMode, onLogin, user, logout }) {
+function Header({ brand, kind, mode, setMode, onLogin, user, logout, data }) {
   const logo = src(mode === 'dark' ? brand?.image_urls?.logo_off || brand?.image_urls?.logo : brand?.image_urls?.logo);
-  const links = kind === 'eticket'
-    ? [['#tickets', 'Tickets'], ['#details', 'Details'], ['#lineup', 'Line-up'], ['#account', 'My account']]
-    : [['#guest-list', 'Guest list'], ['#dates', 'Dates'], ['#apply', 'Membership']];
+  // Only link sections that are on the page (no upcoming dates → no "Dates"; signed in → no "Membership").
+  const hasDates = (data?.upcoming || []).length > 0;
+  const hasLineup = (data?.event?.lineup_artists || []).length > 0;
+  const links = (kind === 'eticket'
+    ? [['#tickets', 'Tickets', true], ['#details', 'Details', true], ['#lineup', 'Line-up', hasLineup], ['#dates', 'Dates', hasDates], ['#account', 'My account', true]]
+    : [['#guest-list', 'Guest list', true], ['#dates', 'Dates', hasDates], ['#apply', 'Membership', !user]]
+  ).filter((l) => l[2]);
   return (
     <header className="sticky top-0 z-40 bg-[var(--ms-bg)]/90 backdrop-blur border-b border-[var(--ms-line)]">
       <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center gap-6">
@@ -105,7 +116,7 @@ function EventFacts({ ev }) {
   return (
     <ul className="space-y-3 text-sm">
       <li className="flex gap-3"><Calendar className="w-4 h-4 mt-0.5 shrink-0" />{fmtDate(ev.event_date)}</li>
-      {(ev.open_time || ev.end_time) && <li className="flex gap-3"><Clock className="w-4 h-4 mt-0.5 shrink-0" />{[ev.open_time, ev.end_time].filter(Boolean).join(' – ')}</li>}
+      {(ev.open_time || ev.end_time) && <li className="flex gap-3"><Clock className="w-4 h-4 mt-0.5 shrink-0" />{[ev.open_time, ev.end_time].filter(Boolean).map(fmtTime).join(' – ')}</li>}
       {v && <li className="flex gap-3"><MapPin className="w-4 h-4 mt-0.5 shrink-0" /><span>{v.name}{v.address ? <span className="text-[var(--ms-mute)]"> · {v.address}</span> : null}</span></li>}
     </ul>
   );
@@ -120,7 +131,7 @@ function Dates({ items, id = 'dates' }) {
           <div key={e.id} className="grid grid-cols-[110px_1fr] md:grid-cols-[160px_1fr_auto] gap-4 py-5 items-center">
             <p className="text-sm font-semibold">{fmtDate(e.event_date)}</p>
             <p className="font-bold tracking-[-0.02em] truncate">{txt(e.title)}</p>
-            <p className="hidden md:block text-sm text-[var(--ms-mute)]">{e.open_time || ''}</p>
+            <p className="hidden md:block text-sm text-[var(--ms-mute)]">{fmtTime(e.open_time)}</p>
           </div>
         ))}
       </div>
@@ -395,7 +406,18 @@ function ETicketSite({ data, user, onLogin }) {
 
 /* ---------------- root ---------------- */
 export default function MicrositeApp({ host }) {
-  const { user, logout } = useAuth();
+  const { user: authUser, logout } = useAuth();
+  // The parent-domain cookie signs the visitor in here, but member APIs take a Bearer
+  // token (kept per origin) → trade the cookie for one once, before member calls run.
+  const [tokenReady, setTokenReady] = useState(() => { try { return !!localStorage.getItem('auth_token'); } catch { return false; } });
+  useEffect(() => {
+    if (!authUser || tokenReady) return;
+    authAPI.token()
+      .then((r) => { try { localStorage.setItem('auth_token', r.data.token); } catch { /* private mode */ } })
+      .catch(() => {})
+      .finally(() => setTokenReady(true));
+  }, [authUser, tokenReady]);
+  const user = authUser && tokenReady ? authUser : null;
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
   const [login, setLogin] = useState(false);
@@ -432,7 +454,7 @@ export default function MicrositeApp({ host }) {
         <div className="min-h-[100dvh] grid place-items-center"><Loader2 className="w-6 h-6 animate-spin" /></div>
       ) : (
         <>
-          <Header brand={data.promoter} kind={data.kind} mode={mode} setMode={setMode} onLogin={() => setLogin(true)} user={user} logout={logout} />
+          <Header brand={data.promoter} kind={data.kind} mode={mode} setMode={setMode} onLogin={() => setLogin(true)} user={authUser} logout={logout} data={data} />
           <main>
             {data.kind === 'guest'
               ? <GuestSite data={data} user={user} onLogin={() => setLogin(true)} />

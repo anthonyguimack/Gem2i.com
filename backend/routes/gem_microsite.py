@@ -102,7 +102,8 @@ async def resolve_microsite(host: str):
         {**active, "id": {"$ne": ev["id"]}, "$or": or_q}, {"_id": 0}).sort([("event_date", 1)]).limit(6)]
     mic = ev.get("microsite") or {}
     slides = [s for s in (mic.get("slides") or []) if s.get("visible", True) is not False]
-    return {"host": host, "kind": kind, "event": await _event_payload(ev), "promoter": brand,
+    return {"host": host, "kind": kind, "event": await _event_payload(ev),
+            "promoter": _serialize("gem_promoters", dict(brand)) if brand else None,
             "upcoming": upcoming, "slides": slides, "theme": mic.get("theme") or {}}
 
 

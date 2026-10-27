@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminAPI, gemAdminAPI } from '../../lib/api';
 import { toast } from 'sonner';
 import { Input } from '../../components/ui/input';
@@ -184,6 +185,7 @@ const CONFIGS = {
   },
 
   events: {
+    asPage: true, // add/edit open as a full page (?edit=<id>|new), not a modal
     title: 'Events', noun: 'event', nameOf: (i) => i.title,
     subtitle: (i) => [
       i.event_date,
@@ -192,36 +194,75 @@ const CONFIGS = {
       i.show_portal === false ? 'hidden from portal' : null,
     ].filter(Boolean).join(' · '),
     fields: [
+      { key: '_h_event', label: 'Event', type: 'heading' },
       { key: 'title', label: 'Title', type: 'text', half: true },
       { key: 'slug', label: 'Slug (URL)', type: 'text', half: true },
       { key: 'type', label: 'Event type', type: 'select', half: true, options: EVENT_TYPES },
-      { key: 'event_date', label: 'Date', type: 'date', half: true },
-      { key: 'open_time', label: 'Open time', type: 'text', half: true },
-      { key: 'end_time', label: 'End time', type: 'text', half: true },
-      { key: 'venue_id', label: 'Venue', type: 'venue' },
-      { key: 'lineup', label: 'DJ line-up', type: 'lineup' },
-      { key: 'summary', label: 'Summary', type: 'textarea', rows: 2 },
-      { key: 'description', label: 'Description', type: 'rich' },
-      { key: 'concept', label: 'Concept', type: 'rich' },
-      { key: 'external_ticket_system', label: 'External ticket system URL', type: 'text' },
+      { key: 'promoter_id', label: 'Promoting brand (promoter)', type: 'promoter', half: true },
       { key: 'private', label: 'Private event (hidden from public)', type: 'switch', half: true },
+      { key: 'private_member_types', label: 'Private / member types allowed', type: 'memberTypes', showIf: (e) => !!e.private },
+      { key: 'venue_id', label: 'Venue', type: 'venue' },
+      { key: 'genres', label: 'Music genres (comma-separated)', type: 'csv' },
+      { key: '_h_date_time', label: 'Date & time', type: 'heading' },
+      { key: 'event_date', label: 'Date', type: 'date', third: true },
+      { key: 'open_time', label: 'Open time', type: 'datetime', third: true },
+      { key: 'end_time', label: 'Closing time', type: 'datetime', third: true },
+      { key: '_h_portals_microsite', label: 'Portals & microsite', type: 'heading' },
       { key: 'show_portal', label: 'Show on the GEM2i portal', type: 'switch', half: true },
       { key: 'show_portal_es', label: 'Show on the Exclusive Session portal', type: 'switch', half: true },
-      { key: 'domain', label: 'Microsite domain or subdomain (e.g. eticketgem2i.exclusivesession.com)', type: 'text', half: true },
+      { key: 'hero_slide_ids', label: 'Show in these hero slides', type: 'heroSlides', showIf: (e) => e.show_portal !== false },
+      { key: 'domain', label: 'Domain or subdomain (microsite, e.g. eticket.gem2i.com)', type: 'text', half: true },
       { key: 'microsite.layout', label: 'Microsite layout', type: 'select', half: true, options: [
         { value: 'eticket', label: 'E-ticket microsite' }, { value: 'guest', label: 'Guest-list microsite' },
       ] },
-      { key: 'promoter_id', label: 'Promoter (microsite brand)', type: 'promoter' },
-      { key: 'hero_slide_ids', label: 'Show in these hero slides', type: 'heroSlides', showIf: (e) => e.show_portal !== false },
+      { key: '_h_content', label: 'Content', type: 'heading' },
+      { key: 'summary', label: 'Event summary', type: 'textarea', rows: 2 },
+      { key: 'description', label: 'Event description', type: 'rich' },
+      { key: 'email_guestlist_description', label: 'E-mail guest-list description', type: 'rich' },
+      { key: 'concept', label: 'Event concept', type: 'rich' },
+      { key: 'artists_schedule', label: 'Artist schedule', type: 'rich' },
+      { key: 'lineup', label: 'DJ line-up', type: 'lineup' },
+      { key: 'music_event', label: 'SoundCloud for event (track URL)', type: 'text', half: true },
+      { key: 'video', label: 'Video for event (YouTube embed URL)', type: 'text', half: true },
+      { key: '_h_sharing', label: 'Sharing', type: 'heading' },
+      { key: 'share_enabled', label: 'Event share', type: 'switch', half: true },
+      { key: 'share_summary', label: 'Share summary', type: 'textarea', rows: 2 },
+      { key: 'share_member_types', label: 'Event share / member types', type: 'memberTypes', showIf: (e) => !!e.share_enabled },
+      { key: '_h_door_entry', label: 'Door & entry', type: 'heading' },
+      { key: 'host', label: 'Host', type: 'text', half: true },
+      { key: 'door', label: 'Door', type: 'text', half: true },
+      { key: 'vip_host', label: 'VIP', type: 'text', half: true },
+      { key: 'dress_code', label: 'Dress code', type: 'text', half: true },
+      { key: 'age_min.man', label: 'Minimum age (men)', type: 'number', half: true },
+      { key: 'age_min.woman', label: 'Minimum age (women)', type: 'number', half: true },
+      { key: '_h_guest_list', label: 'Guest list', type: 'heading' },
       { key: 'guest_list', label: 'Guest list', type: 'guestList' },
+      { key: 'guest_list.close_at', label: 'Guest list close', type: 'datetime', half: true, showIf: (e) => e.type === 'guest_list' },
+      { key: 'guest_list.email_qr', label: 'Guest list e-mail with QR code', type: 'switch', third: true, showIf: (e) => e.type === 'guest_list' },
+      { key: 'guest_list.email_ticket_format', label: 'E-mail format ticket', type: 'switch', third: true, showIf: (e) => e.type === 'guest_list' },
+      { key: '_h_tickets_payment', label: 'Tickets & payment', type: 'heading' },
+      { key: 'external_ticket_system', label: 'External ticket system URL', type: 'text' },
       { key: 'tiers', label: 'Ticket tiers', type: 'tiers' },
-      { key: 'points', label: 'Reward points', type: 'points' },
-      { key: 'payment.currency', label: 'Payment currency', type: 'select', half: true, options: [
+      { key: 'transaction_fee.percentage', label: 'Transaction fee (%)', type: 'number', third: true },
+      { key: 'transaction_fee.fixed', label: 'Transaction fee (fixed)', type: 'number', third: true },
+      { key: 'payment.currency', label: 'Payment currency', type: 'select', third: true, options: [
         { value: 'usd', label: 'USD' }, { value: 'eur', label: 'EUR' }, { value: 'gbp', label: 'GBP' },
       ] },
+      { key: '_h_points_referral_contest', label: 'Points, referral & contest', type: 'heading' },
+      { key: 'points', label: 'Reward points', type: 'points' },
+      { key: 'referral.enabled', label: 'Referral', type: 'switch', third: true },
+      { key: 'referral.category', label: 'Referral category', type: 'text', third: true, showIf: (e) => !!(e.referral && e.referral.enabled) },
+      { key: 'contest.enabled', label: 'Contest', type: 'switch', third: true },
+      { key: '_h_reports', label: 'Reports', type: 'heading' },
+      { key: 'report.auto', label: 'Auto report', type: 'switch', half: true },
+      { key: 'report.send_at', label: 'Report date & time', type: 'datetime', half: true, showIf: (e) => !!(e.report && e.report.auto) },
+      { key: 'report.type', label: 'Report type', type: 'select', half: true, showIf: (e) => !!(e.report && e.report.auto), options: [
+        { value: 'pdf', label: 'PDF' }, { value: 'excel', label: 'Excel' }, { value: 'excel_pdf', label: 'Excel + PDF' },
+      ] },
+      { key: 'report.email', label: 'Report e-mail', type: 'text', half: true, showIf: (e) => !!(e.report && e.report.auto) },
     ],
     socials: SOCIAL_KEYS,
-    imageKeys: [{ key: 'flyer', label: 'Flyer' }, { key: 'logo', label: 'Logo' }],
+    imageKeys: [{ key: 'flyer', label: 'Image (on)' }, { key: 'flyer_off', label: 'Image (off)' }, { key: 'logo', label: 'Logo' }],
   },
 };
 
@@ -485,6 +526,33 @@ function PointsEditor({ eventType, value, onChange }) {
 
 /** Guest-list sub-editor for events (Phase 4): stock, additional-guest ranges,
  *  per-member-type benefits. Only meaningful when the event type is guest_list. */
+/** Member-type checkboxes (legacy "... / Member Type" lists); saves the ids. */
+function MemberTypesPicker({ value, onChange }) {
+  const [types, setTypes] = useState(null);
+  useEffect(() => {
+    adminAPI.getMemberTypes()
+      .then((r) => setTypes((r.data || []).map((t) => ({ id: t.id, name: t.name || t.id }))))
+      .catch(() => setTypes([]));
+  }, []);
+  const ids = Array.isArray(value) ? value : [];
+  if (!types) return <p className="text-xs text-slate-400">Loading member types…</p>;
+  if (!types.length) return <p className="text-xs text-slate-400">No member types yet.</p>;
+  return (
+    <div className="flex flex-wrap gap-2">
+      {types.map((t) => {
+        const on = ids.includes(t.id);
+        return (
+          <label key={t.id} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-sm border text-xs cursor-pointer ${on ? 'border-[#0D9488] bg-teal-50' : 'border-slate-200 bg-white'}`}>
+            <input type="checkbox" checked={on} className="accent-[#0D9488]"
+              onChange={(e) => onChange(e.target.checked ? [...ids, t.id] : ids.filter((x) => x !== t.id))} />
+            {t.name}
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
 function GuestListEditor({ value, onChange }) {
   const gl = value || {};
   const [memberTypes, setMemberTypes] = useState([]);
@@ -602,6 +670,8 @@ export default function GemCatalogManager({ catalog }) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [venueTypes, setVenueTypes] = useState([]);
+  const [params, setParams] = useSearchParams();
+  const editParam = cfg?.asPage ? params.get('edit') : null;
 
   const load = () => {
     setLoading(true);
@@ -627,8 +697,21 @@ export default function GemCatalogManager({ catalog }) {
 
   const openEditor = (item) => {
     setEditing(item ? { ...item } : { status: 'active', images: {}, socials: {} });
-    setOpen(true);
+    if (cfg.asPage) { setParams({ edit: item?.id || 'new' }); window.scrollTo(0, 0); } else setOpen(true);
   };
+  const closeEditor = () => {
+    if (cfg.asPage) { setParams({}); setEditing(null); } else setOpen(false);
+  };
+  // Page mode: a direct link / reload of ?edit=<id> loads the item itself.
+  useEffect(() => {
+    if (!editParam) { if (cfg?.asPage) setEditing(null); return; }
+    if (editParam === 'new') { setEditing((e) => (e && !e.id ? e : { status: 'active', images: {}, socials: {} })); return; }
+    if (editing?.id === editParam) return;
+    gemAdminAPI.list(catalog, { ids: editParam, limit: 1 })
+      .then((r) => { const it = (r.data.items || [])[0]; if (it) setEditing({ ...it }); else { toast.error('Not found'); setParams({}); } })
+      .catch(() => toast.error('Failed to load'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editParam, catalog]);
 
   const cleanForSave = (doc) => {
     // Strip server-computed / joined fields; the API rejects id-ish keys itself.
@@ -646,7 +729,7 @@ export default function GemCatalogManager({ catalog }) {
       if (editing.id) await gemAdminAPI.update(catalog, editing.id, body);
       else await gemAdminAPI.create(catalog, body);
       toast.success('Saved');
-      setOpen(false);
+      closeEditor();
       load();
     } catch (e) {
       toast.error(e.response?.data?.detail || 'Save failed');
@@ -726,6 +809,13 @@ export default function GemCatalogManager({ catalog }) {
         );
       case 'venue':
         return <div className="mt-1"><RefPicker catalog="venues" value={val} onChange={set} placeholder="Search venues…" /></div>;
+      case 'heading':
+        return null;
+      case 'datetime':
+        return <Input type="datetime-local" style={{ colorScheme: 'light' }} value={String(val || '').slice(0, 16).replace(' ', 'T')}
+          onChange={(e) => set(e.target.value ? e.target.value + ':00' : null)} className="mt-1" />;
+      case 'memberTypes':
+        return <div className="mt-1"><MemberTypesPicker value={val} onChange={set} /></div>;
       case 'promoter':
         return <div className="mt-1"><RefPicker catalog="promoters" value={val} onChange={set} placeholder="Search promoters…" /></div>;
       case 'lineup':
@@ -756,6 +846,87 @@ export default function GemCatalogManager({ catalog }) {
   }[s] || 'bg-slate-100 text-slate-500');
 
   if (!cfg) return null;
+
+  const editorBody = editing && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-6 gap-3">
+                {cfg.fields.filter((f) => !f.showIf || f.showIf(editing)).map((f) => (
+                  f.type === 'heading' ? (
+                    <p key={f.key} className="col-span-6 text-xs font-semibold text-slate-500 uppercase tracking-wide pt-4 mt-2 border-t border-slate-100 first:pt-0 first:mt-0 first:border-0">{f.label}</p>
+                  ) : (
+                  <div key={f.key} className={f.third ? 'col-span-2' : f.half ? 'col-span-3' : 'col-span-6'}>
+                    <Label className="text-xs text-slate-500">{f.label}</Label>
+                    {renderField(f)}
+                  </div>
+                  )
+                ))}
+                <div className="col-span-3">
+                  <Label className="text-xs text-slate-500">Status</Label>
+                  <select value={editing.status || 'active'} onChange={(e) => setEditing({ ...editing, status: e.target.value })}
+                    className="w-full h-9 px-2 bg-white border border-slate-200 rounded-sm text-sm mt-1">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    {editing.status === 'deleted' && <option value="deleted">Deleted</option>}
+                  </select>
+                </div>
+              </div>
+
+              {cfg.socials && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 pt-2 border-t border-slate-100">Social links</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {cfg.socials.map((s) => (
+                      <div key={s}>
+                        <Label className="text-xs text-slate-400 capitalize">{s}</Label>
+                        <Input value={editing.socials?.[s] || ''} className="mt-1"
+                          onChange={(e) => setEditing({ ...editing, socials: { ...(editing.socials || {}), [s]: e.target.value } })} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {cfg.imageKeys && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 pt-2 border-t border-slate-100">Images</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {cfg.imageKeys.map((im) => {
+                      // clients store image_on/image_off flat; everything else uses images{}
+                      const filename = im.flat ? editing[im.flat] : editing.images?.[im.key];
+                      const savedUrl = editing.image_urls?.[im.key];
+                      const preview = (filename || '').startsWith('/') ? filename : (filename ? savedUrl : null);
+                      const setImg = (v) => im.flat
+                        ? setEditing({ ...editing, [im.flat]: v })
+                        : setEditing({ ...editing, images: { ...(editing.images || {}), [im.key]: v } });
+                      return <ImageSlot key={im.key} label={im.label} filename={filename} url={preview} onChange={setImg} />;
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <button onClick={handleSave} disabled={saving}
+                className="w-full bg-[#0D9488] text-white py-2.5 rounded-sm text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                data-testid={`gem-${catalog}-save-btn`}>
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />} Save
+              </button>
+            </div>
+  );
+
+  if (cfg.asPage && editParam) {
+    return (
+      <div data-testid={`gem-${catalog}-editor-page`}>
+        <button onClick={closeEditor} className="text-sm text-slate-500 hover:text-[#0D9488] flex items-center gap-1 mb-4">
+          <ChevronLeft className="w-4 h-4" /> All {cfg.title.toLowerCase()}
+        </button>
+        <h1 className="text-2xl font-bold text-[#1a2332] mb-6">
+          {editing?.id ? `Edit ${cfg.noun}` : `New ${cfg.noun}`}{editing?.id ? <span className="text-slate-400 font-normal"> · {cfg.nameOf(editing)}</span> : null}
+        </h1>
+        <div className="bg-white border border-slate-200 rounded-sm p-6 max-w-5xl">
+          {editorBody || <Loader2 className="w-5 h-5 animate-spin text-slate-400" />}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div data-testid={`gem-${catalog}-manager`}>
@@ -835,66 +1006,7 @@ export default function GemCatalogManager({ catalog }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[680px] max-h-[85vh] overflow-y-auto" data-testid={`gem-${catalog}-dialog`}>
           <DialogHeader><DialogTitle>{editing?.id ? 'Edit' : 'New'} {cfg.noun}</DialogTitle></DialogHeader>
-          {editing && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-6 gap-3">
-                {cfg.fields.filter((f) => !f.showIf || f.showIf(editing)).map((f) => (
-                  <div key={f.key} className={f.third ? 'col-span-2' : f.half ? 'col-span-3' : 'col-span-6'}>
-                    <Label className="text-xs text-slate-500">{f.label}</Label>
-                    {renderField(f)}
-                  </div>
-                ))}
-                <div className="col-span-3">
-                  <Label className="text-xs text-slate-500">Status</Label>
-                  <select value={editing.status || 'active'} onChange={(e) => setEditing({ ...editing, status: e.target.value })}
-                    className="w-full h-9 px-2 bg-white border border-slate-200 rounded-sm text-sm mt-1">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    {editing.status === 'deleted' && <option value="deleted">Deleted</option>}
-                  </select>
-                </div>
-              </div>
-
-              {cfg.socials && (
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 pt-2 border-t border-slate-100">Social links</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {cfg.socials.map((s) => (
-                      <div key={s}>
-                        <Label className="text-xs text-slate-400 capitalize">{s}</Label>
-                        <Input value={editing.socials?.[s] || ''} className="mt-1"
-                          onChange={(e) => setEditing({ ...editing, socials: { ...(editing.socials || {}), [s]: e.target.value } })} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {cfg.imageKeys && (
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 pt-2 border-t border-slate-100">Images</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {cfg.imageKeys.map((im) => {
-                      // clients store image_on/image_off flat; everything else uses images{}
-                      const filename = im.flat ? editing[im.flat] : editing.images?.[im.key];
-                      const savedUrl = editing.image_urls?.[im.key];
-                      const preview = (filename || '').startsWith('/') ? filename : (filename ? savedUrl : null);
-                      const setImg = (v) => im.flat
-                        ? setEditing({ ...editing, [im.flat]: v })
-                        : setEditing({ ...editing, images: { ...(editing.images || {}), [im.key]: v } });
-                      return <ImageSlot key={im.key} label={im.label} filename={filename} url={preview} onChange={setImg} />;
-                    })}
-                  </div>
-                </div>
-              )}
-
-              <button onClick={handleSave} disabled={saving}
-                className="w-full bg-[#0D9488] text-white py-2.5 rounded-sm text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
-                data-testid={`gem-${catalog}-save-btn`}>
-                {saving && <Loader2 className="w-4 h-4 animate-spin" />} Save
-              </button>
-            </div>
-          )}
+          {editorBody}
         </DialogContent>
       </Dialog>
     </div>
