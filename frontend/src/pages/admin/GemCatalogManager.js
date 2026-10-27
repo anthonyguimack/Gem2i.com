@@ -169,6 +169,20 @@ const CONFIGS = {
     imageKeys: [{ key: 'on', label: 'Logo (on)', flat: 'image_on' }, { key: 'off', label: 'Logo (off)', flat: 'image_off' }],
   },
 
+  promoters: {
+    title: 'Promoters', noun: 'promoter', nameOf: (i) => i.name || i.title,
+    subtitle: (i) => [i.url, i.email_contact_us].filter(Boolean).join(' · '),
+    fields: [
+      { key: 'name', label: 'Promoter name', type: 'text', half: true },
+      { key: 'url', label: 'Guest-list microsite host (e.g. guestgem2i.exclusivesession.com)', type: 'text', half: true },
+      { key: 'email_contact_us', label: 'Contact e-mail', type: 'text', half: true },
+      { key: 'language', label: 'Language', type: 'select', half: true, options: [{ value: 'en', label: 'English' }, { value: 'es', label: 'Español' }] },
+      { key: 'description', label: 'Description', type: 'rich' },
+    ],
+    socials: SOCIAL_KEYS,
+    imageKeys: [{ key: 'logo', label: 'Logo' }, { key: 'logo_off', label: 'Logo (off)' }],
+  },
+
   events: {
     title: 'Events', noun: 'event', nameOf: (i) => i.title,
     subtitle: (i) => [
@@ -192,6 +206,12 @@ const CONFIGS = {
       { key: 'external_ticket_system', label: 'External ticket system URL', type: 'text' },
       { key: 'private', label: 'Private event (hidden from public)', type: 'switch', half: true },
       { key: 'show_portal', label: 'Show on the GEM2i portal', type: 'switch', half: true },
+      { key: 'show_portal_es', label: 'Show on the Exclusive Session portal', type: 'switch', half: true },
+      { key: 'domain', label: 'Microsite domain or subdomain (e.g. eticketgem2i.exclusivesession.com)', type: 'text', half: true },
+      { key: 'microsite.layout', label: 'Microsite layout', type: 'select', half: true, options: [
+        { value: 'eticket', label: 'E-ticket microsite' }, { value: 'guest', label: 'Guest-list microsite' },
+      ] },
+      { key: 'promoter_id', label: 'Promoter (microsite brand)', type: 'promoter' },
       { key: 'hero_slide_ids', label: 'Show in these hero slides', type: 'heroSlides', showIf: (e) => e.show_portal !== false },
       { key: 'guest_list', label: 'Guest list', type: 'guestList' },
       { key: 'tiers', label: 'Ticket tiers', type: 'tiers' },
@@ -706,6 +726,8 @@ export default function GemCatalogManager({ catalog }) {
         );
       case 'venue':
         return <div className="mt-1"><RefPicker catalog="venues" value={val} onChange={set} placeholder="Search venues…" /></div>;
+      case 'promoter':
+        return <div className="mt-1"><RefPicker catalog="promoters" value={val} onChange={set} placeholder="Search promoters…" /></div>;
       case 'lineup':
         return <div className="mt-1"><RefPicker catalog="artists" value={val} onChange={set} multiple placeholder="Search artists to add…" /></div>;
       case 'gallery':

@@ -58,6 +58,7 @@ CMS_SECTIONS = [
     {"key": "gem_festivals",   "label": "Festivals",    "group": "gem2i", "frontend_path": "/admin/gem-festivals",   "url_prefix": ["/api/admin/gem/festivals"]},
     {"key": "gem_conferences", "label": "Conferences",  "group": "gem2i", "frontend_path": "/admin/gem-conferences", "url_prefix": ["/api/admin/gem/conferences"]},
     {"key": "gem_clients",     "label": "Clients",      "group": "gem2i", "frontend_path": "/admin/gem-clients",     "url_prefix": ["/api/admin/gem/clients"]},
+    {"key": "gem_promoters",   "label": "Promoters",    "group": "gem2i", "frontend_path": "/admin/gem-promoters",   "url_prefix": ["/api/admin/gem/promoters"]},
     {"key": "gem_transactions", "label": "Transactions & Passes", "group": "gem2i", "frontend_path": "/admin/gem-transactions", "url_prefix": ["/api/admin/gem/transactions", "/api/admin/gem/waiting-list"]},
     {"key": "aurex_sections", "label": "Section Manager", "group": "system", "frontend_path": "/admin/aurex-sections", "url_prefix": ["/api/admin/aurex"]},
     {"key": "gem_coupons", "label": "Coupons", "group": "gem2i", "frontend_path": "/admin/gem-coupons", "url_prefix": ["/api/admin/gem/coupons"]},

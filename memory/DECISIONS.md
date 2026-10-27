@@ -85,3 +85,6 @@ Gem2i (`gem2i_02`, frozen home) gets its own design for every inner page; the sa
 
 ## D-GEM-2026-19 — Login stays the header modal (2026-10-26, Anthony)
 No login / register / password page designs; /membership-enrollment untouched. How a user joins the platform is a later topic.
+
+## D-GEM-2026-20 — Event microsites on the same build (2026-10-27, Anthony)
+Each event's `domain` gives it its own site served by the same React build + API (host-resolved), same legacy logic (guest host = promoter url, e-ticket host = event domain, brand = promoter); design = Norules logic in black/grey/white; microsite sign-ups are PENDING until the e-mail link (legacy estado 2 → 1); login stays the modal. Both portal switches kept (`show_portal`, `show_portal_es`).

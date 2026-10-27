@@ -33,6 +33,7 @@ const sidebarItems = [
   { label: 'Festivals', icon: Tent, href: '/admin/gem-festivals', group: 'gem2i', section: 'gem_festivals' },
   { label: 'Conferences', icon: Presentation, href: '/admin/gem-conferences', group: 'gem2i', section: 'gem_conferences' },
   { label: 'Clients', icon: Handshake, href: '/admin/gem-clients', group: 'gem2i', section: 'gem_clients' },
+  { label: 'Promoters', icon: Globe, href: '/admin/gem-promoters', group: 'gem2i', section: 'gem_promoters' },
   { label: 'Transactions & Passes', icon: Ticket, href: '/admin/gem-transactions', group: 'gem2i', section: 'gem_transactions' },
   { label: 'Coupons', icon: Tag, href: '/admin/gem-coupons', group: 'gem2i', section: 'gem_coupons' },
   { label: 'Paid Membership', icon: Crown, href: '/admin/gem-membership', group: 'gem2i', section: 'gem_membership' },

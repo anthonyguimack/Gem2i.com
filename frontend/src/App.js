@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './lib/auth';
 import { slideForAudience, isLoggedInUser } from './lib/heroAudience';
 import { getMa2Mode, onMa2ModeChange } from './pages/myaccount/ma2Theme';
 import { isGem2iTheme } from './lib/themeColors';
+import { micrositeHost } from './lib/microsite';
 import { MemberProvider, useMember } from './lib/memberAuth';
 import { authAPI, publicAPI } from './lib/api';
 import { Toaster } from 'sonner';
@@ -313,6 +314,7 @@ const ADMIN_ROUTES = [
   { path: 'gem-festivals',                   section: 'gem_festivals',                    el: <GemCatalogManager catalog="festivals" /> },
   { path: 'gem-conferences',                 section: 'gem_conferences',                  el: <GemCatalogManager catalog="conferences" /> },
   { path: 'gem-clients',                     section: 'gem_clients',                      el: <GemCatalogManager catalog="clients" /> },
+  { path: 'gem-promoters',                   section: 'gem_promoters',                    el: <GemCatalogManager catalog="promoters" /> },
   { path: 'gem-transactions',                section: 'gem_transactions',                 el: <GemTransactionsManager /> },
   { path: 'aurex-sections',                  section: 'aurex_sections',                   el: <AurexSectionsManager /> },
   { path: 'gem-content',                     section: 'gem_content',                      el: <GemContentManager /> },
@@ -633,7 +635,21 @@ function AppRouter() {
   );
 }
 
+// Event microsites: a non-portal host (or ?microsite=<host> preview) renders its own site.
+const MicrositeApp = lazy(() => import('./pages/microsite/MicrositeApp'));
+
 function App() {
+  const msHost = micrositeHost();
+  if (msHost) {
+    return (
+      <BrowserRouter>
+        <AuthProvider>
+          <Suspense fallback={null}><MicrositeApp host={msHost} /></Suspense>
+          <Toaster position="top-right" richColors />
+        </AuthProvider>
+      </BrowserRouter>
+    );
+  }
   return (
     <BrowserRouter>
       <AuthProvider>

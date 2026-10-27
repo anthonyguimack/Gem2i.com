@@ -2,6 +2,18 @@
 
 ---
 
+## 2026-10-27 (session 15) — Event microsites (legacy "Domain or Subdomain") built locally (NOT DEPLOYED)
+- **Legacy box work (100.59.20.123, backups `/home/ubuntu/backup_*`):** test events activated on the microsite domains (dates moved), event 2071 `stock_guest_list=100`.
+- **Plan + bocetos:** `work-plans-MD/GEM2I_EVENT_MICROSITES_PLAN.md` (§7 rulings, §8 chosen MG-B, PROMO-A, BUY-B, DETAILS-A, LINEUP-A, ACCOUNT-B, APPLY-A); bocetos `gem2i-microsite-{guest,eticket,account}.html`.
+- **Backend:** `routes/gem_microsite.py` — `GET /api/public/gem/microsite?host=` (guest host = promoter.url → next guest-list event; e-ticket host = next event by `domain`; brand = promoter), `POST .../apply` (member PENDING: no role_member, account_status pending, url_reference host, cluster event, sponsor ?GEM=), `POST .../verify` (token → active), `GET /api/member/gem/microsite/account` (purchased/history/guest lists/bank). Catalog `promoters` → `gem_promoters` (+ CMS section), hosts normalized on save, `_public_event_or_404` accepts events with a `domain` even off-portal.
+- **Frontend:** `lib/microsite.js` (non-portal host or `?microsite=<host>` preview), `pages/microsite/MicrositeApp.js` (Norules b/g/w light/dark, promoter brand, LoginModal), API/BACKEND_URL same-origin on microsite hosts. CMS: Promoters manager; Events fields show_portal_es, domain, microsite.layout, promoter picker.
+- **ETL (written, not run):** `scripts/gem2i_etl_microsites.py transform|load`.
+- **Verified:** py_compile, server import lists 4 routes, `yarn build` OK. **Not verified:** browser (no local event with a domain).
+- **Blocked (DNS):** `guestgem2i/eticketgem2i.exclusivesession.com` → 100.59.20.123 (legacy, live); `*.gem2i.com` → 18.208.85.155 (not beta). Need a ruling: move the exclusivesession records to 34.198.159.54 or use e.g. `guest.beta.gem2i.com`. Then nginx `/api` proxy + certbot, data on beta events, deploy.
+- **Open:** My Account actions (reassign, cancel, guest manage, bank use), slides/invite CMS editors.
+
+---
+
 ## 2026-10-26 (session 14) — Gem2i (gem2i_02) inner pages: own design for every page, links, demo content (DEPLOYED)
 - **Links (Norules + Gem2i):** home map tabs (Norules) and footer offices (both) → `/map/:slug` (`officeSlug` in the template DetailBits); guest-list widget gets an opt-in `passTo` → "View my pass" → `/tickets/success?pass=<event slug>` (pass mode added to Norules and Gem2i ticket-success pages; shared widget unchanged for templates that do not pass it).
 - **Gem2i got the 8 pages it lacked** (copies with the same features): `/conferences`, `/travels/:slug`, `/works`, `/gallery`, `/media`, `/map/:slug`, `/terms`, `/privacy` in `pages/gem2i/g02/Gem2iExtraPages.js` + `components/gem2i/g02/` (own copies of DetailBits/CatalogCards/Btn — never import Norules). Routes in App.js only when `active_theme==='gem2i_02'`. Gem2i entry links added: travels "View trip", festivals "All conferences".

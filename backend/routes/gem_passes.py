@@ -56,7 +56,9 @@ async def ensure_pass_indexes():
 # ---------------------------------------------------------------- helpers
 async def _public_event_or_404(event_id: str) -> dict:
     ev = await db.gem_events.find_one(
-        {"id": event_id, "status": "active", "private": False, "show_portal": True}, {"_id": 0})
+        {"id": event_id, "status": "active", "private": False,
+         # portal events, or events reachable through their own microsite domain
+         "$or": [{"show_portal": True}, {"domain": {"$nin": [None, ""]}}]}, {"_id": 0})
     if not ev:
         raise HTTPException(status_code=404, detail="Event not found")
     return ev

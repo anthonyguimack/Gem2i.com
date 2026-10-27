@@ -35,6 +35,7 @@ from routes.email_templates import router as email_templates_router
 from routes.captcha import router as captcha_router
 from routes.gem_content import router as gem_content_router, seed_gem_content
 from routes.gem_catalogs import router as gem_catalogs_router
+from routes.gem_microsite import router as gem_microsite_router
 from routes.gem_passes import router as gem_passes_router, ensure_pass_indexes
 from routes.gem_tickets import router as gem_tickets_router, seed_gem_ecommissions
 from routes.gem_calendar import router as gem_calendar_router, ensure_calendar_indexes
@@ -66,6 +67,7 @@ api_router.include_router(gem_coupons_router)
 api_router.include_router(gem_membership_router)
 api_router.include_router(gem_sections_router)
 api_router.include_router(gem_points_router)
+api_router.include_router(gem_microsite_router)
 api_router.include_router(gem_catalogs_router)
 api_router.include_router(enrollment_router)
 

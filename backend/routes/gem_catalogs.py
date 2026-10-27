@@ -50,6 +50,7 @@ CATALOGS = {
     "conferences": "gem_conferences",
     "clients": "gem_clients",
     "events": "gem_events",
+    "promoters": "gem_promoters",  # microsite brands (legacy promoters)
 }
 
 FOLLOW_KINDS = {"event", "artist", "venue", "festival"}
@@ -120,13 +121,30 @@ def _event_images(doc):
     }
 
 
+def _promoter_images(doc):
+    im = doc.get("images") or {}
+    return {
+        "logo": _img("promoters_logos", im.get("logo")),
+        "logo_off": _img("promoters_logos", im.get("logo_off")),
+    }
+
+
 IMAGE_RESOLVERS = {
     "gem_artists": _artist_images,
     "gem_venues": _venue_images,
     "gem_festivals": _festival_images,
     "gem_conferences": _conference_images,
     "gem_events": _event_images,
+    "gem_promoters": _promoter_images,
 }
+
+
+def _norm_hosts(coll: str, body: dict):
+    """Microsite hosts are stored bare (lower-case, no scheme/port/path/www)."""
+    key = {"gem_events": "domain", "gem_promoters": "url"}.get(coll)
+    if key and isinstance(body.get(key), str):
+        from routes.gem_microsite import norm_host
+        body[key] = norm_host(body[key]) or None
 
 
 def _serialize(coll: str, doc: dict) -> dict:
@@ -623,6 +641,7 @@ async def admin_create(catalog: str, request: Request, user: dict = Depends(requ
     body.pop("_id", None)
     body["id"] = str(uuid.uuid4())
     body.setdefault("status", "active")
+    _norm_hosts(coll, body)
     title = body.get("name") or body.get("title") or ""
     if coll not in ("gem_venue_types", "gem_clients"):
         body["slug"] = await _unique_slug(coll, _slugify(body.get("slug") or title))
@@ -640,6 +659,7 @@ async def admin_update(catalog: str, item_id: str, request: Request,
         body.pop(k, None)
     if body.get("slug"):
         body["slug"] = await _unique_slug(coll, _slugify(body["slug"]), exclude_id=item_id)
+    _norm_hosts(coll, body)
     body["updated_at"] = datetime.now(timezone.utc).isoformat()
     res = await db[coll].update_one({"id": item_id}, {"$set": body})
     if res.matched_count == 0:

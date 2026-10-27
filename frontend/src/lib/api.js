@@ -1,5 +1,7 @@
 import axios from 'axios';
-const API = `${process.env.REACT_APP_BACKEND_URL || ''}/api`;
+import { isPortalHost } from './microsite';
+// Microsite hosts call their own origin (nginx proxies /api) — no cross-origin CORS.
+const API = `${isPortalHost() ? (process.env.REACT_APP_BACKEND_URL || '') : ''}/api`;
 const api = axios.create({ baseURL: API, withCredentials: true });
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
@@ -96,6 +98,11 @@ export const gemAPI = {
   adminMembershipSubscriptions: () => api.get('/admin/gem/membership-subscriptions'),
   checkoutStatus: (sessionId) => api.get(`/member/gem/checkout-status/${sessionId}`),
   myTickets: (eventId) => api.get(`/member/gem/my-tickets/${eventId}`),
+  // Event microsites (routes/gem_microsite.py)
+  microsite: (host) => api.get('/public/gem/microsite', { params: { host } }),
+  micrositeApply: (d) => api.post('/public/gem/microsite/apply', d),
+  micrositeVerify: (token) => api.post('/public/gem/microsite/verify', { token }),
+  micrositeAccount: () => api.get('/member/gem/microsite/account'),
   // Phase-3 B7 formal-name confirmation gate (routes/gem_passes.py)
   formalName: () => api.get('/member/gem/formal-name'),
   confirmFormalName: (name) => api.post('/member/gem/formal-name', { formal_name: name }),
